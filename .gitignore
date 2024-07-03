@@ -1,0 +1,32 @@
+node_modules
+
+/.next
+/.cache
+/build
+/public/build
+.env
+.eslintcache
+
+# logs
+*.log
+
+# editors
+.history
+
+# tests
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# OS generated files
+.DS_STORE
+*/.DS_STORE
+
+# Jetbrains IDE
+.idea
+
+# Sentry Config File
+.sentryclirc
+
+# Sentry Config File
+.sentryclirc

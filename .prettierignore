@@ -1,0 +1,20 @@
+# Ignore build artifacts
+build
+.cache
+.next
+
+# ignore dependencies
+node_modules
+package-lock.json
+
+# ignore IDE files
+.history
+
+# ignore generated files
+public/mockServiceWorker.js
+public/entry.worker.js
+playwright-report
+test-results
+
+# trunk
+.trunk/

@@ -1,0 +1,41 @@
+{
+  "name": "shared-ui-elements",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": false,
+  "scripts": {
+    "lint": "npm run eslint && npm run prettier:check",
+    "eslint": "eslint .",
+    "prettier": "prettier --write .",
+    "prettier:check": "prettier --check ."
+  },
+  "keywords": [],
+  "author": "",
+  "engines": {
+    "node": "20.10.0",
+    "npm": "10.x.x"
+  },
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18",
+    "@mui/icons-material": "^5",
+    "@mui/material": "^5"
+  },
+  "devDependencies": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "eslint": "^8.27.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-vitest": "^0.0.53",
+    "prettier": "^3.1.0",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^3.12.4",
+    "typescript": "^5.2.2"
+  }
+}
