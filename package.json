@@ -6,8 +6,8 @@
   "keywords": [],
   "author": "VerifiedInc",
   "engines": {
-    "node": "20.10.0",
-    "npm": "10.x.x"
+    "node": ">=20.10.0",
+    "npm": ">=10.x.x"
   },
   "main": "index.js",
   "files": [

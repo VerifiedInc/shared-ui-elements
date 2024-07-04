@@ -66,26 +66,3 @@ jobs:
       #     token: ${{ secrets.GITHUB_TOKEN }}
       #     access: public
       #     registry: https://npm.pkg.github.com
-
-      # ref: https://github.com/marketplace/actions/delete-tag-and-release
-      - name: Delete the v tag
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          delete_release: true # default: false
-          tag_name: ${{ env.TAG_VERSION }} # tag name to delete
-          # repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # ref: https://github.com/marketplace/actions/gh-release?version=v0.1.14
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-          tag_name: ${{ env.RELEASE_VERSION }}
-          name: ${{ env.RELEASE_VERSION }}
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-          target_commitish: main
