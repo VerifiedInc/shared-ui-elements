@@ -76,8 +76,7 @@ jobs:
           delete_release: true # default: false
           tag_name: ${{ env.TAG_VERSION }} # tag name to delete
           # repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # ref: https://github.com/marketplace/actions/add-commit
       - name: Commit changes
