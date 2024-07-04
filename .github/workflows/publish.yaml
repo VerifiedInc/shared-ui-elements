@@ -2,7 +2,7 @@ name: deployment
 
 permissions:
   packages: write
-  contents: read
+  contents: write
 
 on:
   push:
@@ -70,14 +70,7 @@ jobs:
       #     access: public
       #     registry: https://npm.pkg.github.com
 
-      # ref: https://github.com/marketplace/actions/delete-tag-and-release
-      # - name: Delete the v tag
-      #   uses: dev-drprasad/delete-tag-and-release@v1.1
-      #   with:
-      #     delete_release: true # default: false
-      #     tag_name: ${{ env.TAG_VERSION }} # tag name to delete
-      #     # repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      # ref: https://cli.github.com/manual/gh_release_delete
       - name: Delete the v tag
         run: gh release delete ${{ env.TAG_VERSION }} --cleanup-tag
         env:
@@ -91,7 +84,7 @@ jobs:
           author_email: liam@verified.inc
           message: '[Release ${{ env.RELEASE_VERSION }}] ${{ env.TAG_MESSAGE }}'
           add: '.'
-          branch: main
+          new_branch: main
 
       # ref: https://github.com/marketplace/actions/gh-release
       - name: Create Release
