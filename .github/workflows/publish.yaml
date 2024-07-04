@@ -11,6 +11,7 @@ on:
 
 jobs:
   releaseJob:
+    permissions: write-all
     name: Update version & deploy
     runs-on: ubuntu-latest
     steps:
