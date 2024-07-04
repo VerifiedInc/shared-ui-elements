@@ -1,6 +1,7 @@
 name: deployment
 
-permissions: read-all
+permissions:
+  contents: write
 
 on:
   push:
@@ -47,7 +48,7 @@ jobs:
         run: npm ci
 
       # ref: https://github.community/t/auto-update-package-json-on-publishing/16894
-      - name: Update source code
+      - name: Update package version
         run: |
           npm --no-git-tag-version version ${{ env.RELEASE_VERSION }}
 
@@ -66,3 +67,36 @@ jobs:
       #     token: ${{ secrets.GITHUB_TOKEN }}
       #     access: public
       #     registry: https://npm.pkg.github.com
+
+      # ref: https://github.com/marketplace/actions/delete-tag-and-release
+      - name: Delete the v tag
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          delete_release: true # default: false
+          tag_name: ${{ env.TAG_VERSION }} # tag name to delete
+          # repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ref: https://github.com/marketplace/actions/add-commit
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: Verified Inc
+          author_email: liam@verified.inc
+          message: '[Release ${{ env.RELEASE_VERSION }}] ${{ env.TAG_MESSAGE }}'
+          add: '.'
+          branch: main
+
+      # ref: https://github.com/marketplace/actions/gh-release
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          tag_name: ${{ env.RELEASE_VERSION }}
+          name: ${{ env.RELEASE_VERSION }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          target_commitish: main
