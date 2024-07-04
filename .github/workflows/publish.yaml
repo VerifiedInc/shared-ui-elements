@@ -51,21 +51,21 @@ jobs:
         run: |
           npm --no-git-tag-version version ${{ env.RELEASE_VERSION }}
 
-      # # TODO: add NPM_TOKEN to repo secrets so can publish to npm
-      # # ref: https://github.com/marketplace/actions/npm-publish
-      # - name: NPM package publish
-      #   uses: JS-DevTools/npm-publish@v3
-      #   with:
-      #     token: ${{ secrets.NPM_TOKEN }}
-      #     access: public
-      #     registry: https://registry.npmjs.org/
-
-      - name: Github package publish
+      # ref: https://github.com/marketplace/actions/npm-publish
+      - name: NPM package publish
         uses: JS-DevTools/npm-publish@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.NPM_TOKEN }}
           access: public
-          registry: https://npm.pkg.github.com
+          registry: https://registry.npmjs.org/
+
+      # Can not publish to github package registry since Github org has not been migrated to verified.inc yet.
+      # - name: Github package publish
+      #   uses: JS-DevTools/npm-publish@v3
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     access: public
+      #     registry: https://npm.pkg.github.com
 
       # ref: https://github.com/marketplace/actions/delete-tag-and-release
       - name: Delete the v tag
