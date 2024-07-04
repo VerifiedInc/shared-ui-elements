@@ -56,9 +56,9 @@ jobs:
       - name: NPM package publish
         uses: JS-DevTools/npm-publish@v3
         with:
-          token: ${{ secrets.NPM_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           access: public
-          registry: https://registry.npmjs.org/
+          registry: https://npm.pkg.github.com
 
       # Can not publish to github package registry since Github org has not been migrated to verified.inc yet.
       # - name: Github package publish
