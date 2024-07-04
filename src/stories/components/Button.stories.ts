@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 
-import { Button, ButtonProps } from '../components/Button';
-
+import { Button } from '../../components/Button';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: 'Example/Button',
+  title: 'Components/Button',
   component: Button,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
@@ -18,11 +17,11 @@ const meta = {
   argTypes: {
     variant: {
       options: ['contained', 'outlined', 'text'],
-      control: {type: 'radio'}
+      control: { type: 'radio' },
     },
     color: {
       options: ['primary', 'secondary', 'warning', 'error', 'neutral'],
-      control: {type: 'radio'}
+      control: { type: 'radio' },
     },
   },
   // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args

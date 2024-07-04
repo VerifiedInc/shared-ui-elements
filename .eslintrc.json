@@ -18,8 +18,5 @@
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-empty-interface": "off"
   },
-  "ignorePatterns": [
-    "test",
-    "migrations"
-  ]
+  "ignorePatterns": ["test", "migrations"]
 }

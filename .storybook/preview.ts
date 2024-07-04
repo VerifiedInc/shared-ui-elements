@@ -1,6 +1,9 @@
 import type { Preview } from '@storybook/react';
 import { withThemeFromJSXProvider } from '@storybook/addon-themes';
-import { INITIAL_VIEWPORTS, MINIMAL_VIEWPORTS } from '@storybook/addon-viewport';
+import {
+  INITIAL_VIEWPORTS,
+  MINIMAL_VIEWPORTS,
+} from '@storybook/addon-viewport';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { theme } from '../src/styles/theme';
 
@@ -27,16 +30,16 @@ const preview: Preview = {
   },
 };
 
-
 export const decorators = [
   withThemeFromJSXProvider({
-  themes: {
-    light: theme({primaryFontFace: {style: {fontFamily: 'Lato' }}}),
-    dark: theme({primaryFontFace: {style: {fontFamily: 'Lato' }}}),
-  },
-  defaultTheme: 'light',
-  Provider: ThemeProvider,
-  GlobalStyles: CssBaseline,
-})];
+    themes: {
+      light: theme({ primaryFontFace: { style: { fontFamily: 'Lato' } } }),
+      dark: theme({ primaryFontFace: { style: { fontFamily: 'Lato' } } }),
+    },
+    defaultTheme: 'light',
+    Provider: ThemeProvider,
+    GlobalStyles: CssBaseline,
+  }),
+];
 
 export default preview;
