@@ -21,16 +21,15 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
-  "dependencies": {
+  "devDependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@fontsource/lato": "^5.0.21",
     "@fontsource/material-icons": "^5.0.18",
     "@mui/icons-material": "^5",
     "@mui/material": "^5",
-    "@storybook/addon-viewport": "^8.1.11"
-  },
-  "devDependencies": {
+    "@storybook/addon-viewport": "^8.1.11",
+    "@vitejs/plugin-react": "^4.3.1",
     "@chromatic-com/storybook": "^1.6.0",
     "@storybook/addon-essentials": "^8.1.11",
     "@storybook/addon-interactions": "^8.1.11",
