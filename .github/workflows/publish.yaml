@@ -1,7 +1,8 @@
 name: deployment
 
 permissions:
-  contents: write
+  packages: write
+  contents: read
 
 on:
   push:
