@@ -70,13 +70,17 @@ jobs:
       #     registry: https://npm.pkg.github.com
 
       # ref: https://github.com/marketplace/actions/delete-tag-and-release
+      # - name: Delete the v tag
+      #   uses: dev-drprasad/delete-tag-and-release@v1.1
+      #   with:
+      #     delete_release: true # default: false
+      #     tag_name: ${{ env.TAG_VERSION }} # tag name to delete
+      #     # repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Delete the v tag
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          delete_release: true # default: false
-          tag_name: ${{ env.TAG_VERSION }} # tag name to delete
-          # repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release delete ${{ env.TAG_VERSION }} --cleanup-tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ref: https://github.com/marketplace/actions/add-commit
       - name: Commit changes
