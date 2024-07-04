@@ -1,0 +1,17 @@
+version: 2.1
+
+orbs:
+  unumid: unumid/unumid-app-orb@2.2.3
+workflows:
+  lint-and-test:
+    jobs:
+      - unumid/lint-and-test:
+          context:
+            - Github-Packages
+          test_script_name: vitest
+          name: unumid/lint-and-test-branch
+          cache_version: v6
+          filters:
+            branches:
+              ignore:
+                - main
