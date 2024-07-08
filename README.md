@@ -16,7 +16,7 @@ This project was created to share the UI, agnostic logics and theme throughout t
    npm install
    ```
 
-3. Start your app
+3. Start Storybook
 
    ```
    npm run storybook # Runs storybook
