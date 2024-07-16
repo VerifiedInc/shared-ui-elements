@@ -80,8 +80,8 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: Verified Inc
-          author_email: liam@verified.inc
+          author_name: VerifiedIncMachine
+          author_email: devops@verified.inc
           message: '[Release ${{ env.RELEASE_VERSION }}] ${{ env.TAG_MESSAGE }}'
           add: '.'
           new_branch: main
