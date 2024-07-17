@@ -56,13 +56,13 @@ jobs:
       #   run: |
       #     npm --no-git-tag-version version ${{ env.RELEASE_VERSION }}
 
-      # ref: https://github.com/marketplace/actions/npm-publish
-      - name: NPM package publish
-        uses: JS-DevTools/npm-publish@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          access: public
-          registry: https://npm.pkg.github.com
+      # # ref: https://github.com/marketplace/actions/npm-publish
+      # - name: NPM package publish
+      #   uses: JS-DevTools/npm-publish@v3
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     access: public
+      #     registry: https://npm.pkg.github.com
 
       # Can not publish to github package registry since Github org has not been migrated to verified.inc yet.
       # - name: Github package publish
@@ -72,11 +72,11 @@ jobs:
       #     access: public
       #     registry: https://npm.pkg.github.com
 
-      # ref: https://cli.github.com/manual/gh_release_delete
-      - name: Delete the v tag
-        run: gh release delete ${{ env.TAG_VERSION }} --cleanup-tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # # ref: https://cli.github.com/manual/gh_release_delete
+      # - name: Delete the v tag
+      #   run: gh release delete ${{ env.TAG_VERSION }} --cleanup-tag
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # # ref: https://github.com/marketplace/actions/add-commit
       # - name: Commit changes
