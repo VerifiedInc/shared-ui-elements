@@ -95,7 +95,7 @@ jobs:
           git config --global user.email "devops@verified.inc"
           git add .
           git commit -m "Automated update of dependencies"
-          git push https://VerifiedIncMachine:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/your-org/your-repo.git HEAD:main
+          git push https://VerifiedIncMachine:${{ secrets.MACHINE_USER_PERSONAL_ACCESS_TOKEN }}@github.com/verifiedinc/shared-ui-elements.git HEAD:main
 
       # ref: https://github.com/marketplace/actions/gh-release
       - name: Create Release
