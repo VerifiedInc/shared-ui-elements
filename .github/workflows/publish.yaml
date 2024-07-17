@@ -8,8 +8,6 @@ on:
   push:
     tags:
       - 'v*.*.*'
-    branches:
-      - test-ci
 
 jobs:
   releaseJob:
@@ -22,26 +20,26 @@ jobs:
         with:
           fetch-depth: 0
 
-      # # ref: https://stackoverflow.com/questions/58177786/get-the-current-pushed-tag-in-github-actions
-      # - name: Set version env
-      #   run: |
-      #     echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-      #     echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      # ref: https://stackoverflow.com/questions/58177786/get-the-current-pushed-tag-in-github-actions
+      - name: Set version env
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+          echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      # # ref: https://stackoverflow.com/questions/65606498/how-to-access-github-tag-message-in-github-actions
-      # - name: Get and set tag message
-      #   run: |
-      #     git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      #     git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/*/}
-      #     echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/*/} | sed 's/[^ .,:[:alpha:][:digit:]]//g')" >> $GITHUB_ENV
+      # ref: https://stackoverflow.com/questions/65606498/how-to-access-github-tag-message-in-github-actions
+      - name: Get and set tag message
+        run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/*/}
+          echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/*/} | sed 's/[^ .,:[:alpha:][:digit:]]//g')" >> $GITHUB_ENV
 
-      # - name: Test env
-      #   run: |
-      #     echo $RELEASE_VERSION
-      #     echo ${{ env.RELEASE_VERSION }}
-      #     echo $TAG_VERSION
-      #     echo ${{ env.TAG_VERSION }}
-      #     echo ${{ env.TAG_MESSAGE }}
+      - name: Test env
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
+          echo $TAG_VERSION
+          echo ${{ env.TAG_VERSION }}
+          echo ${{ env.TAG_MESSAGE }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -54,51 +52,23 @@ jobs:
       # ref: https://github.community/t/auto-update-package-json-on-publishing/16894
       - name: Update package version
         run: |
-          npm --no-git-tag-version version 0.1.10
+          npm --no-git-tag-version version ${{ env.RELEASE_VERSION }}
 
-      # # ref: https://github.com/marketplace/actions/npm-publish
-      # - name: NPM package publish
-      #   uses: JS-DevTools/npm-publish@v3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     access: public
-      #     registry: https://npm.pkg.github.com
+      # ref: https://github.com/marketplace/actions/npm-publish
+      - name: Github package publish
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          access: public
+          registry: https://npm.pkg.github.com
 
-      # Can not publish to github package registry since Github org has not been migrated to verified.inc yet.
-      # - name: Github package publish
-      #   uses: JS-DevTools/npm-publish@v3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     access: public
-      #     registry: https://npm.pkg.github.com
+      # ref: https://cli.github.com/manual/gh_release_delete
+      - name: Delete the v tag
+        run: gh release delete ${{ env.TAG_VERSION }} --cleanup-tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # # ref: https://cli.github.com/manual/gh_release_delete
-      # - name: Delete the v tag
-      #   run: gh release delete ${{ env.TAG_VERSION }} --cleanup-tag
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # # ref: https://github.com/marketplace/actions/add-commit
-      # - name: Commit changes
-      #   uses: EndBug/add-and-commit@v9
-      #   with:
-      #     author_name: VerifiedIncMachine
-      #     author_email: devops@verified.inc
-      #     committer_name: VerifiedIncMachine
-      #     committer_email: devops@verified.inc
-      #     default_author: github_actions
-      #     message: '[Release ${{ env.RELEASE_VERSION }}] ${{ env.TAG_MESSAGE }}'
-      #     add: '.'
-      #     new_branch: main
-
-      # - name: Commit changes manual
-      #   run: |
-      #     git config --global user.name "VerifiedIncMachine"
-      #     git config --global user.email "devops@verified.inc"
-      #     git add .
-      #     git commit -m "Automated update of dependencies"
-      #     git push https://VerifiedIncMachine:${{ secrets.MACHINE_USER_PERSONAL_ACCESS_TOKEN }}@github.com/verifiedinc/shared-ui-elements.git HEAD:main
-
+      # ref: https://github.com/marketplace/actions/commit-with-deploy-key
       - name: Commit with deploy key
         uses: leigholiver/commit-with-deploy-key@v1.0.4
         with:
@@ -109,15 +79,15 @@ jobs:
           git_username: VerifiedIncMachine
           git_email: devops@verified.inc
 
-      # # ref: https://github.com/marketplace/actions/gh-release
-      # - name: Create Release
-      #   uses: softprops/action-gh-release@v2
-      #   if: startsWith(github.ref, 'refs/tags/')
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      #     tag_name: ${{ env.RELEASE_VERSION }}
-      #     name: ${{ env.RELEASE_VERSION }}
-      #     generate_release_notes: true
-      #     draft: false
-      #     prerelease: false
-      #     target_commitish: main
+      # ref: https://github.com/marketplace/actions/gh-release
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          tag_name: ${{ env.RELEASE_VERSION }}
+          name: ${{ env.RELEASE_VERSION }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          target_commitish: main
