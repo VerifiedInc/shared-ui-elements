@@ -82,6 +82,8 @@ jobs:
         with:
           author_name: VerifiedIncMachine
           author_email: devops@verified.inc
+          committer_name: VerifiedIncMachine
+          committer_email: devops@verified.inc
           message: '[Release ${{ env.RELEASE_VERSION }}] ${{ env.TAG_MESSAGE }}'
           add: '.'
           new_branch: main
