@@ -55,20 +55,12 @@ jobs:
           npm --no-git-tag-version version ${{ env.RELEASE_VERSION }}
 
       # ref: https://github.com/marketplace/actions/npm-publish
-      - name: NPM package publish
+      - name: Github package publish
         uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           access: public
           registry: https://npm.pkg.github.com
-
-      # Can not publish to github package registry since Github org has not been migrated to verified.inc yet.
-      # - name: Github package publish
-      #   uses: JS-DevTools/npm-publish@v3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     access: public
-      #     registry: https://npm.pkg.github.com
 
       # ref: https://cli.github.com/manual/gh_release_delete
       - name: Delete the v tag
@@ -76,18 +68,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ref: https://github.com/marketplace/actions/add-commit
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v9
+      # ref: https://github.com/marketplace/actions/commit-with-deploy-key
+      - name: Commit with deploy key
+        uses: leigholiver/commit-with-deploy-key@v1.0.4
         with:
-          author_name: VerifiedIncMachine
-          author_email: devops@verified.inc
-          committer_name: VerifiedIncMachine
-          committer_email: devops@verified.inc
-          default_author: github_actions
-          message: '[Release ${{ env.RELEASE_VERSION }}] ${{ env.TAG_MESSAGE }}'
-          add: '.'
-          new_branch: main
+          source: .
+          commit_message: '[Release ${{ env.RELEASE_VERSION }}] ${{ env.TAG_MESSAGE }}'
+          destination_repo: verifiedinc/shared-ui-elements
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          git_username: VerifiedIncMachine
+          git_email: devops@verified.inc
 
       # ref: https://github.com/marketplace/actions/gh-release
       - name: Create Release
