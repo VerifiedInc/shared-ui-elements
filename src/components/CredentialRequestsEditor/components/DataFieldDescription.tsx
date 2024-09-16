@@ -27,7 +27,7 @@ export function DataFieldDescription(): React.JSX.Element {
     }, 500),
   ).current;
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: any): void => {
     setValue(e.target.value);
     debounceChange(e.target.value);
   };

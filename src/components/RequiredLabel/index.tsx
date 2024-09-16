@@ -1,7 +1,9 @@
 import { type PropsWithChildren } from 'react';
 import { Box } from '@mui/material';
 
-export function RequiredLabel(props: Readonly<PropsWithChildren>) {
+export function RequiredLabel(
+  props: Readonly<PropsWithChildren>,
+): React.JSX.Element {
   return (
     <span>
       {props.children}

@@ -3,7 +3,7 @@
 const schemaNamePattern = /([A-Z][a-z0-9]+)/gm;
 
 // Format the camel cased text to a human-readable.
-export const prettyField = (field: string) =>
+export const prettyField = (field: string): string =>
   field
     .split(schemaNamePattern)
     .map((word) => {
