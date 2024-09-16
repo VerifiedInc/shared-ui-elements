@@ -12,7 +12,7 @@ export function DataFieldDescription(): React.JSX.Element {
   const field = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.description` as any,
   });
-  const [value, setValue] = useState(field.field.value || '');
+  const [value, setValue] = useState(field.field.value ?? '');
 
   const debounceChange = useRef(
     debounce((value: string) => {
