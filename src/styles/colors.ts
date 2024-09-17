@@ -1,5 +1,7 @@
 import { colors } from '@mui/material';
 
+export const textDisabled = 'rgba(0,0,0,0.26)';
+
 export const white = '#ffffff';
 export const black = '#000000';
 
