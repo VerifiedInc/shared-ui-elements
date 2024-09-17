@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useController } from 'react-hook-form';
 import { Autocomplete, TextField } from '@mui/material';
-import { type CredentialRequestDto } from '@verifiedinc/core-types';
 
 import { prettyField } from '../utils/prettyField';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
+import { type CredentialRequestDto } from '../types/credentialRequestDto';
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';

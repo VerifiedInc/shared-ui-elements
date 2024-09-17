@@ -17,13 +17,13 @@ import {
   Delete,
   Menu,
 } from '@mui/icons-material';
-import { MandatoryEnum } from '@verifiedinc/core-types';
 import { useDrag, useDrop } from 'react-dnd';
 import { useFormContext } from 'react-hook-form';
 
 import { prettyField } from '../utils/prettyField';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
+import { MandatoryEnum } from '../types/mandatoryEnum';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { RequiredLabel } from './RequiredLabel';
 import { DataFieldOptionType } from './DataFieldOptionType';
