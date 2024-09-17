@@ -10,6 +10,7 @@ import {
 } from './types/form';
 
 export interface CredentialRequestsEditorProps {
+  addButtonText?: string;
   credentialRequests: CredentialRequestsWithNew[];
   schemas: Record<string, any>;
   children: ReactNode;
@@ -17,6 +18,7 @@ export interface CredentialRequestsEditorProps {
 }
 
 export interface CredentialRequestsEditorContext {
+  addButtonText?: string;
   schemas: Record<string, any>;
 }
 
@@ -59,7 +61,9 @@ export function CredentialRequestsEditorProvider(
 
   return (
     <FormProvider {...form}>
-      <Context.Provider value={{ schemas: props.schemas }}>
+      <Context.Provider
+        value={{ addButtonText: props.addButtonText, schemas: props.schemas }}
+      >
         {props.children}
       </Context.Provider>
     </FormProvider>
