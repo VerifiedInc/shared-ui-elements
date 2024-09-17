@@ -36,6 +36,9 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
       fontFamily: primaryFontFace.style.fontFamily,
     },
     palette: {
+      text: {
+        disabled: colors.textDisabled,
+      },
       primary: {
         main: colors.green,
         light: colors.lightGreen,
