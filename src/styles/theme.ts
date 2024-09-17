@@ -26,9 +26,9 @@ declare module '@mui/material' {
   }
 }
 
-type ThemeOptions = {
+interface ThemeOptions {
   primaryFontFace: Record<string, any>;
-};
+}
 
 export const theme = ({ primaryFontFace }: ThemeOptions) =>
   createTheme({
@@ -110,10 +110,87 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
           },
         },
       },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            '&.Mui-disabled': {
+              svg: {
+                opacity: 0.4,
+              },
+            },
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: {
             fontWeight: 800,
+          },
+        },
+      },
+      MuiDialog: {
+        defaultProps: {
+          maxWidth: 'xs',
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            fontSize: 20,
+            fontWeight: 800,
+            textAlign: 'center',
+          },
+        },
+      },
+      MuiDialogContent: {
+        styleOverrides: {
+          root: {
+            paddingTop: '8px!important',
+            paddingBottom: 8,
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            paddingLeft: 24,
+            paddingRight: 24,
+            paddingBottom: 24,
+            justifyContent: 'space-between',
+            '& .MuiButton-root': {
+              marginTop: 0,
+            },
+          },
+        },
+      },
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            maxWidth: '339px',
+          },
+        },
+      },
+      MuiRadio: {
+        styleOverrides: {
+          root: {
+            '&.Mui-disabled': {
+              color: `${colors.grey} !important`,
+            },
+          },
+        },
+      },
+      MuiTableRow: {
+        styleOverrides: {
+          root: {
+            '& th.MuiTableCell-root': {
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: 1,
+            },
+            '& td.MuiTableCell-root': {
+              fontSize: 20,
+              fontWeight: 300,
+            },
           },
         },
       },
