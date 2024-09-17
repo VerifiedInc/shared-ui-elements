@@ -39,6 +39,11 @@ const meta = {
       description:
         'Schemas are being used to populate the field types, also it maps its children types to the parent.',
     },
+    addButtonText: {
+      type: 'string',
+      description:
+        'This props is used to set the text of the button that adds a new credential request.',
+    },
   },
 } satisfies Meta<typeof CredentialRequestsEditor>;
 

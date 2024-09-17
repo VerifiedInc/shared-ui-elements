@@ -9,7 +9,6 @@ import { Button } from '../../Button';
 
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
 import { CredentialRequestFieldProvider } from '../contexts/CredentialRequestFieldContext';
-import { SectionAccordion } from './SectionAccordion';
 import { DataFieldAccordion } from './DataFieldAccordion';
 
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
@@ -70,7 +69,7 @@ function CredentialRequestField({
           fullWidth
           sx={{ width: '100%' }}
         >
-          Add Data Field
+          {customConfig.addButtonText ?? 'Add Credential Request'}
         </Button>
       )}
     </>
@@ -79,21 +78,10 @@ function CredentialRequestField({
 
 export function CredentialRequestsField(): React.JSX.Element {
   return (
-    <SectionAccordion
-      title='Data Fields'
-      description='What data your brand will ask the user to share'
-      tip={
-        <>
-          <pre>POST /1-click</pre>
-          <pre>{`{\n  credentialRequests?: CredentialRequest[]\n}`}</pre>
-        </>
-      }
-    >
-      <DndProvider backend={HTML5Backend}>
-        <Stack spacing={2}>
-          <CredentialRequestField />
-        </Stack>
-      </DndProvider>
-    </SectionAccordion>
+    <DndProvider backend={HTML5Backend}>
+      <Stack spacing={2}>
+        <CredentialRequestField />
+      </Stack>
+    </DndProvider>
   );
 }
