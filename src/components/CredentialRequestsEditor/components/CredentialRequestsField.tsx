@@ -5,9 +5,10 @@ import { useFieldArray, useFormContext } from 'react-hook-form';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
+import { Button } from '../../Button';
+
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
 import { CredentialRequestFieldProvider } from '../contexts/CredentialRequestFieldContext';
-import { OriginalButton } from './OriginalButton';
 import { SectionAccordion } from './SectionAccordion';
 import { DataFieldAccordion } from './DataFieldAccordion';
 
@@ -53,7 +54,7 @@ function CredentialRequestField({
         );
       })}
       {path === 'credentialRequests' && (
-        <OriginalButton
+        <Button
           type='button'
           onClick={() => {
             if (!customConfig) return;
@@ -63,14 +64,14 @@ function CredentialRequestField({
             };
             fieldArray.append(newValue);
           }}
-          size='small'
+          size='large'
           variant='outlined'
           startIcon={<Add />}
           fullWidth
           sx={{ width: '100%' }}
         >
           Add Data Field
-        </OriginalButton>
+        </Button>
       )}
     </>
   );
