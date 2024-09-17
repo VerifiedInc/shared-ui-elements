@@ -80,7 +80,7 @@ export function RadioOption(props: RadioOptionProps): React.JSX.Element {
             label='Default'
             color='info'
             variant='outlined'
-            sx={{ fontFamily: 'Lato', fontWeight: 700 }}
+            sx={{ fontWeight: 700 }}
           />
         )}
       </Box>
