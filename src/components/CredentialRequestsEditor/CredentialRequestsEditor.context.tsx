@@ -52,6 +52,7 @@ export function CredentialRequestsEditorProvider(
         props.onChange(
           omitProperties(credentialRequestsData, [
             'isNew',
+            'id',
           ]) as CredentialRequests[],
         );
       }
