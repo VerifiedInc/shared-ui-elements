@@ -20,15 +20,15 @@ import {
 import { useDrag, useDrop } from 'react-dnd';
 import { useController, useFormContext } from 'react-hook-form';
 
-import { prettyField } from '../utils/prettyField';
+import { RequiredLabel } from '../../RequiredLabel';
 
+import { prettyField } from '../utils/prettyField';
 import {
   type CredentialRequestsEditorForm,
   type CredentialRequestsWithNew,
 } from '../types/form';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
-import { RequiredLabel } from './RequiredLabel';
 import { DataFieldOptionType } from './DataFieldOptionType';
 import { DataFieldDescription } from './DataFieldDescription';
 import { DataFieldMandatory } from './DataFieldMandatory';
