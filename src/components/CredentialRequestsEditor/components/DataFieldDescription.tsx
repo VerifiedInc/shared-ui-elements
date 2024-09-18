@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useController } from 'react-hook-form';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import { TextField } from '@mui/material';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
@@ -9,9 +9,6 @@ import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldDescription(): React.JSX.Element {
   const credentialRequestField = useCredentialRequestField();
-  const field = useController<CredentialRequestsEditorForm>({
-    name: `${credentialRequestField?.path as any}` as any,
-  });
   const description = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.description` as any,
   });
@@ -21,12 +18,6 @@ export function DataFieldDescription(): React.JSX.Element {
     debounce((value: string) => {
       // Update form state
       description.field.onChange({ target: { value } });
-
-      // Update array state
-      credentialRequestField?.fieldArray.update(credentialRequestField?.index, {
-        ...(field as any).field.value,
-        description: value,
-      });
     }, 500),
   ).current;
 

@@ -8,9 +8,6 @@ import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldUserInput(): React.JSX.Element {
   const credentialRequestField = useCredentialRequestField();
-  const field = useController<CredentialRequestsEditorForm>({
-    name: `${credentialRequestField?.path as any}` as any,
-  });
   const allowUserInput = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.allowUserInput` as any,
   });
@@ -27,26 +24,17 @@ export function DataFieldUserInput(): React.JSX.Element {
       }
     >
       <RadioGroup
-        value={credentialRequestField?.field.allowUserInput}
+        value={allowUserInput.field.value}
         onChange={(_, value) => {
           // Update form state
           allowUserInput.field.onChange({
             target: { value: value === 'true' },
           });
-
-          // Update array state
-          credentialRequestField?.fieldArray.update(
-            credentialRequestField?.index,
-            {
-              ...(field as any).field.value,
-              allowUserInput: value === 'true',
-            },
-          );
         }}
       >
         <RadioOption
           isDefault
-          value
+          value={true}
           title='Yes'
           description='The user can add or edit data for the user to share'
           tip='true'
