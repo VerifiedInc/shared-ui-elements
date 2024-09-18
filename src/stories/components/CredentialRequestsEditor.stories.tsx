@@ -60,10 +60,10 @@ export const Default: Story = {
 
       const credentialRequests = [
         buildDataFieldValue('FullNameCredential', schemas),
-        // buildDataFieldValue('PhoneCredential', schemas),
-        // buildDataFieldValue('AddressCredential', schemas),
-        // buildDataFieldValue('BirthDateCredential', schemas),
-        // buildDataFieldValue('SsnCredential', schemas),
+        buildDataFieldValue('PhoneCredential', schemas),
+        buildDataFieldValue('AddressCredential', schemas),
+        buildDataFieldValue('BirthDateCredential', schemas),
+        buildDataFieldValue('SsnCredential', schemas),
       ];
 
       return {
