@@ -18,14 +18,17 @@ import {
   Menu,
 } from '@mui/icons-material';
 import { useDrag, useDrop } from 'react-dnd';
-import { useFormContext } from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
+
+import { RequiredLabel } from '../../RequiredLabel';
 
 import { prettyField } from '../utils/prettyField';
-
-import { type CredentialRequestsEditorForm } from '../types/form';
+import {
+  type CredentialRequestsEditorForm,
+  type CredentialRequestsWithNew,
+} from '../types/form';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
-import { RequiredLabel } from './RequiredLabel';
 import { DataFieldOptionType } from './DataFieldOptionType';
 import { DataFieldDescription } from './DataFieldDescription';
 import { DataFieldMandatory } from './DataFieldMandatory';
@@ -42,9 +45,12 @@ export function DataFieldAccordion(
   const { defaultExpanded } = props;
   const credentialRequestField = useCredentialRequestField();
   const formContext = useFormContext<CredentialRequestsEditorForm>();
+  const field = useController<CredentialRequestsEditorForm>({
+    name: `${credentialRequestField?.path as any}` as any,
+  });
+  const credentialRequest = field.field.value as CredentialRequestsWithNew;
   const credentialRequests = formContext.watch('credentialRequests');
   const isNew: boolean = (credentialRequestField?.field as any).isNew;
-
   const [expanded, setOpen] = useState((defaultExpanded ?? isNew) || false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -153,7 +159,7 @@ export function DataFieldAccordion(
 
     return (
       <Typography variant='body1' sx={typographyStyle}>
-        {credentialRequestField?.field.mandatory !== MandatoryEnum.NO ? (
+        {credentialRequest.mandatory !== MandatoryEnum.NO ? (
           <RequiredLabel>{type}</RequiredLabel>
         ) : (
           type
@@ -163,7 +169,7 @@ export function DataFieldAccordion(
   };
 
   const renderUserInput = (): React.JSX.Element => {
-    const allowUserInput = credentialRequestField?.field?.allowUserInput;
+    const allowUserInput = credentialRequest.allowUserInput;
 
     return (
       <Stack direction='row' alignItems='center' spacing={0.5} pl={5.25}>

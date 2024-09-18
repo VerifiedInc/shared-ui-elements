@@ -48,7 +48,7 @@ export function CredentialRequestsEditorProvider(
     const debouncedWatchObserver = debounce<
       WatchObserver<CredentialRequestsEditorForm>
     >((data, { name, type }) => {
-      console.log(data.credentialRequests);
+      console.log(JSON.stringify(data.credentialRequests));
       if (data.credentialRequests) {
         const credentialRequestsData = data.credentialRequests.filter(
           (credentialRequest) => !!credentialRequest?.type,

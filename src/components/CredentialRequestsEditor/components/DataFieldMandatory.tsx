@@ -9,7 +9,7 @@ import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldMandatory(): React.JSX.Element {
   const credentialRequestField = useCredentialRequestField();
-  const field = useController<CredentialRequestsEditorForm>({
+  const mandatory = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.mandatory` as any,
   });
 
@@ -25,21 +25,12 @@ export function DataFieldMandatory(): React.JSX.Element {
       }
     >
       <RadioGroup
-        value={field.field.value}
+        value={mandatory.field.value}
         onChange={(e) => {
           const value = e.target.value as MandatoryEnum;
 
           // Update form state
-          field.field.onChange({ target: { value } });
-
-          // Update array state
-          credentialRequestField?.fieldArray.update(
-            credentialRequestField?.index,
-            {
-              ...credentialRequestField.field,
-              mandatory: value,
-            },
-          );
+          mandatory.field.onChange({ target: { value } });
         }}
       >
         <RadioOption
