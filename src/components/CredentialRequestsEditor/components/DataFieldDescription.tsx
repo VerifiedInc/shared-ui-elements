@@ -10,18 +10,21 @@ import { DataFieldSection } from './DataFieldSection';
 export function DataFieldDescription(): React.JSX.Element {
   const credentialRequestField = useCredentialRequestField();
   const field = useController<CredentialRequestsEditorForm>({
+    name: `${credentialRequestField?.path as any}` as any,
+  });
+  const description = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.description` as any,
   });
-  const [value, setValue] = useState(field.field.value ?? '');
+  const [value, setValue] = useState(description.field.value ?? '');
 
   const debounceChange = useRef(
     debounce((value: string) => {
       // Update form state
-      field.field.onChange({ target: { value } });
+      description.field.onChange({ target: { value } });
 
       // Update array state
       credentialRequestField?.fieldArray.update(credentialRequestField?.index, {
-        ...credentialRequestField.field,
+        ...(field as any).field.value,
         description: value,
       });
     }, 500),
@@ -44,12 +47,13 @@ export function DataFieldDescription(): React.JSX.Element {
       }
     >
       <TextField
-        {...field.field}
+        {...description.field}
         value={value}
         onChange={handleChange}
-        error={!!field.fieldState.error}
+        error={!!description.fieldState.error}
         helperText={
-          field.fieldState.error?.message ?? 'Optional — defaults to empty'
+          description.fieldState.error?.message ??
+          'Optional — defaults to empty'
         }
         label='Description'
         color='success'

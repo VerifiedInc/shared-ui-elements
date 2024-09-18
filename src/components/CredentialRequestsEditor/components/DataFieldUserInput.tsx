@@ -9,6 +9,9 @@ import { DataFieldSection } from './DataFieldSection';
 export function DataFieldUserInput(): React.JSX.Element {
   const credentialRequestField = useCredentialRequestField();
   const field = useController<CredentialRequestsEditorForm>({
+    name: `${credentialRequestField?.path as any}` as any,
+  });
+  const allowUserInput = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.allowUserInput` as any,
   });
 
@@ -27,13 +30,15 @@ export function DataFieldUserInput(): React.JSX.Element {
         value={credentialRequestField?.field.allowUserInput}
         onChange={(_, value) => {
           // Update form state
-          field.field.onChange({ target: { value: value === 'true' } });
+          allowUserInput.field.onChange({
+            target: { value: value === 'true' },
+          });
 
           // Update array state
           credentialRequestField?.fieldArray.update(
             credentialRequestField?.index,
             {
-              ...credentialRequestField.field,
+              ...(field as any).field.value,
               allowUserInput: value === 'true',
             },
           );
