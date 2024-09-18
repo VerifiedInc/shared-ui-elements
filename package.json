@@ -24,10 +24,11 @@
   ],
   "scripts": {
     "vitest": "vitest",
-    "lint": "npm run eslint && npm run prettier:check",
+    "lint": "npm run eslint && npm run prettier:check && npm run typecheck",
     "eslint": "eslint .",
     "prettier": "prettier --write .",
     "prettier:check": "prettier --check .",
+    "typecheck": "tsc -b",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },

@@ -6,8 +6,8 @@ import {
   Stack,
   type SxProps,
   Typography,
+  Box,
 } from '@mui/material';
-import { Box } from '@mui/system';
 
 import { Tip } from '../../Tip';
 
@@ -25,17 +25,17 @@ export function RadioOption(props: RadioOptionProps): React.JSX.Element {
       direction='row'
       justifyContent='space-between'
       alignItems='center'
-      sx={{ mb: 1, ...sx }}
+      sx={{ mb: 1, ...(sx as any) }}
     >
       <Stack sx={{ alignItems: 'flex-start' }}>
         <Stack direction='row' spacing={1}>
           <Radio
-            {...radioProps}
+            {...(radioProps as any)}
             sx={{
               mt: '1px',
               width: 34,
               height: 34,
-              ...radioProps.sx,
+              ...sx,
               '&.Mui-checked': {
                 color: '#0dbc3d',
               },
