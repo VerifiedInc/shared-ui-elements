@@ -18,6 +18,7 @@ type CredentialRequestFieldContext = PropsWithChildren & {
   >;
   index: number;
   level: number;
+  onAllFieldsDelete: () => void;
 };
 
 const Context = createContext<CredentialRequestFieldContext | null>(null);

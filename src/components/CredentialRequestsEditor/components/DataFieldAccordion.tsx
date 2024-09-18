@@ -131,6 +131,14 @@ export function DataFieldAccordion(
   const handleRemove = (): void => {
     if (!credentialRequestField) return;
     setModalOpen(false);
+
+    // Delete parent when the last field was removed from the stack of form fields.
+    // The validation should be against less or equal than 1 because is against a previous state check.
+    if (credentialRequestField.fieldArray.fields.length <= 1) {
+      credentialRequestField.onAllFieldsDelete();
+      return;
+    }
+
     credentialRequestField.fieldArray.remove(credentialRequestField.index);
   };
 

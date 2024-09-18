@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useContext, useEffect } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, type WatchObserver } from 'react-hook-form';
+import debounce from 'lodash/debounce';
 
 import { omitProperties } from '../../utils/omitProperty';
 
@@ -43,8 +44,12 @@ export function CredentialRequestsEditorProvider(
 
   // Listen to credentialRequests changes and call onChange event
   useEffect(() => {
-    const subscription = form.watch((data, { name, type }) => {
-      if (name === 'credentialRequests' && data.credentialRequests) {
+    // Debouncing the watch observer to prevent multiple calls in a short period of time since it may dispatch child object change plus the property change
+    const debouncedWatchObserver = debounce<
+      WatchObserver<CredentialRequestsEditorForm>
+    >((data, { name, type }) => {
+      console.log(data.credentialRequests);
+      if (data.credentialRequests) {
         const credentialRequestsData = data.credentialRequests.filter(
           (credentialRequest) => !!credentialRequest?.type,
         );
@@ -56,7 +61,8 @@ export function CredentialRequestsEditorProvider(
           ]) as CredentialRequests[],
         );
       }
-    });
+    }, 100);
+    const subscription = form.watch(debouncedWatchObserver);
     return subscription.unsubscribe;
   }, [form.watch]);
 
