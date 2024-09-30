@@ -24,7 +24,7 @@ export function DataFieldMulti(): React.JSX.Element {
       }
     >
       <RadioGroup
-        value={multi.field.value}
+        value={multi.field.value || false}
         onChange={(_, value) => {
           // Update form state
           multi.field.onChange({
