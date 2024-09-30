@@ -47,6 +47,7 @@ export function buildDataFieldValue(
       mandatory: MandatoryEnum.NO,
       description: '',
       allowUserInput: true,
+      multi: false,
       children: extractTypes(selectedSchema).map((item) =>
         buildDataFieldValue(item, schema),
       ),
@@ -58,5 +59,6 @@ export function buildDataFieldValue(
     mandatory: MandatoryEnum.NO,
     description: '',
     allowUserInput: true,
+    multi: false,
   };
 }
