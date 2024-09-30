@@ -34,6 +34,7 @@ import { DataFieldDescription } from './DataFieldDescription';
 import { DataFieldMandatory } from './DataFieldMandatory';
 import { DataFieldUserInput } from './DataFieldUserInput';
 import { DataFieldDeleteModal } from './DataFieldDeleteModal';
+import { DataFieldMulti } from './DataFieldMulti';
 
 interface DataFieldAccordionProps {
   defaultExpanded?: boolean;
@@ -317,6 +318,7 @@ export function DataFieldAccordion(
                   <DataFieldDescription />
                   <DataFieldMandatory />
                   <DataFieldUserInput />
+                  <DataFieldMulti />
                 </Stack>
               )}
             </AccordionDetails>
