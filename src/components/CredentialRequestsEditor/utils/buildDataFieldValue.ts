@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { type CompositeCredentialSchema } from '../types/compositeCredentialSchema';
-import { type CredentialRequestDto } from '../types/credentialRequestDto';
+import { CredentialRequests } from '../types/form';
 import { type CredentialSchemaDto } from '../types/credentialSchemasDto';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 
@@ -37,7 +37,7 @@ function extractTypes(
 export function buildDataFieldValue(
   type: string,
   schema: CredentialSchemaDto['schemas'],
-): CredentialRequestDto {
+): CredentialRequests {
   const selectedSchema = schema[type];
   const isComposedSchema = isComposed(selectedSchema);
 
