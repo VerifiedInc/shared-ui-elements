@@ -6,11 +6,13 @@ import { useCredentialRequestField } from '../contexts/CredentialRequestFieldCon
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
-export function DataFieldMulti(): React.JSX.Element {
+export function DataFieldMulti(): React.JSX.Element | null {
   const credentialRequestField = useCredentialRequestField();
   const multi = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.multi` as any,
   });
+
+  if ((credentialRequestField?.level || 0) > 0) return null;
 
   return (
     <DataFieldSection
