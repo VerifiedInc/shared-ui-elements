@@ -7,6 +7,7 @@ export interface CredentialRequests {
   mandatory?: MandatoryEnum;
   description?: string;
   allowUserInput?: boolean;
+  multi?: boolean;
   children?: CredentialRequests[];
 }
 
@@ -17,6 +18,7 @@ export interface CredentialRequestsWithNew {
   mandatory?: MandatoryEnum;
   description?: string;
   allowUserInput?: boolean;
+  multi?: boolean;
   children?: CredentialRequestsWithNew[];
   isNew?: boolean;
 }

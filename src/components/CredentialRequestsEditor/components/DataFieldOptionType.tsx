@@ -4,8 +4,10 @@ import { Autocomplete, TextField } from '@mui/material';
 
 import { prettyField } from '../utils/prettyField';
 
-import { type CredentialRequestsEditorForm } from '../types/form';
-import { type CredentialRequestDto } from '../types/credentialRequestDto';
+import {
+  CredentialRequests,
+  type CredentialRequestsEditorForm,
+} from '../types/form';
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
@@ -32,7 +34,7 @@ export function DataFieldOptionType(): React.JSX.Element {
       .sort((a, b) => (a.label < b.label ? -1 : 1));
   }, [schemas]);
   const selectedValue = useMemo(() => {
-    const type = (field.field?.value as CredentialRequestDto)?.type;
+    const type = (field.field?.value as CredentialRequests)?.type;
     return schemaValues?.find((value) => value.id === type);
   }, [field, schemaValues]);
 
