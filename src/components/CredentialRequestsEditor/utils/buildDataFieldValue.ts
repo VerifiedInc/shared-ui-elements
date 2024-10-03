@@ -59,6 +59,7 @@ export function buildDataFieldValue(
     mandatory: MandatoryEnum.NO,
     description: '',
     allowUserInput: true,
-    multi: false,
+    // We want to default to true if is email credential.
+    multi: type === 'EmailCredential',
   };
 }
