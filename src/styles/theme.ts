@@ -73,7 +73,7 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
         main: colors.blue,
         light: colors.lightBlue,
         dark: colors.darkBlue,
-        contrastText: colors.white,
+        contrastText: colors.infoContrast,
       },
       neutral: {
         main: colors.grey,
@@ -170,6 +170,14 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
         styleOverrides: {
           root: {
             maxWidth: '339px',
+          },
+          action: {
+            padding: '8px 0',
+            marginRight: 0,
+            alignItems: 'center',
+            '& button, & a': {
+              lineHeight: '0',
+            },
           },
         },
       },
