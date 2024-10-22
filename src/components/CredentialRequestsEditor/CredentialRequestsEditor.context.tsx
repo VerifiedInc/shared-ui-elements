@@ -10,17 +10,25 @@ import {
   type CredentialRequestsWithNew,
 } from './types/form';
 
+export interface CredentialRequestsEditorFeatures {
+  multi?: {
+    disabled?: boolean;
+  };
+}
+
 export interface CredentialRequestsEditorProps {
   addButtonText?: string;
   credentialRequests: CredentialRequestsWithNew[];
   schemas: Record<string, any>;
   children: ReactNode;
   onChange: (credentialRequests: CredentialRequests[]) => void;
+  features?: CredentialRequestsEditorFeatures;
 }
 
 export interface CredentialRequestsEditorContext {
   addButtonText?: string;
   schemas: Record<string, any>;
+  features?: CredentialRequestsEditorFeatures;
 }
 
 const Context = createContext<CredentialRequestsEditorContext | null>(null);
@@ -68,7 +76,11 @@ export function CredentialRequestsEditorProvider(
   return (
     <FormProvider {...form}>
       <Context.Provider
-        value={{ addButtonText: props.addButtonText, schemas: props.schemas }}
+        value={{
+          addButtonText: props.addButtonText,
+          schemas: props.schemas,
+          features: props.features,
+        }}
       >
         {props.children}
       </Context.Provider>

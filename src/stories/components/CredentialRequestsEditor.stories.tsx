@@ -44,6 +44,10 @@ const meta = {
       description:
         'This props is used to set the text of the button that adds a new credential request.',
     },
+    features: {
+      control: 'object',
+      description: 'This props is used to enable or disable features.',
+    },
   },
 } satisfies Meta<typeof CredentialRequestsEditor>;
 
@@ -76,5 +80,10 @@ export const Default: Story = {
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,
+    features: {
+      multi: {
+        disabled: false,
+      },
+    },
   },
 };

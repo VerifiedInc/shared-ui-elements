@@ -2,11 +2,15 @@ import { RadioGroup } from '@mui/material';
 import { useController } from 'react-hook-form';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
+import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldMulti(): React.JSX.Element | null {
+  const { features } = useCredentialRequestsEditor();
+  const isFeatureDisabled = features?.multi?.disabled === true;
+
   const credentialRequestField = useCredentialRequestField();
   const multi = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.multi` as any,
@@ -24,10 +28,15 @@ export function DataFieldMulti(): React.JSX.Element | null {
           <pre>{`{\n  multi?: boolean\n}`}</pre>
         </>
       }
+      sx={{
+        opacity: isFeatureDisabled ? 0.5 : 1,
+      }}
     >
       <RadioGroup
         value={multi.field.value || false}
         onChange={(_, value) => {
+          if (isFeatureDisabled) return;
+
           // Update form state
           multi.field.onChange({
             target: { value: value === 'true' },
@@ -44,6 +53,7 @@ export function DataFieldMulti(): React.JSX.Element | null {
               'data-testid': 'custom-demo-dialog-multi-yes-radio',
             } as any
           }
+          disabled={isFeatureDisabled}
         />
         <RadioOption
           isDefault
@@ -56,6 +66,7 @@ export function DataFieldMulti(): React.JSX.Element | null {
               'data-testid': 'custom-demo-dialog-multi-no-radio',
             } as any
           }
+          disabled={isFeatureDisabled}
         />
       </RadioGroup>
     </DataFieldSection>
