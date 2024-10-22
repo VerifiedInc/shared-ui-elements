@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Stack, SxProps, Typography } from '@mui/material';
 
 import { Tip } from '../../Tip';
 
@@ -8,15 +8,16 @@ interface DataFieldSectionProps {
   title: string;
   description?: string;
   tip?: ReactNode;
+  sx?: SxProps;
 }
 
 export function DataFieldSection(
   props: DataFieldSectionProps,
 ): React.JSX.Element {
-  const { children, title, description, tip } = props;
+  const { children, title, description, tip, sx } = props;
 
   return (
-    <Stack>
+    <Stack sx={sx}>
       <Stack direction='row' alignItems='center' spacing={0.5}>
         <Typography
           variant='body1'
