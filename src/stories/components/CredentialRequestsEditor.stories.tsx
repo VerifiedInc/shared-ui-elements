@@ -81,6 +81,15 @@ export const Default: Story = {
     schemas: {},
     onChange: fn() as any,
     features: {
+      allowUserInput: {
+        disabled: false,
+      },
+      description: {
+        disabled: false,
+      },
+      mandatory: {
+        disabled: false,
+      },
       multi: {
         disabled: false,
       },

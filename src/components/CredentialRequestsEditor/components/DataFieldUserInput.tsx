@@ -2,11 +2,15 @@ import { RadioGroup } from '@mui/material';
 import { useController } from 'react-hook-form';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
+import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldUserInput(): React.JSX.Element {
+  const { features } = useCredentialRequestsEditor();
+  const isFeatureDisabled = features?.description?.disabled === true;
+
   const credentialRequestField = useCredentialRequestField();
   const allowUserInput = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.allowUserInput` as any,
@@ -22,10 +26,14 @@ export function DataFieldUserInput(): React.JSX.Element {
           <pre>{`{\n  allowUserInput?: boolean\n}`}</pre>
         </>
       }
+      sx={{
+        opacity: isFeatureDisabled ? 0.5 : 1,
+      }}
     >
       <RadioGroup
         value={allowUserInput.field.value}
         onChange={(_, value) => {
+          if (isFeatureDisabled) return;
           // Update form state
           allowUserInput.field.onChange({
             target: { value: value === 'true' },
@@ -43,6 +51,7 @@ export function DataFieldUserInput(): React.JSX.Element {
               'data-testid': 'custom-demo-dialog-user-input-yes-radio',
             } as any
           }
+          disabled={isFeatureDisabled}
         />
         <RadioOption
           value={false}
@@ -54,6 +63,7 @@ export function DataFieldUserInput(): React.JSX.Element {
               'data-testid': 'custom-demo-dialog-user-input-no-radio',
             } as any
           }
+          disabled={isFeatureDisabled}
         />
       </RadioGroup>
     </DataFieldSection>
