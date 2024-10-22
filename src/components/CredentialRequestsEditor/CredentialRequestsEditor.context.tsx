@@ -11,6 +11,15 @@ import {
 } from './types/form';
 
 export interface CredentialRequestsEditorFeatures {
+  allowUserInput?: {
+    disabled?: boolean;
+  };
+  description?: {
+    disabled?: boolean;
+  };
+  mandatory?: {
+    disabled?: boolean;
+  };
   multi?: {
     disabled?: boolean;
   };

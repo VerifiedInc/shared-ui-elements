@@ -3,11 +3,15 @@ import { RadioGroup } from '@mui/material';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
 import { MandatoryEnum } from '../types/mandatoryEnum';
+import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldMandatory(): React.JSX.Element {
+  const { features } = useCredentialRequestsEditor();
+  const isFeatureDisabled = features?.mandatory?.disabled === true;
+
   const credentialRequestField = useCredentialRequestField();
   const mandatory = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.mandatory` as any,
@@ -23,10 +27,14 @@ export function DataFieldMandatory(): React.JSX.Element {
           <pre>{`{\n  mandatory?: enum\n}`}</pre>
         </>
       }
+      sx={{
+        opacity: isFeatureDisabled ? 0.5 : 1,
+      }}
     >
       <RadioGroup
         value={mandatory.field.value}
         onChange={(e) => {
+          if (isFeatureDisabled) return;
           const value = e.target.value as MandatoryEnum;
 
           // Update form state
@@ -44,6 +52,7 @@ export function DataFieldMandatory(): React.JSX.Element {
               'data-testid': 'custom-demo-dialog-mandatory-no-radio',
             } as any
           }
+          disabled={isFeatureDisabled}
         />
         <RadioOption
           value={MandatoryEnum.IF_AVAILABLE}
@@ -55,6 +64,7 @@ export function DataFieldMandatory(): React.JSX.Element {
               'data-testid': 'custom-demo-dialog-mandatory-if_available-radio',
             } as any
           }
+          disabled={isFeatureDisabled}
         />
         <RadioOption
           value={MandatoryEnum.YES}
@@ -66,6 +76,7 @@ export function DataFieldMandatory(): React.JSX.Element {
               'data-testid': 'custom-demo-dialog-mandatory-yes-radio',
             } as any
           }
+          disabled={isFeatureDisabled}
         />
       </RadioGroup>
     </DataFieldSection>
