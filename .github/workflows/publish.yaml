@@ -60,7 +60,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           access: public
-          registry: https://npm.pkg.github.com
 
       # ref: https://cli.github.com/manual/gh_release_delete
       - name: Delete the v tag
