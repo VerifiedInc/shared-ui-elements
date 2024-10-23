@@ -16,7 +16,7 @@ export function DataFieldMulti(): React.JSX.Element | null {
     name: `${credentialRequestField?.path as any}.multi` as any,
   });
 
-  if ((credentialRequestField?.level || 0) > 0) return null;
+  if ((credentialRequestField?.level ?? 0) > 0) return null;
 
   return (
     <DataFieldSection
@@ -33,7 +33,7 @@ export function DataFieldMulti(): React.JSX.Element | null {
       }}
     >
       <RadioGroup
-        value={multi.field.value || false}
+        value={multi.field.value ?? false}
         onChange={(_, value) => {
           if (isFeatureDisabled) return;
 
