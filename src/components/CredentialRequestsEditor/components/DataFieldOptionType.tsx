@@ -5,7 +5,7 @@ import { Autocomplete, TextField } from '@mui/material';
 import { prettyField } from '../utils/prettyField';
 
 import {
-  CredentialRequests,
+  type CredentialRequests,
   type CredentialRequestsEditorForm,
 } from '../types/form';
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
