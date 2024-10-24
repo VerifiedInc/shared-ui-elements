@@ -1,11 +1,13 @@
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, type Theme, Typography, useTheme } from '@mui/material';
 
 import LegalLink from './LegalLink';
-
+interface AcceptTermsNoticeProps {
+  legalLinkUrl?: string;
+}
 export const AcceptTermsNotice = ({
   legalLinkUrl = 'https://www.verified.inc/legal#terms-of-use',
-}): React.JSX.Element => {
-  const theme = useTheme();
+}: AcceptTermsNoticeProps): React.JSX.Element => {
+  const theme: Theme = useTheme();
   return (
     <Box display='inline-block'>
       <Typography
