@@ -1,6 +1,6 @@
 import { type TextFieldProps } from '../TextField';
 import { formatDateDDMMYYYY } from '../../utils/date';
-import { USDateSchema } from '../../validations/fragments/date';
+import { USDateSchema } from '../../validations';
 import { Box, TextField, type InputProps } from '@mui/material';
 import { forwardRef, useState, type ReactNode } from 'react';
 import { inputStyle } from './styles/input';

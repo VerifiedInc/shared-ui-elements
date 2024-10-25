@@ -15,6 +15,7 @@ const meta = {
   tags: ['autodocs'],
   args: {
     shouldShowOnlyNorthAmericanCountries: true,
+    shouldHaveClearButton: true,
   },
   argTypes: {
     shouldShowOnlyNorthAmericanCountries: {
@@ -33,6 +34,7 @@ export const Default: Story = {
     name: 'date',
     label: 'Label',
     onChange: fn(),
+    onValidPhone: fn(),
     error: false,
     helperText: 'Helper text',
   },

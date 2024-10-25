@@ -1,11 +1,14 @@
 import { Box, InputAdornment, type InputProps } from '@mui/material';
 import { type TextFieldProps } from '../TextField';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPhoneDataByFieldName } from '../../utils/phone';
 import { inputStyle } from './styles/input';
+import { phoneSchema } from '../../validations/phone.schema';
+
 import { TextMaskCustom } from './TextMaskCustom';
 import CountrySelector from './CountrySelector';
 import DefaultInput from './DefaultInput';
+import { DataFieldClearAdornment } from './DataFieldClearAdornment';
 
 export interface PhoneInputProps {
   label?: string;
@@ -13,10 +16,12 @@ export interface PhoneInputProps {
   helperText?: string;
   initialValue?: string;
   onChange?: (value: string) => void;
+  onValidPhone?: (value: string) => void;
   error?: boolean;
   handleChangeCountry?: (newCountry: string) => void;
   value?: string;
   shouldShowOnlyNorthAmericanCountries?: boolean;
+  shouldHaveClearButton?: boolean;
   variant?: TextFieldProps['variant'];
   InputProps?: InputProps;
 }
@@ -38,11 +43,13 @@ export function PhoneInput({
   name = 'phone',
   helperText,
   onChange,
+  onValidPhone,
   initialValue = '',
   error = false,
   handleChangeCountry,
   value: valueProp,
   InputProps,
+  shouldHaveClearButton = false,
   shouldShowOnlyNorthAmericanCountries = true,
 }: Readonly<PhoneInputProps>): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -66,7 +73,7 @@ export function PhoneInput({
    * Handles the change of the selected country in the phone input.
    * @param newCountry - The selected country.
    */
-  const _handleChangeCountry = (newCountry: string) => {
+  const _handleChangeCountry = (newCountry: string): void => {
     setCountry(newCountry);
 
     if (handleChangeCountry) {
@@ -80,22 +87,22 @@ export function PhoneInput({
     }, 10);
   };
 
-  /**
-   * Handles the change event of the phone input field.
-   *
-   * @param e - The change event object.
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const targetValue = e.target.value;
-
-    // set the value in component state, which controls the input field
-    setValue(targetValue);
-
-    // pass the value to the parent component to be handled there as well
-    if (onChange) {
-      onChange(targetValue);
+  const checkIsValidPhone = (phone: string): void => {
+    const validation = phoneSchema.safeParse(value);
+    console.log(validation, 'validation');
+    if (validation.success) {
+      onValidPhone?.(phone);
     }
   };
+
+  const handleChange = (value: string): void => {
+    setValue(value);
+    onChange?.(value);
+  };
+
+  useEffect(() => {
+    checkIsValidPhone(value);
+  }, [value]);
 
   const inputProps: TextFieldProps = {
     inputRef,
@@ -107,7 +114,9 @@ export function PhoneInput({
     // this allows the parent component to control the value of the input field
     value: valueProp ?? value,
     error,
-    onChange: handleChange,
+    onChange: (e) => {
+      handleChange(e.target.value);
+    },
     inputProps: {
       // Receive unmasked value on change.
       unmask: true,
@@ -131,6 +140,13 @@ export function PhoneInput({
             }
           />
         </InputAdornment>
+      ),
+      endAdornment: shouldHaveClearButton && (
+        <DataFieldClearAdornment
+          handleClear={() => {
+            handleChange('');
+          }}
+        />
       ),
     },
     fullWidth: true,

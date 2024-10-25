@@ -4,3 +4,4 @@ export * from './CredentialRequestsEditor';
 export * from './terms/AcceptTermsNotice';
 export * from './When';
 export * from './form/';
+export * from './verified';
