@@ -1,10 +1,5 @@
 import { Box, TextField } from '@mui/material';
-import {
-  forwardRef,
-  useState,
-  type ChangeEventHandler,
-  type ReactNode,
-} from 'react';
+import { forwardRef, useState, type ChangeEventHandler } from 'react';
 import {
   formatDateDDMMYYYY,
   getMaxDateInstance,
@@ -19,7 +14,7 @@ import { inputStyle } from './styles/input';
 interface DateInputProps {
   name?: string;
   value?: string;
-  label?: ReactNode;
+  label?: string;
   error?: boolean;
   helperText?: string;
   onChange?: (event: { target: { value: string } }) => void;
