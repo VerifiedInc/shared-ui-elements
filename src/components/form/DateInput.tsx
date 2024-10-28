@@ -1,11 +1,20 @@
-import { type TextFieldProps } from '../TextField';
-import { formatDateDDMMYYYY } from '../../utils/date';
-import { USDateSchema } from '../../validations';
-import { Box, TextField, type InputProps } from '@mui/material';
-import { forwardRef, useState, type ReactNode } from 'react';
-import { inputStyle } from './styles/input';
-import { InputMask } from './InputMask';
+import { Box, TextField } from '@mui/material';
+import {
+  forwardRef,
+  useState,
+  type ChangeEventHandler,
+  type ReactNode,
+} from 'react';
+import {
+  formatDateDDMMYYYY,
+  getMaxDateInstance,
+  getMinDateInstance,
+} from '../../utils/date';
 import { masks } from '../../utils/masks';
+import { USDateSchema } from '../../validations';
+import { type TextFieldProps } from '../TextField';
+import { InputMask } from './InputMask';
+import { inputStyle } from './styles/input';
 
 interface DateInputProps {
   name?: string;
@@ -14,9 +23,9 @@ interface DateInputProps {
   error?: boolean;
   helperText?: string;
   onChange?: (event: { target: { value: string } }) => void;
+  onBlur?: ChangeEventHandler<HTMLInputElement>;
   disabled?: boolean;
   allowFutureDates?: boolean;
-  InputProps?: InputProps;
 }
 
 /**
@@ -30,9 +39,10 @@ function DateInputComponent(
     error,
     helperText,
     onChange,
+    onBlur,
     disabled,
     allowFutureDates = true,
-    InputProps,
+    ...rest
   }: Readonly<DateInputProps>,
   ref: any,
 ): React.JSX.Element {
@@ -40,24 +50,9 @@ function DateInputComponent(
   const [localValue, setLocalValue] = useState<string>(
     value ? formatDateDDMMYYYY(value) : '',
   );
-  const nowDate = new Date();
-  const minDate = 1;
-  const minMonth = 1;
-  const minYear = 1900;
-  const minDateInstance = new Date(minYear, minMonth - 1, minDate, 0, 0, 0, 0);
 
-  const maxDate = allowFutureDates ? 31 : nowDate.getDate();
-  const maxMonth = allowFutureDates ? 12 : nowDate.getMonth() + 1;
-  const maxYear = allowFutureDates ? 2200 : nowDate.getFullYear();
-  const maxDateInstance = new Date(
-    maxYear,
-    maxMonth - 1,
-    maxDate,
-    23,
-    59,
-    59,
-    999,
-  );
+  const minDateInstance = getMinDateInstance();
+  const maxDateInstance = getMaxDateInstance(allowFutureDates);
 
   const textFieldStyle: TextFieldProps = {
     ...inputStyle,
@@ -70,24 +65,19 @@ function DateInputComponent(
       inputMode: 'numeric',
       // Tab index for each block.
       tabIndex: 0,
-      // Use onComplete event.
-      useOnComplete: false,
       // Mask type date.
       mask: masks.DOB_MASK,
-    },
-    InputProps: {
-      ...InputProps,
     },
     fullWidth: true,
   };
 
   return (
     <Box width='100%'>
-      <input value={value} hidden readOnly />
       <InputMask
         mask={masks.DOB_MASK}
         maskPlaceholder={null}
         value={localValue}
+        onBlur={onBlur}
         onChange={(e) => {
           const value = e.target.value;
           const valid = USDateSchema.safeParse(value);
@@ -112,7 +102,7 @@ function DateInputComponent(
           onChange?.({ target: { value: String(+date) } });
         }}
       >
-        <TextField {...textFieldStyle} inputRef={ref} />
+        <TextField {...textFieldStyle} inputRef={ref} {...rest} />
       </InputMask>
     </Box>
   );
