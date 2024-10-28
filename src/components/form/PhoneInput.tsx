@@ -89,7 +89,6 @@ export function PhoneInput({
 
   const checkIsValidPhone = (phone: string): void => {
     const validation = phoneSchema.safeParse(value);
-    console.log(validation, 'validation');
     if (validation.success) {
       onValidPhone?.(phone);
     }
