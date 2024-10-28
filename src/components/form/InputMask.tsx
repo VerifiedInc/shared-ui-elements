@@ -27,6 +27,7 @@ interface InputMaskProps {
   // Change event handler.
   onChange: ChangeEventHandler<HTMLInputElement>;
   // Function to modify value and selection before applying mask.
+  onBlur?: ChangeEventHandler<HTMLInputElement>;
   beforeMaskedStateChange?: (options: BeforeMaskedStateChangeOptions) => void;
   // Placeholder to cover unfilled parts of the mask, null to remove the default "_" placeholder.
   maskPlaceholder?: string | null;

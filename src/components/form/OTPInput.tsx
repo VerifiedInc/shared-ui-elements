@@ -14,6 +14,7 @@ import {
   Box,
   Stack,
   type StackProps,
+  type SxProps,
   TextField,
   type TextFieldProps,
   Typography,
@@ -25,6 +26,7 @@ interface OTPInputProps {
   name?: string;
   onChange?: (event: { target: { value: string } }) => void;
   disabled?: boolean;
+  sx?: SxProps;
 }
 
 export type OTPInputInstance = Readonly<{
@@ -220,7 +222,7 @@ function OTPInputComponent(
   }, [focusFirstEmptyInput]);
 
   return (
-    <Box width='100%'>
+    <Box width='100%' sx={props.sx}>
       {/* Use input facade to update the value and listen to changes */}
       <div style={{ display: 'none!important', pointerEvents: 'none' }}>
         <TextField

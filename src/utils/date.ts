@@ -41,3 +41,22 @@ export const formatDateMMDD = (date: string) => {
   const formattedDate = date.slice(0, 2) + '/' + date.slice(3, 5) + '/1970';
   return formattedDate;
 };
+
+// Get the minimum date instance with the given date, month, and year.
+export const getMinDateInstance = (
+  minDate = 1,
+  minMonth = 1,
+  minYear = 1900,
+): Date => {
+  return new Date(minYear, minMonth - 1, minDate, 0, 0, 0, 0);
+};
+
+// Get the maximum date instance.
+export const getMaxDateInstance = (allowFutureDates = true): Date => {
+  const nowDate = new Date();
+  const maxDate = allowFutureDates ? 31 : nowDate.getDate();
+  const maxMonth = allowFutureDates ? 12 : nowDate.getMonth() + 1;
+  const maxYear = allowFutureDates ? 2200 : nowDate.getFullYear();
+
+  return new Date(maxYear, maxMonth - 1, maxDate, 23, 59, 59, 999);
+};
