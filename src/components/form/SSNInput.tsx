@@ -1,10 +1,9 @@
-import { TextField, type TextFieldProps } from '../TextField';
-import { Box } from '@mui/material';
+import { Box, TextField, type TextFieldProps } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { usePrevious } from '../../hooks/usePrevious';
+import { DataFieldClearAdornment } from './DataFieldClearAdornment';
 import { inputStyle } from './styles/input';
 import { TextMaskCustom } from './TextMaskCustom';
-import { DataFieldClearAdornment } from './DataFieldClearAdornment';
 
 type TextStyles = Omit<TextFieldProps, 'onChange'> & { onChange: any };
 

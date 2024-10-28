@@ -1,4 +1,4 @@
-import { type TextFieldProps } from '@/components/TextField';
+import { type TextFieldProps } from '../../../components/TextField';
 
 /**
  * The base style definition for input fields, it should reflect changes across all inputs.

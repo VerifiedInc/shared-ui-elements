@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   TextField,
   type TextFieldProps as InternalFieldProps,
-} from '../TextField';
+} from '@mui/material';
 import { inputStyle } from './styles/input';
 
 interface TextFieldProps extends Omit<InternalFieldProps, 'onChange'> {}
