@@ -3,5 +3,7 @@ export * from './Typography';
 export * from './CredentialRequestsEditor';
 export * from './terms/AcceptTermsNotice';
 export * from './When';
+export * from './Alert';
+export * from './Image';
 export * from './form/';
 export * from './verified';
