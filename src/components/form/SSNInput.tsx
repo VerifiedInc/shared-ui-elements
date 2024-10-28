@@ -8,9 +8,12 @@ import { TextMaskCustom } from './TextMaskCustom';
 type TextStyles = Omit<TextFieldProps, 'onChange'> & { onChange: any };
 
 export interface SSNInputProps {
-  onChange: (value: string) => void;
-  onClear: () => void;
-  InputProps: TextFieldProps;
+  onChange?: (event: { target: { value: string } }) => void;
+  name?: string;
+  value?: string;
+  label?: string;
+  error?: boolean;
+  helperText?: string;
 }
 
 /**
@@ -19,8 +22,8 @@ export interface SSNInputProps {
  */
 export function SSNInput({
   onChange,
-  onClear,
-  InputProps,
+  label = 'Social Security number',
+  ...rest
 }: SSNInputProps): React.JSX.Element {
   // Arbitrary states to allow to empty input field.
   const [value, setValue] = useState<string | undefined>('');
@@ -28,12 +31,12 @@ export function SSNInput({
 
   const handleChange = (value: string): void => {
     setValue(value);
-    onChange(value);
+    onChange?.({ target: { value } });
   };
 
   const handleClear = (): void => {
     handleChange('');
-    onClear();
+    onChange?.({ target: { value: '' } });
   };
 
   // Clearing value first time when component is mounted, so it doesn't hold redacted value state.
@@ -87,14 +90,14 @@ export function SSNInput({
           handleClear={handleClear}
         />
       ),
-      ...{ InputProps },
     },
     fullWidth: true,
+    label,
   };
 
   return (
     <Box width='100%'>
-      <TextField {...textFieldStyle} />
+      <TextField {...textFieldStyle} {...rest} />
     </Box>
   );
 }
