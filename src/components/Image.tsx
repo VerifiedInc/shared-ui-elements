@@ -5,8 +5,6 @@ export interface ImageProps extends BoxProps {
   alt: string;
 }
 
-const Image = ({ src, alt, ...props }: ImageProps): JSX.Element => {
+export const Image = ({ src, alt, ...props }: ImageProps): JSX.Element => {
   return <Box src={src} alt={alt} {...props} component='img' />;
 };
-
-export default Image;
