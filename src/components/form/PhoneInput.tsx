@@ -3,7 +3,7 @@ import { type TextFieldProps } from '../TextField';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPhoneDataByFieldName } from '../../utils/phone';
 import { inputStyle } from './styles/input';
-import { phoneSchema } from '../../validations/phone.schema';
+import { StrictPhoneFragmentSchema } from '../../validations/fragments/phone';
 
 import { TextMaskCustom } from './TextMaskCustom';
 import CountrySelector from './CountrySelector';
@@ -88,7 +88,7 @@ export function PhoneInput({
   };
 
   const checkIsValidPhone = (phone: string): void => {
-    const validation = phoneSchema.safeParse(value);
+    const validation = StrictPhoneFragmentSchema.safeParse(value);
     if (validation.success) {
       onValidPhone?.(phone);
     }
