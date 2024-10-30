@@ -32,3 +32,5 @@ node_modules
 .sentryclirc
 
 *storybook.log
+
+tsconfig.tsbuildinfo
