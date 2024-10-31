@@ -1,6 +1,6 @@
 import { z as zod } from 'zod';
 
-export const unixStringDateSchema = zod
+export const unixSchema = zod
   .string()
   .min(10)
   .max(13)
