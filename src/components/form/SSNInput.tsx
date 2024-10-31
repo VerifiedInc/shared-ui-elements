@@ -14,6 +14,7 @@ export interface SSNInputProps {
   label?: string;
   error?: boolean;
   helperText?: string;
+  shouldHaveCloseAdornment?: boolean;
 }
 
 /**
@@ -23,6 +24,7 @@ export interface SSNInputProps {
 export function SSNInput({
   onChange,
   label = 'Social Security number',
+  shouldHaveCloseAdornment = false,
   ...rest
 }: SSNInputProps): React.JSX.Element {
   // Arbitrary states to allow to empty input field.
@@ -84,7 +86,7 @@ export function SSNInput({
     InputProps: {
       inputComponent: TextMaskCustom as any,
 
-      endAdornment: (
+      endAdornment: !!shouldHaveCloseAdornment && (
         <DataFieldClearAdornment
           onClick={handleClear}
           handleClear={handleClear}

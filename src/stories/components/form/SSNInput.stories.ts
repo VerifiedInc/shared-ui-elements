@@ -14,14 +14,12 @@ const meta = {
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
   args: {
-    InputProps: {
-      name: 'ssn',
-      label: 'SSN',
-      error: false,
-      helperText: 'Helper text',
-    },
+    name: 'ssn',
+    label: 'SSN',
+    error: false,
+    helperText: 'Helper text',
+    shouldHaveCloseAdornment: false,
     onChange: fn(),
-    onClear: fn(),
   },
 };
 
