@@ -1,11 +1,11 @@
 import { z as zod } from 'zod';
 
-export const unixSchema = zod
-  .string()
-  .min(10)
-  .max(13)
-  .refine((value: string) => {
+export const getUnixSchema = (message = 'Invalid Unix string timestamp') => {
+  return zod.string().refine((value: string) => {
     const regex = /^\d+$/; // Checks if the string contains only digits
-    const isValid = regex.test(value) && !isNaN(Number(value));
-    return isValid;
-  }, 'Invalid Unix string timestamp');
+    const isValidRegex = regex.test(value) && !isNaN(Number(value));
+
+    // Added the length check here to ensure that the displayed message is the one in the message parameter
+    return isValidRegex && value.length >= 10 && value.length <= 13;
+  }, message);
+};
