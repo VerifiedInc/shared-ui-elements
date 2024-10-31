@@ -1,4 +1,3 @@
-export * from './fragments/';
 export * from './birthDate.schema';
 export * from './date.schema';
 export * from './description.schema';

@@ -14,14 +14,7 @@ const meta = {
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
   args: {
-    shouldShowOnlyNorthAmericanCountries: true,
     shouldHaveClearButton: true,
-  },
-  argTypes: {
-    shouldShowOnlyNorthAmericanCountries: {
-      description:
-        'When true, Brazil is removed from the list of countries, allowing only North American numbers',
-    },
   },
 } satisfies Meta<typeof PhoneInput>;
 

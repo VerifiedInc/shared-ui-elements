@@ -3,7 +3,7 @@ import { type TextFieldProps } from '../TextField';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getPhoneDataByFieldName } from '../../utils/phone';
 import { inputStyle } from './styles/input';
-import { StrictPhoneFragmentSchema } from '../../validations/fragments/phone';
+import { phoneSchema } from '../../validations/phone.schema';
 
 import { TextMaskCustom } from './TextMaskCustom';
 import CountrySelector from './CountrySelector';
@@ -50,7 +50,6 @@ export function PhoneInput({
   value: valueProp,
   InputProps,
   shouldHaveClearButton = false,
-  shouldShowOnlyNorthAmericanCountries = true,
 }: Readonly<PhoneInputProps>): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -88,7 +87,7 @@ export function PhoneInput({
   };
 
   const checkIsValidPhone = (phone: string): void => {
-    const validation = StrictPhoneFragmentSchema.safeParse(value);
+    const validation = phoneSchema.safeParse(value);
     if (validation.success) {
       onValidPhone?.(phone);
     }
@@ -131,13 +130,7 @@ export function PhoneInput({
       inputComponent: TextMaskCustom as any,
       startAdornment: (
         <InputAdornment position='start'>
-          <CountrySelector
-            value={country}
-            onChange={_handleChangeCountry}
-            shouldShowOnlyNorthAmericanCountries={
-              shouldShowOnlyNorthAmericanCountries
-            }
-          />
+          <CountrySelector value={country} onChange={_handleChangeCountry} />
         </InputAdornment>
       ),
       endAdornment: shouldHaveClearButton && (
