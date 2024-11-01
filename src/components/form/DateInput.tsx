@@ -1,5 +1,10 @@
 import { Box, TextField } from '@mui/material';
-import { forwardRef, useState, type ChangeEventHandler } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useState,
+  type ChangeEventHandler,
+} from 'react';
 import {
   formatDateDDMMYYYY,
   getMaxDateInstance,
@@ -30,7 +35,7 @@ interface DateInputProps {
 function DateInputComponent(
   {
     label = 'Date of Birth',
-    value,
+    value = '',
     error,
     helperText,
     onChange,
@@ -45,6 +50,12 @@ function DateInputComponent(
   const [localValue, setLocalValue] = useState<string>(
     value ? formatDateDDMMYYYY(value) : '',
   );
+
+  useEffect(() => {
+    if (value === '') {
+      setLocalValue('');
+    }
+  }, [value]);
 
   const minDateInstance = getMinDateInstance();
   const maxDateInstance = getMaxDateInstance(allowFutureDates);
