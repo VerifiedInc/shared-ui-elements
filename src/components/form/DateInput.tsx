@@ -6,7 +6,7 @@ import {
   type ChangeEventHandler,
 } from 'react';
 import {
-  formatDateDDMMYYYY,
+  formatDateMMDDYYYY,
   getMaxDateInstance,
   getMinDateInstance,
 } from '../../utils/date';
@@ -48,7 +48,7 @@ function DateInputComponent(
 ): React.JSX.Element {
   // Arbitrary value to format the timestamp into human-readable date.
   const [localValue, setLocalValue] = useState<string>(
-    value ? formatDateDDMMYYYY(value) : '',
+    value ? formatDateMMDDYYYY(value) : '',
   );
 
   useEffect(() => {
