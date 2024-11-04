@@ -41,11 +41,6 @@ export function SSNInput({
     onChange?.({ target: { value: '' } });
   };
 
-  // Clearing value first time when component is mounted, so it doesn't hold redacted value state.
-  useEffect(() => {
-    handleClear();
-  }, []);
-
   const textFieldStyle: TextStyles = {
     ...inputStyle,
     value,
