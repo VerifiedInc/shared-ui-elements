@@ -33,6 +33,7 @@ interface InputMaskProps {
   maskPlaceholder?: string | null;
   // Whether mask prefix and placeholder should be displayed when input is empty and has no focus.
   alwaysShowMask?: boolean;
+  disabled?: boolean;
 }
 
 export function InputMask(props: Readonly<InputMaskProps>): React.JSX.Element {

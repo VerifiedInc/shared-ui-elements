@@ -24,6 +24,7 @@ export const Default: Story = {
     name: 'date',
     label: 'Label',
     onChange: fn(),
+    disabled: false,
     error: false,
     helperText: 'Helper text',
     allowFutureDates: true,

@@ -64,7 +64,6 @@ function DateInputComponent(
     ...inputStyle,
     label,
     error,
-    disabled,
     helperText,
     inputProps: {
       // Set the input mode to numeric.
@@ -82,6 +81,7 @@ function DateInputComponent(
       <InputMask
         mask={masks.DOB_MASK}
         maskPlaceholder={null}
+        disabled={disabled}
         value={localValue}
         onBlur={onBlur}
         onChange={(e) => {
