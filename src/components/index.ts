@@ -7,3 +7,4 @@ export * from './Alert';
 export * from './Image';
 export * from './form/';
 export * from './verified';
+export * from './QRCodeDisplay';

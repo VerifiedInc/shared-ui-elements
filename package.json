@@ -55,6 +55,7 @@
     "@storybook/test": "^8.3.1",
     "@testing-library/dom": "^10.3.0",
     "@testing-library/react": "^16.0.0",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
@@ -84,5 +85,8 @@
     "typescript": "^5.2.2",
     "vitest": "^1.6.0",
     "zod": "^3.23.8"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
   }
 }
