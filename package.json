@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc/shared-ui-elements",
-  "version": "0.11.3-beta.1",
+  "version": "0.11.3-beta.2",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -16,8 +16,14 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/shared-ui-elements.mjs"
-    }
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./components": "./dist/shared-ui-elements.mjs",
+    "./hooks": "./dist/shared-ui-elements.mjs",
+    "./utils": "./dist/shared-ui-elements.mjs",
+    "./validations": "./dist/shared-ui-elements.mjs",
+    "./styles": "./dist/shared-ui-elements.mjs"
   },
   "scripts": {
     "vitest": "vitest",
