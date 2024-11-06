@@ -19,7 +19,10 @@
       "import": "./dist/shared-ui-elements.mjs",
       "types": "./dist/index.d.ts"
     },
-    "./components": "./dist/shared-ui-elements.mjs",
+    "./components": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
     "./hooks": "./dist/shared-ui-elements.mjs",
     "./utils": "./dist/shared-ui-elements.mjs",
     "./validations": "./dist/shared-ui-elements.mjs",
