@@ -23,10 +23,22 @@
       "import": "./dist/shared-ui-elements.mjs",
       "types": "./dist/index.d.ts"
     },
-    "./hooks": "./dist/shared-ui-elements.mjs",
-    "./utils": "./dist/shared-ui-elements.mjs",
-    "./validations": "./dist/shared-ui-elements.mjs",
-    "./styles": "./dist/shared-ui-elements.mjs"
+    "./hooks": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./validations": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    }
   },
   "scripts": {
     "vitest": "vitest",
