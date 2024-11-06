@@ -18,8 +18,25 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
+      external: [
+        '@emotion/react',
+        '@emotion/styled',
+        '@fontsource/lato',
+        '@fontsource/material-icons',
+        '@mona-health/react-input-mask',
+        '@mui/icons-material',
+        '@mui/material',
+        'jsdom',
+        'libphonenumber-js',
+        'qrcode',
+        'react',
+        'react-dnd',
+        'react-dnd-html5-backend',
+        'react-dom',
+        'react-hook-form',
+        'react-imask',
+        'zod',
+      ],
     },
   },
 });
