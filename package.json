@@ -32,7 +32,8 @@
     "prettier:check": "prettier --check .",
     "typecheck": "tsc -b",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^2.0.2",
@@ -85,6 +86,25 @@
     "tsx": "^3.12.4",
     "typescript": "^5.2.2",
     "vitest": "^1.6.0",
+    "zod": "^3.23.8"
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@fontsource/lato": "^5.0.21",
+    "@fontsource/material-icons": "^5.0.18",
+    "@mona-health/react-input-mask": "^3.0.3",
+    "@mui/icons-material": "^5",
+    "@mui/material": "^5",
+    "jsdom": "^24.1.0",
+    "libphonenumber-js": "^1.11.11",
+    "qrcode": "^1.5.4",
+    "react": "^18",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18",
+    "react-hook-form": "^7.52.1",
+    "react-imask": "^7.6.1",
     "zod": "^3.23.8"
   }
 }
