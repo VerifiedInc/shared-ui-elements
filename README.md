@@ -25,3 +25,7 @@ This project was created to share the UI, agnostic logics and theme throughout t
 ## Path import alias
 
 This project utilizes alias only for the storybook implementation, the modules to be exposed in the package are not aliased since the package will be consumed by the core apps and they may not have the same alias configuration nor the same folder structure.
+
+## Adding dependencies
+
+Ensure that new dependencies are added to both devDependencies and peerDependencies if required in the client's project.
