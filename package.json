@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc/shared-ui-elements",
-  "version": "0.11.0",
+  "version": "0.11.3-beta.4",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -9,18 +9,37 @@
     "node": ">=20.10.0",
     "npm": ">=10.x.x"
   },
-  "exports": {
-    "./components": "./dist/shared-ui-elements.mjs",
-    "./hooks": "./dist/shared-ui-elements.mjs",
-    "./styles": "./dist/shared-ui-elements.mjs",
-    "./utils": "./dist/shared-ui-elements.mjs",
-    "./validations": "./dist/shared-ui-elements.mjs"
-  },
   "main": "/dist/shared-ui-elements.mjs",
   "types": "/dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./components": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./hooks": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./validations": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles": {
+      "import": "./dist/shared-ui-elements.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "vitest": "vitest",
     "lint": "npm run eslint && npm run prettier:check && npm run typecheck",
