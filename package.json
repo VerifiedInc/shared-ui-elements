@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc/shared-ui-elements",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -9,20 +9,17 @@
     "node": ">=20.10.0",
     "npm": ">=10.x.x"
   },
-  "main": "src/index.ts",
   "exports": {
-    "./components": "./src/components/index.ts",
-    "./hooks": "./src/hooks/index.ts",
-    "./styles": "./src/styles/index.ts",
-    "./utils": "./src/utils/index.ts",
-    "./validations": "./src/validations/index.ts"
+    "./components": "./dist/shared-ui-elements.mjs",
+    "./hooks": "./dist/shared-ui-elements.mjs",
+    "./styles": "./dist/shared-ui-elements.mjs",
+    "./utils": "./dist/shared-ui-elements.mjs",
+    "./validations": "./dist/shared-ui-elements.mjs"
   },
+  "main": "/dist/shared-ui-elements.mjs",
+  "types": "/dist/index.d.ts",
   "files": [
-    "src/components",
-    "src/hooks",
-    "src/styles",
-    "src/utils",
-    "src/validations"
+    "dist"
   ],
   "scripts": {
     "vitest": "vitest",
@@ -33,7 +30,9 @@
     "typecheck": "tsc -b",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
+    "prerelease": "npm version prerelease --preid=beta && npm publish --tag beta",
+    "prebuild": "rm -rf dist",
+    "build": "tsc && vite build"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^2.0.2",
@@ -85,6 +84,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "^3.12.4",
     "typescript": "^5.2.2",
+    "vite-plugin-dts": "^4.3.0",
     "vitest": "^1.6.0",
     "zod": "^3.23.8"
   },
