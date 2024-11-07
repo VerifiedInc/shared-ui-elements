@@ -61,9 +61,8 @@ jobs:
       - name: Github package publish
         uses: JS-DevTools/npm-publish@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.NPM_TOKEN }}
           access: public
-          registry: https://npm.pkg.github.com
 
       # ref: https://cli.github.com/manual/gh_release_delete
       - name: Delete the v tag
