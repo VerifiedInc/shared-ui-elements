@@ -49,12 +49,13 @@
     "typecheck": "tsc -b",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "prebuild": "rm -rf dist",
+    "build": "tsc && vite build",
+    "prepublishOnly": "npm run build",
     "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta",
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
-    "publish:major": "npm version major && npm publish",
-    "prebuild": "rm -rf dist",
-    "build": "tsc && vite build"
+    "publish:major": "npm version major && npm publish"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^2.0.2",
