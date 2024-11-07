@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc/shared-ui-elements",
-  "version": "0.10.3",
+  "version": "0.11.0",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -49,7 +49,10 @@
     "typecheck": "tsc -b",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "prerelease": "npm version prerelease --preid=beta && npm publish --tag beta",
+    "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta",
+    "publish:patch": "npm version patch && npm publish",
+    "publish:minor": "npm version minor && npm publish",
+    "publish:major": "npm version major && npm publish",
     "prebuild": "rm -rf dist",
     "build": "tsc && vite build"
   },
