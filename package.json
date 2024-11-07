@@ -52,10 +52,7 @@
     "prebuild": "rm -rf dist",
     "build": "tsc && vite build",
     "prepublishOnly": "npm run build",
-    "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta",
-    "publish:patch": "npm version patch && npm publish",
-    "publish:minor": "npm version minor && npm publish",
-    "publish:major": "npm version major && npm publish"
+    "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^2.0.2",
