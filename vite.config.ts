@@ -18,7 +18,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: [...Object.keys(pkg.peerDependencies), 'src'],
+      external: Object.keys(pkg.peerDependencies),
     },
   },
 });

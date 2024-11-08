@@ -29,3 +29,44 @@ This project utilizes alias only for the storybook implementation, the modules t
 ## Adding dependencies
 
 Ensure that new dependencies are added to both devDependencies and peerDependencies if required in the client's project.
+
+## Installing in Your Client Session
+
+When installing the `@verifiedinc/shared-ui-elements` package, you have access to different export paths optimized for specific use cases.
+
+### Default ESM Export (Recommended)
+
+The package’s default export path `'./'` uses ECMAScript modules (ESM), providing an optimized build for modern JavaScript environments. This approach is recommended for most applications:
+
+```bash
+npm install @verifiedinc/shared-ui-elements
+```
+
+```typescript
+import { SomeComponent } from '@verifiedinc/shared-ui-elements';
+```
+
+This setup is efficient and works seamlessly with frameworks like Next.js, Vite, and other ESM-compatible environments.
+
+### Using with Remix
+
+Some frontend frameworks, such as Remix, have partial compatibility with ESM-only packages. To address this, the package also exposes the source files directly. This approach ensures that the Remix transpiler can properly bundle the package.
+
+To utilize the source files in Remix, reference them directly in your import statements and adjust your `remix.config.js` as follows:
+
+```typescript
+import { SomeComponent } from '@verifiedinc/shared-ui-elements/src';
+```
+
+```js
+// remix.config.js
+export default {
+  serverDependenciesToBundle: [/@verifiedinc\/shared-ui-elements/],
+};
+```
+
+### Why Two Exports?
+
+The default `'./'` export is optimized for environments that support ESM, providing better performance and tree-shaking. However, by also exposing the raw source files, we ensure compatibility with tools like Remix, where ESM-only packages might not work seamlessly without additional configuration.
+
+Choose the export method that best suits your project setup.
