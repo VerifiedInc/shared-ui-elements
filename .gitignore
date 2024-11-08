@@ -1,5 +1,4 @@
 node_modules
-dist
 
 /.next
 /.cache
@@ -7,7 +6,7 @@ dist
 /public/build
 .env
 .eslintcache
-
+dist
 # logs
 *.log
 

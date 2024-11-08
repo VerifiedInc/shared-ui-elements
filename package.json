@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "0.11.6",
+  "version": "0.11.7-beta.0",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -12,33 +12,16 @@
   "main": "/dist/shared-ui-elements.mjs",
   "types": "/dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/shared-ui-elements.mjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/shared-ui-elements.mjs"
     },
-    "./components": {
-      "import": "./dist/shared-ui-elements.mjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./hooks": {
-      "import": "./dist/shared-ui-elements.mjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./utils": {
-      "import": "./dist/shared-ui-elements.mjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./validations": {
-      "import": "./dist/shared-ui-elements.mjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./styles": {
-      "import": "./dist/shared-ui-elements.mjs",
-      "types": "./dist/index.d.ts"
-    }
+    "./src": "./src/index.ts"
   },
   "scripts": {
     "vitest": "vitest",
@@ -116,7 +99,6 @@
     "@mona-health/react-input-mask": "^3.0.3",
     "@mui/icons-material": "^5",
     "@mui/material": "^5",
-    "jsdom": "^24.1.0",
     "libphonenumber-js": "^1.11.11",
     "qrcode": "^1.5.4",
     "react": "^18",

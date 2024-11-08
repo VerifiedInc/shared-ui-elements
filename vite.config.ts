@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite';
-import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import { configDefaults } from 'vitest/config';
 
 import pkg from './package.json';
 
