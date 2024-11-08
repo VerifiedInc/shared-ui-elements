@@ -3,6 +3,9 @@
   "version": "0.11.6",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
+  "workspaces": [
+    "build-remix"
+  ],
   "keywords": [],
   "author": "VerifiedInc",
   "engines": {

@@ -1,0 +1,20 @@
+{
+  "name": "@verifiedinc-public/shared-ui-elements",
+  "engines": {
+    "node": ">=20.10.0",
+    "npm": ">=10.x.x"
+  },
+  "main": "src/index.ts",
+  "exports": {
+    "./components": "./src/components/index.ts",
+    "./hooks": "./src/hooks/index.ts",
+    "./styles": "./src/styles/index.ts",
+    "./utils": "./src/utils/index.ts"
+  },
+  "files": [
+    "src/components",
+    "src/hooks",
+    "src/styles",
+    "src/utils"
+  ]
+}
