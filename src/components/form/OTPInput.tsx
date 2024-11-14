@@ -122,10 +122,6 @@ function OTPInputComponent(
           borderColor: 'rgba(0, 0, 0, 0.23)',
           borderWidth: 1,
         },
-        '& fieldset': {
-          borderColor: 'rgba(0, 0, 0, 0.23)',
-          borderWidth: '1px',
-        },
         ...(isFocused && {
           '& input': {
             borderRadius: 1,
