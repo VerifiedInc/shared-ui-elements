@@ -140,10 +140,6 @@ function OTPInputComponent(
     const valuesString = values.join('');
     const firstEmptyInput = inputsRef.current[valuesString.length];
 
-    for (const input of inputsRef.current) {
-      input?.blur();
-    }
-
     firstEmptyInput?.focus();
     firstEmptyInput?.select();
   }, [values]);
@@ -165,6 +161,7 @@ function OTPInputComponent(
 
         // Calls onChange when all OTP fields are filled.
         if (newValueString.length === 6) {
+          inputsRef.current.forEach((input) => input?.blur());
           props.onChange?.({ target: { value: newValueString } });
         }
 
