@@ -16,7 +16,8 @@ import {
   type StackProps,
   type SxProps,
   TextField,
-  type TextFieldProps,
+  InputBase,
+  type InputBaseProps,
   Typography,
   useTheme,
 } from '@mui/material';
@@ -106,7 +107,7 @@ function OTPInputComponent(
       },
     },
   };
-  const inputProps: TextFieldProps = useMemo(
+  const inputProps: InputBaseProps = useMemo(
     () => ({
       inputProps: {
         inputMode: 'numeric',
@@ -115,14 +116,23 @@ function OTPInputComponent(
         autoCapitalize: 'off',
       },
       sx: {
-        pointerEvents: 'none',
+        '& input': {
+          borderRadius: 1,
+          borderStyle: 'solid',
+          borderColor: 'rgba(0, 0, 0, 0.23)',
+          borderWidth: 1,
+        },
+        '& fieldset': {
+          borderColor: 'rgba(0, 0, 0, 0.23)',
+          borderWidth: '1px',
+        },
         ...(isFocused && {
-          '&:hover fieldset': {
-            borderColor: `${theme.palette.primary.main}!important`,
-          },
-          '& fieldset': {
-            borderWidth: 2,
+          '& input': {
+            borderRadius: 1,
+            borderStyle: 'solid',
+            borderWidth: 1,
             borderColor: theme.palette.primary.main,
+            boxShadow: `inset 0 0 0 1px ${theme.palette.primary.main}`,
           },
         }),
       },
@@ -133,6 +143,10 @@ function OTPInputComponent(
   const focusFirstEmptyInput = useCallback(() => {
     const valuesString = values.join('');
     const firstEmptyInput = inputsRef.current[valuesString.length];
+
+    for (const input of inputsRef.current) {
+      input?.blur();
+    }
 
     firstEmptyInput?.focus();
     firstEmptyInput?.select();
@@ -164,7 +178,7 @@ function OTPInputComponent(
     [props],
   );
 
-  const handleKeyUp = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyUp = useCallback((event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Backspace') {
       setValues((prev) => {
         const newValue = [...prev.slice(0, -1)];
@@ -185,7 +199,7 @@ function OTPInputComponent(
     (startIndex: number) => {
       return new Array(3).fill(undefined).map((_, index) => {
         return (
-          <TextField
+          <InputBase
             key={ids.current[index + startIndex]}
             inputRef={(input) =>
               ((inputsRef.current[index + startIndex] as any) = input)
@@ -197,9 +211,7 @@ function OTPInputComponent(
             onChange={handleChange}
             onKeyUp={handleKeyUp}
             onFocus={handleFocus}
-            onBlur={() => {
-              setIsFocused(false);
-            }}
+            onBlur={() => setIsFocused(false)}
             {...inputProps}
             data-testid={`otp-input-${index + startIndex}`}
           />
