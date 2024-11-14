@@ -1,6 +1,6 @@
 {
-  "name": "@verifiedinc/shared-ui-elements",
-  "version": "0.9.0",
+  "name": "@verifiedinc-public/shared-ui-elements",
+  "version": "0.12.0",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -9,21 +9,20 @@
     "node": ">=20.10.0",
     "npm": ">=10.x.x"
   },
-  "main": "src/index.ts",
-  "exports": {
-    "./components": "./src/components/index.ts",
-    "./hooks": "./src/hooks/index.ts",
-    "./styles": "./src/styles/index.ts",
-    "./utils": "./src/utils/index.ts",
-    "./validations": "./src/validations/index.ts"
-  },
+  "main": "/dist/shared-ui-elements.mjs",
+  "types": "/dist/index.d.ts",
   "files": [
-    "src/components",
-    "src/hooks",
-    "src/styles",
-    "src/utils",
-    "src/validations"
+    "dist",
+    "src"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/shared-ui-elements.mjs",
+      "require": "./dist/shared-ui-elements.mjs"
+    },
+    "./src": "./src/index.ts"
+  },
   "scripts": {
     "vitest": "vitest",
     "lint": "npm run eslint && npm run prettier:check && npm run typecheck",
@@ -32,7 +31,11 @@
     "prettier:check": "prettier --check .",
     "typecheck": "tsc -b",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prebuild": "rm -rf dist",
+    "build": "tsc && vite build",
+    "prepublishOnly": "npm run build",
+    "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^2.0.2",
@@ -84,7 +87,26 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "^3.12.4",
     "typescript": "^5.2.2",
+    "vite-plugin-dts": "^4.3.0",
     "vitest": "^1.6.0",
+    "zod": "^3.23.8"
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@fontsource/lato": "^5.0.21",
+    "@fontsource/material-icons": "^5.0.18",
+    "@mona-health/react-input-mask": "^3.0.3",
+    "@mui/icons-material": "^5",
+    "@mui/material": "^5",
+    "libphonenumber-js": "^1.11.11",
+    "qrcode": "^1.5.4",
+    "react": "^18",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18",
+    "react-hook-form": "^7.52.1",
+    "react-imask": "^7.6.1",
     "zod": "^3.23.8"
   }
 }
