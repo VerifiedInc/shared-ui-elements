@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { When } from '../When';
 import {
-  closeSnackbar as closeNotistackSnackbar,
+  closeSnackbar,
   type CustomContentProps,
   enqueueSnackbar,
   SnackbarContent,
@@ -82,7 +82,7 @@ export function useSnackbar(): {
     });
   };
 
-  return { updateSnackbar, closeSnackbar: closeNotistackSnackbar };
+  return { updateSnackbar, closeSnackbar };
 }
 
 /**
