@@ -16,6 +16,7 @@ import {
   SnackbarProvider,
 } from 'notistack';
 import { forwardRef } from 'react';
+import { FullWidthAlert } from '../Alert';
 
 declare module 'notistack' {
   interface VariantOverrides {
@@ -106,7 +107,7 @@ export const CustomAlertComponent = forwardRef<
   ) => {
     return (
       <SnackbarContent ref={ref} {...props}>
-        <Alert
+        <FullWidthAlert
           severity={severity}
           action={
             <Box ml={1}>
@@ -139,7 +140,7 @@ export const CustomAlertComponent = forwardRef<
           }}
         >
           {message}
-        </Alert>
+        </FullWidthAlert>
       </SnackbarContent>
     );
   },
