@@ -9,7 +9,7 @@ import {
 import {
   closeSnackbar,
   type CustomContentProps,
-  enqueueSnackbar,
+  enqueueSnackbar as _enqueueSnackbar,
   SnackbarContent,
   type SnackbarKey,
   SnackbarProvider,
@@ -51,30 +51,24 @@ interface CustomAlertComponentProps extends Partial<CustomContentProps> {
  * Hook to manage snackbar messages
  * It wraps the enqueueSnackbar and closeSnackbar functions from the notistack library
  * @returns
- *  - updateSnackbar: Function to enqueue a snackbar message
+ *  - enqueueSnackbar: Function to enqueue a snackbar message
  *  - closeSnackbar: Function to close one or all snackbar messages
  *  @see https://notistack.com/api-reference
  */
 export function useSnackbar(): {
-  updateSnackbar: (
+  enqueueSnackbar: (
     message: string,
     severity?: AlertColor,
     options?: Omit<CustomAlertComponentProps, 'severity'>,
   ) => void;
   closeSnackbar: (key?: SnackbarKey) => void;
 } {
-  const updateSnackbar = (
+  const enqueueSnackbar = (
     message: string,
     severity: AlertColor = 'success',
     options?: Omit<CustomAlertComponentProps, 'severity'>,
   ): void => {
-    console.log({
-      severity,
-      variant: 'customAlertComponent',
-      persist: true,
-      ...options,
-    });
-    enqueueSnackbar(message, {
+    _enqueueSnackbar(message, {
       severity,
       variant: 'customAlertComponent',
       persist: true,
@@ -82,7 +76,7 @@ export function useSnackbar(): {
     });
   };
 
-  return { updateSnackbar, closeSnackbar };
+  return { enqueueSnackbar, closeSnackbar };
 }
 
 /**
