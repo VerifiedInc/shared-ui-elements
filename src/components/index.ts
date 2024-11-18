@@ -8,3 +8,4 @@ export * from './Image';
 export * from './form/';
 export * from './verified';
 export * from './QRCodeDisplay';
+export * from './Snackbar';
