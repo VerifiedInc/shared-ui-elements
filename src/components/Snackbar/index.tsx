@@ -135,8 +135,7 @@ export const CustomAlertComponent = forwardRef<
           sx={{
             alignItems: 'center',
             width: '320px',
-            maxWidth: '320px',
-            minWidth: '320px',
+            ...sx,
           }}
         >
           {message}
