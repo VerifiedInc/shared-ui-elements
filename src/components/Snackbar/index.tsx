@@ -6,7 +6,6 @@ import {
   IconButton,
   type SxProps,
 } from '@mui/material';
-import { When } from '../When';
 import {
   closeSnackbar,
   type CustomContentProps,
@@ -16,7 +15,7 @@ import {
   SnackbarProvider,
 } from 'notistack';
 import { forwardRef } from 'react';
-import { FullWidthAlert } from '../Alert';
+import { When } from '../When';
 
 declare module 'notistack' {
   interface VariantOverrides {
@@ -33,8 +32,8 @@ declare module 'notistack' {
   }
 }
 
-export type { SnackbarKey };
 export { SnackbarProvider };
+export type { SnackbarKey };
 
 interface AlertAction {
   onAction?: (id: SnackbarKey) => void;
@@ -107,7 +106,7 @@ export const CustomAlertComponent = forwardRef<
   ) => {
     return (
       <SnackbarContent ref={ref} {...props}>
-        <FullWidthAlert
+        <Alert
           severity={severity}
           action={
             <Box ml={1}>
@@ -136,11 +135,12 @@ export const CustomAlertComponent = forwardRef<
           sx={{
             alignItems: 'center',
             width: '320px',
+            maxWidth: '320px',
             ...sx,
           }}
         >
           {message}
-        </FullWidthAlert>
+        </Alert>
       </SnackbarContent>
     );
   },
