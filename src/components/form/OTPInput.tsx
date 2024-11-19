@@ -20,6 +20,7 @@ import {
   type InputBaseProps,
   Typography,
   useTheme,
+  FormControl,
 } from '@mui/material';
 import { v4 as uuid } from 'uuid';
 
@@ -192,22 +193,24 @@ function OTPInputComponent(
     (startIndex: number) => {
       return new Array(3).fill(undefined).map((_, index) => {
         return (
-          <InputBase
-            key={ids.current[index + startIndex]}
-            inputRef={(input) =>
-              ((inputsRef.current[index + startIndex] as any) = input)
-            }
-            autoComplete='one-time-code'
-            autoFocus={index + startIndex === 0}
-            value={values[index + startIndex] || ''}
-            disabled={props.disabled}
-            onChange={handleChange}
-            onKeyUp={handleKeyUp}
-            onFocus={handleFocus}
-            onBlur={() => setIsFocused(false)}
-            {...inputProps}
-            data-testid={`otp-input-${index + startIndex}`}
-          />
+          // FormControl is required for InputBase to avoid bad setState in handleBlur event, and it is one per input.
+          <FormControl key={ids.current[index + startIndex]}>
+            <InputBase
+              inputRef={(input) =>
+                ((inputsRef.current[index + startIndex] as any) = input)
+              }
+              autoComplete='one-time-code'
+              autoFocus={index + startIndex === 0}
+              value={values[index + startIndex] || ''}
+              disabled={props.disabled}
+              onChange={handleChange}
+              onKeyUp={handleKeyUp}
+              onFocus={handleFocus}
+              onBlur={() => setIsFocused(false)}
+              {...inputProps}
+              data-testid={`otp-input-${index + startIndex}`}
+            />
+          </FormControl>
         );
       });
     },
