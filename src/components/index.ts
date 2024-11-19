@@ -9,3 +9,4 @@ export * from './form/';
 export * from './verified';
 export * from './QRCodeDisplay';
 export * from './Snackbar';
+export * from './Banners';
