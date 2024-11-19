@@ -71,6 +71,7 @@ export function useSnackbar(): {
     _enqueueSnackbar(message, {
       severity,
       variant: 'customAlertComponent',
+      persist: true,
       ...options,
     });
   };
