@@ -18,6 +18,7 @@ interface SelectInputProps {
   onChange?: (value: Option | null) => void;
   onClear?: () => void;
   options: Option[];
+  value?: Option | null; // Controlled value
   defaultOption?: Option;
   InputProps?: TextFieldProps;
 }
@@ -29,13 +30,23 @@ interface SelectInputProps {
 export function SelectInput({
   options,
   defaultOption,
+  value: controlledValue,
   onChange,
   onClear,
   ...props
 }: SelectInputProps): React.JSX.Element {
-  const [value, setValue] = useState<Option | null>(null);
+  const [internalValue, setInternalValue] = useState<Option | null>(
+    defaultOption ?? null,
+  );
+
+  // Determine the value to display
+  const isControlled = controlledValue !== undefined;
+  const value = isControlled ? controlledValue : internalValue;
+
   const handleChange = (option: Option | null): void => {
-    setValue(option);
+    if (!isControlled) {
+      setInternalValue(option); // Update internal state only if uncontrolled
+    }
     if (onChange) {
       onChange(option);
     }
