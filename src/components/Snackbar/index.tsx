@@ -94,7 +94,23 @@ export const CustomAlertComponent = forwardRef<
   CustomAlertComponentProps
 >(
   (
-    { id, message, severity, alertAction, sx, showCloseIcon = true, ...props },
+    {
+      id,
+      message,
+      severity,
+      alertAction,
+      sx,
+      showCloseIcon = true,
+
+      // remove these props because they were triggering warnings. They are not used in this component anyway
+      persist,
+      hideIconVariant,
+      autoHideDuration,
+      anchorOrigin,
+      iconVariant,
+
+      ...props
+    },
     ref,
   ) => {
     return (
