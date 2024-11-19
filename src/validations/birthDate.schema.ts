@@ -32,6 +32,12 @@ export const birthDateSchema = zod.string().refine((value: string) => {
   return false;
 }, 'Date of Birth is invalid');
 
+export const birthDateSchemaWithPastOnlyValidation = zod.z
+  .date()
+  .refine((date) => date.getTime() < Date.now(), {
+    message: 'Birthday must be in the past',
+  });
+
 export const simpleBirthDateSchema = zod.string().refine((value: string) => {
   const regex = /^\d{2}\d{2}\d{4}$/;
   if (regex.test(value)) {
