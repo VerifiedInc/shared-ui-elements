@@ -1,64 +1,46 @@
-import { Box, TextField } from '@mui/material';
-import {
-  forwardRef,
-  useEffect,
-  useState,
-  type ChangeEventHandler,
-} from 'react';
-import {
-  formatDateMMDDYYYY,
-  getMaxDateInstance,
-  getMinDateInstance,
-} from '../../utils/date';
+import { Box, TextField, type TextFieldProps } from '@mui/material';
+import { forwardRef, useState, type ChangeEventHandler } from 'react';
 import { masks } from '../../utils/masks';
-import { USDateSchema } from '../../validations';
-import { type TextFieldProps } from '../TextField';
 import { InputMask } from './InputMask';
 import { inputStyle } from './styles/input';
 
-interface DateInputProps {
-  name?: string;
-  value?: string;
+interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   label?: string;
-  error?: boolean;
+  value?: string;
   helperText?: string;
-  onChange?: (event: { target: { value: string } }) => void;
+  onChange?: (value: string) => void;
   onBlur?: ChangeEventHandler<HTMLInputElement>;
-  disabled?: boolean;
-  allowFutureDates?: boolean;
 }
 
-/**
- * The input with date format.
- * @constructor
- */
 function DateInputComponent(
   {
-    label = 'Date of Birth',
-    value = '',
+    label = 'Date',
+    value: controlledValue,
     error,
     helperText,
     onChange,
     onBlur,
     disabled,
-    allowFutureDates = true,
     ...rest
   }: Readonly<DateInputProps>,
   ref: any,
 ): React.JSX.Element {
-  // Arbitrary value to format the timestamp into human-readable date.
-  const [localValue, setLocalValue] = useState<string>(
-    value ? formatDateMMDDYYYY(value) : '',
-  );
+  const [internalValue, setInternalValue] = useState<string>('');
 
-  useEffect(() => {
-    if (value === '') {
-      setLocalValue('');
+  // Determine the value to display
+  const isControlled = controlledValue !== undefined;
+  const value = isControlled ? controlledValue : internalValue;
+
+  const handleChange = (e: any): void => {
+    const date = e.target.value;
+    if (!isControlled) {
+      setInternalValue(date); // Update internal state only if uncontrolled
     }
-  }, [value]);
 
-  const minDateInstance = getMinDateInstance();
-  const maxDateInstance = getMaxDateInstance(allowFutureDates);
+    if (onChange) {
+      onChange(date);
+    }
+  };
 
   const textFieldStyle: TextFieldProps = {
     ...inputStyle,
@@ -74,6 +56,7 @@ function DateInputComponent(
       mask: masks.DOB_MASK,
     },
     fullWidth: true,
+    ...rest,
   };
 
   return (
@@ -82,33 +65,11 @@ function DateInputComponent(
         mask={masks.DOB_MASK}
         maskPlaceholder={null}
         disabled={disabled}
-        value={localValue}
+        value={value}
         onBlur={onBlur}
-        onChange={(e) => {
-          const value = e.target.value;
-          const valid = USDateSchema.safeParse(value);
-
-          // Update the facade input value, so it let user input wrong/right values.
-          setLocalValue(value);
-
-          if (!valid.success) {
-            // A way to make sure the data field state is invalid is to empty the value.
-            return onChange?.({ target: { value: '' } });
-          }
-
-          const date = new Date(value);
-          if (date < minDateInstance || date > maxDateInstance) {
-            // A way to make sure the data field state is invalid is to empty the value.
-            return onChange?.({ target: { value: '' } });
-          }
-
-          date.setUTCHours(12);
-
-          // The date is valid in the US date format and is in between the valid min-max date range.
-          onChange?.({ target: { value: String(+date) } });
-        }}
+        onChange={handleChange}
       >
-        <TextField {...textFieldStyle} inputRef={ref} {...rest} />
+        <TextField {...textFieldStyle} inputRef={ref} />
       </InputMask>
     </Box>
   );

@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-
 import { fn } from '@storybook/test';
 import { DateInput } from '../../../components/form/DateInput';
 
@@ -13,6 +12,10 @@ const meta = {
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
+  argTypes: {
+    size: { control: 'select', options: ['small', 'medium'] },
+    value: { control: 'date' },
+  },
 } satisfies Meta<typeof DateInput>;
 
 export default meta;
@@ -26,14 +29,8 @@ export const Default: Story = {
     onChange: fn(),
     disabled: false,
     error: false,
+    size: 'small',
     helperText: 'Helper text',
-    allowFutureDates: true,
   },
-  argTypes: {
-    allowFutureDates: {
-      control: 'boolean',
-      description:
-        'Allow future dates. If false and the limit is reached, onChange will return an empty string.',
-    },
-  },
+  argTypes: {},
 };
