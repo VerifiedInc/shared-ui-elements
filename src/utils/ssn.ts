@@ -4,5 +4,5 @@
  * @param {string} rawValue the raw value of the ssncredential
  * @returns {string} the formatted value
  */
-export const ssnFormatter = (rawValue: string) =>
+export const ssnFormatter = (rawValue: string): string =>
   rawValue.replace(/(\d{3})-?(\d{2})-?(\d{4})/, '•••-••-$3');
