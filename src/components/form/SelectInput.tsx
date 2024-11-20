@@ -1,9 +1,9 @@
-import { Autocomplete, AutocompleteProps } from '@mui/material';
-import { useState } from 'react';
 import {
+  Autocomplete,
   TextField,
   type TextFieldProps as InternalFieldProps,
 } from '@mui/material';
+import { useState } from 'react';
 import { inputStyle } from './styles/input';
 
 interface TextFieldProps extends Omit<InternalFieldProps, 'onChange'> {}
