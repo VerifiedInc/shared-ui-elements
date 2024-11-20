@@ -1,4 +1,3 @@
-export * from './birthDate.schema';
 export * from './date.schema';
 export * from './description.schema';
 export * from './email.schema';
