@@ -1,4 +1,4 @@
-import { Autocomplete } from '@mui/material';
+import { Autocomplete, AutocompleteProps } from '@mui/material';
 import { useState } from 'react';
 import {
   TextField,
@@ -21,6 +21,7 @@ interface SelectInputProps {
   value?: Option | null; // Controlled value
   defaultOption?: Option;
   InputProps?: TextFieldProps;
+  disableClearable?: boolean;
 }
 
 /**
@@ -33,6 +34,7 @@ export function SelectInput({
   value: controlledValue,
   onChange,
   onClear,
+  disableClearable,
   ...props
 }: SelectInputProps): React.JSX.Element {
   const [internalValue, setInternalValue] = useState<Option | null>(
@@ -74,6 +76,7 @@ export function SelectInput({
       autoHighlight
       defaultValue={defaultOption}
       options={options}
+      disableClearable={disableClearable}
       isOptionEqualToValue={(option, value) => option?.id === value?.id}
       value={value}
       onChange={(_event, newInputValue) => {
