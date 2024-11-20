@@ -8,3 +8,11 @@ export const USDateSchema = zod.string().refine((value: string) => {
   }
   return false;
 }, 'Date is invalid');
+
+export const getDateSchemaWithPastValidation = (
+  message: string,
+): zod.ZodEffects<zod.ZodDate, Date, Date> => {
+  return zod.date().refine((date) => date.getTime() < Date.now(), {
+    message,
+  });
+};
