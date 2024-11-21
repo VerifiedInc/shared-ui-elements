@@ -10,3 +10,4 @@ export * from './verified';
 export * from './QRCodeDisplay';
 export * from './Snackbar';
 export * from './Banners';
+export * from './Backdrop';
