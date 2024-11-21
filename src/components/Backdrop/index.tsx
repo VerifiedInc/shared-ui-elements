@@ -2,6 +2,7 @@ import {
   CircularProgress,
   Backdrop as MUIBackdrop,
   Stack,
+  useTheme,
   type SxProps,
 } from '@mui/material';
 
@@ -16,11 +17,13 @@ export const Backdrop = ({
   sx,
   children,
 }: BackdropProps): React.JSX.Element => {
+  const theme = useTheme();
+
   return (
     <MUIBackdrop
       sx={{
-        color: (theme) => theme.palette.primary.main,
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        color: theme.palette.primary.main,
+        zIndex: theme.zIndex.drawer + 1,
         ...sx,
       }}
       open={open}
