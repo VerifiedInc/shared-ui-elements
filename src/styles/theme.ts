@@ -1,5 +1,6 @@
 import { createTheme } from '@mui/material';
-import * as colors from './colors';
+import { colors } from './colors';
+import { typography } from './typography';
 
 declare module '@mui/material/styles' {
   // custom palette
@@ -32,8 +33,18 @@ interface ThemeOptions {
 
 export const theme = ({ primaryFontFace }: ThemeOptions) =>
   createTheme({
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 900,
+        lg: 1200,
+        xl: 1536,
+      },
+    },
     typography: {
       fontFamily: primaryFontFace.style.fontFamily,
+      ...typography,
     },
     palette: {
       text: {
@@ -203,6 +214,12 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
               fontWeight: 300,
             },
           },
+        },
+      },
+      MuiTextField: {
+        defaultProps: {
+          variant: 'outlined',
+          size: 'small',
         },
       },
     },

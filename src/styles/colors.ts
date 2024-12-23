@@ -1,4 +1,4 @@
-import { colors } from '@mui/material';
+import { colors as MUIColors } from '@mui/material';
 
 export const textDisabled = 'rgba(0,0,0,0.26)';
 
@@ -29,6 +29,32 @@ export const lightGrey = '#F9F9FB';
 export const grey = '#bdbdbd';
 export const darkGrey = '#797979';
 
-export const lightGreyContrast = colors.grey['400'];
-export const greyContrast = colors.grey['500'];
-export const darkGreyContrast = colors.grey['600'];
+export const lightGreyContrast = MUIColors.grey['400'];
+export const greyContrast = MUIColors.grey['500'];
+export const darkGreyContrast = MUIColors.grey['600'];
+
+export const colors = {
+  textDisabled,
+  white,
+  black,
+  green,
+  lightGreen,
+  darkGreen,
+  blue,
+  lightBlue,
+  darkBlue,
+  red,
+  lightRed,
+  darkRed,
+  yellow,
+  lightYellow,
+  darkYellow,
+  warningContrast,
+  infoContrast,
+  lightGrey,
+  grey,
+  darkGrey,
+  lightGreyContrast,
+  greyContrast,
+  darkGreyContrast,
+};

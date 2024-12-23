@@ -1,5 +1,4 @@
 import { forwardRef } from 'react';
-import { inputStyle } from './styles/input';
 import { TextField, type TextFieldProps } from '../TextField';
 
 /**
@@ -16,7 +15,6 @@ const DefaultInput = (
   return (
     <TextField
       inputRef={ref}
-      {...inputStyle}
       variant={variant}
       margin={margin}
       fullWidth

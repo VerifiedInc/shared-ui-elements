@@ -1,8 +1,8 @@
 import { Box, InputAdornment, type InputProps } from '@mui/material';
 import { type TextFieldProps } from '../TextField';
 import { useEffect, useMemo, useRef, useState } from 'react';
+
 import { getPhoneDataByFieldName } from '../../utils/phone';
-import { inputStyle } from './styles/input';
 import { phoneSchema } from '../../validations/phone.schema';
 
 import { TextMaskCustom } from './TextMaskCustom';
@@ -104,7 +104,6 @@ export function PhoneInput({
 
   const inputProps: TextFieldProps = {
     inputRef,
-    ...inputStyle,
     label,
     name: `_${name}`,
     helperText,
