@@ -121,9 +121,6 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
     components: {
       MuiAlert: {
         styleOverrides: {
-          root: {
-            maxWidth: '339px',
-          },
           action: {
             // the action wrapper is pretty narrow (only fits about 5 characters of text) and the default is to wrap the text, which looks really bad
             overflowWrap: 'normal',
