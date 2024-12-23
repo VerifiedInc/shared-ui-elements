@@ -2,16 +2,28 @@ import { createTheme } from '@mui/material';
 import { colors } from './colors';
 import { typography } from './typography';
 
+declare module '@mui/material/Button' {
+  interface ButtonPropsColorOverrides {
+    neutralContrast: true;
+    warningContrast: true;
+    infoContrast: true;
+  }
+}
+
 declare module '@mui/material/styles' {
   // custom palette
   interface Palette {
     neutral: Palette['primary'];
     neutralContrast: Palette['primary'];
+    warningContrast: Palette['primary'];
+    infoContrast: Palette['primary'];
   }
 
   interface PaletteOptions {
     neutral: PaletteOptions['primary'];
     neutralContrast: PaletteOptions['primary'];
+    warningContrast: PaletteOptions['primary'];
+    infoContrast: PaletteOptions['primary'];
   }
 }
 
@@ -20,10 +32,12 @@ declare module '@mui/material' {
   interface ButtonPropsColorOverrides {
     neutral: true;
     neutralContrast: true;
+    warningContrast: true;
   }
   interface SvgIconPropsColorOverrides {
     neutral: true;
     neutralContrast: true;
+    warningContrast: true;
   }
 }
 
@@ -96,8 +110,43 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
         light: colors.lightGreyContrast,
         dark: colors.darkGreyContrast,
       },
+      // We can register custom color to our palette with the augmentColor method.
+      warningContrast: {
+        main: colors.warningContrast,
+      },
+      infoContrast: {
+        main: colors.infoContrast,
+      },
     },
     components: {
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            maxWidth: '339px',
+          },
+          action: {
+            // the action wrapper is pretty narrow (only fits about 5 characters of text) and the default is to wrap the text, which looks really bad
+            overflowWrap: 'normal',
+            // we want the action text, element, etc to be vertically centered if there are multiple lines of text in the alert body
+            display: 'flex',
+            alignItems: 'center',
+            padding: '8px 0',
+            marginRight: 0,
+            '& button, & a': {
+              lineHeight: '0',
+            },
+          },
+        },
+      },
+      MuiAlertTitle: {
+        styleOverrides: {
+          root: {
+            ...typography.body2,
+            fontSize: '1.1rem',
+            fontWeight: 700,
+          },
+        },
+      },
       MuiListItemIcon: {
         styleOverrides: {
           root: {
@@ -173,21 +222,6 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
             justifyContent: 'space-between',
             '& .MuiButton-root': {
               marginTop: 0,
-            },
-          },
-        },
-      },
-      MuiAlert: {
-        styleOverrides: {
-          root: {
-            maxWidth: '339px',
-          },
-          action: {
-            padding: '8px 0',
-            marginRight: 0,
-            alignItems: 'center',
-            '& button, & a': {
-              lineHeight: '0',
             },
           },
         },
