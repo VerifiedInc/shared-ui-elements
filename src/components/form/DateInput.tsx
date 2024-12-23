@@ -1,8 +1,9 @@
-import { Box, TextField, type TextFieldProps } from '@mui/material';
 import { forwardRef, useState, type ChangeEventHandler } from 'react';
+import { Box, TextField, type TextFieldProps } from '@mui/material';
+
 import { masks } from '../../utils/masks';
+
 import { InputMask } from './InputMask';
-import { inputStyle } from './styles/input';
 
 interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   label?: string;
@@ -43,7 +44,6 @@ function DateInputComponent(
   };
 
   const textFieldStyle: TextFieldProps = {
-    ...inputStyle,
     label,
     error,
     helperText,

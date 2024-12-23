@@ -33,7 +33,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prebuild": "rm -rf dist",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && esbuild dist/shared-ui-elements.mjs --minify --outfile=dist/shared-ui-elements.mjs --allow-overwrite",
     "prepublishOnly": "npm run build",
     "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },

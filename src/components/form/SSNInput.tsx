@@ -1,8 +1,8 @@
+import { useState } from 'react';
 import { Box, TextField, type TextFieldProps } from '@mui/material';
-import { useEffect, useState } from 'react';
+
 import { usePrevious } from '../../hooks/usePrevious';
 import { DataFieldClearAdornment } from './DataFieldClearAdornment';
-import { inputStyle } from './styles/input';
 import { TextMaskCustom } from './TextMaskCustom';
 
 type TextStyles = Omit<TextFieldProps, 'onChange'> & { onChange: any };
@@ -42,7 +42,6 @@ export function SSNInput({
   };
 
   const textFieldStyle: TextStyles = {
-    ...inputStyle,
     value,
     onChange: (e: any, nativeEvent: any) => {
       if (!nativeEvent) return;

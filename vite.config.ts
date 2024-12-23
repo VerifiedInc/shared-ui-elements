@@ -21,4 +21,7 @@ export default defineConfig({
       external: Object.keys(pkg.peerDependencies),
     },
   },
+  esbuild: {
+    legalComments: 'none',
+  },
 });

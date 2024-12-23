@@ -4,7 +4,6 @@ import {
   type TextFieldProps as InternalFieldProps,
 } from '@mui/material';
 import { useState } from 'react';
-import { inputStyle } from './styles/input';
 
 interface TextFieldProps extends Omit<InternalFieldProps, 'onChange'> {}
 
@@ -62,7 +61,6 @@ export function SelectInput({
   };
 
   const textFieldStyle: TextFieldProps = {
-    ...inputStyle,
     inputProps: {
       tabIndex: 0,
     },
