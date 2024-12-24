@@ -1,12 +1,9 @@
 # shared-ui-elements
 
 [![npm version](https://badge.fury.io/js/%40verifiedinc-public%2Fshared-ui-elements.svg)](https://badge.fury.io/js/%40verifiedinc-public%2Fshared-ui-elements)
+![Github Actions publish](https://github.com/VerifiedInc/shared-ui-elements/actions/workflows/publish.yml/badge.svg)
 
-> Set of shared components.
-
-> Set of shared components.
-
-> Set of shared components.
+> Collection of reusable components.
 
 ## About
 
