@@ -1,4 +1,4 @@
-name: deployment
+name: publish
 
 permissions:
   packages: write

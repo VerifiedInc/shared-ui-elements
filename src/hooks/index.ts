@@ -3,3 +3,4 @@ export * from './useCopyToClipboard';
 export * from './useDisclosure';
 export * from './useCallbackRef';
 export * from './useQRCode';
+export * from './useSearchParams';
