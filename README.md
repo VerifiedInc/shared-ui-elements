@@ -1,6 +1,6 @@
 # shared-ui-elements
 
-[![npm version](https://badge.fury.io/js/%40verifiedinc-public%2Fshared-ui-elements.svg)](https://badge.fury.io/js/%40verifiedinc-public%2Fshared-ui-elements)
+![npm version](https://img.shields.io/npm/v/%40verifiedinc-public%2Fshared-ui-elements?label=npm%20package&labelColor=%233c434b&color=%2332c553&cacheSeconds=60)
 ![Github Actions publish](https://github.com/VerifiedInc/shared-ui-elements/actions/workflows/publish.yml/badge.svg)
 
 > Collection of reusable components.
