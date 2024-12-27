@@ -19,5 +19,12 @@
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-unsafe-argument": "off"
   },
-  "ignorePatterns": ["test", "migrations", "node_modules", ".history"]
+  "ignorePatterns": [
+    "test",
+    "migrations",
+    "node_modules",
+    ".history",
+    "dist",
+    "scripts"
+  ]
 }
