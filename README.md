@@ -50,26 +50,3 @@ import { SomeComponent } from '@verifiedinc/shared-ui-elements';
 ```
 
 This setup is efficient and works seamlessly with frameworks like Next.js, Vite, and other ESM-compatible environments.
-
-### Using with Remix
-
-Some frontend frameworks, such as Remix, have partial compatibility with ESM-only packages. To address this, the package also exposes the source files directly. This approach ensures that the Remix transpiler can properly bundle the package.
-
-To utilize the source files in Remix, reference them directly in your import statements and adjust your `remix.config.js` as follows:
-
-```typescript
-import { SomeComponent } from '@verifiedinc/shared-ui-elements/src';
-```
-
-```js
-// remix.config.js
-export default {
-  serverDependenciesToBundle: [/@verifiedinc\/shared-ui-elements/],
-};
-```
-
-### Why Two Exports?
-
-The default `'./'` export is optimized for environments that support ESM, providing better performance and tree-shaking. However, by also exposing the raw source files, we ensure compatibility with tools like Remix, where ESM-only packages might not work seamlessly without additional configuration.
-
-Choose the export method that best suits your project setup.
