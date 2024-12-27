@@ -18,10 +18,11 @@
   },
   "include": [
     "next-env.d.ts",
+    "vite.config.mts",
     "**/*.ts",
     "**/*.tsx",
     "src/**/*.ts",
     "src/**/*.tsx"
   ],
-  "exclude": ["node_modules", "tests", "src/stories"]
+  "exclude": ["node_modules", "tests", "src/stories", "dist"]
 }

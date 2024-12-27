@@ -9,19 +9,40 @@
     "node": ">=20.10.0",
     "npm": ">=10.x.x"
   },
-  "main": "/dist/shared-ui-elements.mjs",
+  "main": "/dist/index.mjs",
   "types": "/dist/index.d.ts",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/shared-ui-elements.mjs",
-      "require": "./dist/shared-ui-elements.mjs"
+      "import": "./dist/index.mjs"
     },
-    "./src": "./src/index.ts"
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.mjs"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "import": "./dist/hooks/index.mjs"
+    },
+    "./styles": {
+      "types": "./dist/styles/index.d.ts",
+      "import": "./dist/styles/index.mjs"
+    },
+    "./validations": {
+      "types": "./dist/validations/index.d.ts",
+      "import": "./dist/validations/index.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.mjs"
+    },
+    "./utils/*": {
+      "types": "./dist/utils/*/index.d.ts",
+      "import": "./dist/utils/*/index.mjs"
+    }
   },
   "scripts": {
     "vitest": "vitest",
@@ -33,7 +54,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prebuild": "rm -rf dist",
-    "build": "tsc && vite build && esbuild dist/shared-ui-elements.mjs --minify --outfile=dist/shared-ui-elements.mjs --allow-overwrite",
+    "build": "tsc && vite build && find dist -name '*.mjs' -type f -exec esbuild {} --minify --outfile={} --allow-overwrite \\;",
     "prepublishOnly": "npm run build",
     "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
