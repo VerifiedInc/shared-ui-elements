@@ -17,6 +17,10 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
         components: resolve(__dirname, 'src/components/index.ts'),
+        'components/animation': resolve(
+          __dirname,
+          'src/components/animation/index.ts',
+        ),
         hooks: resolve(__dirname, 'src/hooks/index.ts'),
         styles: resolve(__dirname, 'src/styles/index.ts'),
         validations: resolve(__dirname, 'src/validations/index.ts'),

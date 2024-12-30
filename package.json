@@ -23,6 +23,10 @@
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.mjs"
     },
+    "./components/*": {
+      "types": "./dist/components/*/index.d.ts",
+      "import": "./dist/components/*/index.mjs"
+    },
     "./hooks": {
       "types": "./dist/hooks/index.d.ts",
       "import": "./dist/hooks/index.mjs"
@@ -109,9 +113,7 @@
     "tsx": "^3.12.4",
     "typescript": "^5.2.2",
     "vite-plugin-dts": "^4.3.0",
-    "vitest": "^1.6.0",
-    "zod": "^3.23.8",
-    "notistack": "^3.0.1"
+    "vitest": "^1.6.0"
   },
   "peerDependencies": {
     "@emotion/react": "^11.11.4",
@@ -122,6 +124,7 @@
     "@mui/icons-material": "^5 || ^6",
     "@mui/material": "^5 || ^6",
     "libphonenumber-js": "^1.11.11",
+    "notistack": "^3.0.1",
     "qrcode": "^1.5.4",
     "react": "^18",
     "react-dnd": "^16.0.1",
@@ -130,6 +133,6 @@
     "react-hook-form": "^7.52.1",
     "react-imask": "^7.6.1",
     "zod": "^3.23.8",
-    "notistack": "^3.0.1"
+    "framer-motion": ">=11.15.0"
   }
 }

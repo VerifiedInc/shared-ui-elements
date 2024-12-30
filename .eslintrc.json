@@ -25,6 +25,7 @@
     "node_modules",
     ".history",
     "dist",
-    "scripts"
+    "scripts",
+    "src/stories"
   ]
 }
