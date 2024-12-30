@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from 'react';
+import { type RefObject, useEffect } from 'react';
 
 /** Supported event types. */
 type EventType =
@@ -34,7 +34,7 @@ export function useOnClickOutside<T extends HTMLElement = HTMLElement>(
   eventListenerOptions: AddEventListenerOptions = {},
 ): void {
   useEffect(() => {
-    const handleEvent = (event: any) => {
+    const handleEvent = (event: any): void => {
       const target = event.target as Node;
 
       // Do nothing if the target is not connected element with document

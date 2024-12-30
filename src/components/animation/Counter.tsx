@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useRef } from 'react';
+import { type PropsWithChildren, useEffect, useRef } from 'react';
 import { animate } from 'framer-motion';
 import { Box } from '@mui/material';
 
@@ -8,7 +8,12 @@ type CounterProps = PropsWithChildren & {
   map?: (value: number) => string;
 };
 
-export function Counter({ children, from, to, map }: CounterProps) {
+export function Counter({
+  children,
+  from,
+  to,
+  map,
+}: CounterProps): React.ReactElement {
   const nodeRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -23,7 +28,9 @@ export function Counter({ children, from, to, map }: CounterProps) {
       },
     });
 
-    return () => controls.stop();
+    return () => {
+      controls.stop();
+    };
   }, [from, to, map]);
 
   return (
