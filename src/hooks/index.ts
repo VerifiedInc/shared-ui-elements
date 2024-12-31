@@ -9,3 +9,4 @@ export * from './useScript';
 export * from './useThrottle';
 export * from './useToggle';
 export * from './useWindowScroll';
+export * from './useWindowSize';
