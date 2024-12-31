@@ -6,3 +6,4 @@ export * from './useQRCode';
 export * from './useSearchParams';
 export * from './useDebounceValue';
 export * from './useScript';
+export * from './useThrottle';
