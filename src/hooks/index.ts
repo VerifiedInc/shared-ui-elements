@@ -8,3 +8,4 @@ export * from './useDebounceValue';
 export * from './useScript';
 export * from './useThrottle';
 export * from './useToggle';
+export * from './useWindowScroll';
