@@ -154,6 +154,7 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
       MuiListItemText: {
         styleOverrides: {
           primary: {
+            fontSize: '1rem',
             fontWeight: 800,
           },
         },
