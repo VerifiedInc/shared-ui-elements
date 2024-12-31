@@ -23,8 +23,8 @@ const DemoComponent = () => {
       <div style={{ marginBottom: '20px' }}>
         <h3>useDebounceValue Demo</h3>
         <p>
-          Type in the input below. The debounced value will update 500ms after
-          you stop typing.
+          Type in the input below. The debounced value will update 500ms (per
+          config) after you stop typing.
         </p>
       </div>
 
