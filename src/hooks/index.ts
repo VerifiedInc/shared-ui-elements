@@ -11,3 +11,4 @@ export * from './useToggle';
 export * from './useWindowScroll';
 export * from './useWindowSize';
 export * from './useIntersectionObserver';
+export * from './useCounter';
