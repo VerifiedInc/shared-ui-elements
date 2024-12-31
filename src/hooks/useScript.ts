@@ -31,19 +31,19 @@ export function useScript(
       script.setAttribute('data-status', 'loading');
       document.body.appendChild(script);
 
-      const handleScriptLoad = () => {
+      const handleScriptLoad = (): void => {
         script?.setAttribute('data-status', 'ready');
         setStatus('ready');
         removeEventListeners();
       };
 
-      const handleScriptError = () => {
+      const handleScriptError = (): void => {
         script?.setAttribute('data-status', 'error');
         setStatus('error');
         removeEventListeners();
       };
 
-      const removeEventListeners = () => {
+      const removeEventListeners = (): void => {
         script?.removeEventListener('load', handleScriptLoad);
         script?.removeEventListener('error', handleScriptError);
       };
