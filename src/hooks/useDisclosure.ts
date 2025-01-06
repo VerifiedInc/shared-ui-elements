@@ -12,6 +12,16 @@ export interface UseDisclosureProps {
   id?: string;
 }
 
+export interface UseDisclosureReturn {
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onToggle: () => void;
+  isControlled: boolean;
+  getButtonProps: (props?: HTMLProps) => HTMLProps;
+  getDisclosureProps: (props?: HTMLProps) => HTMLProps;
+}
+
 type HTMLProps = React.HTMLAttributes<HTMLElement>;
 
 /**
@@ -20,7 +30,9 @@ type HTMLProps = React.HTMLAttributes<HTMLElement>;
  *
  * @see Docs https://chakra-ui.com/docs/hooks/use-disclosure
  */
-export function useDisclosure(props: UseDisclosureProps = {}) {
+export function useDisclosure(
+  props: UseDisclosureProps = {},
+): UseDisclosureReturn {
   const {
     onClose: onCloseProp,
     onOpen: onOpenProp,
@@ -92,5 +104,3 @@ export function useDisclosure(props: UseDisclosureProps = {}) {
     getDisclosureProps,
   };
 }
-
-export type UseDisclosureReturn = ReturnType<typeof useDisclosure>;
