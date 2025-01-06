@@ -29,7 +29,7 @@ const TextButtonComponent = (
     ...props
   }: ButtonProps,
   ref: ForwardedRef<HTMLButtonElement>,
-) => {
+): JSX.Element => {
   return (
     <Button
       ref={ref}

@@ -18,7 +18,7 @@ export const LinkButton = ({
   size = 'small',
   color = 'secondary',
   ...props
-}: ButtonProps) => {
+}: ButtonProps): JSX.Element => {
   return (
     <Button type={type} variant={variant} size={size} color={color} {...props}>
       <Typography variant='button' component='span'>

@@ -4,7 +4,11 @@ import { Typography, type TypographyProps } from '@mui/material';
  * A typography component for paragraph text
  * The primary text component, intended for use for most body content text.
  */
-export const Paragraph = ({ children, sx, ...props }: TypographyProps) => {
+export const Paragraph = ({
+  children,
+  sx,
+  ...props
+}: TypographyProps): JSX.Element => {
   return (
     <Typography
       variant='body1'
