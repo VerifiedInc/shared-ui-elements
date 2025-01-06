@@ -60,7 +60,7 @@ export const typography = {
   },
   button: {
     // fontSize set by MUI button component sizes, setting it here will screw that up
-    fontWeight: 700,
+    fontWeight: 900,
     letterSpacing: 0,
     lineHeight: 1.2,
     textTransform: 'uppercase' as const,
