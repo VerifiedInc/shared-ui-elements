@@ -1,6 +1,6 @@
 import { Box, type Theme, Typography, useTheme } from '@mui/material';
 
-import LegalLink from './LegalLink';
+import { LegalLink } from './LegalLink';
 interface AcceptTermsNoticeProps {
   legalLinkUrl?: string;
 }
