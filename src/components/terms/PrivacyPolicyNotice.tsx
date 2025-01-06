@@ -2,7 +2,7 @@ import { Box, Typography, useTheme } from '@mui/material';
 
 import { LegalLink } from './LegalLink';
 
-export const PrivacyPolicyNotice = () => {
+export const PrivacyPolicyNotice = (): JSX.Element => {
   const theme = useTheme();
   return (
     <Box marginTop={2}>
