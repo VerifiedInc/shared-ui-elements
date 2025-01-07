@@ -1,3 +1,4 @@
+import { type ForwardedRef, forwardRef } from 'react';
 import { Typography, type ButtonProps } from '@mui/material';
 import { Button } from '../Button';
 
@@ -11,19 +12,31 @@ import { Button } from '../Button';
  *
  * @param {ButtonProps} props LinkButton takes the same props as the MUI button component
  */
-export const LinkButton = ({
-  children,
-  type = 'button',
-  variant = 'text',
-  size = 'small',
-  color = 'secondary',
-  ...props
-}: ButtonProps): JSX.Element => {
-  return (
-    <Button type={type} variant={variant} size={size} color={color} {...props}>
-      <Typography variant='button' component='span'>
-        {children}
-      </Typography>
-    </Button>
-  );
-};
+export const LinkButton = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      children,
+      type = 'button',
+      variant = 'text',
+      size = 'small',
+      color = 'secondary',
+      ...props
+    }: ButtonProps,
+    ref: ForwardedRef<HTMLButtonElement>,
+  ): JSX.Element => {
+    return (
+      <Button
+        ref={ref}
+        type={type}
+        variant={variant}
+        size={size}
+        color={color}
+        {...props}
+      >
+        <Typography variant='button' component='span'>
+          {children}
+        </Typography>
+      </Button>
+    );
+  },
+);
