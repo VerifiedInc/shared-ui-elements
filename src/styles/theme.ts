@@ -260,5 +260,10 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
           size: 'medium',
         },
       },
+      MuiAutocomplete: {
+        defaultProps: {
+          size: 'medium',
+        },
+      },
     },
   });
