@@ -18,21 +18,13 @@ export const LinkButton = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       type = 'button',
       variant = 'text',
-      size = 'small',
       color = 'secondary',
       ...props
     }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ): JSX.Element => {
     return (
-      <Button
-        ref={ref}
-        type={type}
-        variant={variant}
-        size={size}
-        color={color}
-        {...props}
-      >
+      <Button ref={ref} type={type} variant={variant} color={color} {...props}>
         <Typography variant='button' component='span'>
           {children}
         </Typography>
