@@ -251,13 +251,13 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
       MuiTextField: {
         defaultProps: {
           variant: 'outlined',
-          size: 'small',
+          size: 'medium',
         },
       },
       MuiSelect: {
         defaultProps: {
           variant: 'outlined',
-          size: 'small',
+          size: 'medium',
         },
       },
     },
