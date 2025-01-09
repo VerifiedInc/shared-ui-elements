@@ -254,5 +254,11 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
           size: 'small',
         },
       },
+      MuiSelect: {
+        defaultProps: {
+          variant: 'outlined',
+          size: 'small',
+        },
+      },
     },
   });
