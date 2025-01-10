@@ -1,4 +1,10 @@
-import { forwardRef, type ReactElement, useRef, useState } from 'react';
+import {
+  type FC,
+  type ReactElement,
+  forwardRef,
+  useRef,
+  useState,
+} from 'react';
 import { Box, TextField } from '@mui/material';
 import DatePicker from 'react-datepicker';
 import pickerCSS from './react-datepicker.css?inline=true';
@@ -6,7 +12,7 @@ import pickerCSS from './react-datepicker.css?inline=true';
 import { useStyle } from './style';
 import { useOnClickOutside } from '../../../hooks';
 
-const Input = forwardRef(function Input(props, ref) {
+const Input = forwardRef(function RenderInput(props, ref) {
   return (
     <TextField
       inputRef={ref}
@@ -24,15 +30,17 @@ const Input = forwardRef(function Input(props, ref) {
   );
 });
 
-export interface DateRangeInputProps {
+interface DateRangeInputProps {
   startDate?: Date | number;
   endDate?: Date | number;
   onChange: (startDate: number, endDate: number) => void;
 }
 
-export function DateRangeInput(props: DateRangeInputProps): ReactElement {
+export const DateRangeInput: FC<DateRangeInputProps> = (
+  props: DateRangeInputProps,
+): ReactElement => {
   const styles = useStyle();
-  const initialDate = () => {
+  const initialDate = (): [Date | null, Date | null] => {
     const { startDate, endDate } = props;
     if (!startDate || !endDate) return [null, null];
     return [new Date(startDate), new Date(endDate)];
@@ -51,7 +59,6 @@ export function DateRangeInput(props: DateRangeInputProps): ReactElement {
 
   return (
     <Box ref={ref} sx={styles.wrapper}>
-      <p>date picker</p>
       <style>{pickerCSS}</style>
       <DatePicker
         open={open}
@@ -92,4 +99,4 @@ export function DateRangeInput(props: DateRangeInputProps): ReactElement {
       />
     </Box>
   );
-}
+};
