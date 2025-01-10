@@ -33,6 +33,14 @@ This project utilizes alias only for the storybook implementation, the modules t
 
 Ensure that new dependencies are added to both devDependencies and peerDependencies if required in the client's project.
 
+### When to Avoid Peer Dependencies
+
+While most dependencies should be peer dependencies to avoid version conflicts and duplicate packages, there are specific cases where a dependency should be a direct dependency instead:
+
+- When a third-party library encounters rendering errors due to its unique distribution method or packaging structure, making it incompatible with peer dependency resolution.
+
+This exception helps prevent runtime errors and ensures consistent behavior across different client implementations.
+
 ## Installing in Your Client Session
 
 When installing the `@verifiedinc/shared-ui-elements` package, you have access to different export paths optimized for specific use cases.
