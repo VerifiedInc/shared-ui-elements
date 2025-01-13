@@ -5,3 +5,4 @@ export * from './PhoneInput';
 export * from './OTPInput';
 export * from './EmailInput';
 export * from './DateRangeInput';
+export * from './TimezoneInput';

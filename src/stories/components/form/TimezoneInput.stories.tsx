@@ -1,7 +1,7 @@
 import React, { type Meta, type StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
-import { TimezoneInput } from '../../../components/form/TimezoneInput';
+import { TimezoneInput } from '../../../components/form';
 
 function Story() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
