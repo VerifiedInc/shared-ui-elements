@@ -9,13 +9,13 @@ import { usePrevious, useCopyToClipboard } from '../../../hooks';
 import { MotionStack, Counter } from '../../animation';
 import { useSnackbar } from '../../Snackbar';
 
-// Round down to prevent overshooting 100%
-Decimal.set({ rounding: Decimal.ROUND_DOWN });
-
 function EntryBlock({
   entry,
   payload,
 }: Readonly<{ entry: any; payload: any }>): ReactElement {
+  // Round down to prevent overshooting 100%
+  const DecimalConstructor = Decimal.set({ rounding: Decimal.ROUND_DOWN });
+
   const getEntryTotal = useCallback((entry: any): number => {
     console.log(entry);
     return entry.payload?.data?.reduce?.(
@@ -26,12 +26,12 @@ function EntryBlock({
 
   const getEntryTotalPercentage = useCallback(
     (entry: any): number | string => {
-      const entryTotal = new Decimal(getEntryTotal(entry) || 0);
+      const entryTotal = new DecimalConstructor(getEntryTotal(entry) || 0);
       const total =
         payload?.reduce((acc: number, entry: any) => {
           return acc + getEntryTotal(entry);
         }, 0) || 0;
-      const totalDecimal = new Decimal(total);
+      const totalDecimal = new DecimalConstructor(total);
       const totalPercentage = Number(
         entryTotal.div(totalDecimal).times(100).toFixed(2),
       );
