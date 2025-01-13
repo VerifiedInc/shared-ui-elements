@@ -9,7 +9,7 @@ import {
 } from '../../../components/Snackbar';
 
 const meta = {
-  title: 'components/chart/Legend',
+  title: 'components/chart/SeriesChartLegend',
   component: SeriesChartLegend,
   parameters: {
     layout: 'centered',

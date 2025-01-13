@@ -30,3 +30,42 @@ export const formatDateToTimestamp = (
 
   return String(+date);
 };
+
+/**
+ * Formats a timestamp into a pretty format of MM/YY.
+ * @param date - date to format
+ * @param options - Intl.DateTimeFormatOptions
+ * @returns formatted date
+ */
+export const formatDateMMYY = (
+  date: number | string,
+  options?: Intl.DateTimeFormatOptions,
+): string => {
+  return new Date(Number(date)).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour12: false,
+    ...options,
+  });
+};
+
+/**
+ * Formats a date into an extended format including weekday, year, month, day, hour, and minute.
+ * @param date - date to format
+ * @param options - Intl.DateTimeFormatOptions
+ * @returns formatted date in extended format
+ */
+export const formatExtendedDate = (
+  date: number | string,
+  options?: Intl.DateTimeFormatOptions,
+): string => {
+  return new Date(Number(date)).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    ...options,
+  });
+};
