@@ -2,7 +2,6 @@ import { type ReactElement, useMemo } from 'react';
 import {
   type PopperProps,
   Autocomplete,
-  Box,
   FormControl,
   Popper,
   TextField,
@@ -58,60 +57,56 @@ export function TimezoneInput({
   const selected = getTimezoneOption(value);
 
   return (
-    <Box>
-      <FormControl fullWidth>
-        <Autocomplete
-          disablePortal
-          disableClearable
-          value={selected}
-          options={options}
-          getOptionLabel={(option) => option.label.replace(/_/gm, ' ')}
-          getOptionKey={(option) => option.tzCode}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              inputProps={{
-                ...params.inputProps,
-                value:
-                  params.inputProps?.value
-                    ?.toString()
-                    ?.match(/.*\((.*)\)/)?.[1] || '',
-              }}
-              label='Timezone'
-            />
-          )}
-          isOptionEqualToValue={(option, value) =>
-            option.tzCode === value.tzCode
-          }
-          onChange={(e, newValue) => {
-            if (!newValue) return;
+    <FormControl fullWidth>
+      <Autocomplete
+        disablePortal
+        disableClearable
+        value={selected}
+        options={options}
+        getOptionLabel={(option) => option.label.replace(/_/gm, ' ')}
+        getOptionKey={(option) => option.tzCode}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            inputProps={{
+              ...params.inputProps,
+              value:
+                params.inputProps?.value
+                  ?.toString()
+                  ?.match(/.*\((.*)\)/)?.[1] || '',
+            }}
+            label='Timezone'
+          />
+        )}
+        isOptionEqualToValue={(option, value) => option.tzCode === value.tzCode}
+        onChange={(e, newValue) => {
+          if (!newValue) return;
 
-            onChange(newValue.tzCode);
-          }}
-          sx={{
-            width: 145,
-            '& *': { whiteSpace: 'pre', wordBreak: 'break-all' },
-            '& .MuiAutocomplete-option': {
-              scrollbarWidth: 'thin',
-              opacity: 0,
-            },
-          }}
-          PopperComponent={PopperComponent}
-          slotProps={{
-            popper: {
-              sx: {
+          onChange(newValue.tzCode);
+        }}
+        sx={{
+          width: 145,
+          '& *': { whiteSpace: 'pre', wordBreak: 'break-all' },
+          '& .MuiAutocomplete-option': {
+            scrollbarWidth: 'thin',
+            opacity: 0,
+          },
+        }}
+        PopperComponent={PopperComponent}
+        slotProps={{
+          popper: {
+            sx: {
+              whiteSpace: 'pre',
+              wordBreak: 'break-all',
+              '& *': {
+                scrollbarWidth: 'thin',
                 whiteSpace: 'pre',
                 wordBreak: 'break-all',
-                '& *': {
-                  scrollbarWidth: 'thin',
-                  whiteSpace: 'pre',
-                  wordBreak: 'break-all',
-                },
               },
             },
-          }}
-        />
-      </FormControl>
-    </Box>
+          },
+        }}
+      />
+    </FormControl>
   );
 }
