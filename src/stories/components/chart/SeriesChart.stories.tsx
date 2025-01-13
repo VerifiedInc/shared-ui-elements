@@ -2,7 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { SeriesChart } from '../../../components/chart/SeriesChart';
+import { SeriesChart } from '../../../components/chart';
 import {
   CustomAlertComponent,
   SnackbarProvider,
