@@ -6,6 +6,8 @@ import { configDefaults } from 'vitest/config';
 
 import pkg from './package.json';
 
+const resolvePath = (path: string) => resolve(__dirname, path);
+
 export default defineConfig({
   plugins: [react({ jsxRuntime: 'automatic' }), dts({ include: ['src'] })],
   test: {
@@ -15,17 +17,17 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        index: resolve(__dirname, 'src/index.ts'),
-        components: resolve(__dirname, 'src/components/index.ts'),
-        'components/animation': resolve(
-          __dirname,
+        index: resolvePath('src/index.ts'),
+        components: resolvePath('src/components/index.ts'),
+        'components/animation': resolvePath(
           'src/components/animation/index.ts',
         ),
-        hooks: resolve(__dirname, 'src/hooks/index.ts'),
-        styles: resolve(__dirname, 'src/styles/index.ts'),
-        validations: resolve(__dirname, 'src/validations/index.ts'),
-        'utils/masks': resolve(__dirname, 'src/utils/masks/index.ts'),
-        'utils/string': resolve(__dirname, 'src/utils/string/index.ts'),
+        'components/chart': resolvePath('src/components/chart/index.ts'),
+        hooks: resolvePath('src/hooks/index.ts'),
+        styles: resolvePath('src/styles/index.ts'),
+        validations: resolvePath('src/validations/index.ts'),
+        'utils/masks': resolvePath('src/utils/masks/index.ts'),
+        'utils/string': resolvePath('src/utils/string/index.ts'),
       },
       formats: ['es'],
       fileName: (format, entryName) => {
