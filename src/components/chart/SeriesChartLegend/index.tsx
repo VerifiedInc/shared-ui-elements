@@ -1,7 +1,7 @@
 import { type ReactElement, useCallback, useMemo } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { type LegendProps } from 'recharts';
-import Decimal from 'decimal.js';
+import { Decimal } from 'decimal.js';
 import { AnimatePresence } from 'framer-motion';
 
 import { usePrevious, useCopyToClipboard } from '../../../hooks';
@@ -13,9 +13,6 @@ function EntryBlock({
   entry,
   payload,
 }: Readonly<{ entry: any; payload: any }>): ReactElement {
-  // Round down to prevent overshooting 100%
-  const DecimalConstructor = Decimal.set({ rounding: Decimal.ROUND_DOWN });
-
   const getEntryTotal = useCallback((entry: any): number => {
     console.log(entry);
     return entry.payload?.data?.reduce?.(
@@ -26,14 +23,15 @@ function EntryBlock({
 
   const getEntryTotalPercentage = useCallback(
     (entry: any): number | string => {
-      const entryTotal = new DecimalConstructor(getEntryTotal(entry) || 0);
+      const entryTotal = new Decimal(getEntryTotal(entry) || 0);
       const total =
         payload?.reduce((acc: number, entry: any) => {
           return acc + getEntryTotal(entry);
         }, 0) || 0;
-      const totalDecimal = new DecimalConstructor(total);
+      const totalDecimal = new Decimal(total);
       const totalPercentage = Number(
-        entryTotal.div(totalDecimal).times(100).toFixed(2),
+        // Round down to prevent overshooting 100%
+        entryTotal.div(totalDecimal).times(100).toFixed(2, Decimal.ROUND_DOWN),
       );
       if (isNaN(totalPercentage) || !isFinite(totalPercentage)) return 0;
       return totalPercentage;
