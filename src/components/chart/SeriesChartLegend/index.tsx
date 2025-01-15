@@ -143,12 +143,8 @@ export function SeriesChartLegend(props: LegendProps): ReactElement {
     >
       <AnimatePresence>
         {payload?.map((entry) => (
-          <Grid2>
-            <EntryBlock
-              key={`item-${entry.value}`}
-              entry={entry}
-              payload={payload}
-            />
+          <Grid2 key={`item-${entry.value}`}>
+            <EntryBlock entry={entry} payload={payload} />
           </Grid2>
         ))}
       </AnimatePresence>
