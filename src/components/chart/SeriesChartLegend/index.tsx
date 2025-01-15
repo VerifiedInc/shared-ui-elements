@@ -15,7 +15,6 @@ function EntryBlock({
   payload,
 }: Readonly<{ entry: any; payload: any }>): ReactElement {
   const getEntryTotal = useCallback((entry: any): number => {
-    console.log(entry);
     return entry.payload?.data?.reduce?.(
       (acc: number, curr: any) => acc + curr.value,
       0,
