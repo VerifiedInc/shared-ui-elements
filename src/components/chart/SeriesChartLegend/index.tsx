@@ -1,5 +1,6 @@
 import { type ReactElement, useCallback, useMemo } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2';
 import { type LegendProps } from 'recharts';
 import { Decimal } from 'decimal.js';
 import { AnimatePresence } from 'framer-motion';
@@ -65,7 +66,6 @@ function EntryBlock({
       direction='row'
       spacing={1}
       sx={{
-        marginRight: '10px',
         color: entry.color,
       }}
       layout='position'
@@ -130,25 +130,29 @@ export function SeriesChartLegend(props: LegendProps): ReactElement {
   const { payload } = props;
 
   return (
-    <Stack
+    <Grid2
+      container
       direction='row'
       component='ul'
-      spacing={2}
+      gap={2}
       sx={{
         mt: 2,
         justifyContent: 'flex-start',
         alignItem: 'center',
+        flexWrap: 'wrap',
       }}
     >
       <AnimatePresence>
         {payload?.map((entry) => (
-          <EntryBlock
-            key={`item-${entry.value}`}
-            entry={entry}
-            payload={payload}
-          />
+          <Grid2>
+            <EntryBlock
+              key={`item-${entry.value}`}
+              entry={entry}
+              payload={payload}
+            />
+          </Grid2>
         ))}
       </AnimatePresence>
-    </Stack>
+    </Grid2>
   );
 }
