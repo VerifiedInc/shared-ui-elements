@@ -49,8 +49,13 @@ const sampleData = [
 
 const keyValues = [
   { key: 'oneClickSuccess', name: 'Success', color: '#0DBC3D' },
-  { key: 'oneClickCreated', name: 'Created', color: '#fbbc05' },
-  { key: 'oneClickCancelled', name: 'Cancelled', color: '#808080' },
+  {
+    key: 'oneClickCreated',
+    name: 'Created',
+    color: '#808080',
+    isTotal: true,
+  },
+  { key: 'oneClickCancelled', name: 'Cancelled', color: '#fbbc05' },
 ];
 
 export const Default: Story = {
