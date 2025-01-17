@@ -23,6 +23,9 @@ export default defineConfig({
           'src/components/animation/index.ts',
         ),
         'components/chart': resolvePath('src/components/chart/index.ts'),
+        'components/typographies': resolvePath(
+          'src/components/typographies/index.ts',
+        ),
         hooks: resolvePath('src/hooks/index.ts'),
         styles: resolvePath('src/styles/index.ts'),
         validations: resolvePath('src/validations/index.ts'),
