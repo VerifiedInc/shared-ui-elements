@@ -72,7 +72,7 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
         showYearDropdown
         showMonthDropdown
         scrollableYearDropdown={false}
-        dateFormat='MM/dd/yyyy HH:mm'
+        dateFormat='MM/dd/yyyy HH:mm:ss'
         startDate={startDate ?? undefined}
         endDate={endDate ?? undefined}
         // Set the minimum date to the 2023
