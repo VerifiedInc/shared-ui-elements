@@ -1,17 +1,20 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 
 /**
- * Custom React hook for tracking previous values.
+ * Track the previous value of a variable with usePrevious.
  * @param value
+ * @returns The previous value of the variable.
  */
-export function usePrevious<T>(value: T): T | undefined {
-  const [current, setCurrent] = React.useState<T>(value);
-  const [previous, setPrevious] = React.useState<T>();
+export function usePrevious<T>(value: T): T | null {
+  const [current, setCurrent] = useState<T>(value);
+  const [previous, setPrevious] = useState<T | null>(null);
 
-  if (value !== current) {
-    setPrevious(current);
-    setCurrent(value);
-  }
+  useEffect(() => {
+    if (value !== current) {
+      setPrevious(current);
+      setCurrent(value);
+    }
+  }, [current, value]);
 
   return previous;
 }
