@@ -4,6 +4,7 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -15,6 +16,7 @@ interface SimpleBarChartProps {
   color?: string;
   xAxisProps?: ComponentProps<typeof XAxis>;
   yAxisProps?: ComponentProps<typeof YAxis>;
+  referenceLines?: Array<ComponentProps<typeof ReferenceLine>>;
   sx?: SxProps;
 }
 
@@ -23,6 +25,7 @@ export function SimpleBarChart({
   color,
   xAxisProps,
   yAxisProps,
+  referenceLines,
   sx,
 }: SimpleBarChartProps): ReactElement {
   const theme = useTheme();
@@ -51,6 +54,9 @@ export function SimpleBarChart({
           <Tooltip
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
           />
+          {referenceLines?.map((line, index) => (
+            <ReferenceLine key={index} {...(line as any)} />
+          ))}
           <Bar dataKey='value' fill={color} isAnimationActive={false} />
         </ComposedChart>
       </ResponsiveContainer>
