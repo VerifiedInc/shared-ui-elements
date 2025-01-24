@@ -38,10 +38,12 @@ export function SimpleBarChart({
 }: SimpleBarChartProps): ReactElement {
   const theme = useTheme();
 
-  const filterOnlyBack = (line: ComponentProps<typeof ReferenceLine>) =>
-    !line.isFront;
-  const filterOnlyFront = (line: ComponentProps<typeof ReferenceLine>) =>
-    line.isFront;
+  const filterOnlyBack = (
+    line: ComponentProps<typeof ReferenceLine>,
+  ): boolean => !line.isFront;
+  const filterOnlyFront = (
+    line: ComponentProps<typeof ReferenceLine>,
+  ): boolean => line.isFront;
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
