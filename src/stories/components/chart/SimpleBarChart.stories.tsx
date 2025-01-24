@@ -36,9 +36,28 @@ const mockData = generateRandomData();
 
 export const Default: Story = {
   args: {
-    data: mockData,
-    series: defaultSeries,
-    xAxisDataKey: 'month',
+    data: [
+      { key: 'OCE000', OCE000: 100 },
+      { key: 'OCE001', OCE001: 200 },
+    ],
+    series: [
+      {
+        key: 'OCE000',
+        dataKey: 'OCE000',
+        color: 'red',
+      },
+      {
+        key: 'OCE001',
+        dataKey: 'OCE001',
+        color: 'red',
+      },
+    ],
+    xAxis: {
+      dataKey: 'key',
+    },
+    tooltip: {
+      labelFormatter: (value) => 'Value for:',
+    },
     sx: {
       width: 800,
       height: 400,
@@ -57,7 +76,9 @@ export const ThreeSeries: Story = {
   args: {
     data: threeSeriesData,
     series: threeSeries,
-    xAxisDataKey: 'month',
+    xAxis: {
+      dataKey: 'month',
+    },
     sx: {
       width: 800,
       height: 400,
@@ -69,15 +90,15 @@ export const CustomStyling: Story = {
   args: {
     data: mockData,
     series: defaultSeries,
-    xAxisDataKey: 'month',
     sx: {
       width: 800,
       height: 400,
     },
-    xAxisProps: {
+    xAxis: {
       tickLine: false,
+      dataKey: 'month',
     },
-    yAxisProps: {
+    yAxis: {
       tickLine: false,
       domain: [0, 'dataMax + 25'],
     },
