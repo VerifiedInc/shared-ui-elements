@@ -4,28 +4,46 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 
-interface SimpleBarChartProps {
-  data: Array<{ key: string; value: number }>;
+interface Series {
+  key: string;
+  dataKey: string;
   color?: string;
+}
+
+interface SimpleBarChartProps {
+  data: Array<Record<string, number | string>>;
+  series: Series[];
+  xAxisDataKey: string;
   xAxisProps?: ComponentProps<typeof XAxis>;
   yAxisProps?: ComponentProps<typeof YAxis>;
+  referenceLines?: Array<ComponentProps<typeof ReferenceLine>>;
   sx?: SxProps;
 }
 
 export function SimpleBarChart({
   data,
-  color,
+  series,
+  xAxisDataKey,
   xAxisProps,
   yAxisProps,
+  referenceLines,
   sx,
 }: SimpleBarChartProps): ReactElement {
   const theme = useTheme();
+
+  const filterOnlyBack = (
+    line: ComponentProps<typeof ReferenceLine>,
+  ): boolean => !line.isFront;
+  const filterOnlyFront = (
+    line: ComponentProps<typeof ReferenceLine>,
+  ): boolean => line.isFront;
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
@@ -41,7 +59,7 @@ export function SimpleBarChart({
         >
           <CartesianGrid strokeDasharray='3 3' vertical={false} />
           <XAxis
-            dataKey='key'
+            dataKey={xAxisDataKey}
             tickLine={false}
             fontSize={12}
             tickMargin={12}
@@ -51,7 +69,26 @@ export function SimpleBarChart({
           <Tooltip
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
           />
-          <Bar dataKey='value' fill={color} isAnimationActive={false} />
+          {referenceLines
+            ?.filter(filterOnlyBack)
+            .map((line, index) => (
+              <ReferenceLine key={index} {...(line as any)} />
+            ))}
+          {series.map((serie) => (
+            <Bar
+              key={serie.key}
+              name={serie.key}
+              dataKey={serie.dataKey}
+              fill={serie.color}
+              stackId='stack'
+              isAnimationActive={false}
+            />
+          ))}
+          {referenceLines
+            ?.filter(filterOnlyFront)
+            .map((line, index) => (
+              <ReferenceLine key={index} {...(line as any)} />
+            ))}
         </ComposedChart>
       </ResponsiveContainer>
     </Box>

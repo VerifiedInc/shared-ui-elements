@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { SimpleBarChart } from '../../../components/chart';
+import { Label } from 'recharts';
 
 const meta = {
   title: 'components/chart/SimpleBarChart',
@@ -14,14 +15,49 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockData = new Array(1000).fill(0).map((_, i) => ({
-  key: String(i + 1),
-  value: Math.floor(Math.random() * 100),
-}));
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+
+const generateRandomData = () => {
+  return new Array(10).fill(0).map((_, i) => ({
+    month: i + 1,
+    series1: Math.floor(Math.random() * 100),
+    series2: Math.floor(Math.random() * 100),
+    series3: Math.floor(Math.random() * 100),
+  }));
+};
+
+const defaultSeries = [
+  { key: 'Series 1', dataKey: 'series1', color: '#1f77b4' },
+  { key: 'Series 2', dataKey: 'series2', color: '#ff7f0e' },
+  { key: 'Series 3', dataKey: 'series3', color: '#ddbc23' },
+];
+
+const mockData = generateRandomData();
 
 export const Default: Story = {
   args: {
     data: mockData,
+    series: defaultSeries,
+    xAxisDataKey: 'month',
+    sx: {
+      width: 800,
+      height: 400,
+    },
+  },
+};
+
+const threeSeriesData = generateRandomData();
+const threeSeries = [
+  { key: 'Series 1', dataKey: 'series1', color: '#1f77b4' },
+  { key: 'Series 2', dataKey: 'series2', color: '#ff7f0e' },
+  { key: 'Series 3', dataKey: 'series3', color: '#2ca02c' },
+];
+
+export const ThreeSeries: Story = {
+  args: {
+    data: threeSeriesData,
+    series: threeSeries,
+    xAxisDataKey: 'month',
     sx: {
       width: 800,
       height: 400,
@@ -32,6 +68,8 @@ export const Default: Story = {
 export const CustomStyling: Story = {
   args: {
     data: mockData,
+    series: defaultSeries,
+    xAxisDataKey: 'month',
     sx: {
       width: 800,
       height: 400,
@@ -41,6 +79,16 @@ export const CustomStyling: Story = {
     },
     yAxisProps: {
       tickLine: false,
+      domain: [0, 'dataMax + 25'],
     },
+    referenceLines: [
+      {
+        y: 150,
+        stroke: 'red',
+        strokeDasharray: '3 3',
+        label: <Label value='Threshold' position='insideBottomRight' />,
+        isFront: true,
+      },
+    ],
   },
 };
