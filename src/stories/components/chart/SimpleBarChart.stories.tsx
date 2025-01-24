@@ -36,9 +36,23 @@ const mockData = generateRandomData();
 
 export const Default: Story = {
   args: {
-    data: mockData,
-    series: defaultSeries,
-    xAxisDataKey: 'month',
+    data: [
+      { key: 'OCE000', OCE000: 100 },
+      { key: 'OCE001', OCE001: 200 },
+    ],
+    series: [
+      {
+        key: 'OCE000',
+        dataKey: 'OCE000',
+        color: 'red',
+      },
+      {
+        key: 'OCE001',
+        dataKey: 'OCE001',
+        color: 'red',
+      },
+    ],
+    xAxisDataKey: 'key',
     sx: {
       width: 800,
       height: 400,
