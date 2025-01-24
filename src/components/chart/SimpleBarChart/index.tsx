@@ -43,7 +43,7 @@ export function SimpleBarChart({
   ): boolean => !line.isFront;
   const filterOnlyFront = (
     line: ComponentProps<typeof ReferenceLine>,
-  ): boolean => line.isFront;
+  ): boolean => !!line.isFront;
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
