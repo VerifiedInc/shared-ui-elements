@@ -11,6 +11,12 @@ import {
   YAxis,
 } from 'recharts';
 
+import {
+  chartDefaultProps,
+  xAxisDefaultProps,
+  yAxisDefaultProps,
+} from '../shared';
+
 interface Series {
   key: string;
   dataKey: string;
@@ -20,9 +26,10 @@ interface Series {
 interface SimpleBarChartProps {
   data: Array<Record<string, number | string>>;
   series: Series[];
-  xAxisDataKey: string;
-  xAxisProps?: ComponentProps<typeof XAxis>;
-  yAxisProps?: ComponentProps<typeof YAxis>;
+  xAxis?: ComponentProps<typeof XAxis>;
+  yAxis?: ComponentProps<typeof YAxis>;
+  tooltip?: ComponentProps<typeof Tooltip>;
+  bar?: ComponentProps<typeof Bar>;
   referenceLines?: Array<ComponentProps<typeof ReferenceLine>>;
   sx?: SxProps;
 }
@@ -30,9 +37,10 @@ interface SimpleBarChartProps {
 export function SimpleBarChart({
   data,
   series,
-  xAxisDataKey,
-  xAxisProps,
-  yAxisProps,
+  xAxis,
+  yAxis,
+  tooltip,
+  bar,
   referenceLines,
   sx,
 }: SimpleBarChartProps): ReactElement {
@@ -48,26 +56,13 @@ export function SimpleBarChart({
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
-        <ComposedChart
-          data={data}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
+        <ComposedChart data={data} {...chartDefaultProps}>
           <CartesianGrid strokeDasharray='3 3' vertical={false} />
-          <XAxis
-            dataKey={xAxisDataKey}
-            tickLine={false}
-            fontSize={12}
-            tickMargin={12}
-            {...xAxisProps}
-          />
-          <YAxis textAnchor='end' tickLine={false} {...yAxisProps} />
+          <XAxis {...xAxisDefaultProps} {...xAxis} />
+          <YAxis {...yAxisDefaultProps} {...yAxis} />
           <Tooltip
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
+            {...tooltip}
           />
           {referenceLines
             ?.filter(filterOnlyBack)
@@ -82,6 +77,7 @@ export function SimpleBarChart({
               fill={serie.color}
               stackId='stack'
               isAnimationActive={false}
+              {...(bar as any)}
             />
           ))}
           {referenceLines

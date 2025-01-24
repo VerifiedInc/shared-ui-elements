@@ -52,7 +52,12 @@ export const Default: Story = {
         color: 'red',
       },
     ],
-    xAxisDataKey: 'key',
+    xAxis: {
+      dataKey: 'key',
+    },
+    tooltip: {
+      labelFormatter: (value) => 'Value for:',
+    },
     sx: {
       width: 800,
       height: 400,
@@ -71,7 +76,9 @@ export const ThreeSeries: Story = {
   args: {
     data: threeSeriesData,
     series: threeSeries,
-    xAxisDataKey: 'month',
+    xAxis: {
+      dataKey: 'month',
+    },
     sx: {
       width: 800,
       height: 400,
@@ -83,15 +90,15 @@ export const CustomStyling: Story = {
   args: {
     data: mockData,
     series: defaultSeries,
-    xAxisDataKey: 'month',
     sx: {
       width: 800,
       height: 400,
     },
-    xAxisProps: {
+    xAxis: {
       tickLine: false,
+      dataKey: 'month',
     },
-    yAxisProps: {
+    yAxis: {
       tickLine: false,
       domain: [0, 'dataMax + 25'],
     },
