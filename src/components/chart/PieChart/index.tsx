@@ -1,4 +1,4 @@
-import { type ReactElement, useState } from 'react';
+import { type ReactElement, useState, useRef, useEffect } from 'react';
 import { Box, useTheme, type SxProps } from '@mui/material';
 import {
   PieChart as RechartsPieChart,
@@ -6,12 +6,15 @@ import {
   Cell,
   ResponsiveContainer,
   Legend,
-  Sector,
+  type PieProps,
 } from 'recharts';
 
 import { chartDefaultProps } from '../shared';
 
 import { SimpleLegend, type Payload } from '../SimpleLegend';
+
+import { renderActiveShape } from './renderActiveShape';
+import { renderNeedle } from './renderNeedle';
 
 /**
  * Data point structure for the PieChart component
@@ -43,10 +46,38 @@ interface PieChartProps {
    */
   legendLabel?: string;
   /**
+   * Optional visibility for the legend
+   * @default false
+   */
+  legendToggle?: boolean;
+  /**
    * Optional prefix for the value label
    * @default ''
    */
   valuePrefix?: string;
+  /**
+   * Optional visibility for the value percentage
+   * @default true
+   */
+  valuePercentage?: boolean;
+  /**
+   * Optional visibility for the needle
+   * @default false
+   */
+  needleVisible?: boolean;
+  /**
+   * Optional needle value to display on the chart
+   */
+  needleValue?: number;
+  /**
+   * Optional color for the needle
+   * @default '#d0d000'
+   */
+  needleColor?: string;
+  /**
+   * Optional props object for the Pie component
+   */
+  pie?: Partial<PieProps>;
 }
 
 // Define fallback colors for each series if no color is provided
@@ -58,86 +89,6 @@ const getDefaultSeriesColor = (name: string, theme: any): string => {
   };
 
   return colors[name] ?? theme.palette.primary.main;
-};
-
-const renderActiveShape = (props: any): ReactElement => {
-  const RADIAN = Math.PI / 180;
-  const {
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    startAngle,
-    endAngle,
-    fill,
-    payload,
-    percent,
-    value,
-    valuePrefix,
-  } = props;
-
-  // Calculate positions for the line and text
-  const sin = Math.sin(-RADIAN * midAngle);
-  const cos = Math.cos(-RADIAN * midAngle);
-  const sx = cx + (outerRadius + 5) * cos;
-  const sy = cy + (outerRadius + 5) * sin;
-  const mx = cx + (outerRadius + 15) * cos;
-  const my = cy + (outerRadius + 15) * sin;
-  const ex = mx + (cos >= 0 ? 1 : -1) * 15;
-  const ey = my;
-  const textAnchor = cos >= 0 ? 'start' : 'end';
-
-  return (
-    <g>
-      <text x={cx} y={cy} dy={8} textAnchor='middle' fill='#333' fontSize={14}>
-        {payload.name}
-      </text>
-      <Sector
-        cx={cx}
-        cy={cy}
-        innerRadius={innerRadius}
-        outerRadius={outerRadius}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        fill={fill}
-      />
-      <Sector
-        cx={cx}
-        cy={cy}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        innerRadius={outerRadius + 2}
-        outerRadius={outerRadius + 6}
-        fill={fill}
-      />
-      <path
-        d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-        stroke={fill}
-        fill='none'
-      />
-      <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none' />
-      <text
-        x={ex + (cos >= 0 ? 1 : -1) * 8}
-        y={ey}
-        textAnchor={textAnchor}
-        fill='#333'
-        fontSize={12}
-      >
-        {valuePrefix ? `${valuePrefix} ${value}` : value}
-      </text>
-      <text
-        x={ex + (cos >= 0 ? 1 : -1) * 8}
-        y={ey}
-        dy={16}
-        textAnchor={textAnchor}
-        fill='#999'
-        fontSize={11}
-      >
-        {`${(percent * 100).toFixed(1)}%`}
-      </text>
-    </g>
-  );
 };
 
 /**
@@ -164,11 +115,24 @@ export function PieChart({
   data,
   sx,
   legendLabel,
+  legendToggle = false,
   valuePrefix = '',
+  valuePercentage = true,
+  pie,
+  needleVisible = false,
+  needleValue,
+  needleColor = '#aaa',
 }: PieChartProps): ReactElement {
+  const { innerRadius = 60, outerRadius = 100 } = pie ?? {};
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState<number | undefined>();
   const [hiddenItems, setHiddenItems] = useState<Set<string>>(new Set());
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [boxDimensions, setBoxDimensions] = useState<DOMRectReadOnly | null>(
+    null,
+  );
+  const [legendDimensions, setLegendDimensions] =
+    useState<DOMRectReadOnly | null>(null);
 
   const onPieEnter = (_: any, index: number): void => {
     setActiveIndex(index);
@@ -179,13 +143,14 @@ export function PieChart({
   };
 
   const toggleDataPoint = (payload: Payload): void => {
+    if (!legendToggle) return;
     if (!payload) return;
 
     setHiddenItems((prev) => {
       const newHiddenItems = new Set(prev);
       if (newHiddenItems.has(payload.name)) {
         newHiddenItems.delete(payload.name);
-      } else {
+      } else if (newHiddenItems.size < data.length - 1) {
         newHiddenItems.add(payload.name);
       }
       return newHiddenItems;
@@ -197,8 +162,71 @@ export function PieChart({
     value: hiddenItems.has(item.name) ? 0 : item.value,
   }));
 
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const bounds = entries[0]?.contentRect;
+      if (bounds) {
+        setBoxDimensions(bounds);
+      }
+    });
+
+    observer.observe(box);
+
+    // Initial measurement
+    const bounds = box.getBoundingClientRect();
+    setBoxDimensions(bounds);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const legendWrapper = boxRef.current?.querySelector(
+      '.recharts-legend-wrapper',
+    );
+    if (!legendWrapper) {
+      const interval = setInterval(() => {
+        const element = boxRef.current?.querySelector(
+          '.recharts-legend-wrapper',
+        );
+
+        if (element) {
+          const bounds = element.getBoundingClientRect();
+          setLegendDimensions(bounds);
+          clearInterval(interval);
+        }
+      }, 100);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      const bounds = entries[0]?.contentRect;
+      if (bounds) {
+        setLegendDimensions(bounds);
+      }
+    });
+
+    observer.observe(legendWrapper);
+
+    // Initial measurement
+    const bounds = legendWrapper.getBoundingClientRect();
+    setLegendDimensions(bounds);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <Box
+      ref={boxRef}
       sx={{
         width: '100%',
         height: '100%',
@@ -212,26 +240,30 @@ export function PieChart({
         <RechartsPieChart {...chartDefaultProps}>
           <Pie
             data={filteredData}
-            dataKey='value'
             nameKey='name'
-            cx='50%'
-            cy='50%'
-            innerRadius={60}
-            outerRadius={100}
+            dataKey='value'
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
             activeIndex={activeIndex}
             activeShape={(props: any) =>
-              renderActiveShape({ ...props, valuePrefix })
+              renderActiveShape({
+                ...props,
+                valuePrefix,
+                valuePercentage,
+                needleVisible,
+              })
             }
             paddingAngle={0}
             onMouseEnter={onPieEnter}
             onMouseLeave={onPieLeave}
+            {...(pie as any)}
           >
             {filteredData.map((entry) => (
               <Cell
                 key={entry.name}
                 fill={entry.color ?? getDefaultSeriesColor(entry.name, theme)}
-                stroke='none'
                 opacity={hiddenItems.has(entry.name) ? 0.5 : 1}
+                stroke='none'
               />
             ))}
           </Pie>
@@ -244,6 +276,20 @@ export function PieChart({
               />
             }
           />
+          {needleVisible &&
+            needleValue !== undefined &&
+            boxDimensions &&
+            legendDimensions &&
+            renderNeedle({
+              data: filteredData,
+              value: needleValue,
+              color: needleColor,
+              innerRadius,
+              outerRadius,
+              boxDimensions,
+              legendDimensions,
+              valuePrefix,
+            })}
         </RechartsPieChart>
       </ResponsiveContainer>
     </Box>

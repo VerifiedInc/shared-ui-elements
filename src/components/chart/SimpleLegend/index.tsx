@@ -1,4 +1,5 @@
 import { type ReactElement } from 'react';
+import { Box } from '@mui/material';
 
 /**
  * Generic payload interface for legend items.
@@ -66,8 +67,8 @@ export function SimpleLegend({
   legendLabel,
 }: CustomLegendProps): ReactElement {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: 'flex',
         justifyContent: 'center',
         gap: '20px',
@@ -104,6 +105,6 @@ export function SimpleLegend({
           </div>
         );
       })}
-    </div>
+    </Box>
   );
 }
