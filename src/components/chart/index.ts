@@ -4,3 +4,5 @@ export * from './SeriesPercentageChart';
 export * from './BigNumber';
 export * from './SimpleBarChart';
 export * from './ErrorCodesChart';
+export * from './PieChart';
+export * from './SimpleLegend';
