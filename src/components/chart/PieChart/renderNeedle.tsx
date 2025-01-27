@@ -61,8 +61,13 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
     maximumFractionDigits: 0,
   });
 
-  const scoreText = valuePrefix
-    ? `${valuePrefix} ${valueFormatted}`
+  let _valuePrefix = valuePrefix;
+  const matchTemplate = valuePrefix?.match(/{{needleValue}}/);
+  if (matchTemplate) {
+    _valuePrefix = valuePrefix?.replace('{{needleValue}}', valueFormatted);
+  }
+  const needleText = matchTemplate
+    ? (_valuePrefix ?? valueFormatted)
     : valueFormatted;
 
   return (
@@ -91,7 +96,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
         fill='#333'
         fontSize={12}
       >
-        {scoreText}
+        {needleText}
       </text>
     </>
   );

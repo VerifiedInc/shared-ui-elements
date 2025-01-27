@@ -35,7 +35,7 @@ const themeColorData = [
 export const Default: Story = {
   args: {
     data: defaultData,
-    valuePrefix: 'Score',
+    valuePrefix: 'Avg. {{needleValue}} Points',
     valuePercentage: false,
     legendToggle: true,
     needleVisible: true,
