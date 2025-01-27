@@ -70,20 +70,20 @@ export function RiskScoreBarChart({
           x2: 299,
           fill: '#ffffff00',
           isFront: false,
-          label: 'Allowed',
+          label: 'Allow',
         },
         {
           x1: 300,
           x2: 600,
           fill: theme.palette.warning.light,
           isFront: false,
-          label: 'Flagged',
+          label: 'Flag',
         },
         {
           x1: 600,
           fill: theme.palette.error.light,
           isFront: false,
-          label: 'Blocked',
+          label: 'Block',
         },
       ]}
     />
