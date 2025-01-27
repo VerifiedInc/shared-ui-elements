@@ -11,11 +11,7 @@ import {
 
 import { chartDefaultProps } from '../shared';
 
-interface Payload {
-  name: string;
-  strokeDasharray: string | number;
-  value?: any;
-}
+import { SimpleLegend, type Payload } from '../SimpleLegend';
 
 /**
  * Data point structure for the PieChart component
@@ -182,7 +178,7 @@ export function PieChart({
     setActiveIndex(undefined);
   };
 
-  const toggleDataPoint = (payload: Payload | undefined): void => {
+  const toggleDataPoint = (payload: Payload): void => {
     if (!payload) return;
 
     setHiddenItems((prev) => {
@@ -240,13 +236,13 @@ export function PieChart({
             ))}
           </Pie>
           <Legend
-            formatter={(value) =>
-              legendLabel ? `${legendLabel}: ${value}` : value
+            content={
+              <SimpleLegend
+                legendLabel={legendLabel}
+                hiddenItems={hiddenItems}
+                onToggle={toggleDataPoint}
+              />
             }
-            onClick={(event) => {
-              toggleDataPoint(event.payload as Payload | undefined);
-            }}
-            cursor='pointer'
           />
         </RechartsPieChart>
       </ResponsiveContainer>
