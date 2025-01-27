@@ -94,7 +94,7 @@ export const renderActiveShape = (props: any): ReactElement => {
           fill='#999'
           fontSize={11}
         >
-          {`${(percent * 100).toFixed(1)}%`}
+          {`${(percent * 100).toFixed(2)}%`} ({valueFormatted})
         </text>
       )}
     </g>

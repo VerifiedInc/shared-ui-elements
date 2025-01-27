@@ -61,14 +61,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
     maximumFractionDigits: 0,
   });
 
-  let _valueText = valueText;
-  const matchTemplate = valueText?.match(/{{needleValue}}/);
-  if (matchTemplate) {
-    _valueText = valueText?.replace('{{needleValue}}', valueFormatted);
-  }
-  const needleText = matchTemplate
-    ? (_valueText ?? valueFormatted)
-    : valueFormatted;
+  const needleText = valueText ?? valueFormatted;
 
   return (
     <>

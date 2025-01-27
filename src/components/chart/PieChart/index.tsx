@@ -19,7 +19,7 @@ import { renderNeedle } from './renderNeedle';
 /**
  * Data point structure for the PieChart component
  */
-interface DataPoint {
+export interface DataPoint {
   /** Label for the data point */
   name: string;
   /** Numeric value for the data point */
