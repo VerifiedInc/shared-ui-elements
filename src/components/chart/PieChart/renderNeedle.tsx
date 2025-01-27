@@ -79,6 +79,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
         r={r}
         fill={color}
         stroke='none'
+        style={{ pointerEvents: 'none' }}
       />
 
       <path
@@ -86,6 +87,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
         d={`M${xba} ${yba}L${xbb} ${ybb} L${xp} ${yp} L${xba} ${yba}`}
         stroke='none'
         fill={color}
+        style={{ pointerEvents: 'none' }}
       />
 
       <text
