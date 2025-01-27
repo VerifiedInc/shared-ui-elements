@@ -3,7 +3,7 @@ import { useTheme, type SxProps } from '@mui/material';
 
 import { SimpleBarChart } from '../SimpleBarChart';
 
-interface RiskScoreBarChartProps {
+export interface RiskScoreBarChartProps {
   data: Array<Record<number, number>>;
   sx?: SxProps;
 }
