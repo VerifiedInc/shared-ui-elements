@@ -21,9 +21,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const defaultData = [
-  { name: 'Allow', value: 400, color: '#00aa00' },
-  { name: 'Flag', value: 300, color: '#eeee00' },
-  { name: 'Block', value: 300, color: '#cc0000' },
+  { name: 'Allow', customText: '0-299', value: 400, color: '#00aa00' },
+  { name: 'Flag', customText: '300-599', value: 300, color: '#eeee00' },
+  { name: 'Block', customText: 'Over 600', value: 300, color: '#cc0000' },
 ];
 
 const themeColorData = [
@@ -36,9 +36,17 @@ export const Default: Story = {
   args: {
     data: defaultData,
     valuePrefix: 'Score',
+    valuePercentage: false,
+    legendToggle: true,
+    needleVisible: true,
+    needleValue: 200,
+    pie: {
+      startAngle: 180,
+      endAngle: 0,
+    },
     sx: {
-      width: 500,
-      height: 500,
+      width: 400,
+      height: 400,
     },
   },
 };
@@ -68,7 +76,6 @@ export const WithLegendLabel: Story = {
 export const DonutChart: Story = {
   args: {
     data: defaultData,
-    innerRadius: 60,
     sx: {
       width: 500,
       height: 500,
