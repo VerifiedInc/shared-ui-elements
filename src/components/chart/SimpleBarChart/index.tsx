@@ -65,13 +65,13 @@ export function SimpleBarChart({
           />
           {referenceLines
             ?.filter(filterOnlyBack)
-            .map((line) => (
-              <ReferenceLine key={JSON.stringify(line)} {...(line as any)} />
+            .map((line, index) => (
+              <ReferenceLine key={line.label ?? index} {...(line as any)} />
             ))}
           {referenceAreas
             ?.filter(filterOnlyBack)
-            .map((area) => (
-              <ReferenceArea key={JSON.stringify(area)} {...(area as any)} />
+            .map((area, index) => (
+              <ReferenceArea key={area.label ?? index} {...(area as any)} />
             ))}
           {series.map((serie) => (
             <Bar
@@ -86,13 +86,13 @@ export function SimpleBarChart({
           ))}
           {referenceLines
             ?.filter(filterOnlyFront)
-            .map((line) => (
-              <ReferenceLine key={JSON.stringify(line)} {...(line as any)} />
+            .map((line, index) => (
+              <ReferenceLine key={line.label ?? index} {...(line as any)} />
             ))}
           {referenceAreas
             ?.filter(filterOnlyFront)
-            .map((area) => (
-              <ReferenceArea key={JSON.stringify(area)} {...(area as any)} />
+            .map((area, index) => (
+              <ReferenceArea key={area.label ?? index} {...(area as any)} />
             ))}
         </ComposedChart>
       </ResponsiveContainer>
