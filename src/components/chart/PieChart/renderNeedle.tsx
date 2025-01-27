@@ -12,7 +12,7 @@ interface NeedleOptions {
   outerRadius: string | number;
   boxDimensions?: DOMRectReadOnly;
   legendDimensions: DOMRectReadOnly;
-  valuePrefix?: string;
+  valueText?: string;
 }
 
 export const renderNeedle = (options: NeedleOptions): ReactElement => {
@@ -24,7 +24,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
     outerRadius,
     boxDimensions,
     legendDimensions,
-    valuePrefix,
+    valueText,
   } = options;
   const RADIAN = Math.PI / 180;
 
@@ -61,9 +61,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
     maximumFractionDigits: 0,
   });
 
-  const scoreText = valuePrefix
-    ? `${valuePrefix} ${valueFormatted}`
-    : valueFormatted;
+  const needleText = valueText ?? valueFormatted;
 
   return (
     <>
@@ -74,6 +72,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
         r={r}
         fill={color}
         stroke='none'
+        style={{ pointerEvents: 'none' }}
       />
 
       <path
@@ -81,6 +80,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
         d={`M${xba} ${yba}L${xbb} ${ybb} L${xp} ${yp} L${xba} ${yba}`}
         stroke='none'
         fill={color}
+        style={{ pointerEvents: 'none' }}
       />
 
       <text
@@ -91,7 +91,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
         fill='#333'
         fontSize={12}
       >
-        {scoreText}
+        {needleText}
       </text>
     </>
   );

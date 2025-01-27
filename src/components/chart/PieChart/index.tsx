@@ -19,7 +19,7 @@ import { renderNeedle } from './renderNeedle';
 /**
  * Data point structure for the PieChart component
  */
-interface DataPoint {
+export interface DataPoint {
   /** Label for the data point */
   name: string;
   /** Numeric value for the data point */
@@ -54,7 +54,7 @@ interface PieChartProps {
    * Optional prefix for the value label
    * @default ''
    */
-  valuePrefix?: string;
+  valueText?: string;
   /**
    * Optional visibility for the value percentage
    * @default true
@@ -116,7 +116,7 @@ export function PieChart({
   sx,
   legendLabel,
   legendToggle = false,
-  valuePrefix = '',
+  valueText = '',
   valuePercentage = true,
   pie,
   needleVisible = false,
@@ -248,7 +248,7 @@ export function PieChart({
             activeShape={(props: any) =>
               renderActiveShape({
                 ...props,
-                valuePrefix,
+                valueText,
                 valuePercentage,
                 needleVisible,
               })
@@ -288,7 +288,7 @@ export function PieChart({
               outerRadius,
               boxDimensions,
               legendDimensions,
-              valuePrefix,
+              valueText,
             })}
         </RechartsPieChart>
       </ResponsiveContainer>
