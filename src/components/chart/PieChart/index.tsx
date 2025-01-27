@@ -11,6 +11,12 @@ import {
 
 import { chartDefaultProps } from '../shared';
 
+interface Payload {
+  name: string;
+  strokeDasharray: string | number;
+  value?: any;
+}
+
 /**
  * Data point structure for the PieChart component
  */
@@ -166,6 +172,7 @@ export function PieChart({
 }: PieChartProps): ReactElement {
   const theme = useTheme();
   const [activeIndex, setActiveIndex] = useState<number | undefined>();
+  const [hiddenItems, setHiddenItems] = useState<Set<string>>(new Set());
 
   const onPieEnter = (_: any, index: number): void => {
     setActiveIndex(index);
@@ -174,6 +181,25 @@ export function PieChart({
   const onPieLeave = (): void => {
     setActiveIndex(undefined);
   };
+
+  const toggleDataPoint = (payload: Payload | undefined): void => {
+    if (!payload) return;
+
+    setHiddenItems((prev) => {
+      const newHiddenItems = new Set(prev);
+      if (newHiddenItems.has(payload.name)) {
+        newHiddenItems.delete(payload.name);
+      } else {
+        newHiddenItems.add(payload.name);
+      }
+      return newHiddenItems;
+    });
+  };
+
+  const filteredData = data.map((item) => ({
+    ...item,
+    value: hiddenItems.has(item.name) ? 0 : item.value,
+  }));
 
   return (
     <Box
@@ -189,7 +215,7 @@ export function PieChart({
       <ResponsiveContainer>
         <RechartsPieChart {...chartDefaultProps}>
           <Pie
-            data={data}
+            data={filteredData}
             dataKey='value'
             nameKey='name'
             cx='50%'
@@ -204,11 +230,12 @@ export function PieChart({
             onMouseEnter={onPieEnter}
             onMouseLeave={onPieLeave}
           >
-            {data.map((entry) => (
+            {filteredData.map((entry) => (
               <Cell
                 key={entry.name}
                 fill={entry.color ?? getDefaultSeriesColor(entry.name, theme)}
                 stroke='none'
+                opacity={hiddenItems.has(entry.name) ? 0.5 : 1}
               />
             ))}
           </Pie>
@@ -216,6 +243,10 @@ export function PieChart({
             formatter={(value) =>
               legendLabel ? `${legendLabel}: ${value}` : value
             }
+            onClick={(event) => {
+              toggleDataPoint(event.payload as Payload | undefined);
+            }}
+            cursor='pointer'
           />
         </RechartsPieChart>
       </ResponsiveContainer>
