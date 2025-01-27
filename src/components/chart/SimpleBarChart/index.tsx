@@ -4,6 +4,7 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
+  ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -31,6 +32,7 @@ interface SimpleBarChartProps {
   tooltip?: ComponentProps<typeof Tooltip>;
   bar?: ComponentProps<typeof Bar>;
   referenceLines?: Array<ComponentProps<typeof ReferenceLine>>;
+  referenceAreas?: Array<ComponentProps<typeof ReferenceArea>>;
   sx?: SxProps;
 }
 
@@ -42,16 +44,13 @@ export function SimpleBarChart({
   tooltip,
   bar,
   referenceLines,
+  referenceAreas,
   sx,
 }: SimpleBarChartProps): ReactElement {
   const theme = useTheme();
 
-  const filterOnlyBack = (
-    line: ComponentProps<typeof ReferenceLine>,
-  ): boolean => !line.isFront;
-  const filterOnlyFront = (
-    line: ComponentProps<typeof ReferenceLine>,
-  ): boolean => !!line.isFront;
+  const filterOnlyBack = (reference: any): boolean => !reference.isFront;
+  const filterOnlyFront = (reference: any): boolean => !!reference.isFront;
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
@@ -66,8 +65,13 @@ export function SimpleBarChart({
           />
           {referenceLines
             ?.filter(filterOnlyBack)
-            .map((line, index) => (
-              <ReferenceLine key={index} {...(line as any)} />
+            .map((line) => (
+              <ReferenceLine key={JSON.stringify(line)} {...(line as any)} />
+            ))}
+          {referenceAreas
+            ?.filter(filterOnlyBack)
+            .map((area) => (
+              <ReferenceArea key={JSON.stringify(area)} {...(area as any)} />
             ))}
           {series.map((serie) => (
             <Bar
@@ -82,8 +86,13 @@ export function SimpleBarChart({
           ))}
           {referenceLines
             ?.filter(filterOnlyFront)
-            .map((line, index) => (
-              <ReferenceLine key={index} {...(line as any)} />
+            .map((line) => (
+              <ReferenceLine key={JSON.stringify(line)} {...(line as any)} />
+            ))}
+          {referenceAreas
+            ?.filter(filterOnlyFront)
+            .map((area) => (
+              <ReferenceArea key={JSON.stringify(area)} {...(area as any)} />
             ))}
         </ComposedChart>
       </ResponsiveContainer>
