@@ -12,7 +12,7 @@ interface NeedleOptions {
   outerRadius: string | number;
   boxDimensions?: DOMRectReadOnly;
   legendDimensions: DOMRectReadOnly;
-  valuePrefix?: string;
+  valueText?: string;
 }
 
 export const renderNeedle = (options: NeedleOptions): ReactElement => {
@@ -24,7 +24,7 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
     outerRadius,
     boxDimensions,
     legendDimensions,
-    valuePrefix,
+    valueText,
   } = options;
   const RADIAN = Math.PI / 180;
 
@@ -61,13 +61,13 @@ export const renderNeedle = (options: NeedleOptions): ReactElement => {
     maximumFractionDigits: 0,
   });
 
-  let _valuePrefix = valuePrefix;
-  const matchTemplate = valuePrefix?.match(/{{needleValue}}/);
+  let _valueText = valueText;
+  const matchTemplate = valueText?.match(/{{needleValue}}/);
   if (matchTemplate) {
-    _valuePrefix = valuePrefix?.replace('{{needleValue}}', valueFormatted);
+    _valueText = valueText?.replace('{{needleValue}}', valueFormatted);
   }
   const needleText = matchTemplate
-    ? (_valuePrefix ?? valueFormatted)
+    ? (_valueText ?? valueFormatted)
     : valueFormatted;
 
   return (

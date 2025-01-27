@@ -15,7 +15,7 @@ export const renderActiveShape = (props: any): ReactElement => {
     payload,
     percent,
     value,
-    valuePrefix,
+    valueText,
     valuePercentage,
     needleVisible,
     customText,
@@ -83,7 +83,7 @@ export const renderActiveShape = (props: any): ReactElement => {
         fontSize={12}
       >
         {customText ||
-          (valuePrefix ? `${valuePrefix} ${valueFormatted}` : valueFormatted)}
+          (valueText ? `${valueText} ${valueFormatted}` : valueFormatted)}
       </text>
       {valuePercentage && (
         <text
