@@ -35,11 +35,12 @@ const themeColorData = [
 export const Default: Story = {
   args: {
     data: defaultData,
-    valueText: 'Avg. {{needleValue}} Points',
+    valueText: 'Avg. 200 Points',
     valuePercentage: false,
     legendToggle: true,
     needleVisible: true,
     needleValue: 200,
+    allActive: true,
     pie: {
       startAngle: 180,
       endAngle: 0,
@@ -83,12 +84,13 @@ export const DonutChart: Story = {
   },
 };
 
-export const SingleValue: Story = {
+export const AllActive: Story = {
   args: {
     data: [{ name: 'Allow', value: 1000, color: '#4CAF50' }],
     sx: {
       width: 500,
       height: 500,
     },
+    allActive: true,
   },
 };

@@ -78,6 +78,11 @@ interface PieChartProps {
    * Optional props object for the Pie component
    */
   pie?: Partial<PieProps>;
+  /**
+   * Optional flag to show all shapes as active
+   * @default false
+   */
+  allActive?: boolean;
 }
 
 // Define fallback colors for each series if no color is provided
@@ -122,10 +127,12 @@ export function PieChart({
   needleVisible = false,
   needleValue,
   needleColor = '#aaa',
+  allActive = false,
 }: PieChartProps): ReactElement {
   const { innerRadius = 60, outerRadius = 100 } = pie ?? {};
   const theme = useTheme();
-  const [activeIndex, setActiveIndex] = useState<number | undefined>();
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
+
   const [hiddenItems, setHiddenItems] = useState<Set<string>>(new Set());
   const boxRef = useRef<HTMLDivElement>(null);
   const [boxDimensions, setBoxDimensions] = useState<DOMRectReadOnly | null>(
@@ -135,11 +142,15 @@ export function PieChart({
     useState<DOMRectReadOnly | null>(null);
 
   const onPieEnter = (_: any, index: number): void => {
-    setActiveIndex(index);
+    if (!allActive) {
+      setActiveIndex(index);
+    }
   };
 
   const onPieLeave = (): void => {
-    setActiveIndex(undefined);
+    if (!allActive) {
+      setActiveIndex(undefined);
+    }
   };
 
   const toggleDataPoint = (payload: Payload): void => {
@@ -244,13 +255,16 @@ export function PieChart({
             dataKey='value'
             innerRadius={innerRadius}
             outerRadius={outerRadius}
-            activeIndex={activeIndex}
+            activeIndex={
+              allActive ? filteredData.map((_, i) => i) : activeIndex
+            }
             activeShape={(props: any) =>
               renderActiveShape({
                 ...props,
                 valueText,
                 valuePercentage,
                 needleVisible,
+                allActive,
               })
             }
             paddingAngle={0}

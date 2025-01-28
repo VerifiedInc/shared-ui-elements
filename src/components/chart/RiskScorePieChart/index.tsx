@@ -52,6 +52,7 @@ export function RiskScorePieChart({
       legendToggle
       needleValue={score}
       legendLabel={legendLabel}
+      allActive
       sx={sx}
     />
   );
