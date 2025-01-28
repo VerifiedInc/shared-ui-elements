@@ -168,8 +168,9 @@ export function PieChart({
     });
   };
 
-  const filteredData = data.map((item) => ({
+  const filteredData = data.map((item, index) => ({
     ...item,
+    index,
     value: hiddenItems.has(item.name) ? 0 : item.value,
   }));
 
@@ -257,7 +258,9 @@ export function PieChart({
             outerRadius={outerRadius}
             activeIndex={
               allActive
-                ? filteredData.filter((item) => item.value > 0).map((_, i) => i)
+                ? filteredData
+                    .filter((item) => item.value > 0)
+                    .map((item) => item.index)
                 : activeIndex
             }
             activeShape={(props: any) =>
