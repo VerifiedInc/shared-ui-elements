@@ -19,6 +19,7 @@ export const renderActiveShape = (props: any): ReactElement => {
     valuePercentage,
     needleVisible,
     customText,
+    allActive,
   } = props;
 
   // Calculate positions for the line and text
@@ -28,7 +29,7 @@ export const renderActiveShape = (props: any): ReactElement => {
   const sy = cy + (outerRadius + 5) * sin;
   const mx = cx + (outerRadius + 15) * cos;
   const my = cy + (outerRadius + 15) * sin;
-  const ex = mx + (cos >= 0 ? 1 : -1) * 15;
+  const ex = mx + (cos >= 0 ? 1 : -1) * 22;
   const ey = my;
   const textAnchor = cos >= 0 ? 'start' : 'end';
 
@@ -37,20 +38,20 @@ export const renderActiveShape = (props: any): ReactElement => {
     maximumFractionDigits: 0,
   });
 
+  const renderPayloadName = (): ReactElement | null => {
+    if (needleVisible) return null;
+    if (allActive) return null;
+
+    return (
+      <text x={cx} y={cy} dy={8} textAnchor='middle' fill='#333' fontSize={14}>
+        {payload.name}
+      </text>
+    );
+  };
+
   return (
     <g>
-      {!needleVisible && (
-        <text
-          x={cx}
-          y={cy}
-          dy={8}
-          textAnchor='middle'
-          fill='#333'
-          fontSize={14}
-        >
-          {payload.name}
-        </text>
-      )}
+      {renderPayloadName()}
       <Sector
         cx={cx}
         cy={cy}
@@ -76,7 +77,7 @@ export const renderActiveShape = (props: any): ReactElement => {
       />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke='none' />
       <text
-        x={ex + (cos >= 0 ? 1 : -1) * 8}
+        x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey}
         textAnchor={textAnchor}
         fill='#333'
@@ -87,7 +88,7 @@ export const renderActiveShape = (props: any): ReactElement => {
       </text>
       {valuePercentage && (
         <text
-          x={ex + (cos >= 0 ? 1 : -1) * 8}
+          x={ex + (cos >= 0 ? 1 : -1) * 12}
           y={ey}
           dy={16}
           textAnchor={textAnchor}
