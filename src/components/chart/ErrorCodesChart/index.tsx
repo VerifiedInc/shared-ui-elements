@@ -15,6 +15,10 @@ interface ErrorCodesChartProps {
    */
   data: Record<string, number> | undefined;
   /**
+   * Threshold value for the reference line
+   */
+  threshold?: number;
+  /**
    * MUI System props object for custom styling of the chart container
    */
   sx?: SxProps;
@@ -34,12 +38,14 @@ interface ErrorCodesChartProps {
  *     OCE000: 150,
  *     OCE001: 75
  *   }}
+ *   threshold={200}
  *   sx={{ width: 800, height: 400 }}
  * />
  * ```
  */
 export function ErrorCodesChart({
   data,
+  threshold = 100,
   sx,
 }: ErrorCodesChartProps): ReactElement {
   const theme = useTheme();
@@ -66,14 +72,14 @@ export function ErrorCodesChart({
       }}
       yAxis={{
         tickLine: false,
-        domain: [0, 'dataMax + 100'],
+        domain: [0, `dataMax + ${threshold}`],
       }}
       tooltip={{
         labelFormatter: (value) => 'Total',
       }}
       referenceLines={[
         {
-          y: 100,
+          y: threshold,
           stroke: theme.palette.error.dark,
           strokeDasharray: '3 3',
           label: (
