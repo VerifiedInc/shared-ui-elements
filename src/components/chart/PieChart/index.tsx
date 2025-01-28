@@ -256,7 +256,9 @@ export function PieChart({
             innerRadius={innerRadius}
             outerRadius={outerRadius}
             activeIndex={
-              allActive ? filteredData.map((_, i) => i) : activeIndex
+              allActive
+                ? filteredData.filter((item) => item.value > 0).map((_, i) => i)
+                : activeIndex
             }
             activeShape={(props: any) =>
               renderActiveShape({
