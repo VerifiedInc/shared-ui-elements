@@ -4,6 +4,7 @@ export * from './SeriesPercentageChart';
 export * from './BigNumber';
 export * from './SimpleBarChart';
 export * from './ErrorCodesChart';
+export * from './ReasonCodesChart';
 export * from './PieChart';
 export * from './RiskScorePieChart';
 export * from './RiskScoreBarChart';
