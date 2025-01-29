@@ -6,3 +6,4 @@ export * from './OTPInput';
 export * from './EmailInput';
 export * from './DateRangeInput';
 export * from './TimezoneInput';
+export * from './OneClickForm';
