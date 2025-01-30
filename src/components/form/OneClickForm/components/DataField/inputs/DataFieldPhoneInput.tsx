@@ -28,16 +28,17 @@ const DataFieldPhoneInputMemoized = memo(
       handleChangeValueCredential,
     } = credentialsDisplayItem;
     const { isValid, errorMessage } = itemValid;
-    const url = new URL(window.location.href);
-    const searchParams = new URLSearchParams(url.searchParams);
-    const phoneParam = searchParams.get('phone');
 
-    const handleChangeCountry = (_value: string) => {
+    const handleChangeCountry = (_value: string): void => {
       handleChangeValueCredential('');
     };
 
     // Autofill phone number if it is passed as a query param.
     useEffect(() => {
+      const url = new URL(window.location.href);
+      const searchParams = new URLSearchParams(url.searchParams);
+      const phoneParam = searchParams.get('phone');
+
       if (phoneParam) {
         const interval = setTimeout(() => {
           handleChangeValueCredential(phoneParam, {
@@ -46,8 +47,7 @@ const DataFieldPhoneInputMemoized = memo(
         }, 10);
         return () => clearInterval(interval);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [phoneParam]);
+    }, []);
 
     const handleChange = (newValue: string) => {
       handleChangeValueCredential(newValue, {
