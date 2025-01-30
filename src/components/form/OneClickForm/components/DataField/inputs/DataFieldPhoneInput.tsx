@@ -40,7 +40,6 @@ const DataFieldPhoneInputMemoized = memo(
       const phoneParam = searchParams.get('phone');
 
       if (phoneParam) {
-        console.log('+' + phoneParam);
         const interval = setTimeout(() => {
           handleChangeValueCredential(phoneParam, {
             shouldValidate: false,
