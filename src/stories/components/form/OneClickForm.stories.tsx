@@ -150,7 +150,7 @@ const mockData = {
         },
         {
           type: 'LastNameCredential',
-          mandatory: 'no',
+          mandatory: 'yes',
           allowUserInput: true,
         },
       ],
@@ -510,6 +510,7 @@ function Component({ data, schemas }: any) {
         credentialRequests={data.credentialRequests}
         options={{
           features: {
+            selectableCredentials: false,
             phoneCredentialWhitelist: [],
             phoneCredentialRegexWhitelist:
               '^\\+1[-.\\s]?0\\d{2}[-.\\s]?\\d{3}[-.\\s]?\\d{4}$',

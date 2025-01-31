@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext } from 'react';
 
 type OneClickOptionFeatures = {
+  selectableCredentials?: boolean;
   phoneCredentialWhitelist?: string[];
   phoneCredentialRegexWhitelist?: string;
 };
@@ -45,8 +46,16 @@ export function useOneClickFormOptions() {
 export function OneClickFormOptionsProvider(
   props: OneClickFormOptionsProviderProps,
 ) {
+  const { selectableCredentials = true } = props.options.features;
   return (
-    <Context.Provider value={{ options: props.options }}>
+    <Context.Provider
+      value={{
+        options: {
+          ...props.options,
+          features: { ...props.options.features, selectableCredentials },
+        },
+      }}
+    >
       {props.children}
     </Context.Provider>
   );
