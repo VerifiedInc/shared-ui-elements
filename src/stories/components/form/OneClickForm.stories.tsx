@@ -189,7 +189,7 @@ const mockData = {
         },
         {
           type: 'StateCredential',
-          mandatory: 'no',
+          mandatory: 'yes',
           allowUserInput: true,
         },
         {
@@ -258,17 +258,6 @@ const mockData = {
           uuid: 'e6ab95a8-2bc4-446a-a00d-ffa2a918dfd5',
         },
         {
-          type: 'StateCredential',
-          data: {
-            state: 'AK',
-          },
-          verificationMethod: 'credit_bureau',
-          id: 'a831e498-28f2-47f5-9b37-0d5a8adbc04b',
-          status: 'active',
-          expirationDate: null,
-          uuid: '5dd409d0-a886-4631-906b-20edc827d4ba',
-        },
-        {
           type: 'ZipCodeCredential',
           data: {
             zipCode: '99901',
@@ -279,153 +268,12 @@ const mockData = {
           expirationDate: null,
           uuid: '1715d0fe-c583-4083-8ea1-b99669864f39',
         },
-        {
-          type: 'CountryCredential',
-          data: {
-            country: 'US',
-          },
-          verificationMethod: 'credit_bureau',
-          id: 'd3b3ad6d-7c71-4b4e-975d-cdd6c48f8406',
-          status: 'active',
-          expirationDate: null,
-          uuid: '8b211636-3d5c-49b0-9134-5305868304e4',
-        },
       ],
       verificationMethod: 'credit_bureau',
       id: 'ae9bef7b-970e-4475-bb02-a097741d7c14',
       status: 'valid',
       expirationDate: null,
       uuid: 'a3b72ba1-55c4-4dc5-a3be-7d31bc5fab72',
-    },
-    {
-      type: 'AddressCredential',
-      data: [
-        {
-          type: 'Line1Credential',
-          data: {
-            line1: '9536 Meadow Dr',
-          },
-          verificationMethod: 'credit_bureau',
-          id: '4932894b-ea5f-438d-ad0e-438c44a7bd06',
-          status: 'active',
-          expirationDate: null,
-          uuid: '3b775c96-e3fc-48c8-bb70-c5f409240d02',
-        },
-        {
-          type: 'CityCredential',
-          data: {
-            city: 'San Francisco',
-          },
-          verificationMethod: 'credit_bureau',
-          id: 'a35a58c3-37aa-45b4-a2e5-afafb7acb8b1',
-          status: 'active',
-          expirationDate: null,
-          uuid: '7a511b64-fce1-44a3-9067-e99040b59467',
-        },
-        {
-          type: 'StateCredential',
-          data: {
-            state: 'CA',
-          },
-          verificationMethod: 'credit_bureau',
-          id: 'd311d888-f9eb-495d-976d-37bab6863377',
-          status: 'active',
-          expirationDate: null,
-          uuid: 'd26dcf9b-fd42-463d-b58b-de3b7c66a54b',
-        },
-        {
-          type: 'ZipCodeCredential',
-          data: {
-            zipCode: '94112',
-          },
-          verificationMethod: 'credit_bureau',
-          id: '8c33b996-995f-42ba-84da-a3d5b48d6a05',
-          status: 'active',
-          expirationDate: null,
-          uuid: 'd36f447c-7212-4888-8df4-ee3b56c72f4e',
-        },
-        {
-          type: 'CountryCredential',
-          data: {
-            country: 'US',
-          },
-          verificationMethod: 'credit_bureau',
-          id: '551cdb1b-dac8-413b-83a5-99328777bb7f',
-          status: 'active',
-          expirationDate: null,
-          uuid: '523aa1a9-ba83-46b4-a883-003a942d48d3',
-        },
-      ],
-      verificationMethod: 'credit_bureau',
-      id: '433dc729-d784-4786-a799-1aa60c8ba6a6',
-      status: 'valid',
-      expirationDate: null,
-      uuid: '88259cf0-7cdc-4ab0-88e0-20f2cc927ddd',
-    },
-    {
-      type: 'AddressCredential',
-      data: [
-        {
-          type: 'Line1Credential',
-          data: {
-            line1: '7292 Hanover St',
-          },
-          verificationMethod: 'credit_bureau',
-          id: 'a59515f0-3493-4da4-b149-803980f7ee46',
-          status: 'active',
-          expirationDate: null,
-          uuid: 'b46b2fd9-2c6d-4896-a49c-31cb92c7831c',
-        },
-        {
-          type: 'CityCredential',
-          data: {
-            city: 'San Jose',
-          },
-          verificationMethod: 'credit_bureau',
-          id: '0d3b6f1e-ae41-4bed-bf3c-54e9fc5c2629',
-          status: 'active',
-          expirationDate: null,
-          uuid: '476db3de-5f51-4a59-9699-d0f5f192b60b',
-        },
-        {
-          type: 'StateCredential',
-          data: {
-            state: 'CA',
-          },
-          verificationMethod: 'credit_bureau',
-          id: '81945d91-79c8-4b67-b391-641689a42abd',
-          status: 'active',
-          expirationDate: null,
-          uuid: 'e591a3ef-bcb5-4cc7-bcef-207a14f525e5',
-        },
-        {
-          type: 'ZipCodeCredential',
-          data: {
-            zipCode: '95122',
-          },
-          verificationMethod: 'credit_bureau',
-          id: '441161a7-f830-47a8-afec-cb812cf6f1fd',
-          status: 'active',
-          expirationDate: null,
-          uuid: '553597fe-2fb1-4a0f-8c37-050894c0cb1f',
-        },
-        {
-          type: 'CountryCredential',
-          data: {
-            country: 'US',
-          },
-          verificationMethod: 'credit_bureau',
-          id: '87a30a85-9991-40ea-aadb-d975c9fc56e2',
-          status: 'active',
-          expirationDate: null,
-          uuid: 'd33c9317-a9bf-44e3-8791-b6bc80b322a3',
-        },
-      ],
-      verificationMethod: 'credit_bureau',
-      id: '9a63adef-ea80-498f-abd9-c0e8b627ba9c',
-      status: 'valid',
-      expirationDate: null,
-      uuid: '22528603-b5e7-49cd-9691-278284429049',
     },
     {
       type: 'SsnCredential',
@@ -510,6 +358,7 @@ function Component({ data, schemas }: any) {
         credentialRequests={data.credentialRequests}
         options={{
           features: {
+            fillEmptyByQueryParam: ['*'],
             selectableCredentials: false,
             phoneCredentialWhitelist: [],
             phoneCredentialRegexWhitelist:

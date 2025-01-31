@@ -4,6 +4,8 @@ type OneClickOptionFeatures = {
   selectableCredentials?: boolean;
   phoneCredentialWhitelist?: string[];
   phoneCredentialRegexWhitelist?: string;
+  /** Array of field names that can be filled by query params. Use '*' to allow all fields. */
+  fillEmptyByQueryParam?: string[];
 };
 
 type OneClickOptionServicePaths = {

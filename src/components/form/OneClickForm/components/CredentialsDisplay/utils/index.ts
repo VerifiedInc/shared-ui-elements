@@ -12,3 +12,5 @@ export * from './extractTypesFromSchema';
 export * from './sortCredentialsBySchema';
 export * from './transformToFormObject';
 export * from './transformToFormSchema';
+export * from './getParentPath';
+export * from './getLastPathName';
