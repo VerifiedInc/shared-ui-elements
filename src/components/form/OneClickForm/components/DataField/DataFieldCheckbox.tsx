@@ -1,4 +1,6 @@
-import { Checkbox } from '@mui/material';
+import { Box, Checkbox } from '@mui/material';
+
+import { useOneClickFormOptions } from '../../contexts/one-click-form-options.context';
 
 import { isRequiredCredentialDisplayInfo } from '../CredentialsDisplay/utils';
 import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
@@ -10,6 +12,12 @@ import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisp
  */
 export function DataFieldCheckbox() {
   const {
+    options: {
+      features: { selectableCredentials },
+    },
+  } = useOneClickFormOptions();
+
+  const {
     credentialDisplayInfo,
     isChecked,
     isAllChecked,
@@ -19,6 +27,9 @@ export function DataFieldCheckbox() {
   const isRequired = isRequiredCredentialDisplayInfo({
     mandatory: credentialDisplayInfo.credentialRequest?.mandatory,
   });
+
+  // Do not render checkbox when selectableCredentials is disabled
+  if (!selectableCredentials) return <Box sx={{ mr: 1 }} />;
 
   return (
     <Checkbox
