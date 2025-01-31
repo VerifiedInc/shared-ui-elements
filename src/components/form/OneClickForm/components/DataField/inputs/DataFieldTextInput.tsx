@@ -3,6 +3,8 @@ import { Box, TextField, TextFieldProps } from '@mui/material';
 import isEqual from 'lodash/isEqual';
 
 import { inputStyle } from '../../../styles/input';
+import { getLastPathName } from '../../CredentialsDisplay/utils/getLastPathName';
+import { useCanFillByQueryParam } from '../../../hooks/useCanFillByQueryParam';
 
 import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
 import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsDisplayItemContext';
@@ -21,33 +23,38 @@ const DataFieldTextInputMemoized = memo(
     itemValid,
   }: DataFieldTextInputMemoizedProps) {
     const inputRef = useRef<HTMLInputElement | null>(null);
-
+    const canFillByQueryParam = useCanFillByQueryParam();
     const {
       objectController,
-      credentialDisplayInfo,
       handleChangeValueCredential,
       handleChangeDebouncedValueCredential,
     } = credentialsDisplayItem;
 
-    // Autofill phone number if it is passed as a query param.
+    // Autofill field if it is passed as a query param
     useEffect(() => {
+      const lastPathName = getLastPathName(objectController.field.name);
+
+      if (!canFillByQueryParam(lastPathName)) {
+        return;
+      }
+
       const url = new URL(window.location.href);
       const searchParams = new URLSearchParams(url.searchParams);
-      const email = searchParams.get('email');
+      const fieldValueParam = searchParams.get(
+        getLastPathName(objectController.field.name),
+      );
 
-      if (
-        email &&
-        credentialDisplayInfo.credentialRequest?.type === 'EmailCredential'
-      ) {
+      if (fieldValueParam && !objectController.field.value.value) {
         const interval = setTimeout(() => {
-          handleChangeValueCredential(email, { shouldValidate: false });
+          handleChangeValueCredential(fieldValueParam, {
+            shouldValidate: false,
+          });
           if (inputRef.current) {
-            inputRef.current.value = email;
+            inputRef.current.value = fieldValueParam;
           }
-        }, 10);
+        }, 10 /** Timeout required to avoid race condition */);
         return () => clearInterval(interval);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const textFieldStyle: TextFieldProps = {
@@ -61,6 +68,9 @@ const DataFieldTextInputMemoized = memo(
         ? credentialsDisplayItem.credentialDisplayInfo.credentialRequest
             ?.description
         : itemValid.errorMessage,
+      InputLabelProps: {
+        shrink: objectController.field.value.value ? true : undefined,
+      },
       InputProps: {
         // prevent this element from being recorded by Sentry
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

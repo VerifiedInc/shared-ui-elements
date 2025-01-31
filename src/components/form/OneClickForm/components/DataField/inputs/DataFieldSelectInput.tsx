@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Autocomplete, Box, TextField, TextFieldProps } from '@mui/material';
 
 import { inputStyle } from '../../../styles/input';
+import { useCanFillByQueryParam } from '../../../hooks/useCanFillByQueryParam';
 
 import { useCredentialsDisplay } from '../../CredentialsDisplay/CredentialsDisplayContext';
 import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
@@ -9,6 +10,7 @@ import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsD
 import {
   findCorrectSchemaProperty,
   isRequiredCredentialDisplayInfo,
+  getLastPathName,
 } from '../../CredentialsDisplay/utils';
 import { DataFieldLabelText } from '../../DataField/DataFieldLabelText';
 
@@ -19,6 +21,7 @@ import { DataFieldLabelText } from '../../DataField/DataFieldLabelText';
 export function DataFieldSelectInput() {
   const { schema } = useCredentialsDisplay();
   const credentialsDisplayItem = useCredentialsDisplayItem();
+  const canFillByQueryParam = useCanFillByQueryParam();
 
   const {
     objectController,
@@ -114,19 +117,44 @@ export function DataFieldSelectInput() {
       // Clears the input value if it does not exist in the options.
       handleClearValueCredential();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objectController.field.value.value, options]);
 
   // Effect to set default value.
   useEffect(() => {
-    // If the value is not set and the default value is set, set the default value.
-    if (!value?.label && defaultValue) {
+    if (defaultValue) {
       handleChangeValueCredential(defaultValue.id);
     }
-
-    // The dependency value is not in the array because we want to set the default value only once.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultValue]);
+
+  // Autofill field if it is passed as a query param
+  useEffect(() => {
+    const lastPathName = getLastPathName(objectController.field.name);
+
+    if (!canFillByQueryParam(lastPathName)) {
+      return;
+    }
+
+    const url = new URL(window.location.href);
+    const searchParams = new URLSearchParams(url.searchParams);
+    const fieldValueParam = searchParams.get(
+      getLastPathName(objectController.field.name),
+    );
+
+    if (fieldValueParam && !objectController.field.value.value) {
+      const option = options.find(
+        (opt: any) =>
+          opt.value === fieldValueParam || opt.label === fieldValueParam,
+      );
+
+      if (option) {
+        const interval = setTimeout(() => {
+          handleChangeValueCredential(option.value);
+        }, 10 /** Timeout required to avoid race condition */);
+
+        return () => clearTimeout(interval);
+      }
+    }
+  }, []);
 
   return (
     <Box width='100%'>
