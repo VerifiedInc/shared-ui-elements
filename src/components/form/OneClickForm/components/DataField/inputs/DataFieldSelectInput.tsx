@@ -121,10 +121,11 @@ export function DataFieldSelectInput() {
 
   // Effect to set default value.
   useEffect(() => {
-    if (defaultValue) {
+    if (defaultValue?.id) {
       handleChangeValueCredential(defaultValue.id);
     }
-  }, [defaultValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Autofill field if it is passed as a query param
   useEffect(() => {
