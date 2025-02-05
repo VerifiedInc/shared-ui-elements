@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "3.17.2-beta.0",
+  "version": "3.17.2-beta.1",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
