@@ -20,7 +20,7 @@ export default function CredentialsDisplay() {
     ): ReactElement => {
       const [key, credentialFieldSet] = credentialFieldSetEntry;
 
-      const { id, value, credentialDisplayInfo, ...childs } =
+      const { id, value, type, credentialDisplayInfo, ...childs } =
         credentialFieldSet;
       const hasChildren = Object.keys(childs).length > 0;
       const isRoot = parents.length === 0;

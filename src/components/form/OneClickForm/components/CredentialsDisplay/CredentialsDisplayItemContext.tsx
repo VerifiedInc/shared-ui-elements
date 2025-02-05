@@ -169,7 +169,7 @@ export default function CredentialsDisplayItemProvider(
 
   const isAllChecked = useMemo(() => {
     const cascadeCheck = (credentialFieldSet: CredentialFieldSet): boolean => {
-      const { id, value, credentialDisplayInfo, ...fields } =
+      const { id, value, type, credentialDisplayInfo, ...fields } =
         credentialFieldSet;
       const children = Object.values(fields);
 
