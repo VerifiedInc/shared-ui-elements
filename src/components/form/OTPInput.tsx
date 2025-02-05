@@ -111,7 +111,6 @@ function OTPInputComponent(
   const inputProps: InputBaseProps = useMemo(
     () => ({
       inputProps: {
-        inputMode: 'numeric',
         pattern: '[0-9]*',
         autoCorrect: 'off',
         autoCapitalize: 'off',
