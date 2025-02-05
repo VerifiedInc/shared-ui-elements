@@ -61,7 +61,7 @@ function extractTypes(record: any, parentId?: string): string[] {
 export function buildDataFieldValue(
   type: string,
   schema: CredentialSchemaDto['schemas'],
-): CredentialRequests | null {
+): CredentialRequests {
   const selectedSchema = schema[type];
   const isComposedSchema = isComposed(selectedSchema);
 
