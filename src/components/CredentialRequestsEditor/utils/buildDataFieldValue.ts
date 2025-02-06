@@ -8,30 +8,54 @@ const isComposed = (schema: unknown): schema is CompositeCredentialSchema =>
   Object.prototype.hasOwnProperty.call(schema || {}, 'anyOf') ||
   Object.prototype.hasOwnProperty.call(schema || {}, 'allOf');
 
-function extractTypes(
-  record: any,
-  result: string[] = [],
-  parentKeys: string[] = [],
-): string[] {
-  _.forOwn(record, (value, key) => {
-    // Check if the current key is $ref or $id and handle accordingly
-    if (key === '$ref' && typeof value === 'string') {
-      result.push(value);
-    } else if (
-      key === '$id' &&
-      typeof value === 'string' &&
-      _.some(parentKeys, (k) => ['allOf', 'anyOf', 'oneOf'].includes(k))
-    ) {
-      result.push(value);
-    }
+function extractTypes(record: any, parentId?: string): string[] {
+  const result: string[] = [];
 
-    // If the value is an object or array, recurse into it
-    if (_.isObject(value)) {
-      extractTypes(value, result, [...parentKeys, key]);
-    }
-  });
+  // Handle direct $id at current level (skip if it matches parent)
+  if (record.$id && typeof record.$id === 'string' && record.$id !== parentId) {
+    result.push(record.$id);
+  }
 
-  return result;
+  // Handle direct $ref at current level
+  if (record.$ref && typeof record.$ref === 'string') {
+    result.push(record.$ref);
+    return result;
+  }
+
+  // Process anyOf array - only process direct children
+  if (Array.isArray(record.anyOf)) {
+    record.anyOf.forEach((schema: any) => {
+      if (schema && typeof schema === 'object') {
+        // If schema has $id, collect it but don't traverse deeper
+        if (schema.$id && typeof schema.$id === 'string') {
+          result.push(schema.$id);
+        }
+        // If schema has $ref, collect it
+        else if (schema.$ref && typeof schema.$ref === 'string') {
+          result.push(schema.$ref);
+        }
+        // If no $id or $ref, traverse deeper
+        else {
+          result.push(...extractTypes(schema, parentId));
+        }
+      }
+    });
+  }
+
+  // Process allOf array
+  if (Array.isArray(record.allOf)) {
+    record.allOf.forEach((schema: any) => {
+      if (schema && typeof schema === 'object') {
+        if (schema.$ref && typeof schema.$ref === 'string') {
+          result.push(schema.$ref);
+        } else {
+          result.push(...extractTypes(schema, parentId));
+        }
+      }
+    });
+  }
+
+  return _.uniq(result);
 }
 
 export function buildDataFieldValue(
@@ -42,15 +66,17 @@ export function buildDataFieldValue(
   const isComposedSchema = isComposed(selectedSchema);
 
   if (isComposedSchema) {
+    const children = extractTypes(selectedSchema, type)
+      .map((item) => buildDataFieldValue(item, schema))
+      .filter((child): child is CredentialRequests => child !== null);
+
     return {
       type,
       mandatory: MandatoryEnum.NO,
       description: '',
       allowUserInput: true,
       multi: false,
-      children: extractTypes(selectedSchema).map((item) =>
-        buildDataFieldValue(item, schema),
-      ),
+      ...(children.length > 0 ? { children } : {}),
     };
   }
 
@@ -59,7 +85,6 @@ export function buildDataFieldValue(
     mandatory: MandatoryEnum.NO,
     description: '',
     allowUserInput: true,
-    // We want to default to true if is email credential.
     multi: type === 'EmailCredential',
   };
 }
