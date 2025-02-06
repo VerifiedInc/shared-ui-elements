@@ -10,9 +10,11 @@ export function transformToFormObject(
 ): any {
   const formObject: CredentialFieldSet = {} as any;
   for (const item of displayInfoList) {
-    const key = stringUtils.camelCase(
+    const marshalKey = stringUtils.camelCase(
       item.credentialRequest.type.split('Credential').join(''),
     );
+    const propertyKey = Object.keys(item.schema.properties ?? {})[0];
+    const key = propertyKey ?? marshalKey;
 
     if (Array.isArray(item.children)) {
       // Recursively reduce the children to a single object
@@ -26,6 +28,7 @@ export function transformToFormObject(
         {
           id: item.id,
           value: item.value,
+          type: item.credentialRequest.type,
           credentialDisplayInfo: item,
         },
       ) as any;
@@ -33,6 +36,7 @@ export function transformToFormObject(
       formObject[key] = {
         id: item.id,
         value: item.value,
+        type: item.credentialRequest.type,
         credentialDisplayInfo: item,
       } as any;
     }

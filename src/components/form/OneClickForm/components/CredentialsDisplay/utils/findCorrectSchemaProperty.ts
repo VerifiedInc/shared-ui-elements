@@ -44,7 +44,7 @@ export const findCorrectSchemaProperty = (
       if (!fieldSet) return;
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, value, credentialDisplayInfo, ...fields } = fieldSet;
+      const { id, value, type, credentialDisplayInfo, ...fields } = fieldSet;
 
       // If current node matches, return its credentialDisplayInfo
       if (credentialDisplayInfo?.credentialRequest?.type === matcher) {
