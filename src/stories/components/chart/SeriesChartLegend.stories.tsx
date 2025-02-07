@@ -44,6 +44,7 @@ const mockPayload = [
       uuid: '4c8ccbe5-ce86-44d7-a463-8ac9955af937',
       name: 'Blue',
       value: 'Blue',
+      integrationType: 'hosted',
       color: '#0000ff',
       data: [
         {
@@ -115,6 +116,7 @@ const mockPayload = [
       name: 'Red Brand',
       value: 'Red Brand',
       color: '#ff0000',
+      integrationType: 'hosted',
       data: [
         {
           date: 1734973560000,
