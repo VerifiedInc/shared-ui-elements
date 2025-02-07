@@ -22,6 +22,7 @@ interface ChartDataPoint {
 }
 
 interface SeriesChartData {
+  integrationType: string;
   uuid: string;
   name: string;
   color: string;
@@ -100,7 +101,10 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
           {props.data.map((value) => {
             return (
               <Line
-                {...{ uuid: value.uuid }}
+                {...{
+                  uuid: value.uuid,
+                  integrationType: value.integrationType,
+                }}
                 key={value.uuid}
                 name={value.name}
                 dataKey='value'
