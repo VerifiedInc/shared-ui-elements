@@ -2,6 +2,7 @@ import React from 'react';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { SeriesChart, type SeriesChartData } from '../SeriesChart';
+import { BrandFilter } from './OneClickTimeSeriesDataMapper';
 
 const styles = {
   chartWrapper: {
@@ -17,7 +18,7 @@ export interface OneClickOverTimeChartProps {
   isLoading: boolean;
   filter: {
     timezone: string;
-    brands: Array<{ label: string; value: string }>;
+    brands: BrandFilter[];
   };
 }
 
