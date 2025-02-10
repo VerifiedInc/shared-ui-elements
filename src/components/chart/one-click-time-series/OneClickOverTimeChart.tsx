@@ -10,11 +10,6 @@ const styles = {
     width: '100%',
     height: 500,
   },
-  loadingWrapper: {
-    height: 500,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 } as const;
 
 export interface OneClickOverTimeChartProps {
@@ -44,7 +39,7 @@ export function OneClickOverTimeChart({
       label='Uniques'
       data={data}
       filter={filter}
-      sx={styles.chartWrapper}
+      sx={{ ...styles.chartWrapper, opacity: isLoading ? 0.4 : 1 }}
     />
   );
 }
