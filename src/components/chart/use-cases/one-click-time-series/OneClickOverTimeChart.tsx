@@ -5,8 +5,18 @@ import {
 import { PageSectionHeader } from '@/components/typographies/PageSectionHeader';
 import { IconButton, Stack } from '@mui/material';
 import React, { Fragment } from 'react';
-import { BrandFilter } from '../OneClickTimeSeriesDataMapper';
-import { useStyle } from './OneClickOverTimeChart.style';
+import { BrandFilter } from './OneClickTimeSeriesDataMapper';
+
+function useStyle(): Record<string, any> {
+  return {
+    chartWrapper: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: 500,
+    },
+  };
+}
 
 interface OneClickOverTimeChartProps {
   data: SeriesChartData[];
