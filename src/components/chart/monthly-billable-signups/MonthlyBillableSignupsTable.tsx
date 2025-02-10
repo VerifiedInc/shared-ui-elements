@@ -7,7 +7,10 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Stack,
 } from '@mui/material';
+import { SectionDescription } from '../../typographies/SectionDescription';
+import { SectionTitle } from '../../typographies/SectionTitle';
 
 export type BillableSignupData = {
   month: string;
@@ -20,11 +23,41 @@ export type BillableSignupData = {
 
 export type MonthlyBillableSignupsTableProps = {
   data: BillableSignupData[];
+  isLoading: boolean;
 };
+
+const styles = {
+  tableWrapper: {
+    height: 400,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+} as const;
 
 export const MonthlyBillableSignupsTable: React.FC<
   MonthlyBillableSignupsTableProps
-> = ({ data }) => {
+> = ({ data, isLoading }) => {
+  if (isLoading) {
+    return (
+      <Stack sx={styles.tableWrapper}>
+        <SectionTitle>Loading...</SectionTitle>
+        <SectionDescription>Preparing your chart data</SectionDescription>
+      </Stack>
+    );
+  }
+
+  if (!data?.length) {
+    return (
+      <Stack sx={styles.tableWrapper}>
+        <SectionTitle>
+          No data available for the selected period and brands
+        </SectionTitle>
+        <SectionDescription>
+          Please select a different period or brand
+        </SectionDescription>
+      </Stack>
+    );
+  }
   return (
     <TableContainer component={Paper}>
       <Table>
