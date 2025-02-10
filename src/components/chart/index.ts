@@ -10,3 +10,4 @@ export * from './RiskScorePieChart';
 export * from './RiskScoreBarChart';
 export * from './SimpleLegend';
 export * from './one-click-time-series';
+export * from './monthly-billable-signups';
