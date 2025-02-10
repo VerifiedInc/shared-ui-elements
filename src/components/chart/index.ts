@@ -9,5 +9,6 @@ export * from './PieChart';
 export * from './RiskScorePieChart';
 export * from './RiskScoreBarChart';
 export * from './SimpleLegend';
+export * from './OneClickPercentageChart';
 export * from './one-click-time-series';
 export * from './monthly-billable-signups';
