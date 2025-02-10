@@ -1,6 +1,7 @@
 type Brand = {
-  uuid: string;
-  name: string;
+  brandUuid: string;
+  brandName: string;
+  integrationType: string;
 };
 
 type ChartData = {
@@ -29,13 +30,13 @@ export const mapMonthlyBillableSignupsData = ({
   brands,
 }: MapMonthlyBillableSignupsDataParams) => {
   return data.flatMap((brandData) => {
-    const brand = brands.find((b) => b.uuid === brandData.brandUuid);
+    const brand = brands.find((b) => b.brandUuid === brandData.brandUuid);
     if (!brand || !brandData.interval) return [];
 
     return brandData.interval.map((interval) => ({
       month: new Date(interval.date).toISOString(),
-      brand: brand.name,
-      integrationType: 'One Click',
+      brand: brand.brandName,
+      integrationType: brand.integrationType,
       total: interval.oneClickCreated,
       finished: interval.oneClickSuccess,
       totalCost: interval.totalCost,
