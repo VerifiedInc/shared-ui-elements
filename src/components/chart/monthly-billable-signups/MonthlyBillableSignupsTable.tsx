@@ -1,16 +1,15 @@
-import React from 'react';
 import {
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Stack,
 } from '@mui/material';
-import { SectionDescription } from '../../typographies/SectionDescription';
-import { SectionTitle } from '../../typographies/SectionTitle';
+import React from 'react';
+import { EmptyChartSection } from '../EmptyChartSection';
+import { LoadingChartSection } from '../LoadingChartSection';
 
 export type BillableSignupData = {
   month: string;
@@ -38,25 +37,11 @@ export const MonthlyBillableSignupsTable: React.FC<
   MonthlyBillableSignupsTableProps
 > = ({ data, isLoading }) => {
   if (isLoading) {
-    return (
-      <Stack sx={styles.tableWrapper}>
-        <SectionTitle>Loading...</SectionTitle>
-        <SectionDescription>Preparing your chart data</SectionDescription>
-      </Stack>
-    );
+    return <LoadingChartSection />;
   }
 
   if (!data?.length) {
-    return (
-      <Stack sx={styles.tableWrapper}>
-        <SectionTitle>
-          No data available for the selected period and brands
-        </SectionTitle>
-        <SectionDescription>
-          Please select a different period or brand
-        </SectionDescription>
-      </Stack>
-    );
+    return <EmptyChartSection />;
   }
   return (
     <TableContainer component={Paper}>
