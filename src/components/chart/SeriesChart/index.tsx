@@ -21,7 +21,7 @@ interface ChartDataPoint {
   value: number;
 }
 
-interface SeriesChartData {
+export interface SeriesChartData {
   integrationType: string;
   uuid: string;
   name: string;

@@ -1,15 +1,15 @@
-import { IconButton, Stack } from '@mui/material';
-import { PageSectionHeader } from '@verifiedinc-public/shared-ui-elements/components';
-import { SeriesChart } from '@verifiedinc-public/shared-ui-elements/components/chart';
-import React, { Fragment } from 'react';
-import { useStyle } from './OneClickOverTimeChart.style';
 import {
-  BrandFilter,
-  TimeSeriesChartData,
-} from '../OneClickTimeSeriesDataMapper';
+  SeriesChart,
+  type SeriesChartData,
+} from '@/components/chart/SeriesChart';
+import { PageSectionHeader } from '@/components/typographies/PageSectionHeader';
+import { IconButton, Stack } from '@mui/material';
+import React, { Fragment } from 'react';
+import { BrandFilter } from '../OneClickTimeSeriesDataMapper';
+import { useStyle } from './OneClickOverTimeChart.style';
 
 interface OneClickOverTimeChartProps {
-  data: TimeSeriesChartData[];
+  data: SeriesChartData[];
   isLoading: boolean;
   isFetching: boolean;
   onRefresh: () => void;

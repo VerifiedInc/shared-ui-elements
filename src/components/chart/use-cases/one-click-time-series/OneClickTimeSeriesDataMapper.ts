@@ -25,6 +25,7 @@ export interface TimeSeriesChartData {
   uuid: string;
   name: string;
   color: string;
+  integrationType: string;
   chartData: TimeSeriesDataPoint[];
 }
 
