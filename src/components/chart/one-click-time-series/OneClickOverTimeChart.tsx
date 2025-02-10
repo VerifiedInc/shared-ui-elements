@@ -16,6 +16,8 @@ const styles = {
 export interface OneClickOverTimeChartProps {
   data: SeriesChartData[];
   isLoading: boolean;
+  isSuccess: boolean;
+  isFetching: boolean;
   filter: {
     timezone: string;
     brands: BrandFilter[];
@@ -25,13 +27,15 @@ export interface OneClickOverTimeChartProps {
 export function OneClickOverTimeChart({
   data,
   isLoading,
+  isFetching,
+  isSuccess,
   filter,
 }: Readonly<OneClickOverTimeChartProps>): React.ReactNode {
   if (isLoading) {
     return <LoadingChartSection />;
   }
 
-  if (!data.length) {
+  if (!data.length || !isSuccess) {
     return <EmptyChartSection />;
   }
 
@@ -40,7 +44,7 @@ export function OneClickOverTimeChart({
       label='Uniques'
       data={data}
       filter={filter}
-      sx={{ ...styles.chartWrapper, opacity: isLoading ? 0.4 : 1 }}
+      sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1 }}
     />
   );
 }
