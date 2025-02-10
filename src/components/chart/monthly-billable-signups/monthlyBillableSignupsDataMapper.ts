@@ -1,3 +1,4 @@
+import { kebabCaseToPretty } from '../../../utils/string/formatKebabToPretty';
 type Brand = {
   brandUuid: string;
   brandName: string;
@@ -36,7 +37,7 @@ export const mapMonthlyBillableSignupsData = ({
     return brandData.interval.map((interval) => ({
       month: new Date(interval.date).toISOString(),
       brand: brand.brandName,
-      integrationType: brand.integrationType,
+      integrationType: kebabCaseToPretty(brand.integrationType),
       total: interval.oneClickCreated,
       finished: interval.oneClickSuccess,
       totalCost: interval.totalCost,
