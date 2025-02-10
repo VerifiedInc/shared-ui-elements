@@ -1,5 +1,5 @@
-import { kebabCaseToPretty } from '@/utils/string/formatKebabToPretty';
-import { uuidToHashedColor } from '@/utils/uuidColor';
+import { kebabCaseToPretty } from '../../../utils/string/formatKebabToPretty';
+import { uuidToHashedColor } from '../../../utils/uuidColor';
 import _ from 'lodash';
 
 export interface Brand {

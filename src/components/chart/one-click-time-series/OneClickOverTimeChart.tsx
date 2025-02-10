@@ -1,8 +1,5 @@
-import {
-  SeriesChart,
-  type SeriesChartData,
-} from '@/components/chart/SeriesChart';
-import { PageSectionHeader } from '@/components/typographies/PageSectionHeader';
+import { SeriesChart, type SeriesChartData } from '../SeriesChart';
+import { PageSectionHeader } from '../../typographies/PageSectionHeader';
 import { IconButton, Stack } from '@mui/material';
 import React, { Fragment } from 'react';
 import { BrandFilter } from './OneClickTimeSeriesDataMapper';
