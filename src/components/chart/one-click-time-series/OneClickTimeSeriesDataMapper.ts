@@ -1,20 +1,7 @@
+import { BrandFilter } from '../../BrandFilterInput';
 import { kebabCaseToPretty } from '../../../utils/string/formatKebabToPretty';
 import { uuidToHashedColor } from '../../../utils/uuidColor';
 import _ from 'lodash';
-
-export interface Brand {
-  brandUuid: string;
-  brandName: string;
-  integrationType: string;
-  additionalData?: {
-    primaryColor?: string;
-  };
-}
-
-export interface BrandFilter {
-  value: string;
-  _raw: Brand;
-}
 
 export interface TimeSeriesDataPoint {
   date: number;

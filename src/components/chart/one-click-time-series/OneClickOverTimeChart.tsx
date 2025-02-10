@@ -2,7 +2,7 @@ import React from 'react';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { SeriesChart, type SeriesChartData } from '../SeriesChart';
-import { BrandFilter } from './OneClickTimeSeriesDataMapper';
+import type { BrandFilter } from '../../BrandFilterInput';
 
 const styles = {
   chartWrapper: {
