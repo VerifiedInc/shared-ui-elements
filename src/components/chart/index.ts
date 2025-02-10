@@ -9,4 +9,4 @@ export * from './PieChart';
 export * from './RiskScorePieChart';
 export * from './RiskScoreBarChart';
 export * from './SimpleLegend';
-export * from './use-cases';
+export * from './one-click-time-series';
