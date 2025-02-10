@@ -1,2 +1,2 @@
-export * from './MonthlyBillableSignupsTable';
 export * from './MonthlyBillableSignupsDataMapper';
+export * from './MonthlyBillableSignupsTable';
