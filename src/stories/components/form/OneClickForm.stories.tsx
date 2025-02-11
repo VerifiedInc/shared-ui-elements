@@ -213,6 +213,12 @@ const mockData = {
       multi: false,
       type: 'SsnCredential',
     },
+    {
+      allowUserInput: false,
+      mandatory: 'no',
+      multi: false,
+      type: 'EmployerCredential',
+    },
   ],
   status: 'WAITING_SHARED_CREDENTIALS',
   uuid: 'fb7c6fe2-152c-4579-a4cc-c7472d0e2c45',
