@@ -80,6 +80,12 @@ export function HeaderSelect() {
         alignItems: 'center',
         whiteSpace: 'nowrap!important',
       },
+      '& .Mui-disabled .MuiOutlinedInput-notchedOutline': {
+        border: 'none',
+      },
+      '& .Mui-disabled.MuiSelect-icon': {
+        display: 'none',
+      },
     },
   };
 
@@ -119,7 +125,10 @@ export function HeaderSelect() {
   }, []);
 
   return (
-    <TextField {...textFieldProps}>
+    <TextField
+      {...textFieldProps}
+      disabled={!allowUserInput && instances.length <= 0}
+    >
       {instances.map(renderInstance(false))}
       {allowUserInput && (
         <Box sx={_styles.menuStyle}>
