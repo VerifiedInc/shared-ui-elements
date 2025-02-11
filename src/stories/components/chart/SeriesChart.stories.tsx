@@ -49,6 +49,7 @@ const mockData = [
     uuid: '4c8ccbe5-ce86-44d7-a463-8ac9955af937',
     name: 'Blue Brand',
     color: '#0000ff',
+    integrationType: 'hosted',
     chartData: [
       { date: 1734973560000, value: 1 },
       { date: 1734969240000, value: 3 },
@@ -70,6 +71,7 @@ const mockData = [
     uuid: '7d9ccbe5-ce86-44d7-a463-8ac9955af123',
     name: 'Red Brand',
     color: '#ff0000',
+    integrationType: 'semi-hosted',
     chartData: [
       { date: 1734973560000, value: 2 },
       { date: 1734969240000, value: 4 },

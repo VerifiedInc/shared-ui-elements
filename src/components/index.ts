@@ -13,3 +13,4 @@ export * from './Snackbar';
 export * from './Banners';
 export * from './Backdrop';
 export * from './Button';
+export * from './BrandFilterInput';

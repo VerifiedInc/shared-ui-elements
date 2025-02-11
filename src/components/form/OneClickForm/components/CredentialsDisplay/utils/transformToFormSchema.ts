@@ -17,9 +17,11 @@ export function transformToFormSchema(
   const formObject: Record<string, zod.ZodTypeAny> = {};
 
   for (const item of displayInfoList) {
-    const key = stringUtils.camelCase(
+    const marshalKey = stringUtils.camelCase(
       item.credentialRequest.type.split('Credential').join(''),
     );
+    const propertyKey = Object.keys(item.schema.properties ?? {})[0];
+    const key = propertyKey ?? marshalKey;
 
     if (Array.isArray(item.children)) {
       // Recursively reduce the children to a single object
@@ -34,6 +36,7 @@ export function transformToFormSchema(
           {
             id: zod.string(),
             value: zod.string(),
+            type: zod.string(),
             credentialDisplayInfo: zod.any(),
           },
         ),
@@ -43,6 +46,7 @@ export function transformToFormSchema(
         .object({
           id: zod.string(),
           value: zod.string(),
+          type: zod.string(),
           credentialDisplayInfo: zod.any(),
         })
         .superRefine((data, ctx) => {

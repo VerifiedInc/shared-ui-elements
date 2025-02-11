@@ -145,11 +145,7 @@ const mockData = {
           mandatory: 'if_available',
           allowUserInput: true,
         },
-        {
-          type: 'MiddleNameCredential',
-          mandatory: 'no',
-          allowUserInput: true,
-        },
+        { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: true },
         {
           type: 'LastNameCredential',
           mandatory: 'if_available',
@@ -174,11 +170,7 @@ const mockData = {
           mandatory: 'if_available',
           allowUserInput: true,
         },
-        {
-          type: 'Line2Credential',
-          mandatory: 'no',
-          allowUserInput: true,
-        },
+        { type: 'Line2Credential', mandatory: 'no', allowUserInput: true },
         {
           type: 'CityCredential',
           mandatory: 'if_available',

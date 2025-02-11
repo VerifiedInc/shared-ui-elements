@@ -104,6 +104,11 @@ function EntryBlock({
           </Stack>
         </Typography>
         <Typography variant='body1'>{entry.value}</Typography>
+        {entry.payload.integrationType && (
+          <Typography variant='body2'>
+            {entry.payload.integrationType}
+          </Typography>
+        )}
         {entry.payload.uuid && (
           <Typography
             variant='body2'

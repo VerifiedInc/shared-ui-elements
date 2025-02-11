@@ -29,6 +29,7 @@ interface OTPInputProps {
   onChange?: (event: { target: { value: string } }) => void;
   disabled?: boolean;
   sx?: SxProps;
+  autoComplete?: string;
 }
 
 export type OTPInputInstance = Readonly<{
@@ -199,7 +200,7 @@ function OTPInputComponent(
               inputRef={(input) =>
                 ((inputsRef.current[index + startIndex] as any) = input)
               }
-              autoComplete='one-time-code'
+              autoComplete={props.autoComplete ?? 'one-time-code'}
               autoFocus={index + startIndex === 0}
               value={values[index + startIndex] || ''}
               disabled={props.disabled}

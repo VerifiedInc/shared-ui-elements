@@ -200,7 +200,7 @@ export default function CredentialsDisplayProvider({
       if (shouldCascade) {
         // Removing properties that are not to be included in the update check.
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, value, credentialDisplayInfo, ...rest } =
+        const { id, value, type, credentialDisplayInfo, ...rest } =
           credentialFieldSet;
 
         Object.entries(rest).forEach(([key, value]) =>
@@ -289,7 +289,8 @@ export default function CredentialsDisplayProvider({
 
       // Removing properties that are not to be included in the update method.
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, value, credentialDisplayInfo, ...rest } = credentialFieldSet;
+      const { id, value, type, credentialDisplayInfo, ...rest } =
+        credentialFieldSet;
       Object.entries(rest).forEach(([key, value]) =>
         update(`${path}.${key}`, value),
       );
