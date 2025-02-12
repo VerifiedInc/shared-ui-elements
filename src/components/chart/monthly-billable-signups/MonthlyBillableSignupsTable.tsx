@@ -26,17 +26,9 @@ export type MonthlyBillableSignupsTableProps = {
   showTotalCost?: boolean;
 };
 
-const styles = {
-  tableWrapper: {
-    height: 400,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-} as const;
-
 export const MonthlyBillableSignupsTable: React.FC<
   MonthlyBillableSignupsTableProps
-> = ({ data, isLoading, showTotalCost = false }) => {
+> = ({ data, isLoading, showTotalCost = true }) => {
   if (isLoading) {
     return <LoadingChartSection />;
   }
