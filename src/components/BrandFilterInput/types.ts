@@ -1,12 +1,12 @@
 export interface Brands {
   brandUuid: string;
-  customerUuid: string;
   brandName: string;
+  customerUuid: string;
   integrationType: string;
-  oneClickCreated: number;
-  oneClickSuccess: number;
-  isLiveBrand: boolean;
-  additionalData: any;
+  oneClickCreated?: number;
+  oneClickSuccess?: number;
+  isLiveBrand?: boolean;
+  additionalData?: any;
 }
 
 export type BrandFilter = {
