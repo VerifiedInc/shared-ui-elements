@@ -17,12 +17,13 @@ export type BillableSignupData = {
   integrationType: string;
   total: number;
   finished: number;
-  totalCost: string;
+  totalCost?: string;
 };
 
 export type MonthlyBillableSignupsTableProps = {
   data: BillableSignupData[];
   isLoading: boolean;
+  showTotalCost?: boolean;
 };
 
 const styles = {
@@ -35,7 +36,7 @@ const styles = {
 
 export const MonthlyBillableSignupsTable: React.FC<
   MonthlyBillableSignupsTableProps
-> = ({ data, isLoading }) => {
+> = ({ data, isLoading, showTotalCost = false }) => {
   if (isLoading) {
     return <LoadingChartSection />;
   }
@@ -53,7 +54,7 @@ export const MonthlyBillableSignupsTable: React.FC<
             <TableCell>Integration Type</TableCell>
             <TableCell align='right'>Started</TableCell>
             <TableCell align='right'>Finished</TableCell>
-            <TableCell align='right'>Total Cost</TableCell>
+            {showTotalCost && <TableCell align='right'>Total Cost</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -70,7 +71,9 @@ export const MonthlyBillableSignupsTable: React.FC<
               <TableCell>{row.integrationType}</TableCell>
               <TableCell align='right'>{row.total}</TableCell>
               <TableCell align='right'>{row.finished}</TableCell>
-              <TableCell align='right'>{row.totalCost}</TableCell>
+              {showTotalCost && (
+                <TableCell align='right'>{row.totalCost ?? '-'}</TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
