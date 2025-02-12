@@ -131,5 +131,8 @@
     "react-imask": "^7.6.1",
     "recharts": ">=2.15.0",
     "zod": "^3.23.8"
+  },
+  "dependencies": {
+    "@date-fns/tz": "^1.2.0"
   }
 }
