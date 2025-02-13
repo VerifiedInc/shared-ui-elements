@@ -12,15 +12,19 @@ import {
 } from './SignupBigNumbersMapper';
 
 export interface SignupBigNumbersProps {
-  data?: TimeSeriesChartData[];
+  oneClickCreated?: TimeSeriesChartData[];
+  oneClickSuccess?: TimeSeriesChartData[];
   isLoading: boolean;
 }
 
 export function SignupBigNumbers({
-  data,
+  oneClickCreated,
+  oneClickSuccess,
   isLoading = true,
 }: Readonly<SignupBigNumbersProps>): React.ReactNode {
-  const metrics = isLoading ? defaultMetrics : calculateSignupMetrics(data);
+  const metrics = isLoading
+    ? defaultMetrics
+    : calculateSignupMetrics(oneClickCreated, oneClickSuccess);
 
   return (
     <Stack direction='row' spacing={3}>

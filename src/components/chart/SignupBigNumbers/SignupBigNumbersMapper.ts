@@ -15,33 +15,34 @@ export const defaultMetrics: SignupMetrics = {
 };
 
 export function calculateSignupMetrics(
-  data?: TimeSeriesChartData[],
+  oneClickCreated?: TimeSeriesChartData[],
+  oneClickSuccess?: TimeSeriesChartData[],
 ): SignupMetrics {
-  if (!data?.length) {
+  if (!oneClickCreated?.length && !oneClickSuccess?.length) {
     return defaultMetrics;
   }
 
-  const totalSignups = data.reduce((sum, series) => {
-    return (
-      sum + series.chartData.reduce((total, point) => total + point.value, 0)
-    );
-  }, 0);
+  // Calculate total signups from oneClickCreated data
+  const totalSignups =
+    oneClickCreated?.reduce(
+      (sum, series) =>
+        sum + series.chartData.reduce((total, point) => total + point.value, 0),
+      0,
+    ) ?? 0;
 
-  const totalSuccess = data.reduce((sum, series) => {
-    return (
-      sum + series.chartData.reduce((total, point) => total + point.value, 0)
-    );
-  }, 0);
+  // Calculate total success from oneClickSuccess data
+  const totalSuccess =
+    oneClickSuccess?.reduce(
+      (sum, series) =>
+        sum + series.chartData.reduce((total, point) => total + point.value, 0),
+      0,
+    ) ?? 0;
+
+  // Calculate success rate
+  const successRate = totalSignups > 0 ? totalSuccess / totalSignups : 0;
 
   // Assuming totalCost is in cents, convert to dollars
-  const totalCost =
-    data.reduce((sum, series) => {
-      return (
-        sum + series.chartData.reduce((total, point) => total + point.value, 0)
-      );
-    }, 0) / 100;
-
-  const successRate = totalSignups > 0 ? totalSuccess / totalSignups : 0;
+  const totalCost = totalSignups / 100; // This might need adjustment based on your cost calculation logic
 
   return {
     totalSignups,

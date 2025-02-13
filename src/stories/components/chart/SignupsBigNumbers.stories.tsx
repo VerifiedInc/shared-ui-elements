@@ -14,46 +14,86 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockTimeSeriesData: TimeSeriesChartData[] = [
-  {
-    uuid: '1',
-    name: 'Brand 1',
-    color: '#FF0000',
-    integrationType: 'type1',
-    chartData: [
-      { date: 1707854065000, value: 500 },
-      { date: 1707940465000, value: 734 },
-    ],
-  },
-  {
-    uuid: '2',
-    name: 'Brand 2',
-    color: '#00FF00',
-    integrationType: 'type2',
-    chartData: [
-      { date: 1707854065000, value: 300 },
-      { date: 1707940465000, value: 687 },
-    ],
-  },
-];
-
 export const Loading: Story = {
   args: {
     isLoading: true,
-    data: undefined,
-  },
-};
-
-export const WithData: Story = {
-  args: {
-    isLoading: false,
-    data: mockTimeSeriesData,
+    oneClickSuccess: undefined,
+    oneClickCreated: undefined,
   },
 };
 
 export const NoData: Story = {
   args: {
     isLoading: false,
-    data: undefined,
+    oneClickSuccess: undefined,
+    oneClickCreated: undefined,
+  },
+};
+
+export const OnlyCreated: Story = {
+  args: {
+    isLoading: false,
+    oneClickSuccess: undefined,
+    oneClickCreated: [
+      {
+        uuid: '1',
+        name: 'Brand 1',
+        color: '#FF0000',
+        integrationType: 'oneClickCreated',
+        chartData: [
+          { date: 1707854065000, value: 500 },
+          { date: 1707940465000, value: 800 },
+        ],
+      },
+    ],
+  },
+};
+
+export const OnlySuccess: Story = {
+  args: {
+    isLoading: false,
+    oneClickCreated: undefined,
+    oneClickSuccess: [
+      {
+        uuid: '1',
+        name: 'Brand 1',
+        color: '#FF0000',
+        integrationType: 'oneClickSuccess',
+        chartData: [
+          { date: 1707854065000, value: 400 },
+          { date: 1707940465000, value: 600 },
+        ],
+      },
+    ],
+  },
+};
+
+export const WithData: Story = {
+  args: {
+    isLoading: false,
+    oneClickSuccess: [
+      {
+        uuid: '1',
+        name: 'Brand 1',
+        color: '#FF0000',
+        integrationType: 'oneClickSuccess',
+        chartData: [
+          { date: 1707854065000, value: 400 },
+          { date: 1707940465000, value: 600 },
+        ],
+      },
+    ],
+    oneClickCreated: [
+      {
+        uuid: '2',
+        name: 'Brand 2',
+        color: '#00FF00',
+        integrationType: 'oneClickCreated',
+        chartData: [
+          { date: 1707854065000, value: 500 },
+          { date: 1707940465000, value: 800 },
+        ],
+      },
+    ],
   },
 };
