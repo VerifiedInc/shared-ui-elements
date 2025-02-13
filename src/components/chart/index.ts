@@ -15,3 +15,4 @@ export * from './MonthlySignupsOverviewTable';
 export * from './LoadingChartSection';
 export * from './EmptyChartSection';
 export * from './MetricLastUpdated';
+export * from './SignupBigNumbers';
