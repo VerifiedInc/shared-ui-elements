@@ -1,3 +1,6 @@
+import { format } from 'date-fns';
+import { TZDate } from '@date-fns/tz';
+
 /**
  * Formats a timestamp into a pretty format of DD/MM/YYYY.
  * @param timestamp
@@ -40,6 +43,57 @@ export const formatRawDateMMDDYYYY = (date: string) => {
 export const formatDateMMDD = (date: string) => {
   const formattedDate = date.slice(0, 2) + '/' + date.slice(2, 4) + '/1970';
   return formattedDate;
+};
+
+export const formatMMDDYYYYTime = (date: number | string) => {
+  return new Date(Number(date)).toLocaleTimeString('en-US', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  });
+};
+
+export const formatMMMDD = (
+  date: number | string,
+  options?: Intl.DateTimeFormatOptions,
+) => {
+  return new Date(Number(date)).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour12: false,
+    ...options,
+  });
+};
+
+export const formatExtendedDate = (
+  date: number | string,
+  options?: Intl.DateTimeFormatOptions,
+) => {
+  return new Date(Number(date)).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    ...options,
+  });
+};
+
+export const getTimestampWithOffset = (
+  date: Date | string | number,
+  timezone: string,
+) => {
+  const newDate = new Date(
+    format(date, "yyyy-MM-dd'T'HH:mm:ss.000'Z'"),
+  ).toString();
+  return (
+    new TZDate(newDate, timezone).getTime() -
+    new TZDate(newDate, timezone).getTimezoneOffset() * 60 * 1000
+  );
 };
 
 export const dateUtils = {

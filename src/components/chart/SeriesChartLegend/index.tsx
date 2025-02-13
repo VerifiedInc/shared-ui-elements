@@ -13,7 +13,8 @@ import { useSnackbar } from '../../Snackbar';
 function EntryBlock({
   entry,
   payload,
-}: Readonly<{ entry: any; payload: any }>): ReactElement {
+  showUuid = true,
+}: Readonly<{ entry: any; payload: any; showUuid?: boolean }>): ReactElement {
   const getEntryTotal = useCallback((entry: any): number => {
     return entry.payload?.data?.reduce?.(
       (acc: number, curr: any) => acc + curr.value,
@@ -109,7 +110,7 @@ function EntryBlock({
             {entry.payload.integrationType}
           </Typography>
         )}
-        {entry.payload.uuid && (
+        {showUuid && entry.payload.uuid && (
           <Typography
             variant='body2'
             sx={{
@@ -130,7 +131,11 @@ function EntryBlock({
   );
 }
 
-export function SeriesChartLegend(props: LegendProps): ReactElement {
+interface SeriesChartLegendProps extends LegendProps {
+  showUuid?: boolean;
+}
+
+export function SeriesChartLegend(props: SeriesChartLegendProps): ReactElement {
   const { payload } = props;
 
   return (
@@ -149,7 +154,11 @@ export function SeriesChartLegend(props: LegendProps): ReactElement {
       <AnimatePresence>
         {payload?.map((entry) => (
           <Grid2 key={`item-${entry.value}`}>
-            <EntryBlock entry={entry} payload={payload} />
+            <EntryBlock
+              entry={entry}
+              payload={payload}
+              showUuid={props.showUuid}
+            />
           </Grid2>
         ))}
       </AnimatePresence>

@@ -65,7 +65,8 @@ export function mapTimeSeriesData(
       color:
         brand.integrationType === 'hosted' && brand.additionalData?.primaryColor
           ? brand.additionalData?.primaryColor
-          : (defaultColor ?? uuidToHashedColor(brand.brandUuid)),
+          : // eslint-disable-next-line prettier/prettier
+            (defaultColor ?? uuidToHashedColor(brand.brandUuid)),
       chartData,
     };
   });

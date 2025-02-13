@@ -11,31 +11,24 @@ import React from 'react';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 
-export type BillableSignupData = {
+export type MonthlySignupsOverviewTableData = {
   month: string;
   brand: string;
   integrationType: string;
   total: number;
   finished: number;
-  totalCost: string;
+  totalCost?: string;
 };
 
-export type MonthlyBillableSignupsTableProps = {
-  data: BillableSignupData[];
+export type MonthlySignupsOverviewTableProps = {
+  data: MonthlySignupsOverviewTableData[];
   isLoading: boolean;
+  showTotalCost?: boolean;
 };
 
-const styles = {
-  tableWrapper: {
-    height: 400,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-} as const;
-
-export const MonthlyBillableSignupsTable: React.FC<
-  MonthlyBillableSignupsTableProps
-> = ({ data, isLoading }) => {
+export const MonthlySignupsOverviewTable: React.FC<
+  MonthlySignupsOverviewTableProps
+> = ({ data, isLoading, showTotalCost = true }) => {
   if (isLoading) {
     return <LoadingChartSection />;
   }
@@ -53,7 +46,7 @@ export const MonthlyBillableSignupsTable: React.FC<
             <TableCell>Integration Type</TableCell>
             <TableCell align='right'>Started</TableCell>
             <TableCell align='right'>Finished</TableCell>
-            <TableCell align='right'>Total Cost</TableCell>
+            {showTotalCost && <TableCell align='right'>Total Cost</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -70,7 +63,9 @@ export const MonthlyBillableSignupsTable: React.FC<
               <TableCell>{row.integrationType}</TableCell>
               <TableCell align='right'>{row.total}</TableCell>
               <TableCell align='right'>{row.finished}</TableCell>
-              <TableCell align='right'>{row.totalCost}</TableCell>
+              {showTotalCost && (
+                <TableCell align='right'>{row.totalCost ?? '-'}</TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

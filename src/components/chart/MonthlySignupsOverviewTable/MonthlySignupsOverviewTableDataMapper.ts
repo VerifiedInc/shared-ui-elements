@@ -21,15 +21,15 @@ type ChartData = {
   };
 };
 
-type MapMonthlyBillableSignupsDataParams = {
+type MapMonthlySignupsOverviewTableDataParams = {
   data: ChartData[];
   brands: Brand[];
 };
 
-export const mapMonthlyBillableSignupsData = ({
+export const mapMonthlySignupsOverviewTableData = ({
   data,
   brands,
-}: MapMonthlyBillableSignupsDataParams) => {
+}: MapMonthlySignupsOverviewTableDataParams) => {
   return data.flatMap((brandData) => {
     const brand = brands.find((b) => b.brandUuid === brandData.brandUuid);
     if (!brand || !brandData.interval) return [];
