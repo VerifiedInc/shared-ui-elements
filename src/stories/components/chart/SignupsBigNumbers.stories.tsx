@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SignupBigNumbers } from '../../../components/chart/SignupBigNumbers/SignupBigNumbers';
-import { TimeSeriesChartData } from '../../../components/chart/OneClickOverTimeChart/OneClickTimeSeriesDataMapper';
+import { SignupBigNumbersChartData } from '../../../components/chart/SignupBigNumbers/SignupBigNumbersMapper';
 
 const meta = {
   title: 'Components/chart/SignupBigNumbers',
@@ -17,82 +17,129 @@ type Story = StoryObj<typeof meta>;
 export const Loading: Story = {
   args: {
     isLoading: true,
-    oneClickSuccess: undefined,
-    oneClickCreated: undefined,
+    chartData: [],
   },
 };
 
 export const NoData: Story = {
   args: {
     isLoading: false,
-    oneClickSuccess: undefined,
-    oneClickCreated: undefined,
+    chartData: [],
   },
 };
 
-export const OnlyCreated: Story = {
+export const SingleBrand: Story = {
   args: {
     isLoading: false,
-    oneClickSuccess: undefined,
-    oneClickCreated: [
+    chartData: [
       {
-        uuid: '1',
-        name: 'Brand 1',
-        color: '#FF0000',
-        integrationType: 'oneClickCreated',
-        chartData: [
-          { date: 1707854065000, value: 500 },
-          { date: 1707940465000, value: 800 },
+        brandUuid: '1',
+        brandName: 'Brand 1',
+        interval: [
+          {
+            date: 1707854065000,
+            oneClickCreated: 500,
+            oneClickSuccess: 400,
+            totalCost: '$1000.00',
+          },
+          {
+            date: 1707940465000,
+            oneClickCreated: 800,
+            oneClickSuccess: 600,
+            totalCost: '$1500.00',
+          },
         ],
+        overall: {
+          oneClickCreated: 1300,
+          oneClickSuccess: 1000,
+          totalCost: '$2500.00',
+        },
       },
     ],
   },
 };
 
-export const OnlySuccess: Story = {
+export const WithoutTotalCost: Story = {
   args: {
     isLoading: false,
-    oneClickCreated: undefined,
-    oneClickSuccess: [
+    hideTotalCost: true,
+    chartData: [
       {
-        uuid: '1',
-        name: 'Brand 1',
-        color: '#FF0000',
-        integrationType: 'oneClickSuccess',
-        chartData: [
-          { date: 1707854065000, value: 400 },
-          { date: 1707940465000, value: 600 },
+        brandUuid: '1',
+        brandName: 'Brand 1',
+        interval: [
+          {
+            date: 1707854065000,
+            oneClickCreated: 500,
+            oneClickSuccess: 400,
+            totalCost: '$1000.00',
+          },
+          {
+            date: 1707940465000,
+            oneClickCreated: 800,
+            oneClickSuccess: 600,
+            totalCost: '$1500.00',
+          },
         ],
+        overall: {
+          oneClickCreated: 1300,
+          oneClickSuccess: 1000,
+          totalCost: '$2500.00',
+        },
       },
     ],
   },
 };
 
-export const WithData: Story = {
+export const MultipleBrands: Story = {
   args: {
     isLoading: false,
-    oneClickSuccess: [
+    chartData: [
       {
-        uuid: '1',
-        name: 'Brand 1',
-        color: '#FF0000',
-        integrationType: 'oneClickSuccess',
-        chartData: [
-          { date: 1707854065000, value: 400 },
-          { date: 1707940465000, value: 600 },
+        brandUuid: '1',
+        brandName: 'Brand 1',
+        interval: [
+          {
+            date: 1707854065000,
+            oneClickCreated: 500,
+            oneClickSuccess: 400,
+            totalCost: '$1000.00',
+          },
+          {
+            date: 1707940465000,
+            oneClickCreated: 800,
+            oneClickSuccess: 600,
+            totalCost: '$1500.00',
+          },
         ],
+        overall: {
+          oneClickCreated: 1300,
+          oneClickSuccess: 1000,
+          totalCost: '$2500.00',
+        },
       },
-    ],
-    oneClickCreated: [
       {
-        uuid: '2',
-        name: 'Brand 2',
-        color: '#00FF00',
-        integrationType: 'oneClickCreated',
-        chartData: [
-          { date: 1707854065000, value: 500 },
-          { date: 1707940465000, value: 800 },
+        brandUuid: '2',
+        brandName: 'Brand 2',
+        interval: [
+          {
+            date: 1707854065000,
+            oneClickCreated: 300,
+            oneClickSuccess: 250,
+            totalCost: '$800.00',
+          },
+          {
+            date: 1707940465000,
+            oneClickCreated: 600,
+            oneClickSuccess: 500,
+            totalCost: '$1200.00',
+          },
         ],
+        overall: {
+          oneClickCreated: 900,
+          oneClickSuccess: 750,
+          totalCost: '$2000.00',
+        },
       },
     ],
   },

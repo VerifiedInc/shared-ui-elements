@@ -5,26 +5,26 @@ import {
   formatCurrency,
   formatPercentage,
 } from '../../../utils/number/formatters';
-import { TimeSeriesChartData } from '../OneClickOverTimeChart/OneClickTimeSeriesDataMapper';
 import {
   calculateSignupMetrics,
   defaultMetrics,
+  SignupBigNumbersChartData,
 } from './SignupBigNumbersMapper';
 
 export interface SignupBigNumbersProps {
-  oneClickCreated?: TimeSeriesChartData[];
-  oneClickSuccess?: TimeSeriesChartData[];
+  chartData: SignupBigNumbersChartData[];
   isLoading: boolean;
+  hideTotalCost?: boolean;
 }
 
 export function SignupBigNumbers({
-  oneClickCreated,
-  oneClickSuccess,
+  chartData,
   isLoading = true,
+  hideTotalCost = false,
 }: Readonly<SignupBigNumbersProps>): React.ReactNode {
   const metrics = isLoading
     ? defaultMetrics
-    : calculateSignupMetrics(oneClickCreated, oneClickSuccess);
+    : calculateSignupMetrics(chartData);
 
   return (
     <Stack direction='row' spacing={3}>
@@ -42,12 +42,14 @@ export function SignupBigNumbers({
         map={formatNumberRounded}
       />
 
-      <BigNumber
-        label='Total Cost'
-        value={metrics.totalCost}
-        initialValue={metrics.totalCost}
-        map={formatCurrency}
-      />
+      {!hideTotalCost && (
+        <BigNumber
+          label='Total Cost'
+          value={metrics.totalCost}
+          initialValue={metrics.totalCost}
+          map={formatCurrency}
+        />
+      )}
 
       <BigNumber
         label='Success Rate'

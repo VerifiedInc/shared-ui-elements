@@ -14,40 +14,50 @@ export const defaultMetrics: SignupMetrics = {
   successRate: 0,
 };
 
+export interface SignupBigNumbersChartData {
+  interval?: Array<{
+    oneClickCreated: number;
+    oneClickSuccess: number;
+    date: number;
+    totalCost?: string;
+  }>;
+  brandUuid: string;
+  brandName: string;
+  overall: {
+    oneClickCreated: number;
+    oneClickSuccess: number;
+    totalCost?: string;
+  };
+}
+
 export function calculateSignupMetrics(
-  oneClickCreated?: TimeSeriesChartData[],
-  oneClickSuccess?: TimeSeriesChartData[],
+  data: SignupBigNumbersChartData[],
 ): SignupMetrics {
-  if (!oneClickCreated?.length && !oneClickSuccess?.length) {
-    return defaultMetrics;
-  }
+  if (!data?.length) return defaultMetrics;
 
-  // Calculate total signups from oneClickCreated data
-  const totalSignups =
-    oneClickCreated?.reduce(
-      (sum, series) =>
-        sum + series.chartData.reduce((total, point) => total + point.value, 0),
-      0,
-    ) ?? 0;
+  const totalSignups = data.reduce(
+    (sum, brand) => sum + (brand.overall.oneClickCreated || 0),
+    0,
+  );
 
-  // Calculate total success from oneClickSuccess data
-  const totalSuccess =
-    oneClickSuccess?.reduce(
-      (sum, series) =>
-        sum + series.chartData.reduce((total, point) => total + point.value, 0),
-      0,
-    ) ?? 0;
+  const totalSuccess = data.reduce(
+    (sum, brand) => sum + (brand.overall.oneClickSuccess || 0),
+    0,
+  );
 
-  // Calculate success rate
-  const successRate = totalSignups > 0 ? totalSuccess / totalSignups : 0;
+  const totalCost = data.reduce((sum, brand) => {
+    const cost = brand.overall.totalCost
+      ? Number(brand.overall.totalCost.replace('$', '').replace(/,/g, ''))
+      : 0;
+    return sum + cost;
+  }, 0);
 
-  // Assuming totalCost is in cents, convert to dollars
-  const totalCost = totalSignups / 100; // This might need adjustment based on your cost calculation logic
+  const successRate = totalSuccess / totalSignups;
 
   return {
     totalSignups,
     totalSuccess,
     totalCost,
-    successRate,
+    successRate: isNaN(successRate) ? 0 : successRate,
   };
 }
