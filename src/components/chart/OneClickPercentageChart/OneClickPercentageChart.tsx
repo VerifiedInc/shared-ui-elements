@@ -3,6 +3,7 @@ import React from 'react';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { SeriesPercentageChart } from '../SeriesPercentageChart';
+import { useStyle } from '../styles';
 
 export interface OneClickChartData {
   uuid: string;
@@ -31,6 +32,7 @@ export function OneClickPercentageChart({
   sx,
 }: Readonly<OneClickPercentageChartProps>): React.ReactNode {
   const theme = useTheme();
+  const style = useStyle();
 
   const KEY_VALUES = {
     oneClickCreated: {
@@ -60,6 +62,7 @@ export function OneClickPercentageChart({
       keyValues={Object.values(KEY_VALUES)}
       filter={filter}
       sx={{
+        ...style.smallChartWrapper,
         opacity: isFetching ? 0.4 : 1,
         ...sx,
       }}
