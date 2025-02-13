@@ -1,6 +1,6 @@
 import { Autocomplete, TextField } from '@mui/material';
 import { useSnackbar } from '../Snackbar';
-import { BrandFilter } from './types';
+import { BrandFilter, BrandGroupConfig } from './types';
 import { useBrandFilterInput } from './BrandFilterInput.hook';
 
 export type Value = BrandFilter;
@@ -10,11 +10,11 @@ interface BrandFilterInputProps {
   multiple?: boolean;
   value: Value | Value[] | undefined;
   onChange: (value: Value | Value[] | null) => void;
-  getBrandsQuery: {
-    data?: any[];
-    isFetching: boolean;
-  };
+  brands?: any[];
+  isLoading: boolean;
   maximumSelectedBrands?: number;
+  /** Configuration for how to group the brands. If null, no grouping will be applied */
+  groupConfig?: BrandGroupConfig;
 }
 
 export function BrandFilterInput({
@@ -22,8 +22,10 @@ export function BrandFilterInput({
   multiple = false,
   value,
   onChange,
-  getBrandsQuery,
+  brands,
+  isLoading,
   maximumSelectedBrands = 10,
+  groupConfig,
 }: Readonly<BrandFilterInputProps>) {
   const handleChange = (newValue: Value | Value[] | null) => {
     if (multiple && Array.isArray(newValue)) {
@@ -35,11 +37,11 @@ export function BrandFilterInput({
   };
 
   const { enqueueSnackbar } = useSnackbar();
-  const { brandOptions, isFetching } = useBrandFilterInput({
+  const { brandOptions } = useBrandFilterInput({
     value,
     multiple,
     onChange: handleChange,
-    getBrandsQuery,
+    brands,
     maximumSelectedBrands,
   });
 
@@ -67,12 +69,25 @@ export function BrandFilterInput({
           return;
         }
 
-        handleChange(newValue);
+        handleChange(newValue as BrandFilter | BrandFilter[] | null);
       }}
       clearOnBlur
       disableClearable={!multiple}
-      disabled={isFetching}
-      groupBy={(option: Value) => (option._raw as any).live}
+      disabled={isLoading}
+      {...(groupConfig && {
+        // Define how options should be grouped
+        groupBy: (option: Value) => {
+          // Extract the raw value using the specified key
+          const value = option._raw[groupConfig.key];
+          // Transform the value using the provided transform function or fallback to string conversion
+          return groupConfig.transform
+            ? groupConfig.transform(value)
+            : String(value);
+        },
+        // Use the provided sort function to determine group order
+        // If not provided, MUI will use alphabetical ordering
+        groupOrder: groupConfig.sortGroups,
+      })}
       renderInput={(params) => (
         <TextField
           {...params}

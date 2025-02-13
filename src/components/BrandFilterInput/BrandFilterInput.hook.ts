@@ -17,10 +17,7 @@ interface UseBrandFilterInputProps {
   value: BrandFilter | BrandFilter[] | undefined;
   multiple?: boolean;
   onChange?: (brands: BrandFilter | BrandFilter[]) => void;
-  getBrandsQuery: {
-    data?: Brands[];
-    isFetching: boolean;
-  };
+  brands?: Brands[];
   maximumSelectedBrands?: number;
 }
 
@@ -28,16 +25,12 @@ export function useBrandFilterInput({
   value,
   multiple = false,
   onChange,
-  getBrandsQuery,
+  brands,
   maximumSelectedBrands = 10,
 }: UseBrandFilterInputProps) {
   const groupedBrands = useMemo(() => {
-    const brands = getBrandsQuery.data ?? [];
-    return brands.map((brand: any) => ({
-      ...brand,
-      live: brand.isLiveBrand ? 'Live' : 'Not Live Yet',
-    }));
-  }, [getBrandsQuery.data]);
+    return (brands ?? []).map((brand) => brand);
+  }, [brands]);
 
   const brandOptions = useMemo(
     () =>
@@ -86,11 +79,9 @@ export function useBrandFilterInput({
         onChange?.(isValueIncluded ? value : firstLiveBrand);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brandOptions]);
 
   return {
     brandOptions,
-    isFetching: getBrandsQuery.isFetching,
   };
 }
