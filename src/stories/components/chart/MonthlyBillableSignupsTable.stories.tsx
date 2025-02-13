@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { MonthlyBillableSignupsTable } from '../../../components/chart/monthly-billable-signups/MonthlyBillableSignupsTable';
 
 const meta: Meta<typeof MonthlyBillableSignupsTable> = {
-  title: 'Components/charts/MonthlyBillableSignupsTable',
+  title: 'Components/chart/MonthlyBillableSignupsTable',
   component: MonthlyBillableSignupsTable,
   parameters: {
     layout: 'centered',
