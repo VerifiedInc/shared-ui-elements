@@ -49,18 +49,28 @@ export function BrandFilterInput({
     defaultBrandUuids,
   });
 
+  let autocompleteKey: string;
+  if (multiple) {
+    autocompleteKey = 'multiple';
+  } else if (value === undefined) {
+    autocompleteKey = 'empty';
+  } else {
+    autocompleteKey = 'single';
+  }
+
   return (
     <Autocomplete
-      key={multiple ? 'multiple' : value === undefined ? 'empty' : 'single'}
+      key={autocompleteKey}
       multiple={multiple}
       value={multiple ? (value as Value[]) || [] : (value as Value)}
       limitTags={3}
       options={brandOptions}
       getOptionKey={(option: Value) => option.value}
       getOptionLabel={(option: Value) => option.name}
-      isOptionEqualToValue={(option: Value, value: Value | undefined) =>
-        option.value === value?.value
-      }
+      isOptionEqualToValue={(option: Value, value: Value | undefined) => {
+        if (!value) return false;
+        return option.value === value.value;
+      }}
       onChange={(_, newValue) => {
         if (
           Array.isArray(newValue) &&
