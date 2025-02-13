@@ -19,6 +19,7 @@ interface UseBrandFilterInputProps {
   onChange?: (brands: BrandFilter | BrandFilter[]) => void;
   brands?: Brands[];
   maximumSelectedBrands?: number;
+  defaultBrandUuids?: string[];
 }
 
 export function useBrandFilterInput({
@@ -27,6 +28,7 @@ export function useBrandFilterInput({
   onChange,
   brands,
   maximumSelectedBrands = 10,
+  defaultBrandUuids,
 }: UseBrandFilterInputProps) {
   const groupedBrands = useMemo(() => {
     return (brands ?? []).map((brand) => brand);
@@ -40,43 +42,46 @@ export function useBrandFilterInput({
     [groupedBrands],
   );
 
-  // Reset brands when options change
-  // Default to live brands
+  // Reset brands when options change or use default brand UUIDs
   useEffect(() => {
     // Skip if brand options are not loaded yet to prevent unnecessary resets
     if (!brandOptions.length) return;
 
-    const liveBrands = brandOptions.filter(
-      (brand: any) => brand._raw.isLiveBrand,
-    );
+    const defaultBrands = defaultBrandUuids
+      ? brandOptions.filter((brand) => defaultBrandUuids.includes(brand.value))
+      : [];
 
     // For multiple selection, check if all selected values exist in current environment
-    // If any value is missing, reset to default live brands
     if (multiple && Array.isArray(value)) {
-      // If no value is selected, reset to default live brands
-      if (!value.length) {
-        return onChange?.(liveBrands);
+      // If no value is selected and we have default brands, use them
+      if (!value.length && defaultBrands.length) {
+        return onChange?.(defaultBrands.slice(0, maximumSelectedBrands));
       }
 
-      const liveBrandValues = _.map(liveBrands, 'value');
+      const availableBrandValues = _.map(brandOptions, 'value');
       const isAllValuesIncluded = value.every((item: any) =>
-        liveBrandValues.includes(item.value),
+        availableBrandValues.includes(item.value),
       );
-      const liveBrandsSlice = liveBrands.slice(0, maximumSelectedBrands);
-      onChange?.(isAllValuesIncluded ? value : liveBrandsSlice);
+
+      if (!isAllValuesIncluded && defaultBrands.length) {
+        onChange?.(defaultBrands.slice(0, maximumSelectedBrands));
+      }
     } else {
       // For single selection, check if selected value exists in current environment
-      // If value is missing or invalid, reset to first live brand
-      const firstLiveBrand = liveBrands[0];
-      if (firstLiveBrand && !Array.isArray(value)) {
-        // If no value is selected, reset to first live brand
-        if (!value) {
-          return onChange?.(firstLiveBrand);
+      const firstDefaultBrand = defaultBrands[0];
+      if (!Array.isArray(value)) {
+        // If no value is selected and we have a default brand, use it
+        if (!value && firstDefaultBrand) {
+          return onChange?.(firstDefaultBrand);
         }
 
-        const liveBrandValues = _.map(liveBrands, 'value');
-        const isValueIncluded = value && liveBrandValues.includes(value.value);
-        onChange?.(isValueIncluded ? value : firstLiveBrand);
+        const availableBrandValues = _.map(brandOptions, 'value');
+        const isValueIncluded =
+          value && availableBrandValues.includes(value.value);
+
+        if (!isValueIncluded && firstDefaultBrand) {
+          onChange?.(firstDefaultBrand);
+        }
       }
     }
   }, [brandOptions]);

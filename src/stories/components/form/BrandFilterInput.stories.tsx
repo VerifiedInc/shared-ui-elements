@@ -68,6 +68,7 @@ const Template: StoryFn<typeof BrandFilterInput> = (args) => {
 export const SingleSelect = Template.bind({});
 SingleSelect.args = {
   value: undefined,
+  defaultBrandUuids: ['1'],
   label: 'Select Brand',
   multiple: false,
   brands: mockBrands,
@@ -84,6 +85,7 @@ MultiSelect.args = {
   brands: mockBrands,
   isLoading: false,
   maximumSelectedBrands: 3,
+  defaultBrandUuids: ['1', '2'],
   groupConfig: null,
 };
 
@@ -137,6 +139,7 @@ MultiSelectGroupedByLiveStatus.args = {
   brands: mockBrands,
   isLoading: false,
   maximumSelectedBrands: 3,
+  defaultBrandUuids: ['1', '2', '3'],
   groupConfig: {
     key: 'isLiveBrand',
     transform: (value: boolean) => (value ? 'Live Brands' : 'Not Live Yet'),

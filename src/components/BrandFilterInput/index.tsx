@@ -15,6 +15,8 @@ interface BrandFilterInputProps {
   maximumSelectedBrands?: number;
   /** Configuration for how to group the brands. If null, no grouping will be applied */
   groupConfig?: BrandGroupConfig;
+  /** Array of brand UUIDs to use as default values when no selection is made */
+  defaultBrandUuids?: string[];
 }
 
 export function BrandFilterInput({
@@ -26,6 +28,7 @@ export function BrandFilterInput({
   isLoading,
   maximumSelectedBrands = 10,
   groupConfig,
+  defaultBrandUuids,
 }: Readonly<BrandFilterInputProps>) {
   const handleChange = (newValue: Value | Value[] | null) => {
     if (multiple && Array.isArray(newValue)) {
@@ -43,6 +46,7 @@ export function BrandFilterInput({
     onChange: handleChange,
     brands,
     maximumSelectedBrands,
+    defaultBrandUuids,
   });
 
   return (
