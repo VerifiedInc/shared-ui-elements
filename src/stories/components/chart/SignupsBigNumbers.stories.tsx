@@ -1,74 +1,59 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SignupsBigNumbers } from '../../../components/SignupsBigNumbers/SignupsBigNumbers';
+import { SignupBigNumbers } from '../../../components/chart/SignupBigNumbers/SignupBigNumbers';
+import { TimeSeriesChartData } from '../../../components/chart/OneClickOverTimeChart/OneClickTimeSeriesDataMapper';
 
 const meta = {
-  title: 'Components/chart/SignupsBigNumbers',
-  component: SignupsBigNumbers,
+  title: 'Components/chart/SignupBigNumbers',
+  component: SignupBigNumbers,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof SignupsBigNumbers>;
+} satisfies Meta<typeof SignupBigNumbers>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const AllMetrics: Story = {
+const mockTimeSeriesData: TimeSeriesChartData[] = [
+  {
+    uuid: '1',
+    name: 'Brand 1',
+    color: '#FF0000',
+    integrationType: 'type1',
+    chartData: [
+      { date: 1707854065000, value: 500 },
+      { date: 1707940465000, value: 734 },
+    ],
+  },
+  {
+    uuid: '2',
+    name: 'Brand 2',
+    color: '#00FF00',
+    integrationType: 'type2',
+    chartData: [
+      { date: 1707854065000, value: 300 },
+      { date: 1707940465000, value: 687 },
+    ],
+  },
+];
+
+export const Loading: Story = {
   args: {
-    totalSignups: 1234,
-    totalSuccess: 987,
-    totalCost: 12345.67,
-    successRate: 0.8,
+    isLoading: true,
+    data: undefined,
   },
 };
 
-export const OnlySignups: Story = {
+export const WithData: Story = {
   args: {
-    totalSignups: 1234,
+    isLoading: false,
+    data: mockTimeSeriesData,
   },
 };
 
-export const SignupsAndSuccess: Story = {
+export const NoData: Story = {
   args: {
-    totalSignups: 1234,
-    totalSuccess: 987,
-  },
-};
-
-export const WithCustomFormatters: Story = {
-  args: {
-    totalSignups: 1234,
-    totalSuccess: 987,
-    totalCost: 12345.67,
-    successRate: 0.8,
-    formatNumber: (value) => `${value.toLocaleString()} signups`,
-    formatCurrency: (value) => `$${value.toLocaleString()} USD`,
-    formatPercentage: (value) => `${(value * 100).toFixed(1)}% completed`,
-  },
-};
-
-export const EmptyComponent: Story = {
-  args: {},
-};
-
-export const OnlyCostAndRate: Story = {
-  args: {
-    totalCost: 12345.67,
-    successRate: 0.8,
-  },
-};
-
-export const LargeNumbers: Story = {
-  args: {
-    totalSignups: 1234567,
-    totalSuccess: 987654,
-    totalCost: 9876543.21,
-    successRate: 0.7987,
-  },
-};
-
-export const OnlySuccessRate: Story = {
-  args: {
-    successRate: 0.999,
+    isLoading: false,
+    data: undefined,
   },
 };

@@ -11,7 +11,7 @@ import React from 'react';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 
-export type BillableSignupData = {
+export type MonthlySignupsOverviewTableData = {
   month: string;
   brand: string;
   integrationType: string;
@@ -20,14 +20,14 @@ export type BillableSignupData = {
   totalCost?: string;
 };
 
-export type MonthlyBillableSignupsTableProps = {
-  data: BillableSignupData[];
+export type MonthlySignupsOverviewTableProps = {
+  data: MonthlySignupsOverviewTableData[];
   isLoading: boolean;
   showTotalCost?: boolean;
 };
 
-export const MonthlyBillableSignupsTable: React.FC<
-  MonthlyBillableSignupsTableProps
+export const MonthlySignupsOverviewTable: React.FC<
+  MonthlySignupsOverviewTableProps
 > = ({ data, isLoading, showTotalCost = true }) => {
   if (isLoading) {
     return <LoadingChartSection />;

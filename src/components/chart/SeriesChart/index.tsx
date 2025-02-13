@@ -34,6 +34,7 @@ interface SeriesChartProps {
   data: SeriesChartData[];
   filter: { timezone: string };
   sx?: SxProps;
+  showUuid?: boolean;
 }
 
 export function SeriesChart(props: SeriesChartProps): ReactElement {
@@ -97,7 +98,7 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
               })
             }
           />
-          <Legend content={<SeriesChartLegend />} />
+          <Legend content={<SeriesChartLegend showUuid={props.showUuid} />} />
           {props.data.map((value) => {
             return (
               <Line

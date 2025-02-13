@@ -41,8 +41,18 @@ const meta = {
   ],
 } satisfies Meta<typeof SeriesChart>;
 
+/**
+ * You can control whether UUIDs are displayed in the legend using the `showUuid` prop.
+ * By default, UUIDs are shown, but you can set `showUuid={false}` to hide them.
+ */
+
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+/**
+ * The chart can display UUIDs in the legend, which can be useful for debugging or when UUID information is important.
+ * UUIDs are shown by default and can be copied to clipboard by clicking on them.
+ */
 
 const mockData = [
   {
@@ -98,6 +108,7 @@ export const Default: Story = {
     filter: {
       timezone: 'UTC',
     },
+    showUuid: true,
     sx: {
       width: '100%',
       height: 500,
@@ -108,10 +119,30 @@ export const Default: Story = {
 export const SingleSeries: Story = {
   args: {
     label: 'Visits',
+    data: [mockData[0]],
+    filter: {
+      timezone: 'UTC',
+    },
+    showUuid: true,
+    sx: {
+      width: '100%',
+      height: 500,
+    },
+  },
+};
+
+/**
+ * For a cleaner look, you can hide the UUIDs in the legend by setting `showUuid={false}`.
+ * This is useful when UUID information is not relevant to the end users.
+ */
+export const WithoutUuids: Story = {
+  args: {
+    label: 'Visits',
     data: mockData,
     filter: {
       timezone: 'UTC',
     },
+    showUuid: false,
     sx: {
       width: '100%',
       height: 500,

@@ -14,4 +14,4 @@ export * from './Banners';
 export * from './Backdrop';
 export * from './Button';
 export * from './BrandFilterInput';
-export * from './SignupsBigNumbers';
+export * from './chart';

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { MonthlyBillableSignupsTable } from '../../../components/chart/monthly-billable-signups/MonthlyBillableSignupsTable';
+import { MonthlySignupsOverviewTable } from '../../../components/chart/MonthlySignupsOverviewTable';
 
-const meta: Meta<typeof MonthlyBillableSignupsTable> = {
-  title: 'Components/chart/MonthlyBillableSignupsTable',
-  component: MonthlyBillableSignupsTable,
+const meta: Meta<typeof MonthlySignupsOverviewTable> = {
+  title: 'Components/chart/MonthlySignupsOverviewTable',
+  component: MonthlySignupsOverviewTable,
   parameters: {
     layout: 'centered',
   },
@@ -12,7 +12,7 @@ const meta: Meta<typeof MonthlyBillableSignupsTable> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof MonthlyBillableSignupsTable>;
+type Story = StoryObj<typeof MonthlySignupsOverviewTable>;
 
 const mockData = [
   {
