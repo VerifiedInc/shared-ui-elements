@@ -46,7 +46,7 @@ export interface MapTimeSeriesDataOptions {
 export function mapTimeSeriesData(
   options: MapTimeSeriesDataOptions,
 ): TimeSeriesChartData[] {
-  const { brands, data, keyValue, defaultColor } = options;
+  const { brands, data, keyValue } = options;
 
   const mappedData = brands.flatMap(({ _raw: brand }) => {
     const brandData = data?.find((item) => item.brandUuid === brand.brandUuid);
@@ -63,10 +63,8 @@ export function mapTimeSeriesData(
       name: brand.brandName,
       integrationType: kebabCaseToPretty(brand.integrationType),
       color:
-        brand.integrationType === 'hosted' && brand.additionalData?.primaryColor
-          ? brand.additionalData?.primaryColor
-          : // eslint-disable-next-line prettier/prettier
-            (defaultColor ?? uuidToHashedColor(brand.brandUuid)),
+        brand.additionalData?.primaryColor ??
+        uuidToHashedColor(brand.brandUuid),
       chartData,
     };
   });
