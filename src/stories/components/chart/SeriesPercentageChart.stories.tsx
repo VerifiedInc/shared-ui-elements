@@ -43,7 +43,30 @@ const generateRandomData = (days = 30) => {
 const sampleData = [
   {
     uuid: 'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cd',
-    chartData: generateRandomData(30),
+    chartData: [
+      ...generateRandomData(20),
+      {
+        date: 1739971140000,
+        oneClickSuccess: 1,
+        oneClickCreated: 1,
+      },
+      {
+        date: 1739970240000,
+        oneClickSuccess: 1,
+        oneClickCreated: 1,
+      },
+
+      {
+        date: 1739968980000,
+        oneClickSuccess: 1,
+        oneClickCreated: 0,
+      },
+      {
+        date: 1739968920000,
+        oneClickSuccess: 0,
+        oneClickCreated: 1,
+      },
+    ],
   },
 ];
 
