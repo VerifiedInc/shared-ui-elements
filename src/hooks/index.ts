@@ -14,3 +14,5 @@ export * from './useIntersectionObserver';
 export * from './useCounter';
 export * from './useOnClickOutside';
 export * from './usePrevious';
+export * from './useResizeObserver';
+export * from './useNavigatorOnline';
