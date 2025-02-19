@@ -51,12 +51,10 @@ export function mapTimeSeriesData(
   const mappedData = brands.flatMap(({ _raw: brand }) => {
     const brandData = data?.find((item) => item.brandUuid === brand.brandUuid);
 
-    const chartData = (brandData?.interval ?? [])
-      .map((item) => ({
-        date: +new Date(item.date),
-        value: Number(item[keyValue] || 0),
-      }))
-      .filter((item) => item.value > 0);
+    const chartData = (brandData?.interval ?? []).map((item) => ({
+      date: +new Date(item.date),
+      value: Number(item[keyValue] || 0),
+    }));
 
     return {
       uuid: brand.brandUuid,

@@ -120,16 +120,22 @@ const formatChartData = (
       // Calculate percentages for non-total fields
       nonTotalKeys.forEach((key) => {
         const absoluteValue = entry[`${key}_absolute`] as number;
-        const percentage =
-          totalValue > 0
-            ? new Decimal(absoluteValue.toString())
-                .div(totalValue)
-                .mul(100)
-                .toFixed(2, Decimal.ROUND_DOWN)
-            : '0.00';
+        let percentage;
 
-        // Store the percentage for the area chart
-        entry[key] = parseFloat(percentage);
+        if (totalValue === 0) {
+          percentage = '100.00';
+          entry[key] = 100;
+        } else {
+          percentage =
+            totalValue > 0
+              ? new Decimal(absoluteValue.toString())
+                  .div(totalValue)
+                  .mul(100)
+                  .toFixed(2, Decimal.ROUND_DOWN)
+              : '0.00';
+          // Store the percentage for the area chart
+          entry[key] = parseFloat(percentage);
+        }
       });
 
       return {
@@ -149,6 +155,7 @@ export function SeriesPercentageChart(
     return formatChartData(props.data, props.keyValues);
   }, [props.data, props.keyValues]);
 
+  console.log('test', formattedData);
   return (
     <Box sx={{ width: '100%', height: '100%', ...props.sx }}>
       <ResponsiveContainer width='100%' height='100%'>
@@ -205,7 +212,7 @@ export function SeriesPercentageChart(
               // Calculate percentage
               const percentage = !isTotal
                 ? total === 0
-                  ? '0.00'
+                  ? '100.00'
                   : new Decimal(absoluteValue.toString())
                       .div(total)
                       .mul(100)

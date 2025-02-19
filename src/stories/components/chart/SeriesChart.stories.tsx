@@ -61,20 +61,23 @@ const mockData = [
     color: '#0000ff',
     integrationType: 'hosted',
     chartData: [
-      { date: 1734973560000, value: 1 },
-      { date: 1734969240000, value: 3 },
-      { date: 1734562140000, value: 2 },
-      { date: 1734562080000, value: 4 },
-      { date: 1734558840000, value: 1 },
-      { date: 1734558660000, value: 3 },
-      { date: 1734558540000, value: 2 },
-      { date: 1734558480000, value: 5 },
-      { date: 1734464340000, value: 2 },
-      { date: 1734462540000, value: 4 },
-      { date: 1734462480000, value: 2 },
-      { date: 1734367560000, value: 3 },
-      { date: 1734351960000, value: 1 },
-      { date: 1734351900000, value: 4 },
+      {
+        date: 1739971140000,
+        value: 1,
+      },
+      {
+        date: 1739970240000,
+        value: 1,
+      },
+
+      {
+        date: 1739968980000,
+        value: 1,
+      },
+      {
+        date: 1739968920000,
+        value: 0,
+      },
     ],
   },
   {
