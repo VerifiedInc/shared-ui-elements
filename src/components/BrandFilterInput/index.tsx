@@ -26,7 +26,7 @@ export function BrandFilterInput({
   onChange,
   brands,
   isLoading,
-  maximumSelectedBrands = 10,
+  maximumSelectedBrands,
   groupConfig,
   defaultBrandUuids,
 }: Readonly<BrandFilterInputProps>) {
@@ -73,6 +73,7 @@ export function BrandFilterInput({
       }}
       onChange={(_, newValue) => {
         if (
+          maximumSelectedBrands &&
           Array.isArray(newValue) &&
           newValue.length > maximumSelectedBrands
         ) {
