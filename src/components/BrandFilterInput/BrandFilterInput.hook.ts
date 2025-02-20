@@ -27,7 +27,7 @@ export function useBrandFilterInput({
   multiple = false,
   onChange,
   brands,
-  maximumSelectedBrands = 10,
+  maximumSelectedBrands,
   defaultBrandUuids,
 }: UseBrandFilterInputProps) {
   const groupedBrands = useMemo(() => {

@@ -18,6 +18,5 @@ export const uuidToHashedColor = (uuid: string): string => {
 
   // Convert to hex and pad with zeros if needed
   const toHex = (n: number) => n.toString(16).padStart(2, '0');
-  console.log(`#${toHex(r)}${toHex(g)}${toHex(b)}`);
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
