@@ -155,7 +155,6 @@ export function SeriesPercentageChart(
     return formatChartData(props.data, props.keyValues);
   }, [props.data, props.keyValues]);
 
-  console.log('test', formattedData);
   return (
     <Box sx={{ width: '100%', height: '100%', ...props.sx }}>
       <ResponsiveContainer width='100%' height='100%'>
