@@ -29,10 +29,11 @@ export default defineConfig({
         hooks: resolvePath('src/hooks/index.ts'),
         styles: resolvePath('src/styles/index.ts'),
         validations: resolvePath('src/validations/index.ts'),
+        utils: resolvePath('src/utils/index.ts'),
         'utils/masks': resolvePath('src/utils/masks/index.ts'),
         'utils/string': resolvePath('src/utils/string/index.ts'),
         'utils/phone': resolvePath('src/utils/phone.ts'),
-        'utils/wrapPromise': resolvePath('src/utils/wrapPromise.ts'),
+        'utils/wrapPromise': resolvePath('src/utils/wrapPromise/index.ts'),
       },
       formats: ['es'],
       fileName: (format, entryName) => {
