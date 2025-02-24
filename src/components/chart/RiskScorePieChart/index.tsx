@@ -1,16 +1,38 @@
 import { type ReactElement } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
-import { PieChart, type DataPoint } from '../PieChart';
+import { PieChart } from '../PieChart';
+import { EmptyChartSection } from '../EmptyChartSection';
+import { LoadingChartSection } from '../LoadingChartSection';
+import { useStyle } from '../styles';
 
 export interface RiskScorePieChartProps {
-  data: Array<Pick<DataPoint, 'value'>>;
-  /** Optional style overrides */
-  sx?: SxProps;
+  /**
+   * Array of data points containing values for the pie chart segments like:
+   * [{ value: 1000 }, { value: 2000 }, { value: 3000 }]
+   * First index represents 0-299, second 300-599, and 600-1000.
+   */
+  data: Array<{ value: number }>;
   /** The current risk score value (0-1000) */
   score?: number;
   /** Optional label for the legend */
   legendLabel?: string;
+  /**
+   * Data loading state
+   */
+  isLoading: boolean;
+  /**
+   * Data fetching state
+   */
+  isFetching: boolean;
+  /**
+   * Data success state
+   */
+  isSuccess: boolean;
+  /**
+   * MUI System props object for custom styling of the chart container
+   */
+  sx?: SxProps;
 }
 
 /**
@@ -19,12 +41,25 @@ export interface RiskScorePieChartProps {
  * and a needle indicating the current score.
  */
 export function RiskScorePieChart({
-  sx,
   data,
   score = 200,
   legendLabel,
+  isLoading,
+  isFetching,
+  isSuccess,
+  sx,
 }: RiskScorePieChartProps): ReactElement {
   const theme = useTheme();
+  const style = useStyle();
+
+  if (isLoading) {
+    return <LoadingChartSection />;
+  }
+
+  if (!data || data.length <= 0 || !isSuccess) {
+    return <EmptyChartSection />;
+  }
+
   const mappedData = [
     {
       name: 'Allow',
@@ -53,7 +88,11 @@ export function RiskScorePieChart({
       needleValue={score}
       legendLabel={legendLabel}
       allActive
-      sx={sx}
+      sx={{
+        ...style.smallChartWrapper,
+        opacity: isFetching ? 0.4 : 1,
+        ...sx,
+      }}
     />
   );
 }

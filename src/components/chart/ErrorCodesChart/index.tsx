@@ -3,6 +3,9 @@ import { useTheme, type SxProps } from '@mui/material';
 import { Label } from 'recharts';
 
 import { SimpleBarChart } from '../SimpleBarChart';
+import { EmptyChartSection } from '../EmptyChartSection';
+import { LoadingChartSection } from '../LoadingChartSection';
+import { useStyle } from '../styles';
 
 /**
  * Props for the ErrorCodesChart component
@@ -18,6 +21,18 @@ interface ErrorCodesChartProps {
    * Threshold value for the reference line
    */
   threshold?: number;
+  /**
+   * Data loading state
+   */
+  isLoading: boolean;
+  /**
+   * Data fetching state
+   */
+  isFetching: boolean;
+  /**
+   * Data success state
+   */
+  isSuccess: boolean;
   /**
    * MUI System props object for custom styling of the chart container
    */
@@ -39,6 +54,9 @@ interface ErrorCodesChartProps {
  *     OCE001: 75
  *   }}
  *   threshold={200}
+ *   isLoading={false}
+ *   isFetching={false}
+ *   isSuccess={true}
  *   sx={{ width: 800, height: 400 }}
  * />
  * ```
@@ -46,9 +64,13 @@ interface ErrorCodesChartProps {
 export function ErrorCodesChart({
   data,
   threshold = 100,
+  isLoading,
+  isFetching,
+  isSuccess,
   sx,
 }: ErrorCodesChartProps): ReactElement {
   const theme = useTheme();
+  const style = useStyle();
 
   const _data = Object.entries(data ?? {}).map(([errorCode, value]) => ({
     key: errorCode,
@@ -61,9 +83,21 @@ export function ErrorCodesChart({
     color: theme.palette.error.light,
   }));
 
+  if (isLoading) {
+    return <LoadingChartSection />;
+  }
+
+  if (!data || Object.keys(data).length === 0 || !isSuccess) {
+    return <EmptyChartSection />;
+  }
+
   return (
     <SimpleBarChart
-      sx={sx}
+      sx={{
+        ...style.smallChartWrapper,
+        opacity: isFetching ? 0.4 : 1,
+        ...sx,
+      }}
       data={_data}
       series={series}
       xAxis={{

@@ -24,6 +24,10 @@ const mockData = {
 export const Default: Story = {
   args: {
     data: mockData,
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
+    threshold: 100,
     sx: {
       width: 800,
       height: 400,
@@ -34,6 +38,9 @@ export const Default: Story = {
 export const NoData: Story = {
   args: {
     data: undefined,
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
     sx: {
       width: 800,
       height: 400,
@@ -46,6 +53,23 @@ export const SingleError: Story = {
     data: {
       OCE000: 300,
     },
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
+    threshold: 100,
+    sx: {
+      width: 800,
+      height: 400,
+    },
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    data: undefined,
+    isLoading: true,
+    isFetching: true,
+    isSuccess: false,
     sx: {
       width: 800,
       height: 400,
