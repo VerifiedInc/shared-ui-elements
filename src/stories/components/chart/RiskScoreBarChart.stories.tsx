@@ -30,9 +30,53 @@ export const Default: Story = {
         2: 15,
       },
     ],
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
     sx: {
       width: 800,
-      height: 400,
+    },
+  },
+};
+
+export const NoData: Story = {
+  args: {
+    data: [],
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
+    sx: {
+      width: 800,
+    },
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    data: [],
+    isLoading: true,
+    isFetching: true,
+    isSuccess: false,
+    sx: {
+      width: 800,
+    },
+  },
+};
+
+export const Fetching: Story = {
+  args: {
+    data: [
+      {
+        0: 10,
+        1: 12,
+        2: 8,
+      },
+    ],
+    isLoading: false,
+    isFetching: true,
+    isSuccess: true,
+    sx: {
+      width: 800,
     },
   },
 };

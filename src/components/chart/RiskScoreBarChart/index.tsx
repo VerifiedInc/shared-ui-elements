@@ -2,17 +2,44 @@ import { type ReactElement } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
 import { SimpleBarChart } from '../SimpleBarChart';
+import { EmptyChartSection } from '../EmptyChartSection';
+import { LoadingChartSection } from '../LoadingChartSection';
+import { useStyle } from '../styles';
 
 export interface RiskScoreBarChartProps {
   data: Array<Record<number, number>>;
+  /**
+   * Threshold value for the reference line
+   */
+  threshold?: number;
+  /**
+   * Data loading state
+   */
+  isLoading: boolean;
+  /**
+   * Data fetching state
+   */
+  isFetching: boolean;
+  /**
+   * Data success state
+   */
+  isSuccess: boolean;
+  /**
+   * MUI System props object for custom styling of the chart container
+   */
   sx?: SxProps;
 }
 
 export function RiskScoreBarChart({
   data,
+  isLoading,
+  isFetching,
+  isSuccess,
   sx,
 }: RiskScoreBarChartProps): ReactElement {
   const theme = useTheme();
+  const style = useStyle();
+
   const transformData = (
     inputData: Array<Record<number, number>>,
   ): Array<Record<number, number>> => {
@@ -45,11 +72,23 @@ export function RiskScoreBarChart({
     },
   ];
 
+  if (isLoading) {
+    return <LoadingChartSection />;
+  }
+
+  if (!data || Object.keys(data).length === 0 || !isSuccess) {
+    return <EmptyChartSection />;
+  }
+
   return (
     <SimpleBarChart
       data={transformedData}
       series={series}
-      sx={sx}
+      sx={{
+        ...style.smallChartWrapper,
+        opacity: isFetching ? 0.4 : 1,
+        ...sx,
+      }}
       yAxis={{
         label: { value: 'Count', angle: -90, position: 'insideLeft' },
         domain: [0, 'dataMax + 10'],

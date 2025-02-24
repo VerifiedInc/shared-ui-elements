@@ -21,18 +21,51 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const data = [
-  { value: Math.random() * 100000 },
-  { value: Math.random() * 100000 },
-  { value: Math.random() * 100000 },
+  { value: 1000 }, // 0-299 range
+  { value: 2000 }, // 300-599 range
+  { value: 3000 }, // 600-1000 range
 ];
 
 export const Default: Story = {
   args: {
     data,
     score: 300,
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
     sx: {
-      width: 450,
-      height: 400,
+      width: 500,
     },
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    ...Default.args,
+    isLoading: true,
+    isSuccess: false,
+  },
+};
+
+export const Empty: Story = {
+  args: {
+    ...Default.args,
+    data: [],
+    isLoading: false,
+    isSuccess: true,
+  },
+};
+
+export const Fetching: Story = {
+  args: {
+    ...Default.args,
+    isFetching: true,
+  },
+};
+
+export const WithLegendLabel: Story = {
+  args: {
+    ...Default.args,
+    legendLabel: 'Risk Score Distribution',
   },
 };
