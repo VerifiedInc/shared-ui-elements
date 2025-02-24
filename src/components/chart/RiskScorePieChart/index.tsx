@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
-import { PieChart, type DataPoint } from '../PieChart';
+import { PieChart } from '../PieChart';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { useStyle } from '../styles';
