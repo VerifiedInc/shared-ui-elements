@@ -13,6 +13,7 @@ import { LoadingChartSection } from '../LoadingChartSection';
 
 export type MonthlySignupsOverviewTableData = {
   month: string;
+  brandUuid: string;
   brand: string;
   integrationType: string;
   total: number;
@@ -51,7 +52,7 @@ export const MonthlySignupsOverviewTable: React.FC<
         </TableHead>
         <TableBody>
           {data.map((row) => (
-            <TableRow key={`${row.brand}-${row.month}`}>
+            <TableRow key={`${row.brandUuid}-${row.month}`}>
               <TableCell>
                 {new Date(row.month).toLocaleDateString(undefined, {
                   month: 'short',

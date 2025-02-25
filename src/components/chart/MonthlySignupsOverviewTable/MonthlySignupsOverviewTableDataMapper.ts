@@ -35,7 +35,8 @@ export const mapMonthlySignupsOverviewTableData = ({
     if (!brand || !brandData.interval) return [];
 
     return brandData.interval.map((interval) => ({
-      month: new Date(interval.date).toISOString(),
+      month: interval.date,
+      brandUuid: brandData.brandUuid,
       brand: brand.brandName,
       integrationType: kebabCaseToPretty(brand.integrationType),
       total: interval.oneClickCreated,

@@ -17,6 +17,7 @@ type Story = StoryObj<typeof MonthlySignupsOverviewTable>;
 const mockData = [
   {
     month: '2025-01-01T00:00:00.000Z',
+    brandUuid: '123',
     brand: 'Example Brand 1',
     integrationType: 'Hosted',
     total: 150,
@@ -25,6 +26,7 @@ const mockData = [
   },
   {
     month: '2025-01-01T00:00:00.000Z',
+    brandUuid: '1234',
     brand: 'Example Brand 2',
     integrationType: 'Semi Hosted',
     total: 200,
@@ -33,6 +35,7 @@ const mockData = [
   },
   {
     month: '2025-01-01T00:00:00.000Z',
+    brandUuid: '1235',
     brand: 'Example Brand 3',
     integrationType: 'Non Hosted',
     total: 180,
@@ -40,6 +43,7 @@ const mockData = [
   },
   {
     month: '2025-02-01T00:00:00.000Z',
+    brandUuid: '123',
     brand: 'Example Brand 1',
     integrationType: 'Hosted',
     total: 175,
@@ -48,6 +52,7 @@ const mockData = [
   },
   {
     month: '2025-02-01T00:00:00.000Z',
+    brandUuid: '1234',
     brand: 'Example Brand 2',
     integrationType: 'Semi Hosted',
     total: 225,
@@ -56,6 +61,7 @@ const mockData = [
   },
   {
     month: '2025-02-01T00:00:00.000Z',
+    brandUuid: '1235',
     brand: 'Example Brand 3',
     integrationType: 'Non Hosted',
     total: 195,
