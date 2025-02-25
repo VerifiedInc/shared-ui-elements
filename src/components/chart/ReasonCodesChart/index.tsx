@@ -106,7 +106,7 @@ export function ReasonCodesChart({
       }}
       yAxis={{
         tickLine: false,
-        domain: [0, `dataMax + ${threshold}`],
+        domain: [0, `dataMax + ${threshold > 0 ? threshold + 5 : 0}`],
       }}
       tooltip={{
         labelFormatter: (value) => 'Total',
