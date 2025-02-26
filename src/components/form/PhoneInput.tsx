@@ -16,6 +16,7 @@ export interface PhoneInputProps {
   helperText?: string;
   initialValue?: string;
   onChange?: (value: string) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onValidPhone?: (value: string) => void;
   error?: boolean;
   handleChangeCountry?: (newCountry: string) => void;
@@ -45,6 +46,7 @@ export function PhoneInput({
   name = 'phone',
   helperText,
   onChange,
+  onBlur,
   onValidPhone,
   initialValue = '',
   error = false,
@@ -120,6 +122,7 @@ export function PhoneInput({
     onChange: (e) => {
       handleChange(e.target.value);
     },
+    onBlur,
     autoComplete: 'tel',
     inputProps: {
       // Receive unmasked value on change.
