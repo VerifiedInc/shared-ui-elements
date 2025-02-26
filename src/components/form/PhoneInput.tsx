@@ -24,6 +24,7 @@ export interface PhoneInputProps {
   shouldHaveClearButton?: boolean;
   variant?: TextFieldProps['variant'];
   autoFocus?: boolean;
+  disabled?: boolean;
   InputProps?: InputProps;
 }
 
@@ -53,6 +54,7 @@ export function PhoneInput({
   InputProps,
   shouldHaveSelectCountryButton = true,
   shouldHaveClearButton = false,
+  disabled = false,
 }: Readonly<PhoneInputProps>): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -149,6 +151,7 @@ export function PhoneInput({
       ),
     },
     fullWidth: true,
+    disabled,
   };
 
   return (
