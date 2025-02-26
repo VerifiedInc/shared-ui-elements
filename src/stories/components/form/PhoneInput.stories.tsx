@@ -32,3 +32,30 @@ export const Default: Story = {
     helperText: 'Helper text',
   },
 };
+
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const USOnlyPhone: Story = {
+  args: {
+    name: 'date',
+    label: 'Label',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Helper text',
+    shouldHaveSelectCountryButton: false,
+  },
+};
+
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const WithoutClearButton: Story = {
+  args: {
+    name: 'date',
+    label: 'Label',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Helper text',
+    shouldHaveSelectCountryButton: false,
+    shouldHaveClearButton: false,
+  },
+};
