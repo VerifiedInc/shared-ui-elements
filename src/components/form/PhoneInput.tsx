@@ -20,9 +20,11 @@ export interface PhoneInputProps {
   error?: boolean;
   handleChangeCountry?: (newCountry: string) => void;
   value?: string;
-  shouldShowOnlyNorthAmericanCountries?: boolean;
+  shouldHaveSelectCountryButton?: boolean;
   shouldHaveClearButton?: boolean;
   variant?: TextFieldProps['variant'];
+  autoFocus?: boolean;
+  disabled?: boolean;
   InputProps?: InputProps;
 }
 
@@ -48,8 +50,11 @@ export function PhoneInput({
   error = false,
   handleChangeCountry,
   value: valueProp,
+  autoFocus = false,
   InputProps,
+  shouldHaveSelectCountryButton = true,
   shouldHaveClearButton = false,
+  disabled = false,
 }: Readonly<PhoneInputProps>): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -104,6 +109,7 @@ export function PhoneInput({
 
   const inputProps: TextFieldProps = {
     inputRef,
+    autoFocus,
     label,
     name: `_${name}`,
     helperText,
@@ -114,6 +120,7 @@ export function PhoneInput({
     onChange: (e) => {
       handleChange(e.target.value);
     },
+    autoComplete: 'tel',
     inputProps: {
       // Receive unmasked value on change.
       unmask: true,
@@ -124,10 +131,13 @@ export function PhoneInput({
       // Tab index for each block.
       tabIndex: 0,
     },
+    InputLabelProps: {
+      shrink: true,
+    },
     InputProps: {
       ...InputProps,
       inputComponent: TextMaskCustom as any,
-      startAdornment: (
+      startAdornment: shouldHaveSelectCountryButton && (
         <InputAdornment position='start'>
           <CountrySelector value={country} onChange={_handleChangeCountry} />
         </InputAdornment>
@@ -141,6 +151,7 @@ export function PhoneInput({
       ),
     },
     fullWidth: true,
+    disabled,
   };
 
   return (
