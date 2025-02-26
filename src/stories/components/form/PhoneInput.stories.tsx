@@ -30,6 +30,7 @@ export const Default: Story = {
     onValidPhone: fn(),
     error: false,
     helperText: 'Helper text',
+    onBlur: fn(),
   },
 };
 
@@ -43,6 +44,7 @@ export const USOnlyPhone: Story = {
     error: false,
     helperText: 'Helper text',
     shouldHaveSelectCountryButton: false,
+    onBlur: fn(),
   },
 };
 
@@ -57,5 +59,6 @@ export const WithoutClearButton: Story = {
     helperText: 'Helper text',
     shouldHaveSelectCountryButton: false,
     shouldHaveClearButton: false,
+    onBlur: fn(),
   },
 };
