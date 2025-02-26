@@ -36,10 +36,17 @@ export interface PhoneInputProps {
  * @param name - The name of the phone input. Defaults to 'phone'.
  * @param helperText - The helper text for the phone input.
  * @param onChange - The callback function to handle the change event of the phone input.
+ * @param onBlur - The callback function to handle the blur event of the phone input.
+ * @param onValidPhone - The callback function to handle the valid phone event of the phone input.
  * @param initialValue - The initial value for the phone input. Defaults to ''.
  * @param error - Whether the phone input has an error. Defaults to false.
  * @param handleChangeCountry - The callback function to handle the change event of the country selector.
  * @param value - The value of the phone input. If passed, it will be used instead of the value from component state.
+ * @param autoFocus - Whether the phone input should be focused on mount. Defaults to false.
+ * @param InputProps - Additional props to be passed to the input component.
+ * @param shouldHaveSelectCountryButton - Whether to show the country selector button. Defaults to true.
+ * @param shouldHaveClearButton - Whether to show the clear button. Defaults to false.
+ * @param disabled - Whether the phone input is disabled. Defaults to false.
  */
 export function PhoneInput({
   label = 'Phone',
