@@ -142,7 +142,7 @@ function OTPInputComponent(
         }),
       },
     }),
-    [isFocused, theme.palette.primary.main],
+    [isFocused, theme.palette.primary.main, props.error],
   );
 
   const focusFirstEmptyInput = useCallback(() => {
