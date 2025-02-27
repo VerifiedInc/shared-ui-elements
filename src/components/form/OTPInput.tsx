@@ -27,6 +27,7 @@ import { v4 as uuid } from 'uuid';
 interface OTPInputProps {
   name?: string;
   onChange?: (event: { target: { value: string } }) => void;
+  error?: boolean;
   disabled?: boolean;
   sx?: SxProps;
   autoComplete?: string;
@@ -123,14 +124,20 @@ function OTPInputComponent(
           borderStyle: 'solid',
           borderColor: 'rgba(0, 0, 0, 0.23)',
           borderWidth: 1,
+          ...(props.error && {
+            borderColor: theme.palette.error.main,
+            boxShadow: `inset 0 0 0 1px ${theme.palette.error.main}`,
+          }),
         },
         ...(isFocused && {
           '& input': {
             borderRadius: 1,
             borderStyle: 'solid',
             borderWidth: 1,
-            borderColor: theme.palette.primary.main,
-            boxShadow: `inset 0 0 0 1px ${theme.palette.primary.main}`,
+            borderColor: props.error
+              ? theme.palette.error.main
+              : theme.palette.primary.main,
+            boxShadow: `inset 0 0 0 1px ${props.error ? theme.palette.error.main : theme.palette.primary.main}`,
           },
         }),
       },

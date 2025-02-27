@@ -25,6 +25,7 @@ const meta = {
     name: 'otp',
     onChange: fn(),
     disabled: false,
+    error: false,
   },
   argTypes: {
     ref: {
@@ -39,6 +40,15 @@ type Story = StoryObj<typeof OTPInput>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Default: Story = {};
+
+export const WithError: Story = {
+  args: {
+    name: 'otp',
+    onChange: fn(),
+    disabled: false,
+    error: true,
+  },
+};
 
 interface OTPWithControlsProps {
   name?: string;
