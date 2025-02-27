@@ -61,7 +61,7 @@ export function OneClickPoweredByVerified(
         <g
           id='1-Click-Signup-powered-by-Verified-/-green'
           stroke='none'
-          stroke-width='1'
+          strokeWidth='1'
           fill='none'
           fillRule='evenodd'
         >
