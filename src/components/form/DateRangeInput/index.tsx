@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { Box, TextField } from '@mui/material';
 import DatePicker from 'react-datepicker';
-import pickerCSS from './react-datepicker.css?inline=true';
+import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 
 import { useStyle } from './style';
 import { useOnClickOutside } from '../../../hooks';
