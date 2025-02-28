@@ -28,7 +28,7 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     size: { control: 'select', options: ['small', 'medium'] },
-    value: { control: 'date' },
+    value: { control: 'text' },
   },
 } satisfies Meta<typeof DateInput>;
 
@@ -58,7 +58,7 @@ export const PickerOverflow: Story = {
     error: false,
     size: 'small',
     helperText: 'Helper text',
-    overflowPicker: true,
+    pickerInputOverflow: true,
   },
   argTypes: {},
 };
