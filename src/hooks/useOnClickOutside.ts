@@ -32,6 +32,7 @@ export function useOnClickOutside<T extends HTMLElement = HTMLElement>(
   handler: (event: MouseEvent | TouchEvent | FocusEvent) => void,
   eventType: EventType = 'mousedown',
   eventListenerOptions: AddEventListenerOptions = {},
+  elementListener: HTMLElement | null = null,
 ): void {
   useEffect(() => {
     const handleEvent = (event: any): void => {
@@ -53,10 +54,18 @@ export function useOnClickOutside<T extends HTMLElement = HTMLElement>(
       }
     };
 
-    window.addEventListener(eventType, handleEvent, eventListenerOptions);
+    (elementListener ?? window).addEventListener(
+      eventType,
+      handleEvent,
+      eventListenerOptions,
+    );
 
     return () => {
-      window.removeEventListener(eventType, handleEvent, eventListenerOptions);
+      (elementListener ?? window).removeEventListener(
+        eventType,
+        handleEvent,
+        eventListenerOptions,
+      );
     };
   }, [eventListenerOptions, eventType, handler, ref]);
 }
