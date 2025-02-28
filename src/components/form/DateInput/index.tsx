@@ -2,6 +2,7 @@ import {
   ForwardedRef,
   forwardRef,
   ReactElement,
+  useMemo,
   useRef,
   useState,
   type ChangeEventHandler,
@@ -21,6 +22,7 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   helperText?: string;
   onChange?: (value: string) => void;
   onBlur?: ChangeEventHandler<HTMLInputElement>;
+  pickerDefaultSelectedDate?: Date;
   pickerClickOutsideBoundaryElement?: HTMLElement;
   pickerInputOverflow?: boolean;
 }
@@ -48,27 +50,22 @@ const GhostInput = forwardRef(function RenderInput(
 const Picker = function RenderPicker({
   value,
   onChange,
+  defaultSelectedDate,
   overflow = false,
   clickOutsideBoundaryElement,
 }: {
   value: string;
   onChange: (event: { target: { value: string } }) => void;
+  defaultSelectedDate?: Date;
   overflow?: boolean;
   clickOutsideBoundaryElement?: HTMLElement;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
-  // Close on outside click
-  useOnClickOutside(
-    ref,
-    () => {
-      setOpen(false);
-    },
-    'mousedown',
-    {},
-    clickOutsideBoundaryElement,
-  );
+  const defaultDate = new Date('08/01/1989');
+  const minDate = new Date(1900, 0, 1);
+  const maxDate = new Date();
 
   const formatDate = (date: Date | null): string => {
     if (!date) return '';
@@ -79,9 +76,9 @@ const Picker = function RenderPicker({
     }
 
     try {
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
+      const day = date.getUTCDate().toString().padStart(2, '0');
+      const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+      const year = date.getUTCFullYear();
 
       // Validate ranges
       if (
@@ -100,6 +97,37 @@ const Picker = function RenderPicker({
       return '';
     }
   };
+
+  const selected = useMemo(() => {
+    if (!value) {
+      return defaultSelectedDate ?? undefined;
+    }
+    const valueDate = new Date(value);
+
+    if (isNaN(+valueDate)) {
+      return defaultDate;
+    }
+
+    if (
+      !/^\d{2}\/\d{2}\/\d{4}$/.test(value) ||
+      valueDate < minDate ||
+      valueDate > maxDate
+    ) {
+      return defaultDate;
+    }
+    return valueDate;
+  }, [value]);
+
+  // Close on outside click
+  useOnClickOutside(
+    ref,
+    () => {
+      setOpen(false);
+    },
+    'mousedown',
+    {},
+    clickOutsideBoundaryElement,
+  );
 
   return (
     <Box
@@ -127,10 +155,10 @@ const Picker = function RenderPicker({
         showMonthDropdown
         scrollableYearDropdown={false}
         dateFormat='MM/dd/yyyy'
-        minDate={new Date(1900, 0, 1)}
-        maxDate={new Date()}
-        selected={value ? new Date(value) : undefined}
-        onChange={(date) => {
+        minDate={minDate}
+        maxDate={maxDate}
+        selected={selected}
+        onSelect={(date) => {
           const formattedDate = formatDate(date);
           if (formattedDate) {
             onChange?.({ target: { value: formattedDate } });
@@ -152,6 +180,7 @@ function DateInputComponent(
     onChange,
     onBlur,
     disabled,
+    pickerDefaultSelectedDate,
     pickerClickOutsideBoundaryElement,
     pickerInputOverflow = false,
     ...rest
@@ -194,6 +223,7 @@ function DateInputComponent(
           value={value}
           overflow={pickerInputOverflow}
           clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
+          defaultSelectedDate={pickerDefaultSelectedDate}
         />
       ),
     },
