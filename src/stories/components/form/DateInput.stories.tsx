@@ -62,3 +62,18 @@ export const PickerOverflow: Story = {
   },
   argTypes: {},
 };
+
+export const CustomDefaultSelectedDatePicker: Story = {
+  args: {
+    name: 'date',
+    label: 'Label',
+    onChange: fn(),
+    disabled: false,
+    error: false,
+    size: 'small',
+    helperText: 'Helper text',
+    pickerInputOverflow: true,
+    pickerDefaultSelectedDate: new Date('08/01/1989'),
+  },
+  argTypes: {},
+};
