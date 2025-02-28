@@ -9,8 +9,8 @@ import {
 import { Box, Stack, TextField, type TextFieldProps } from '@mui/material';
 import { CalendarMonth } from '@mui/icons-material';
 import DatePicker from 'react-datepicker';
-import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 
+import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 import { masks } from '../../../utils/masks';
 import { useOnClickOutside } from '../../../hooks';
 import { InputMask } from '../InputMask';
@@ -21,6 +21,7 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   helperText?: string;
   onChange?: (value: string) => void;
   onBlur?: ChangeEventHandler<HTMLInputElement>;
+  overflowPicker?: boolean;
 }
 
 const GhostInput = forwardRef(function RenderInput(
@@ -45,9 +46,11 @@ const GhostInput = forwardRef(function RenderInput(
 const Picker = function RenderPicker({
   value,
   onChange,
+  overflowPicker = false,
 }: {
   value: string;
   onChange: (event: { target: { value: string } }) => void;
+  overflowPicker?: boolean;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -96,7 +99,16 @@ const Picker = function RenderPicker({
   };
 
   return (
-    <Box ref={ref}>
+    <Box
+      ref={ref}
+      sx={{
+        '& .react-datepicker-popper': overflowPicker
+          ? {
+              transform: 'translate(-32px, calc(-50% + 16px))!important',
+            }
+          : {},
+      }}
+    >
       <style>{pickerCSS}</style>
       <DatePicker
         open={open}
@@ -117,6 +129,7 @@ const Picker = function RenderPicker({
           const formattedDate = formatDate(date);
           if (formattedDate) {
             onChange?.({ target: { value: formattedDate } });
+            setOpen(false);
           }
         }}
         customInput={<GhostInput />}
@@ -134,6 +147,7 @@ function DateInputComponent(
     onChange,
     onBlur,
     disabled,
+    overflowPicker = false,
     ...rest
   }: Readonly<DateInputProps>,
   ref: any,
@@ -168,7 +182,13 @@ function DateInputComponent(
     },
     fullWidth: true,
     InputProps: {
-      endAdornment: <Picker onChange={handleChange} value={value} />,
+      endAdornment: (
+        <Picker
+          onChange={handleChange}
+          value={value}
+          overflowPicker={overflowPicker}
+        />
+      ),
     },
     ...rest,
   };
