@@ -159,7 +159,6 @@ const Picker = function RenderPicker({
         maxDate={maxDate}
         selected={selected}
         onSelect={(date) => {
-          console.log({ date });
           const formattedDate = formatDate(date);
           if (formattedDate) {
             onChange?.({ target: { value: formattedDate } });
