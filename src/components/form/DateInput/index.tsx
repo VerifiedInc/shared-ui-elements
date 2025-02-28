@@ -7,12 +7,12 @@ import {
   type ChangeEventHandler,
 } from 'react';
 import { Box, Stack, TextField, type TextFieldProps } from '@mui/material';
-import { CalendarMonth } from '@mui/icons-material';
+import { CalendarToday } from '@mui/icons-material';
 import DatePicker from 'react-datepicker';
 
+import { useOnClickOutside } from '../../../hooks';
 import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 import { masks } from '../../../utils/masks';
-import { useOnClickOutside } from '../../../hooks';
 import { InputMask } from '../InputMask';
 
 interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
@@ -21,7 +21,8 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   helperText?: string;
   onChange?: (value: string) => void;
   onBlur?: ChangeEventHandler<HTMLInputElement>;
-  overflowPicker?: boolean;
+  pickerClickOutsideBoundaryElement?: HTMLElement;
+  pickerInputOverflow?: boolean;
 }
 
 const GhostInput = forwardRef(function RenderInput(
@@ -35,10 +36,11 @@ const GhostInput = forwardRef(function RenderInput(
         props.onFocus?.();
       }}
       sx={{
+        position: 'relative',
         cursor: 'pointer',
       }}
     >
-      <CalendarMonth color='neutral' />
+      <CalendarToday color='neutral' fontSize='small' />
     </Stack>
   );
 });
@@ -46,26 +48,27 @@ const GhostInput = forwardRef(function RenderInput(
 const Picker = function RenderPicker({
   value,
   onChange,
-  overflowPicker = false,
+  overflow = false,
+  clickOutsideBoundaryElement,
 }: {
   value: string;
   onChange: (event: { target: { value: string } }) => void;
-  overflowPicker?: boolean;
+  overflow?: boolean;
+  clickOutsideBoundaryElement?: HTMLElement;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
-  // Close on outside click and show on focus
 
-  useOnClickOutside(ref, (e) => {
-    const target = e.target as HTMLElement;
-
-    // Don't close if clicking on input
-    if (target.closest('.MuiInputBase-root')) {
-      return;
-    }
-
-    setOpen(false);
-  });
+  // Close on outside click
+  useOnClickOutside(
+    ref,
+    () => {
+      setOpen(false);
+    },
+    'mousedown',
+    {},
+    clickOutsideBoundaryElement,
+  );
 
   const formatDate = (date: Date | null): string => {
     if (!date) return '';
@@ -102,9 +105,11 @@ const Picker = function RenderPicker({
     <Box
       ref={ref}
       sx={{
-        '& .react-datepicker-popper': overflowPicker
+        position: 'relative',
+        '& .react-datepicker-popper': overflow
           ? {
-              transform: 'translate(-32px, calc(-50% + 16px))!important',
+              transform:
+                'translate(calc(-100% + 32px), calc(-50% + 10px))!important',
             }
           : {},
       }}
@@ -147,7 +152,8 @@ function DateInputComponent(
     onChange,
     onBlur,
     disabled,
-    overflowPicker = false,
+    pickerClickOutsideBoundaryElement,
+    pickerInputOverflow = false,
     ...rest
   }: Readonly<DateInputProps>,
   ref: any,
@@ -186,7 +192,8 @@ function DateInputComponent(
         <Picker
           onChange={handleChange}
           value={value}
-          overflowPicker={overflowPicker}
+          overflow={pickerInputOverflow}
+          clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
         />
       ),
     },
