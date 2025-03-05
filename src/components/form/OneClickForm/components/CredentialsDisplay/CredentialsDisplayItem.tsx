@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { Box, SxProps } from '@mui/material';
 
 import { DataFieldPaper } from '../DataField/DataFieldPaper';
@@ -14,7 +14,7 @@ type CredentialsDisplayItemProps = {
 
 function CredentialsDisplayItemBody(
   props: Omit<CredentialsDisplayItemProps, 'providerProps'>,
-) {
+): ReactElement {
   const { isRoot } = useCredentialsDisplayItem();
 
   if (isRoot) {
@@ -32,7 +32,7 @@ function CredentialsDisplayItemBody(
 export function CredentialsDisplayItem({
   providerProps,
   ...props
-}: CredentialsDisplayItemProps) {
+}: CredentialsDisplayItemProps): ReactElement {
   return (
     <CredentialsDisplayItemProvider {...providerProps}>
       <CredentialsDisplayItemBody {...props} />

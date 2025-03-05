@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactElement, ReactNode, useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -13,7 +13,6 @@ import { When } from '../../components/shared/When';
 import { hasSomeRequiredEmptyCredential } from './utils';
 import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
 
-import { DataFieldToggleButton } from './DataFieldToggleButton';
 import { DataFieldHeader } from './DataFieldHeader';
 import { DataFieldInputModeHeader } from './DataFieldInputModeHeader';
 import { DataFieldStack } from './DataFieldStack';
@@ -29,11 +28,12 @@ type DataFieldCompositeProps = {
  * @param props
  * @constructor
  */
-export function DataFieldComposite(props: DataFieldCompositeProps) {
+export function DataFieldComposite(
+  props: DataFieldCompositeProps,
+): ReactElement {
   const { children } = props;
   const { credentialDisplayInfo, isRoot } = useCredentialsDisplayItem();
   const isEditMode = credentialDisplayInfo.uiState.isEditMode;
-  const instancesLength = credentialDisplayInfo.instances.length;
 
   const [expanded, setExpanded] = useState<boolean>(
     hasSomeRequiredEmptyCredential(credentialDisplayInfo),
@@ -52,13 +52,6 @@ export function DataFieldComposite(props: DataFieldCompositeProps) {
     '&:not(:last-child)': leftSideRightSideFixStyle,
   };
 
-  const handleChange = () => setExpanded((prev) => !prev);
-
-  const renderExpandIcon = () => {
-    if (instancesLength <= 1 && isEditMode) return null;
-    return <DataFieldToggleButton onClick={handleChange} />;
-  };
-
   // Effect to auto expand when in edit mode.
   useEffect(() => {
     if (expanded) return;
@@ -73,8 +66,12 @@ export function DataFieldComposite(props: DataFieldCompositeProps) {
     >
       <Box width='100%'>
         <Accordion
-          expanded={expanded || isEditMode}
-          TransitionProps={{ unmountOnExit: false }}
+          expanded
+          slotProps={{
+            transition: {
+              unmountOnExit: false,
+            },
+          }}
           sx={{
             width: '100%',
             boxShadow: 'none',
@@ -84,20 +81,14 @@ export function DataFieldComposite(props: DataFieldCompositeProps) {
               minHeight: 'auto!important',
               background: 'transparent!important',
               userSelect: 'auto',
-              // HACK alert: Calculate full width for the summary content and the button
               display: 'grid',
-              gridTemplateColumns: 'calc(100% - 40px) 40px',
+              gridTemplateColumns: '100%',
               alignItems: 'center',
             },
             '& .MuiAccordionSummary-content': {
               ...leftSideFixStyle,
               m: '0px!important',
               cursor: 'default',
-            },
-            '& .MuiAccordionSummary-expandIconWrapper': {
-              width: '40px',
-              height: '40px',
-              aspectRatio: 1,
             },
             '& .MuiAccordionDetails-root': {
               px: '0px!important',
@@ -107,8 +98,8 @@ export function DataFieldComposite(props: DataFieldCompositeProps) {
           }}
         >
           <AccordionSummary
-            expandIcon={renderExpandIcon()}
             aria-controls='panel1a-content'
+            expandIcon={null}
             sx={{ flex: 1, flexShrink: 1 }}
           >
             <Stack direction='row' alignItems='center' sx={{ width: '100%' }}>

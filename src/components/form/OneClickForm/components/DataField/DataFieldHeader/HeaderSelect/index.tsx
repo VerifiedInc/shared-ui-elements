@@ -1,8 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, SxProps, TextField, TextFieldProps } from '@mui/material';
-import { Add } from '@mui/icons-material';
-
-import { Button } from '../../../../../../Button';
+import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import { SxProps, TextField, TextFieldProps } from '@mui/material';
 
 import { inputStyle } from '../../../../styles/input';
 
@@ -10,16 +7,12 @@ import { CredentialDisplayInfo } from '../../../CredentialsDisplay/types';
 import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/CredentialsDisplayItemContext';
 import { isNewCredentialValues } from '../../../CredentialsDisplay/utils/isNewCredentialValues';
 
-import { DataFieldLabelText } from '../../';
 import { renderInstance } from '../../DataFieldHeader/HeaderSelect/utils';
 import { styles } from '../../DataFieldHeader/HeaderSelect/styles';
 
-export function HeaderSelect() {
-  const {
-    credentialDisplayInfo,
-    handleChangeCredentialInstance,
-    handleToggleEditModeCredential,
-  } = useCredentialsDisplayItem();
+export function HeaderSelect(): ReactElement {
+  const { credentialDisplayInfo, handleChangeCredentialInstance } =
+    useCredentialsDisplayItem();
   const _styles = styles();
 
   const isNewCredential = isNewCredentialValues(credentialDisplayInfo);
@@ -56,7 +49,6 @@ export function HeaderSelect() {
     },
     select: true,
     variant: 'outlined',
-    label: <DataFieldLabelText />,
     // When the credential is new, it should display with placeholder the select component.
     value: isNewCredential ? undefined : credentialDisplayInfo.id,
     onChange: (e) => handleChangeCredentialInstance(e.target.value),
@@ -130,25 +122,6 @@ export function HeaderSelect() {
       disabled={!allowUserInput && instances.length <= 0}
     >
       {instances.map(renderInstance(false))}
-      {allowUserInput && (
-        <Box sx={_styles.menuStyle}>
-          <Button
-            variant='text'
-            onClick={() => handleToggleEditModeCredential(true)}
-            startIcon={<Add />}
-            sx={{
-              width: '100%',
-              justifyContent: 'flex-start',
-              px: 2,
-              py: 1,
-              borderRadius: 0,
-              color: 'inherit',
-            }}
-          >
-            Add New
-          </Button>
-        </Box>
-      )}
     </TextField>
   );
 }

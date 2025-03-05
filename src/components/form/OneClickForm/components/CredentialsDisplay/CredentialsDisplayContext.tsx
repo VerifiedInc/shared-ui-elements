@@ -1,5 +1,6 @@
 import {
   createContext,
+  ReactElement,
   ReactNode,
   useContext,
   useMemo,
@@ -48,6 +49,7 @@ export type CredentialsDisplayContext = {
     shouldCascade: boolean,
   ): void;
   handleToggleEditModeCredential(path: string, editMode: boolean): void;
+  setEditMode(editMode: boolean): void;
 };
 
 type CredentialDisplayReducer = (
@@ -63,6 +65,7 @@ type CredentialDisplayReducerState = Omit<
   | 'handleChangeValidationCredential'
   | 'handleChangeCredentialInstance'
   | 'handleToggleEditModeCredential'
+  | 'setEditMode'
 >;
 
 type CredentialDisplayReducerDispatch = (
@@ -80,7 +83,7 @@ const Context = createContext<CredentialsDisplayContext | null>(null);
 /**
  * Hook that hold the context value, should be used in nested components to avoid props drilling.
  */
-export function useCredentialsDisplay() {
+export function useCredentialsDisplay(): CredentialsDisplayContext {
   const context = useContext(Context);
 
   if (!context) {
@@ -104,7 +107,7 @@ export default function CredentialsDisplayProvider({
 }: {
   value: CredentialValue;
   children: ReactNode | ReactNode[];
-}) {
+}): ReactElement {
   const oneClickFormOptions = useOneClickFormOptions();
 
   const displayInfoList = useMemo(
@@ -140,7 +143,7 @@ export default function CredentialsDisplayProvider({
   const handleChangeCredentialInstance = (
     path: string,
     credentialId: string,
-  ) => {
+  ): void => {
     const field = form.getValues(path);
 
     const matchDisplayInfo = field.credentialDisplayInfo.instances.find(
@@ -177,19 +180,25 @@ export default function CredentialsDisplayProvider({
     path: string,
     checked: boolean,
     shouldCascade = true,
-  ) => {
+  ): void => {
     // Update when credential is available to be checked/unchecked.
-    const update = (path: string, credentialFieldSet: CredentialFieldSet) => {
-      const field = produce(credentialFieldSet, (draft: CredentialFieldSet) => {
-        // Only changes select if is an optional field.
-        if (
-          !isRequiredCredentialDisplayInfo(
-            draft.credentialDisplayInfo.credentialRequest,
-          )
-        ) {
-          draft.credentialDisplayInfo.uiState.isChecked = checked;
-        }
-      });
+    const update = (
+      path: string,
+      credentialFieldSet: CredentialFieldSet,
+    ): void => {
+      const field = produce(
+        credentialFieldSet,
+        (draft: CredentialFieldSet): void => {
+          // Only changes select if is an optional field.
+          if (
+            !isRequiredCredentialDisplayInfo(
+              draft.credentialDisplayInfo.credentialRequest,
+            )
+          ) {
+            draft.credentialDisplayInfo.uiState.isChecked = checked;
+          }
+        },
+      );
 
       // Replaces the entire field object.
       form.setValue(path, field, {
@@ -221,7 +230,7 @@ export default function CredentialsDisplayProvider({
     path: string,
     value: unknown,
     options?: { shouldValidate?: boolean },
-  ) => {
+  ): void => {
     const field = produce(form.getValues(path), (draft: CredentialFieldSet) => {
       draft.value = value as any;
     });
@@ -242,7 +251,7 @@ export default function CredentialsDisplayProvider({
     path: string,
     valid: boolean,
     message?: string,
-  ) => {
+  ): void => {
     if (valid) {
       form.clearErrors(path);
     } else {
@@ -254,7 +263,7 @@ export default function CredentialsDisplayProvider({
    * Clears the credential value by the path.
    * @param path
    */
-  const handleClearValueCredential = (path: string) => {
+  const handleClearValueCredential = (path: string): void => {
     const field = produce(form.getValues(path), (draft: CredentialFieldSet) => {
       draft.value = '';
     });
@@ -270,9 +279,15 @@ export default function CredentialsDisplayProvider({
    * @param path
    * @param editMode
    */
-  const handleToggleEditModeCredential = (path: string, editMode: boolean) => {
+  const handleToggleEditModeCredential = (
+    path: string,
+    editMode: boolean,
+  ): void => {
     // Update when credential is available to be checked/unchecked.
-    const update = (path: string, credentialFieldSet: CredentialFieldSet) => {
+    const update = (
+      path: string,
+      credentialFieldSet: CredentialFieldSet,
+    ): void => {
       const field = produce(credentialFieldSet, (draft: CredentialFieldSet) => {
         // Reverting the value to the original value.
         draft.value = draft.credentialDisplayInfo.value;
@@ -298,6 +313,45 @@ export default function CredentialsDisplayProvider({
     update(path, form.getValues(path));
   };
 
+  /**
+   * Toggle the edit mode of all credentials.
+   * @param editMode
+   */
+  const setEditMode = (editMode: boolean): void => {
+    const update = (
+      path: string,
+      credentialFieldSet: CredentialFieldSet,
+    ): void => {
+      const field = produce(credentialFieldSet, (draft: CredentialFieldSet) => {
+        draft.credentialDisplayInfo.uiState.isEditMode = editMode;
+      });
+
+      form.setValue(path, field, {
+        shouldValidate: false,
+        shouldDirty: false,
+        shouldTouch: false,
+      });
+
+      const children =
+        extractChildrenFromCredentialFieldSet(credentialFieldSet);
+
+      for (const [key, value] of Object.entries(children)) {
+        update(`${path ? `${path}.${key}` : key}`, value);
+      }
+    };
+
+    const process = (path?: string): void => {
+      const children = extractChildrenFromCredentialFieldSet(
+        path ? form.getValues(path) : form.getValues(),
+      );
+      for (const [key, value] of Object.entries(children)) {
+        update(`${path ? `${path}.${key}` : key}`, value);
+      }
+    };
+
+    process();
+  };
+
   return (
     <FormProvider {...form}>
       <Context.Provider
@@ -309,6 +363,7 @@ export default function CredentialsDisplayProvider({
           handleClearValueCredential,
           handleChangeValidationCredential,
           handleToggleEditModeCredential,
+          setEditMode,
         }}
       >
         {children}

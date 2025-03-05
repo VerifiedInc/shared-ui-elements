@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import { Box, SxProps } from '@mui/material';
 
 import { HeaderSelect } from './HeaderSelect';
@@ -12,7 +13,7 @@ type DataFieldHeaderProps = Readonly<{
  * of desired credential to be used.
  * @constructor
  */
-export function DataFieldHeader(props: DataFieldHeaderProps) {
+export function DataFieldHeader(props: DataFieldHeaderProps): ReactElement {
   const containerStyle: SxProps = {
     display: 'flex',
     flexGrow: 1,

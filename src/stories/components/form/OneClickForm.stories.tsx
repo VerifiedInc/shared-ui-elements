@@ -153,12 +153,12 @@ const mockData = {
         },
       ],
     },
-    {
-      allowUserInput: true,
-      mandatory: 'if_available',
-      multi: false,
-      type: 'PhoneCredential',
-    },
+    // {
+    //   allowUserInput: true,
+    //   mandatory: 'if_available',
+    //   multi: false,
+    //   type: 'PhoneCredential',
+    // },
     {
       allowUserInput: true,
       mandatory: 'if_available',
@@ -205,12 +205,12 @@ const mockData = {
       multi: false,
       type: 'SsnCredential',
     },
-    {
-      allowUserInput: false,
-      mandatory: 'no',
-      multi: false,
-      type: 'EmployerCredential',
-    },
+    // {
+    //   allowUserInput: false,
+    //   mandatory: 'no',
+    //   multi: false,
+    //   type: 'EmployerCredential',
+    // },
   ],
   status: 'WAITING_SHARED_CREDENTIALS',
   uuid: 'fb7c6fe2-152c-4579-a4cc-c7472d0e2c45',
@@ -382,7 +382,7 @@ function Footer() {
 
 function Component({ data, schemas }: any) {
   return (
-    <Stack flex={1} mt={1} justifyContent='space-between'>
+    <Stack width={300} flex={1} mt={1} justifyContent='space-between'>
       <OneClickForm
         credentials={data.credentials}
         schema={schemas}
