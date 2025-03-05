@@ -11,7 +11,7 @@ import { useDebounceCallback } from '../../hooks/useDebounceCallback';
 
 import { CredentialDisplayInfo, CredentialFieldSet } from './types';
 import { useCredentialsDisplay } from './CredentialsDisplayContext';
-import { getParentPath } from './utils/getParentPath';
+import { extractChildrenFromCredentialFieldSet, getParentPath } from './utils';
 
 export type CredentialsDisplayItemContext = {
   path: string;
@@ -169,12 +169,11 @@ export default function CredentialsDisplayItemProvider(
 
   const isAllChecked = useMemo(() => {
     const cascadeCheck = (credentialFieldSet: CredentialFieldSet): boolean => {
-      const { id, value, type, credentialDisplayInfo, ...fields } =
-        credentialFieldSet;
-      const children = Object.values(fields);
-
-      if (children.length) {
-        return Object.values(fields).every(cascadeCheck);
+      const { credentialDisplayInfo } = credentialFieldSet;
+      const children =
+        extractChildrenFromCredentialFieldSet(credentialFieldSet);
+      if (Object.values(children).length) {
+        return Object.values(children).every(cascadeCheck);
       }
 
       return credentialDisplayInfo.uiState?.isChecked || false;

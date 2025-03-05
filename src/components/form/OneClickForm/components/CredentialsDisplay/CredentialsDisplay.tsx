@@ -7,9 +7,10 @@ import { DataFieldComposite } from '../DataField/DataFieldComposite';
 import { DataFieldAtomic } from '../DataField/DataFieldAtomic';
 
 import { CredentialFieldSet } from './types';
+import { extractChildrenFromCredentialFieldSet } from './utils';
 import { CredentialsDisplayItem } from './CredentialsDisplayItem';
 
-export default function CredentialsDisplay() {
+export default function CredentialsDisplay(): ReactElement {
   const form = useFormContext<CredentialFieldSet>();
   const data = form.watch();
 
@@ -20,8 +21,8 @@ export default function CredentialsDisplay() {
     ): ReactElement => {
       const [key, credentialFieldSet] = credentialFieldSetEntry;
 
-      const { id, value, type, credentialDisplayInfo, ...childs } =
-        credentialFieldSet;
+      const { id, credentialDisplayInfo } = credentialFieldSet;
+      const childs = extractChildrenFromCredentialFieldSet(credentialFieldSet);
       const hasChildren = Object.keys(childs).length > 0;
       const isRoot = parents.length === 0;
       const path = [...parents, key].map((key) => key).join('.');

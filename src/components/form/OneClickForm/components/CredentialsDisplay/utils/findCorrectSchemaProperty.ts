@@ -1,8 +1,10 @@
 import _ from 'lodash';
 
-import { CredentialFieldSet } from '../types';
 import { isAtomicBySchema } from '../../../utils/isAtomicBySchema';
 import { isCompositeBySchema } from '../../../utils/isCompositeBySchema';
+
+import { CredentialFieldSet } from '../types';
+import { extractChildrenFromCredentialFieldSet } from '../utils';
 
 /**
  * Returns the correct schema property based on the values for the related credential.
@@ -33,28 +35,29 @@ export const findCorrectSchemaProperty = (
         return !!_.get(schema, `properties.${fieldName}`);
       })
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error
       .get('$id')
       .value();
 
     const lookUpCredential = (
       matcher: string,
-      fieldSet?: CredentialFieldSet,
+      credentialFieldSet?: CredentialFieldSet,
     ): CredentialFieldSet | undefined => {
-      if (!fieldSet) return;
+      if (!credentialFieldSet) return;
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, value, type, credentialDisplayInfo, ...fields } = fieldSet;
+      const { credentialDisplayInfo } = credentialFieldSet;
+      const children =
+        extractChildrenFromCredentialFieldSet(credentialFieldSet);
 
       // If current node matches, return its credentialDisplayInfo
       if (credentialDisplayInfo?.credentialRequest?.type === matcher) {
-        return fieldSet;
+        return credentialFieldSet;
       }
 
-      if (Object.values(fields).length === 0) return;
+      if (Object.values(children).length === 0) return;
 
       // Look through child fields for a match
-      return Object.values(fields).find((childFieldSet) => {
+      return Object.values(children).find((childFieldSet) => {
         return lookUpCredential(matcher, childFieldSet);
       });
     };

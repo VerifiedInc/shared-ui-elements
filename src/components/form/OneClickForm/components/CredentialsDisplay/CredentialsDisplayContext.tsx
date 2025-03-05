@@ -22,6 +22,7 @@ import {
   makeCredentialDisplayInfoList,
   transformToFormObject,
   transformToFormSchema,
+  extractChildrenFromCredentialFieldSet,
 } from './utils';
 
 export type CredentialsDisplayContext = {
@@ -198,12 +199,10 @@ export default function CredentialsDisplayProvider({
       });
 
       if (shouldCascade) {
-        // Removing properties that are not to be included in the update check.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, value, type, credentialDisplayInfo, ...rest } =
-          credentialFieldSet;
+        const children =
+          extractChildrenFromCredentialFieldSet(credentialFieldSet);
 
-        Object.entries(rest).forEach(([key, value]) =>
+        Object.entries(children).forEach(([key, value]) =>
           update(`${path}.${key}`, value),
         );
       }
@@ -289,9 +288,9 @@ export default function CredentialsDisplayProvider({
 
       // Removing properties that are not to be included in the update method.
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, value, type, credentialDisplayInfo, ...rest } =
-        credentialFieldSet;
-      Object.entries(rest).forEach(([key, value]) =>
+      const children =
+        extractChildrenFromCredentialFieldSet(credentialFieldSet);
+      Object.entries(children).forEach(([key, value]) =>
         update(`${path}.${key}`, value),
       );
     };
