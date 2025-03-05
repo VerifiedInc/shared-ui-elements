@@ -1,4 +1,4 @@
-export * from './DataFieldLabel';
+export * from './DataFieldInputLabel';
 export * from './DataFieldValue';
 export * from './DataFieldGroup';
 export * from './DataFieldLegend';

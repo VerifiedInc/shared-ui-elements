@@ -1,6 +1,5 @@
 import { ReactElement, useCallback } from 'react';
-import { Box, Button } from '@mui/material';
-import { Edit } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 
 import { DataFieldStack } from '../DataField/DataFieldStack';
@@ -9,11 +8,10 @@ import { DataFieldAtomic } from '../DataField/DataFieldAtomic';
 
 import { CredentialFieldSet } from './types';
 import { extractChildrenFromCredentialFieldSet } from './utils';
+import { EditModeButton } from './components';
 import { CredentialsDisplayItem } from './CredentialsDisplayItem';
-import { useCredentialsDisplay } from './CredentialsDisplayContext';
 
 export default function CredentialsDisplay(): ReactElement {
-  const credentialsDisplayContext = useCredentialsDisplay();
   const form = useFormContext<CredentialFieldSet>();
   const data = form.watch();
 
@@ -89,23 +87,7 @@ export default function CredentialsDisplay(): ReactElement {
         sx={{ flex: 1, width: '100%' }}
       >
         <DataFieldStack>
-          <Button
-            variant='text'
-            size='small'
-            color='neutral'
-            startIcon={<Edit />}
-            sx={{
-              position: 'absolute',
-              top: 8,
-              right: 14.5,
-              zIndex: 1,
-            }}
-            onClick={() => {
-              credentialsDisplayContext.setEditMode(true);
-            }}
-          >
-            Edit
-          </Button>
+          <EditModeButton />
           {Object.entries(data).map((entry) =>
             renderCredentialDisplayInfo(entry),
           )}

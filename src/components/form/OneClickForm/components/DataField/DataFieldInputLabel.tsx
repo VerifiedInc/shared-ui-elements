@@ -1,10 +1,10 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import { OverridableStringUnion } from '@mui/types';
 import { Variant } from '@mui/material/styles/createTypography';
 import { Typography, SxProps } from '@mui/material';
 import { TypographyPropsVariantOverrides } from '@mui/material/Typography/Typography';
 
-type DataFieldLabelProps = PropsWithChildren & {
+type DataFieldLabelInputProps = PropsWithChildren & {
   label?: ReactNode;
   variant?: OverridableStringUnion<
     'inherit' | Variant,
@@ -20,11 +20,15 @@ type DataFieldLabelProps = PropsWithChildren & {
  * @param sx
  * @constructor
  */
-export function DataFieldLabel({ variant, label, sx }: DataFieldLabelProps) {
+export function DataFieldInputLabel({
+  variant,
+  label,
+  sx,
+}: DataFieldLabelInputProps): ReactElement {
   return (
     <Typography
       component='span'
-      variant={variant || 'subtitle2'}
+      variant={variant ?? 'subtitle2'}
       textTransform='uppercase'
       color='text.secondary'
       sx={{

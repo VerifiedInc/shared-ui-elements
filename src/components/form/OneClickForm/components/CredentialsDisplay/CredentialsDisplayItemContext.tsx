@@ -1,4 +1,10 @@
-import { ReactNode, createContext, useContext, useMemo } from 'react';
+import {
+  ReactElement,
+  ReactNode,
+  createContext,
+  useContext,
+  useMemo,
+} from 'react';
 import {
   FieldValues,
   useController,
@@ -42,7 +48,7 @@ const Context = createContext<CredentialsDisplayItemContext | null>(null);
 /**
  * This hook will give access to the credential in the level that it is being called.
  */
-export function useCredentialsDisplayItem() {
+export function useCredentialsDisplayItem(): CredentialsDisplayItemContext {
   const context = useContext(Context);
 
   if (!context) {
@@ -70,7 +76,7 @@ type CredentialsDisplayItemProviderProps = {
  */
 export default function CredentialsDisplayItemProvider(
   props: CredentialsDisplayItemProviderProps,
-) {
+): ReactElement {
   const { children, isRoot, ...restProps } = props;
   const credentialDisplay = useCredentialsDisplay();
   const form = useFormContext();
@@ -83,7 +89,10 @@ export default function CredentialsDisplayItemProvider(
   /**
    * Select/unselect the credential in displayInfoList by the path.
    */
-  const handleSelectCredential = (checked: boolean, shouldCascade = true) => {
+  const handleSelectCredential = (
+    checked: boolean,
+    shouldCascade = true,
+  ): void => {
     credentialDisplay.handleSelectCredential(
       restProps.path,
       checked,
@@ -95,7 +104,7 @@ export default function CredentialsDisplayItemProvider(
    * Change credential instance by the credentialId and by the path.
    * @param credentialId
    */
-  const handleChangeCredentialInstance = (credentialId: string) => {
+  const handleChangeCredentialInstance = (credentialId: string): void => {
     credentialDisplay.handleChangeCredentialInstance(
       restProps.path,
       credentialId,
@@ -110,7 +119,7 @@ export default function CredentialsDisplayItemProvider(
   const handleChangeValueCredential = (
     value: unknown,
     options?: { shouldValidate?: boolean },
-  ) => {
+  ): void => {
     credentialDisplay.handleChangeValueCredential(
       restProps.path,
       value,
@@ -140,7 +149,7 @@ export default function CredentialsDisplayItemProvider(
   const handleChangeValidationCredential = (
     valid: boolean,
     message?: string,
-  ) => {
+  ): void => {
     credentialDisplay.handleChangeValidationCredential(
       restProps.path,
       valid,
@@ -151,7 +160,7 @@ export default function CredentialsDisplayItemProvider(
   /**
    * Clears the credential value by the path.
    */
-  const handleClearValueCredential = () => {
+  const handleClearValueCredential = (): void => {
     credentialDisplay.handleClearValueCredential(restProps.path);
   };
 
@@ -159,7 +168,7 @@ export default function CredentialsDisplayItemProvider(
    * Toggles the edit mode of the credential by the path.
    * @param editMode
    */
-  const handleToggleEditModeCredential = (editMode: boolean) => {
+  const handleToggleEditModeCredential = (editMode: boolean): void => {
     credentialDisplay.handleToggleEditModeCredential(restProps.path, editMode);
   };
 
