@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactElement } from 'react';
 import { SxProps, Typography } from '@mui/material';
 
 type DataFieldValueProps = PropsWithChildren & {
@@ -11,19 +11,19 @@ type DataFieldValueProps = PropsWithChildren & {
  * @param sx
  * @constructor
  */
-export function DataFieldValue({ children, sx }: DataFieldValueProps) {
+export function DataFieldValue({
+  children,
+  sx,
+}: DataFieldValueProps): ReactElement {
   return (
     <Typography
       variant='body1'
       sx={
         {
+          fontSize: 20,
+          fontWeight: 300,
           wordBreak: 'break-word',
-          my: 0.5,
           ...sx,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          // 'data-sentry-mask':
-          //   appContext.config.env.env === 'production' || undefined,
         } as any
       }
     >

@@ -206,7 +206,7 @@ const mockData = {
       type: 'SsnCredential',
     },
     // {
-    //   allowUserInput: false,
+    //   allowUserInput: true,
     //   mandatory: 'no',
     //   multi: false,
     //   type: 'EmployerCredential',
@@ -279,6 +279,19 @@ const mockData = {
           issuerUuid: '3d4fef6b-23f9-4e83-87e9-4cce85da6a25',
           data: {
             state: 'CA',
+          },
+        },
+        {
+          id: '4d92980b-85d6-4536-9921-94435cff754d',
+          uuid: '5880e70f-bcc4-4ac0-a1ad-1336b266c153',
+          createdAt: '1738698702792',
+          updatedAt: '1738698702792',
+          type: 'CountryCredential',
+          issuanceDate: '1738698702792',
+          expirationDate: null,
+          issuerUuid: '3d4fef6b-23f9-4e83-87e9-4cce85da6a25',
+          data: {
+            state: 'US',
           },
         },
         {
@@ -382,7 +395,7 @@ function Footer() {
 
 function Component({ data, schemas }: any) {
   return (
-    <Stack width={300} flex={1} mt={1} justifyContent='space-between'>
+    <Stack width={362} flex={1} mt={1} justifyContent='space-between'>
       <OneClickForm
         credentials={data.credentials}
         schema={schemas}

@@ -66,6 +66,7 @@ export interface CredentialField {
   id: string;
   value: string;
   credentialDisplayInfo: CredentialDisplayInfo;
+  type: string;
 }
 
 export type CredentialFieldSet = CredentialField & {

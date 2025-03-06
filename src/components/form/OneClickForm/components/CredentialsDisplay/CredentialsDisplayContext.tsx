@@ -5,6 +5,7 @@ import {
   useContext,
   useMemo,
   useReducer,
+  useState,
 } from 'react';
 import { Draft, produce } from 'immer';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -31,6 +32,7 @@ export type CredentialsDisplayContext = {
   credentials: any[];
   displayInfoList: CredentialDisplayInfo[];
   schema: any;
+  isEditMode: boolean;
   handleChangeCredentialInstance(path: string, credentialId: string): void;
   handleChangeValueCredential(
     path: string,
@@ -66,6 +68,7 @@ type CredentialDisplayReducerState = Omit<
   | 'handleChangeCredentialInstance'
   | 'handleToggleEditModeCredential'
   | 'setEditMode'
+  | 'isEditMode'
 >;
 
 type CredentialDisplayReducerDispatch = (
@@ -135,6 +138,8 @@ export default function CredentialsDisplayProvider({
       transformToFormSchema(state.displayInfoList, oneClickFormOptions.options),
     ),
   });
+
+  const [isEditMode, setEditModeState] = useState(false);
 
   /**
    * Changes the credential in displayInfoList by id.
@@ -318,6 +323,8 @@ export default function CredentialsDisplayProvider({
    * @param editMode
    */
   const setEditMode = (editMode: boolean): void => {
+    setEditModeState(editMode);
+
     const update = (
       path: string,
       credentialFieldSet: CredentialFieldSet,
@@ -357,6 +364,7 @@ export default function CredentialsDisplayProvider({
       <Context.Provider
         value={{
           ...state,
+          isEditMode,
           handleChangeCredentialInstance,
           handleSelectCredential,
           handleChangeValueCredential,

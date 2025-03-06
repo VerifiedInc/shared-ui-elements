@@ -34,4 +34,17 @@ export const styles = (): Record<string, SxProps> => ({
   blockStyle: {
     display: 'inline-flex',
   },
+  fieldInputReadonlyStyle: {
+    '& .MuiInputBase-readOnly': {
+      p: 0,
+      userSelect: 'auto',
+      cursor: 'text',
+    },
+    '& fieldset.MuiOutlinedInput-notchedOutline': {
+      border: 'none!important',
+    },
+    '& svg.MuiSvgIcon-root': {
+      display: 'none',
+    },
+  },
 });

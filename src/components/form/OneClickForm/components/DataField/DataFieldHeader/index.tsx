@@ -2,6 +2,7 @@ import { ReactElement } from 'react';
 import { Box, SxProps } from '@mui/material';
 
 import { HeaderSelect } from './HeaderSelect';
+import { DataFieldLabel } from '../DataFieldLabel';
 
 type DataFieldHeaderProps = Readonly<{
   block?: boolean;
@@ -29,6 +30,7 @@ export function DataFieldHeader(props: DataFieldHeaderProps): ReactElement {
   return (
     <Box sx={containerStyle}>
       <Box sx={containerBoxStyle}>
+        <DataFieldLabel />
         <HeaderSelect />
       </Box>
     </Box>

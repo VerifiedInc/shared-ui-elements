@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
-import { SxProps, TextField, TextFieldProps } from '@mui/material';
+import { TextField, TextFieldProps } from '@mui/material';
 
 import { inputStyle } from '../../../../styles/input';
 
@@ -23,24 +23,18 @@ export function HeaderSelect(): ReactElement {
   const inputRef = useRef<HTMLDivElement | undefined>(undefined);
   const [inputWidth, setInputWidth] = useState<string | undefined>(undefined);
 
-  const boxStyle: Record<string, SxProps> | undefined = useMemo(() => {
-    const isTallerBox = ['AddressCredential'].includes(
-      credentialDisplayInfo.credentialRequest?.type ?? 'unknown',
-    );
-
-    if (isTallerBox) {
-      return {
-        '& div[role="combobox"]': {
-          width: '100%',
-          height: 'auto',
-          overflow: 'hidden',
-          whiteSpace: 'unset !important',
-        },
-      };
-    }
-
-    return undefined;
-  }, [credentialDisplayInfo.credentialRequest?.type]);
+  // Replace from instances list the actual display info, so all changes that happens there reflects into the select UI.
+  const instances = useMemo(() => {
+    const hasInstances = credentialDisplayInfo.instances.length > 0;
+    const instances = hasInstances ? credentialDisplayInfo.instances : [];
+    return instances
+      .filter((instance: any) => !isNewCredentialValues(instance))
+      .map((instanceCredentialDisplayInfo: CredentialDisplayInfo) =>
+        instanceCredentialDisplayInfo.id === credentialDisplayInfo.id
+          ? credentialDisplayInfo
+          : instanceCredentialDisplayInfo,
+      );
+  }, [credentialDisplayInfo]);
 
   const textFieldProps: TextFieldProps = {
     ...inputStyle,
@@ -52,7 +46,11 @@ export function HeaderSelect(): ReactElement {
     // When the credential is new, it should display with placeholder the select component.
     value: isNewCredential ? undefined : credentialDisplayInfo.id,
     onChange: (e) => handleChangeCredentialInstance(e.target.value),
+    InputProps: {
+      readOnly: instances.length <= 1,
+    },
     SelectProps: {
+      size: 'small',
       MenuProps: {
         slotProps: {
           paper: {
@@ -65,8 +63,14 @@ export function HeaderSelect(): ReactElement {
     },
     sx: {
       width: '100%',
-      ...boxStyle,
       ..._styles.fieldInputDisabledStyle,
+      ...(instances.length <= 1 && (_styles.fieldInputReadonlyStyle as any)),
+      '& div[role="combobox"]': {
+        width: '100%',
+        height: 'auto',
+        overflow: 'hidden',
+        whiteSpace: 'unset !important',
+      },
       '& .MuiSelect-select': {
         display: 'block',
         alignItems: 'center',
@@ -80,19 +84,6 @@ export function HeaderSelect(): ReactElement {
       },
     },
   };
-
-  // Replace from instances list the actual display info, so all changes that happens there reflects into the select UI.
-  const instances = useMemo(() => {
-    const hasInstances = credentialDisplayInfo.instances.length > 0;
-    const instances = hasInstances ? credentialDisplayInfo.instances : [];
-    return instances
-      .filter((instance: any) => !isNewCredentialValues(instance))
-      .map((instanceCredentialDisplayInfo: CredentialDisplayInfo) =>
-        instanceCredentialDisplayInfo.id === credentialDisplayInfo.id
-          ? credentialDisplayInfo
-          : instanceCredentialDisplayInfo,
-      );
-  }, [credentialDisplayInfo]);
 
   // Observe the input width to set the menu width.
   useEffect(() => {
@@ -119,7 +110,7 @@ export function HeaderSelect(): ReactElement {
   return (
     <TextField
       {...textFieldProps}
-      disabled={!allowUserInput && instances.length <= 0}
+      disabled={!allowUserInput && instances.length <= 1}
     >
       {instances.map(renderInstance(false))}
     </TextField>

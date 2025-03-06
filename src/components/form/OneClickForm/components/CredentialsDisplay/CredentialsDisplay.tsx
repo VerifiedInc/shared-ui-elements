@@ -37,22 +37,11 @@ export default function CredentialsDisplay(): ReactElement {
       // For credential display with children, we build the parent and recursive render the nodes.
       if (hasChildren) {
         return (
-          <CredentialsDisplayItem
-            key={id}
-            sx={{
-              // Decrease bottom spacing for the composed credentials.
-              '& > span > div:first-of-type:has(> div:last-child)': {
-                marginBottom: 0,
-              },
-            }}
-            providerProps={providerProps}
-          >
+          <CredentialsDisplayItem key={id} providerProps={providerProps}>
             <DataFieldComposite>
-              <DataFieldStack spacing={2}>
-                {Object.entries(childs).map((entry) => {
-                  return renderCredentialDisplayInfo(entry, [...parents, key]);
-                })}
-              </DataFieldStack>
+              {Object.entries(childs).map((entry) => {
+                return renderCredentialDisplayInfo(entry, [...parents, key]);
+              })}
             </DataFieldComposite>
           </CredentialsDisplayItem>
         );
@@ -86,8 +75,8 @@ export default function CredentialsDisplay(): ReactElement {
         alignItems='center'
         sx={{ flex: 1, width: '100%' }}
       >
+        <EditModeButton />
         <DataFieldStack>
-          <EditModeButton />
           {Object.entries(data).map((entry) =>
             renderCredentialDisplayInfo(entry),
           )}

@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement } from 'react';
 import { Button } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 
@@ -6,9 +6,8 @@ import { useCredentialsDisplay } from '../CredentialsDisplayContext';
 
 export function EditModeButton(): ReactElement | null {
   const context = useCredentialsDisplay();
-  const [isVisible, setVisibility] = useState(true);
 
-  if (!isVisible) return null;
+  if (context.isEditMode) return null;
 
   return (
     <Button
@@ -18,12 +17,11 @@ export function EditModeButton(): ReactElement | null {
       startIcon={<Edit />}
       sx={{
         position: 'absolute',
-        top: 8,
-        right: 14.5,
+        top: 0,
+        right: 0,
         zIndex: 1,
       }}
       onClick={() => {
-        setVisibility(false);
         context.setEditMode(true);
       }}
     >
