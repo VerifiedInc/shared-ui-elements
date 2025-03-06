@@ -74,7 +74,7 @@ export const findCorrectSchemaProperty = (
     matchProperty = _.chain(schema.anyOf || schema.oneOf)
       .find((o: any) => o?.allOf === undefined)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error
       .get('properties')
       .value();
 

@@ -1,36 +1,53 @@
 import * as zod from 'zod';
 
 import { OneClickFormOptions } from '../../../contexts/one-click-form-options.context';
-import { stringUtils } from '../../../utils/string';
 
-import { CredentialDisplayInfo } from '../types';
+import { CredentialFieldSet } from '../types';
 import { isValidInputCredential } from './isValidInputCredential';
+import { findCorrectSchemaProperty } from './findCorrectSchemaProperty';
+import { extractChildrenFromCredentialFieldSet } from './extractChildrenFromCredentialFieldSet';
+
+type Options = {
+  schema: any;
+};
+
+type Context = {
+  parentFieldSet?: CredentialFieldSet;
+};
 
 /**
  * Transforms the display info list into a form schema.
  * @param displayInfoList
  */
 export function transformToFormSchema(
-  displayInfoList: CredentialDisplayInfo[],
+  fieldSet: CredentialFieldSet,
+  options: Options,
   oneClickFormOptions: OneClickFormOptions,
+  context?: Context,
 ): zod.ZodObject<any> {
   const formObject: Record<string, zod.ZodTypeAny> = {};
+  const child = extractChildrenFromCredentialFieldSet(fieldSet);
 
-  for (const item of displayInfoList) {
-    const marshalKey = stringUtils.camelCase(
-      item.credentialRequest.type.split('Credential').join(''),
-    );
-    const propertyKey = Object.keys(item.schema.properties ?? {})[0];
-    const key = propertyKey ?? marshalKey;
+  for (const [key, item] of Object.entries(child)) {
+    const itemChild = extractChildrenFromCredentialFieldSet(item);
+    const childOnlyEntries = Object.entries(itemChild);
 
-    if (Array.isArray(item.children)) {
+    if (childOnlyEntries.length > 0) {
       // Recursively reduce the children to a single object
       formObject[key] = zod.object(
-        item.children.reduce<Record<string, zod.ZodTypeAny>>(
-          (acc, child) => {
+        childOnlyEntries.reduce<Record<string, zod.ZodTypeAny>>(
+          (acc, [childKey, childValue]) => {
+            const childFieldSet = { [childKey]: childValue };
             return {
               ...acc,
-              ...transformToFormSchema([child], oneClickFormOptions).shape,
+              ...transformToFormSchema(
+                childFieldSet as CredentialFieldSet,
+                options,
+                oneClickFormOptions,
+                {
+                  parentFieldSet: item,
+                },
+              ).shape,
             };
           },
           {
@@ -58,9 +75,11 @@ export function transformToFormSchema(
               });
             } else {
               // Check validation against the credential value and the pattern.
-              const schemaProperty = Object.values(
-                data.credentialDisplayInfo.schema.properties,
-              )[0];
+              const schemaProperty = findCorrectSchemaProperty(
+                data.credentialDisplayInfo.schema,
+                options.schema,
+                context?.parentFieldSet ? context.parentFieldSet : undefined,
+              );
 
               const isValid = isValidInputCredential(
                 data.value,

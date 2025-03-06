@@ -1,14 +1,19 @@
-import { useRef, memo, ReactElement } from 'react';
+import { useRef, memo, ReactElement, useMemo } from 'react';
 import { Box, TextField, TextFieldProps } from '@mui/material';
+import { useFormContext } from 'react-hook-form';
 import isEqual from 'lodash/isEqual';
 
+import { fromUSAddress, toUSaddress } from '../../../utils/addressFormatter';
 import { inputStyle } from '../../../styles/input';
 
-import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
+import { extractChildrenFromCredentialFieldSet } from '../../CredentialsDisplay/utils';
 import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsDisplayItemContext';
+import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
 
 import { DataFieldLabelText } from '../DataFieldLabelText';
 import { DataFieldClearAdornment } from '../DataFieldClearAdornment';
+import { produce } from 'immer';
+import { CredentialFieldSet } from '../../CredentialsDisplay/types';
 
 type DataFieldAddressInputMemoizedProps = {
   credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
@@ -18,11 +23,64 @@ type DataFieldAddressInputMemoizedProps = {
 const DataFieldAddressInputMemoized = memo(
   function DataFieldAddressInputMemoized({
     credentialsDisplayItem,
-    itemValid,
   }: DataFieldAddressInputMemoizedProps) {
+    const form = useFormContext();
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const { objectController, handleChangeDebouncedValueCredential } =
-      credentialsDisplayItem;
+    const { objectController } = credentialsDisplayItem;
+    const fieldName = objectController.field.name;
+    const fieldValue = objectController.field.value;
+
+    const error = useMemo(() => {
+      for (const [key] of Object.entries(
+        extractChildrenFromCredentialFieldSet(fieldValue),
+      )) {
+        const childFieldState = form.getFieldState(`${fieldName}.${key}`);
+        if (childFieldState.error?.message)
+          return childFieldState.error?.message;
+      }
+      return undefined;
+    }, [form]);
+
+    const defaultValue = useMemo(() => {
+      return toUSaddress({
+        line1: fieldValue.line1.value,
+        city: fieldValue.city.value,
+        state: fieldValue.state.value,
+        zipCode: fieldValue.zipCode.value,
+      });
+    }, []);
+
+    const handleChange = (value: string): void => {
+      const formattedValue = value.split('\n').slice(0, 2).join('\n');
+
+      if (inputRef.current) {
+        inputRef.current.value = formattedValue;
+      }
+
+      const addressParts = fromUSAddress(value);
+
+      const setValueOptions = {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      };
+
+      // Update all existing child values in the form context.
+      for (const [key] of Object.entries(
+        extractChildrenFromCredentialFieldSet(fieldValue),
+      )) {
+        const path = `${fieldName}.${key}`;
+        const fieldValue = produce(
+          form.getValues(path),
+          (draft: CredentialFieldSet) => {
+            draft.value =
+              addressParts?.[key as keyof typeof addressParts] ?? '';
+            draft.credentialDisplayInfo.value = draft.value;
+          },
+        );
+        form.setValue(path, fieldValue, setValueOptions);
+      }
+    };
 
     const textFieldStyle: TextFieldProps = {
       inputRef,
@@ -31,17 +89,15 @@ const DataFieldAddressInputMemoized = memo(
       multiline: true,
       minRows: 2,
       maxRows: 2,
-      defaultValue: objectController.field.value.value || '',
+      defaultValue: defaultValue ?? '',
       onChange: (e) => {
-        const value = e.target.value;
-        console.log(value);
-        // handleChangeDebouncedValueCredential(e.target.value);
+        handleChange(e.target.value);
       },
-      error: !itemValid.isValid,
-      helperText: itemValid.isValid
+      error: !!error,
+      helperText: !error
         ? credentialsDisplayItem.credentialDisplayInfo.credentialRequest
             ?.description
-        : itemValid.errorMessage,
+        : error,
       InputLabelProps: {
         shrink: objectController.field.value.value ? true : undefined,
       },

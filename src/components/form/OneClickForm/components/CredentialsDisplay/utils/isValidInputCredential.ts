@@ -24,9 +24,9 @@ export const isValidInputCredential = (
   schemaProperty: any | undefined,
   credentialDisplayInfo: CredentialDisplayInfo,
   options?: Options,
-) => {
+): boolean | undefined => {
   const { phoneCredentialWhitelist, phoneCredentialRegexWhitelist } =
-    options || {};
+    options ?? {};
 
   // Do need to validate composite credentials values since it will be empty.
   if (Array.isArray(credentialDisplayInfo.children)) return true;

@@ -3,6 +3,7 @@ import {
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useReducer,
   useState,
@@ -111,6 +112,7 @@ export default function CredentialsDisplayProvider({
   value: CredentialValue;
   children: ReactNode | ReactNode[];
 }): ReactElement {
+  const generalSchema = value.schema;
   const oneClickFormOptions = useOneClickFormOptions();
 
   const displayInfoList = useMemo(
@@ -131,13 +133,43 @@ export default function CredentialsDisplayProvider({
     displayInfoList,
   });
 
+  const defaultValues = useMemo(() => {
+    return transformToFormObject(state.displayInfoList);
+  }, [state.displayInfoList]);
+
+  const [formSchema, setFormSchema] = useState(
+    transformToFormSchema(
+      defaultValues,
+      {
+        schema: generalSchema,
+      },
+      oneClickFormOptions.options,
+    ),
+  );
+
   const form = useForm({
     mode: 'onChange',
-    defaultValues: transformToFormObject(state.displayInfoList),
-    resolver: zodResolver(
-      transformToFormSchema(state.displayInfoList, oneClickFormOptions.options),
-    ),
+    defaultValues,
+    resolver: zodResolver(formSchema),
   });
+
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      // Refresh form schema is needed to be able to compare the updated values of sibling fields and their schemas.
+      setFormSchema(() => {
+        return transformToFormSchema(
+          value,
+          {
+            schema: generalSchema,
+          },
+          oneClickFormOptions.options,
+        );
+      });
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [form]);
 
   const [isEditMode, setEditModeState] = useState(false);
 
