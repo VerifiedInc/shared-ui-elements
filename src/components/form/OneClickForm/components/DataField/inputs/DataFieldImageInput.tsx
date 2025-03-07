@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react';
+import { memo, ReactElement, useRef } from 'react';
 import { Box, Stack } from '@mui/material';
 import isEqual from 'lodash/isEqual';
 
@@ -11,7 +11,8 @@ import { When } from '../../shared/When';
 import { ImageEncoded } from '../../shared/ImageEncoded';
 import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
 import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsDisplayItemContext';
-import { DataFieldLabel, DataFieldLabelText, DataFieldLegend } from '../';
+
+import { DataFieldInputLabel, DataFieldLabelText, DataFieldLegend } from '../';
 
 type DataFieldImageInputMemoizedProps = {
   credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
@@ -44,7 +45,7 @@ const DataFieldImageInputMemoized = memo(
           }
         }
       >
-        <DataFieldLabel label={<DataFieldLabelText />} />
+        <DataFieldInputLabel label={<DataFieldLabelText />} />
         <Stack
           sx={{
             position: 'relative',
@@ -125,7 +126,7 @@ const DataFieldImageInputMemoized = memo(
  * This component manages the input of type Image.
  * @constructor
  */
-export function DataFieldImageInput() {
+export function DataFieldImageInput(): ReactElement {
   const credentialsDisplayItem = useCredentialsDisplayItem();
   const itemValid = useCredentialsDisplayItemValid();
   return (

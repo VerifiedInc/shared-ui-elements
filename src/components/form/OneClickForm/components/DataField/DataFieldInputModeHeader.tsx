@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import { Stack, SxProps } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
 
@@ -7,7 +8,7 @@ import { When } from '../../components/shared/When';
 
 import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
 
-import { DataFieldLabel } from './DataFieldLabel';
+import { DataFieldInputLabel } from './DataFieldInputLabel';
 import { DataFieldLabelText } from './DataFieldLabelText';
 
 type DataFieldInputModeHeaderProps = {
@@ -20,7 +21,7 @@ type DataFieldInputModeHeaderProps = {
  */
 export function DataFieldInputModeHeader(
   props: Readonly<DataFieldInputModeHeaderProps>,
-) {
+): ReactElement | null {
   const { credentialDisplayInfo, handleToggleEditModeCredential } =
     useCredentialsDisplayItem();
   const instancesLength = credentialDisplayInfo.instances.length;
@@ -39,7 +40,7 @@ export function DataFieldInputModeHeader(
       {...props}
     >
       <When value={isComposite}>
-        <DataFieldLabel label={<DataFieldLabelText />} />
+        <DataFieldInputLabel label={<DataFieldLabelText />} />
       </When>
       <When value={hasMoreInstances}>
         <Button

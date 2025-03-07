@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactElement, ReactNode, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import {
@@ -29,7 +29,7 @@ export function OneClickForm({
   options,
   renderExtra,
   queryClient: _queryClient,
-}: OneClickFormProps) {
+}: OneClickFormProps): ReactElement {
   // Configure a React Query client to handle requests client side only,
   // it supports SSR as well but is not the focus.
   const [queryClient] = useState(

@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import { Stack, SxProps } from '@mui/material';
 
 import { useOneClickFormOptions } from '../../../contexts/one-click-form-options.context';
@@ -6,7 +7,7 @@ import { When } from '../../shared/When';
 import { ImageEncoded } from '../../shared/ImageEncoded';
 import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsDisplayItemContext';
 
-import { DataFieldLabel } from '../DataFieldLabel';
+import { DataFieldInputLabel } from '../DataFieldInputLabel';
 import { DataFieldLabelText } from '../DataFieldLabelText';
 import { DataFieldLegend } from '../DataFieldLegend';
 
@@ -18,7 +19,7 @@ type DataFieldImageProps = {
  * This component is responsible to render the credential of type Image.
  * @constructor
  */
-export function DataFieldImage(props: DataFieldImageProps) {
+export function DataFieldImage(props: DataFieldImageProps): ReactElement {
   const oneClickFormOptions = useOneClickFormOptions();
   const { credentialDisplayInfo } = useCredentialsDisplayItem();
   const containerStyle: SxProps = { flex: 1 };
@@ -36,7 +37,7 @@ export function DataFieldImage(props: DataFieldImageProps) {
       }
     >
       <When value={!props.hasMultipleInstances}>
-        <DataFieldLabel label={<DataFieldLabelText />} />
+        <DataFieldInputLabel label={<DataFieldLabelText />} />
       </When>
       <ImageEncoded
         servicePath={

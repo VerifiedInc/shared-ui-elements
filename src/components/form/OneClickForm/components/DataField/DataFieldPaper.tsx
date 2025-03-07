@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactElement } from 'react';
 import { Paper, SxProps } from '@mui/material';
 
 type DataFieldPaperProps = PropsWithChildren & {
@@ -11,7 +11,10 @@ type DataFieldPaperProps = PropsWithChildren & {
  * @param sx
  * @constructor
  */
-export function DataFieldPaper({ children, sx }: DataFieldPaperProps) {
+export function DataFieldPaper({
+  children,
+  sx,
+}: DataFieldPaperProps): ReactElement {
   return (
     <Paper
       variant='elevation'
@@ -19,9 +22,6 @@ export function DataFieldPaper({ children, sx }: DataFieldPaperProps) {
       sx={{
         py: 1,
         borderRadius: 0,
-        borderLeftStyle: 'solid',
-        borderLeftWidth: 1,
-        borderLeftColor: 'primary.main',
         ...sx,
       }}
     >

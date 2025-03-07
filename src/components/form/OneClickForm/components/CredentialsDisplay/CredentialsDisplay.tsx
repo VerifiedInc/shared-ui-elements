@@ -7,9 +7,11 @@ import { DataFieldComposite } from '../DataField/DataFieldComposite';
 import { DataFieldAtomic } from '../DataField/DataFieldAtomic';
 
 import { CredentialFieldSet } from './types';
+import { extractChildrenFromCredentialFieldSet } from './utils';
+import { EditModeButton } from './components';
 import { CredentialsDisplayItem } from './CredentialsDisplayItem';
 
-export default function CredentialsDisplay() {
+export default function CredentialsDisplay(): ReactElement {
   const form = useFormContext<CredentialFieldSet>();
   const data = form.watch();
 
@@ -20,8 +22,8 @@ export default function CredentialsDisplay() {
     ): ReactElement => {
       const [key, credentialFieldSet] = credentialFieldSetEntry;
 
-      const { id, value, type, credentialDisplayInfo, ...childs } =
-        credentialFieldSet;
+      const { id, credentialDisplayInfo } = credentialFieldSet;
+      const childs = extractChildrenFromCredentialFieldSet(credentialFieldSet);
       const hasChildren = Object.keys(childs).length > 0;
       const isRoot = parents.length === 0;
       const path = [...parents, key].map((key) => key).join('.');
@@ -35,22 +37,11 @@ export default function CredentialsDisplay() {
       // For credential display with children, we build the parent and recursive render the nodes.
       if (hasChildren) {
         return (
-          <CredentialsDisplayItem
-            key={id}
-            sx={{
-              // Decrease bottom spacing for the composed credentials.
-              '& > span > div:first-of-type:has(> div:last-child)': {
-                marginBottom: 0,
-              },
-            }}
-            providerProps={providerProps}
-          >
+          <CredentialsDisplayItem key={id} providerProps={providerProps}>
             <DataFieldComposite>
-              <DataFieldStack spacing={2}>
-                {Object.entries(childs).map((entry) => {
-                  return renderCredentialDisplayInfo(entry, [...parents, key]);
-                })}
-              </DataFieldStack>
+              {Object.entries(childs).map((entry) => {
+                return renderCredentialDisplayInfo(entry, [...parents, key]);
+              })}
             </DataFieldComposite>
           </CredentialsDisplayItem>
         );
@@ -84,6 +75,7 @@ export default function CredentialsDisplay() {
         alignItems='center'
         sx={{ flex: 1, width: '100%' }}
       >
+        <EditModeButton />
         <DataFieldStack>
           {Object.entries(data).map((entry) =>
             renderCredentialDisplayInfo(entry),

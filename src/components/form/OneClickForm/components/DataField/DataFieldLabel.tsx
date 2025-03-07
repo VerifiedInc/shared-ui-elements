@@ -1,41 +1,39 @@
-import { PropsWithChildren, ReactNode } from 'react';
-import { OverridableStringUnion } from '@mui/types';
-import { Variant } from '@mui/material/styles/createTypography';
-import { Typography, SxProps } from '@mui/material';
-import { TypographyPropsVariantOverrides } from '@mui/material/Typography/Typography';
+import { ReactElement } from 'react';
+import { Stack, Typography } from '@mui/material';
 
-type DataFieldLabelProps = PropsWithChildren & {
-  label?: ReactNode;
-  variant?: OverridableStringUnion<
-    'inherit' | Variant,
-    TypographyPropsVariantOverrides
-  >;
-  sx?: SxProps;
-};
+import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
 
-/**
- * Component to display a credential label.
- * @param variant
- * @param label
- * @param sx
- * @constructor
- */
-export function DataFieldLabel({ variant, label, sx }: DataFieldLabelProps) {
+import { getCredentialLabel } from './utils';
+
+export function DataFieldLabel(): ReactElement {
+  const { credentialDisplayInfo } = useCredentialsDisplayItem();
+  const label = getCredentialLabel(
+    credentialDisplayInfo.label,
+    credentialDisplayInfo.credentialRequest.type,
+  );
   return (
-    <Typography
-      component='span'
-      variant={variant || 'subtitle2'}
-      textTransform='uppercase'
-      color='text.secondary'
+    <Stack
       sx={{
-        position: 'relative',
-        fontSize: 12,
-        letterSpacing: 1,
-        left: '2.4px',
-        ...sx,
+        alignItems: 'flex-start',
+        width: 100,
+        flexShrink: 0,
+        mt: 0.7,
       }}
     >
-      {label}
-    </Typography>
+      <Typography
+        component='span'
+        variant={'subtitle2'}
+        textTransform='uppercase'
+        color='text.primary'
+        sx={{
+          position: 'relative',
+          fontSize: 12,
+          fontWeight: 700,
+          letterSpacing: 1,
+        }}
+      >
+        {label}
+      </Typography>
+    </Stack>
   );
 }

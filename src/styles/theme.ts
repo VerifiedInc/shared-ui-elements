@@ -248,6 +248,16 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
           },
         },
       },
+      MuiInputBase: {
+        styleOverrides: {
+          root: {
+            '& .MuiInputBase-input': {
+              fontSize: 20,
+              fontWeight: 300,
+            },
+          },
+        },
+      },
       MuiTextField: {
         defaultProps: {
           variant: 'outlined',

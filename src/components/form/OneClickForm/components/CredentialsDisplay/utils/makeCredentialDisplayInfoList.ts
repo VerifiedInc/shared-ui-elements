@@ -216,33 +216,6 @@ export const makeCredentialDisplayInfoList = (
     // Clone the original data and save in a property.
     credentialDisplayInfo.originalInstance = _.cloneDeep(credentialDisplayInfo);
 
-    // Auto set the edit mode if the credential is allowed to be inputted, and there is no instance.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const setEditMode =
-      (overrideEditMode?: boolean) =>
-      (credentialDisplayInfo: CredentialDisplayInfo) => {
-        if (overrideEditMode !== undefined) {
-          credentialDisplayInfo.uiState.isEditMode = overrideEditMode;
-        }
-
-        if (
-          isRoot &&
-          credentialDisplayInfo.credentialRequest?.allowUserInput &&
-          instances.length <= 1
-        ) {
-          credentialDisplayInfo.uiState.isEditMode = true;
-        }
-
-        if (Array.isArray(credentialDisplayInfo.children)) {
-          credentialDisplayInfo.children.forEach(
-            setEditMode(credentialDisplayInfo.uiState.isEditMode),
-          );
-        }
-      };
-
-    // Check and set edit mode for the credential display info.
-    setEditMode()(credentialDisplayInfo);
-
     return credentialDisplayInfo;
   };
 

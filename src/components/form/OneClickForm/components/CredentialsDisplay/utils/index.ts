@@ -14,3 +14,4 @@ export * from './transformToFormObject';
 export * from './transformToFormSchema';
 export * from './getParentPath';
 export * from './getLastPathName';
+export * from './extractChildrenFromCredentialFieldSet';

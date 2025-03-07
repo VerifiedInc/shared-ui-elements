@@ -1,6 +1,8 @@
+import { ReactElement } from 'react';
 import { Box, Stack, SxProps } from '@mui/material';
 
 import { DisplayFormatEnum } from '../../types/display-format';
+import { credentialTypes } from '../../constants';
 import { when } from '../../utils/when';
 
 import { When } from '../shared/When';
@@ -9,13 +11,7 @@ import { useCredentialsDisplay } from '../CredentialsDisplay/CredentialsDisplayC
 import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
 
 import { InputFormatEnum } from './types';
-import { DataFieldLeftSide } from './DataFieldLeftSide';
-import { DataFieldHeader } from './DataFieldHeader';
-import {
-  DataFieldImage,
-  DataFieldInputAddress,
-  DataFieldInputText,
-} from './formats';
+import { DataFieldImage, DataFieldText } from './formats';
 import {
   DataFieldSelectInput,
   DataFieldTextInput,
@@ -24,17 +20,19 @@ import {
   DataFieldSSNInput,
   DataFieldImageInput,
 } from './inputs';
-import { DataFieldInputSelect } from './formats/DataFieldInputSelect';
-import { DataFieldInputModeHeader } from './DataFieldInputModeHeader';
-import { DataFieldLegend } from './DataFieldLegend';
+import {
+  DataFieldInputModeHeader,
+  DataFieldLegend,
+  DataFieldLeftSide,
+} from './';
 
 /**
  * This component renders an atomic level credential, it displays the component by displayFormat.
  * @constructor
  */
-export function DataFieldAtomic() {
+export function DataFieldAtomic(): ReactElement | null {
   const { schema } = useCredentialsDisplay();
-  const { credentialDisplayInfo, parentFieldSet, isRoot } =
+  const { credentialDisplayInfo, objectController, parentFieldSet, isRoot } =
     useCredentialsDisplayItem();
   const hasMultipleInstances = credentialDisplayInfo.instances.length > 1;
   const allowUserInput =
@@ -47,7 +45,7 @@ export function DataFieldAtomic() {
   const stackStyle: SxProps = { width: 'calc(100%)' };
 
   // Render data field as input mode.
-  const renderInputField = () => {
+  const renderInputField = (): ReactElement | undefined => {
     const schemaProperty = findCorrectSchemaProperty(
       credentialDisplayInfo.schema,
       schema,
@@ -64,37 +62,37 @@ export function DataFieldAtomic() {
   };
 
   // Render data field as read only.
-  const renderReadOnlyField = () => {
+  const renderReadOnlyField = (): ReactElement | undefined => {
     const props = { hasMultipleInstances };
-    const schemaProperty = findCorrectSchemaProperty(
-      credentialDisplayInfo.schema,
-      schema,
-      parentFieldSet,
-    );
-
-    const readOnly = when(schemaProperty?.input?.type, {
-      // Prefer input of type select over any other displayFormat.
-      Select: () => <DataFieldInputSelect {...props} />,
-      else: () => null,
-    });
-
-    if (readOnly) return readOnly;
 
     return when(credentialDisplayInfo?.displayFormat, {
       [DisplayFormatEnum.Image]: () => <DataFieldImage {...props} />,
-      [DisplayFormatEnum.Address]: () => <DataFieldInputAddress {...props} />,
-      else: () => <DataFieldInputText {...props} />,
+      else: () => <DataFieldText />,
     });
   };
 
   // Render the given credential, being input mode or display mode.
-  const renderField = () => {
+  const renderField = (): ReactElement | undefined => {
     if (canEdit && isEditMode) {
       return renderInputField();
     }
 
     return renderReadOnlyField();
   };
+
+  // The following atomic credentials should not have render directly if
+  // some of the given parent fields are provided.
+  if (parentFieldSet?.type === credentialTypes.AddressCredential) {
+    // Except line 2 field will not be rendered directly.
+    if (objectController.field.value.type !== credentialTypes.Line2Credential) {
+      return null;
+    }
+
+    // If in readonly mode, do not render the field.
+    if (!isEditMode) {
+      return null;
+    }
+  }
 
   return (
     <Stack
@@ -108,18 +106,13 @@ export function DataFieldAtomic() {
       <Stack direction='column' sx={stackStyle}>
         {/* When is root data field, display the header. */}
         <When value={isRoot && !isEditMode}>
-          <Box sx={{ mb: 0.5 }}>
-            <DataFieldHeader block />
-          </Box>
+          <Box sx={{ mb: 0.5 }}>{/* <DataFieldHeader block /> */}</Box>
         </When>
         {/* When is root and edit mode, display the input mode header. */}
         <When value={isRoot && isEditMode}>
           <DataFieldInputModeHeader sx={{ mb: 0.5 }} />
         </When>
-        {/* Display data field when */}
-        {/* - is root and is not edit mode */}
-        {/* - is not root */}
-        <When value={(isRoot && isEditMode) || !isRoot}>{renderField()}</When>
+        {renderField()}
         <When
           value={
             isRoot &&

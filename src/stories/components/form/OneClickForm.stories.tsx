@@ -145,7 +145,7 @@ const mockData = {
           mandatory: 'if_available',
           allowUserInput: true,
         },
-        { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: true },
+        // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: true },
         {
           type: 'LastNameCredential',
           mandatory: 'if_available',
@@ -153,12 +153,12 @@ const mockData = {
         },
       ],
     },
-    {
-      allowUserInput: true,
-      mandatory: 'if_available',
-      multi: false,
-      type: 'PhoneCredential',
-    },
+    // {
+    //   allowUserInput: true,
+    //   mandatory: 'if_available',
+    //   multi: false,
+    //   type: 'PhoneCredential',
+    // },
     {
       allowUserInput: true,
       mandatory: 'if_available',
@@ -205,12 +205,12 @@ const mockData = {
       multi: false,
       type: 'SsnCredential',
     },
-    {
-      allowUserInput: false,
-      mandatory: 'no',
-      multi: false,
-      type: 'EmployerCredential',
-    },
+    // {
+    //   allowUserInput: true,
+    //   mandatory: 'no',
+    //   multi: false,
+    //   type: 'EmployerCredential',
+    // },
   ],
   status: 'WAITING_SHARED_CREDENTIALS',
   uuid: 'fb7c6fe2-152c-4579-a4cc-c7472d0e2c45',
@@ -256,6 +256,19 @@ const mockData = {
           },
         },
         {
+          id: '7b5da728-d94f-4310-857e-d3fcb2ba5dbk',
+          uuid: '7204e529-2041-4e81-ae33-ee9fcf15f03s',
+          createdAt: '1738698702792',
+          updatedAt: '1738698702792',
+          type: 'Line2Credential',
+          issuanceDate: '1738698702792',
+          expirationDate: null,
+          issuerUuid: 'dcb2ded6-9618-4d93-9026-ff5e2eb583c5',
+          data: {
+            line2: 'Apt 606',
+          },
+        },
+        {
           id: 'f0cec9b6-9664-447d-b073-6f7c7862ceaa',
           uuid: '3e8a489e-c1a1-4a56-a6fd-dd4caa4f8df6',
           createdAt: '1738698702792',
@@ -279,6 +292,19 @@ const mockData = {
           issuerUuid: '3d4fef6b-23f9-4e83-87e9-4cce85da6a25',
           data: {
             state: 'CA',
+          },
+        },
+        {
+          id: '4d92980b-85d6-4536-9921-94435cff754d',
+          uuid: '5880e70f-bcc4-4ac0-a1ad-1336b266c153',
+          createdAt: '1738698702792',
+          updatedAt: '1738698702792',
+          type: 'CountryCredential',
+          issuanceDate: '1738698702792',
+          expirationDate: null,
+          issuerUuid: '3d4fef6b-23f9-4e83-87e9-4cce85da6a25',
+          data: {
+            state: 'US',
           },
         },
         {
@@ -382,7 +408,7 @@ function Footer() {
 
 function Component({ data, schemas }: any) {
   return (
-    <Stack flex={1} mt={1} justifyContent='space-between'>
+    <Stack width={362} flex={1} mt={1} justifyContent='space-between'>
       <OneClickForm
         credentials={data.credentials}
         schema={schemas}

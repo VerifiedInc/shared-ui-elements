@@ -1,7 +1,9 @@
+import { ReactElement } from 'react';
 import { Box, Typography } from '@mui/material';
 
 import { isRequiredCredentialDisplayInfo } from '../CredentialsDisplay/utils';
 import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
+import { getCredentialLabelInput } from './utils/getCredentialLabelInput';
 
 type DataFieldLabelTextProps = {
   prefix?: string;
@@ -12,8 +14,14 @@ type DataFieldLabelTextProps = {
  * Component to display a credential label text, when required it renders an asterisk.
  * @constructor
  */
-export function DataFieldLabelText(props: DataFieldLabelTextProps) {
+export function DataFieldLabelText(
+  props: DataFieldLabelTextProps,
+): ReactElement {
   const { credentialDisplayInfo } = useCredentialsDisplayItem();
+  const label = getCredentialLabelInput(
+    credentialDisplayInfo.label,
+    credentialDisplayInfo.credentialRequest.type,
+  );
 
   if (
     isRequiredCredentialDisplayInfo({
@@ -31,7 +39,7 @@ export function DataFieldLabelText(props: DataFieldLabelTextProps) {
           whitespace: 'pre',
         }}
       >
-        {(props.prefix ?? '') + credentialDisplayInfo.label}{' '}
+        {(props.prefix ?? '') + label}{' '}
         {!props.hideRequired && (
           <Typography
             component='span'
@@ -46,5 +54,5 @@ export function DataFieldLabelText(props: DataFieldLabelTextProps) {
     );
   }
 
-  return <>{(props.prefix ?? '') + credentialDisplayInfo.label}</>;
+  return <>{(props.prefix ?? '') + label}</>;
 }

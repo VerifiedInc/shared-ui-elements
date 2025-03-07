@@ -1,16 +1,17 @@
-import { Box, Checkbox } from '@mui/material';
+import { Checkbox } from '@mui/material';
 
 import { useOneClickFormOptions } from '../../contexts/one-click-form-options.context';
 
 import { isRequiredCredentialDisplayInfo } from '../CredentialsDisplay/utils';
 import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
+import { ReactElement } from 'react';
 
 /**
  * This component renders and manages the check for atomic and composite level,
  * when composite, it controls the children also by selecting/deselecting them.
  * @constructor
  */
-export function DataFieldCheckbox() {
+export function DataFieldCheckbox(): ReactElement | null {
   const {
     options: {
       features: { selectableCredentials },
@@ -29,7 +30,9 @@ export function DataFieldCheckbox() {
   });
 
   // Do not render checkbox when selectableCredentials is disabled
-  if (!selectableCredentials) return <Box sx={{ mr: 1 }} />;
+  if (!selectableCredentials) {
+    return null;
+  }
 
   return (
     <Checkbox

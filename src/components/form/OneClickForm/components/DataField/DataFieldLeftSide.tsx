@@ -1,3 +1,5 @@
+import { ReactElement } from 'react';
+
 import { DataFieldCheckbox } from './DataFieldCheckbox';
 
 /**
@@ -5,6 +7,6 @@ import { DataFieldCheckbox } from './DataFieldCheckbox';
  * rendering checkbox or nothing depending on the isSelectable field.
  * @constructor
  */
-export function DataFieldLeftSide() {
+export function DataFieldLeftSide(): ReactElement {
   return <DataFieldCheckbox />;
 }
