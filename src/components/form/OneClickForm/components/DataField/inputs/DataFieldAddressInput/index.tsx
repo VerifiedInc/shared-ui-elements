@@ -4,16 +4,18 @@ import { Box, TextField, TextFieldProps } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 import isEqual from 'lodash/isEqual';
 
-import { fromUSAddress, toUSaddress } from '../../../utils/addressFormatter';
-import { inputStyle } from '../../../styles/input';
+import { fromUSAddress, toUSaddress } from '../../../../utils/addressFormatter';
+import { inputStyle } from '../../../../styles/input';
 
-import { extractChildrenFromCredentialFieldSet } from '../../CredentialsDisplay/utils';
-import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsDisplayItemContext';
-import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
+import { extractChildrenFromCredentialFieldSet } from '../../../CredentialsDisplay/utils';
+import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/CredentialsDisplayItemContext';
+import { useCredentialsDisplayItemValid } from '../../../CredentialsDisplay/hooks';
 
-import { DataFieldLabelText } from '../DataFieldLabelText';
-import { DataFieldClearAdornment } from '../DataFieldClearAdornment';
-import { CredentialFieldSet } from '../../CredentialsDisplay/types';
+import { DataFieldLabelText } from '../../DataFieldLabelText';
+import { DataFieldClearAdornment } from '../../DataFieldClearAdornment';
+import { CredentialFieldSet } from '../../../CredentialsDisplay/types';
+
+import { Address, useAutoFill } from './autofill.hook';
 
 type DataFieldAddressInputMemoizedProps = {
   credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
@@ -29,10 +31,10 @@ const DataFieldAddressInputMemoized = memo(
     credentialsDisplayItem,
   }: DataFieldAddressInputMemoizedProps) {
     const form = useFormContext();
-    const inputRef = useRef<HTMLInputElement | null>(null);
     const { objectController } = credentialsDisplayItem;
     const fieldName = objectController.field.name;
     const fieldValue = objectController.field.value;
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const error = useMemo(() => {
       for (const [key] of Object.entries(
@@ -55,6 +57,18 @@ const DataFieldAddressInputMemoized = memo(
         zipCode: fieldValue.zipCode.value,
       });
     }, []);
+
+    const handlePrefill = (address: Address): void => {
+      const parts = toUSaddress({ ...address, country: undefined });
+
+      if (!parts) return;
+
+      console.log(parts);
+
+      if (inputRef.current) {
+        inputRef.current.value = parts;
+      }
+    };
 
     const handleChange = (value: string): void => {
       const formattedValue = value;
@@ -89,6 +103,8 @@ const DataFieldAddressInputMemoized = memo(
         form.setValue(path, fieldValue, setValueOptions);
       }
     };
+
+    useAutoFill({ inputRef, handlePrefill });
 
     const textFieldStyle: TextFieldProps = {
       inputRef,
