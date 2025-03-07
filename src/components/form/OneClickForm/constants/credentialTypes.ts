@@ -1,4 +1,5 @@
-// Not all credential type are here because is not needed to, but can be added if so.
+// Not all credential type are here because is not needed to,
+// because it is being used currently to make conditional renderings for the data fields.
 export const credentialTypes = {
   SSNCredential: 'SSNCredential',
   FullNameCredential: 'FullNameCredential',
