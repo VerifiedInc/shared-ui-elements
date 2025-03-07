@@ -20,6 +20,10 @@ type DataFieldAddressInputMemoizedProps = {
   itemValid: ReturnType<typeof useCredentialsDisplayItemValid>;
 };
 
+/**
+ * This a memoized component composes the fields of address except line 2.
+ * It re-renders from outside if credentialsDisplayItem and itemValid changes.
+ */
 const DataFieldAddressInputMemoized = memo(
   function DataFieldAddressInputMemoized({
     credentialsDisplayItem,
