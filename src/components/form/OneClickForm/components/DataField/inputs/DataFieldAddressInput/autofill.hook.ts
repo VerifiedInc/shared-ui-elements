@@ -1,22 +1,29 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
+import { wrapPromise } from '../../../../../../../utils';
+
 export type Address = {
-  line1: string;
-  city: string;
-  state: string;
+  line1?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   country: string;
-  zipCode: string;
 };
 
-export function useAutoFill({
-  inputRef,
-  handlePrefill,
-}: {
-  inputRef: React.RefObject<HTMLInputElement>;
-  handlePrefill: (address: Address) => void;
-}): any {
-  const buildAddress = (place: any): Address => {
+export function useAutoFill(): {
+  handleAutoComplete: (value: string) => Promise<void>;
+  buildAddress: (place: google.maps.places.Place) => Address;
+  suggestions: google.maps.places.AutocompleteSuggestion[];
+  isPending: boolean;
+} {
+  const [library, setLibrary] = useState<google.maps.PlacesLibrary>();
+  const [suggestions, setSuggestions] = useState<
+    google.maps.places.AutocompleteSuggestion[]
+  >([]);
+  const [isPending, setIsPending] = useState(false);
+
+  const buildAddress = (place: google.maps.places.Place): Address => {
     const address: Address = {
       line1: '',
       city: '',
@@ -26,41 +33,47 @@ export function useAutoFill({
     };
 
     // Get each component of the address from the place details,
-    for (const component of place.address_components) {
+    for (const component of place?.addressComponents ?? []) {
       const componentType = component.types[0];
 
       switch (componentType) {
         case 'street_number': {
-          address.line1 = `${component.long_name} ${address.line1}`;
+          address.line1 = `${component.longText} ${address.line1}`;
           break;
         }
 
         case 'route': {
-          address.line1 += component.short_name;
+          if (!address.line1) {
+            address.line1 = '';
+          }
+          address.line1 += component.shortText;
           break;
         }
 
         case 'postal_code': {
-          address.zipCode = `${component.long_name}${address.zipCode}`;
+          address.zipCode = `${component.longText}${address.zipCode}`;
           break;
         }
 
         case 'postal_code_suffix': {
-          address.zipCode = `${address.zipCode}-${component.long_name}`;
+          address.zipCode = `${address.zipCode}-${component.longText}`;
           break;
         }
 
         case 'locality':
-          address.city = component.long_name;
+          address.city = component.longText ?? '';
           break;
 
         case 'administrative_area_level_1': {
-          address.state = component.short_name;
+          // Ensure the state is a 2-letter code complying with ISO 3166-2
+          if (component.shortText && component.shortText.length === 2) {
+            address.state = component.shortText;
+          }
           break;
         }
 
         case 'country':
-          address.country = component.short_name;
+          address.country = component.shortText ?? 'US';
           break;
       }
     }
@@ -68,25 +81,52 @@ export function useAutoFill({
     return address;
   };
 
+  const handleAutoComplete = async (value: string): Promise<void> => {
+    if (!library) return;
+
+    const { AutocompleteSessionToken, AutocompleteSuggestion } = library;
+
+    // Add an initial request body.
+    const request: google.maps.places.AutocompleteRequest = {
+      input: value,
+      language: 'en-US',
+      includedRegionCodes: ['us'],
+      region: 'us',
+    };
+
+    // Create a session token.
+    const token = new AutocompleteSessionToken();
+    // Add the token to the request.
+    request.sessionToken = token;
+
+    setIsPending(true);
+
+    // Fetch autocomplete suggestions.
+    const promise =
+      AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+    const [result, error] = await wrapPromise(promise);
+
+    if (!error) {
+      setSuggestions(result.suggestions);
+    }
+
+    setIsPending(false);
+  };
+
+  // Initialize the Google Maps API
   useEffect(() => {
-    if (!inputRef.current) return;
-
-    console.log(inputRef.current);
-
     const loader = new Loader({
-      apiKey: 'AIzaSyBWsfG2Ggi07ZQT-njpwqFh4yU3ZI0p5r0',
+      apiKey: 'AIzaSyBUvmcIsJie86HFu80PaS8o_yfWxHn9n3M',
       version: 'weekly',
     });
-    loader.importLibrary('places').then((library) => {
-      const autocomplete = new library.Autocomplete(inputRef.current, {
-        componentRestrictions: { country: ['us', 'ca'] },
-        fields: ['address_components'],
-        types: ['address'],
-      });
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        handlePrefill(buildAddress(place));
-      });
-    });
+
+    const init = async (): Promise<void> => {
+      const library = await loader.importLibrary('places');
+      setLibrary(library);
+    };
+
+    init().catch(console.error);
   }, []);
+
+  return { handleAutoComplete, buildAddress, suggestions, isPending };
 }

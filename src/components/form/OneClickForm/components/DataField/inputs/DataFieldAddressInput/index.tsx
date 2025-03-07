@@ -1,19 +1,30 @@
-import { useRef, memo, ReactElement, useMemo } from 'react';
+import React, { useRef, memo, ReactElement, useMemo, useState } from 'react';
 import { produce } from 'immer';
-import { Box, TextField, TextFieldProps } from '@mui/material';
-import { useFormContext } from 'react-hook-form';
 import isEqual from 'lodash/isEqual';
+import {
+  Autocomplete,
+  Box,
+  Paper,
+  PaperProps,
+  TextField,
+  Typography,
+  useTheme,
+} from '@mui/material';
+import Grid2 from '@mui/material/Unstable_Grid2';
+import { LocationOn } from '@mui/icons-material';
+import { useFormContext } from 'react-hook-form';
+
+import { useDebounceCallback } from '../../../../../../../hooks';
 
 import { fromUSAddress, toUSaddress } from '../../../../utils/addressFormatter';
 import { inputStyle } from '../../../../styles/input';
 
+import { CredentialFieldSet } from '../../../CredentialsDisplay/types';
 import { extractChildrenFromCredentialFieldSet } from '../../../CredentialsDisplay/utils';
 import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/CredentialsDisplayItemContext';
 import { useCredentialsDisplayItemValid } from '../../../CredentialsDisplay/hooks';
 
 import { DataFieldLabelText } from '../../DataFieldLabelText';
-import { DataFieldClearAdornment } from '../../DataFieldClearAdornment';
-import { CredentialFieldSet } from '../../../CredentialsDisplay/types';
 
 import { Address, useAutoFill } from './autofill.hook';
 
@@ -21,6 +32,44 @@ type DataFieldAddressInputMemoizedProps = {
   credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
   itemValid: ReturnType<typeof useCredentialsDisplayItemValid>;
 };
+
+type Option = {
+  title: string;
+  value: google.maps.places.AutocompleteSuggestion | undefined;
+};
+
+function CustomPaper(props: PaperProps): ReactElement {
+  const theme = useTheme();
+
+  return (
+    <Paper {...props}>
+      {props.children}
+      {/* Legal requirment https://developers.google.com/maps/documentation/javascript/policies#logo */}
+      <Box
+        sx={(staticTheme) => ({
+          display: 'flex',
+          justifyContent: 'flex-end',
+          p: 1,
+          pt: '1px',
+          ...staticTheme.applyStyles('dark', {
+            opacity: 0.8,
+          }),
+        })}
+      >
+        <img
+          src={
+            theme.palette.mode === 'dark'
+              ? 'https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-non-white3_hdpi.png'
+              : 'https://maps.gstatic.com/mapfiles/api-3/images/powered-by-google-on-white3_hdpi.png'
+          }
+          alt=''
+          width='120'
+          height='14'
+        />
+      </Box>
+    </Paper>
+  );
+}
 
 /**
  * This a memoized component composes the fields of address except line 2.
@@ -34,7 +83,9 @@ const DataFieldAddressInputMemoized = memo(
     const { objectController } = credentialsDisplayItem;
     const fieldName = objectController.field.name;
     const fieldValue = objectController.field.value;
-    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    const { handleAutoComplete, buildAddress, suggestions, isPending } =
+      useAutoFill();
 
     const error = useMemo(() => {
       for (const [key] of Object.entries(
@@ -58,26 +109,23 @@ const DataFieldAddressInputMemoized = memo(
       });
     }, []);
 
-    const handlePrefill = (address: Address): void => {
-      const parts = toUSaddress({ ...address, country: undefined });
+    const [value, setValue] = useState<Option>({
+      title: defaultValue ?? '',
+      value: undefined,
+    });
 
-      if (!parts) return;
+    const [inputValue, setInputValue] = useState('');
 
-      console.log(parts);
+    const handleChange = (value: string | Address): void => {
+      console.log({ value });
 
-      if (inputRef.current) {
-        inputRef.current.value = parts;
+      let addressParts: string | Address | null;
+
+      if (typeof value === 'string') {
+        addressParts = fromUSAddress(value);
+      } else {
+        addressParts = value;
       }
-    };
-
-    const handleChange = (value: string): void => {
-      const formattedValue = value;
-
-      if (inputRef.current) {
-        inputRef.current.value = formattedValue;
-      }
-
-      const addressParts = fromUSAddress(value);
 
       const setValueOptions = {
         shouldDirty: true,
@@ -104,51 +152,100 @@ const DataFieldAddressInputMemoized = memo(
       }
     };
 
-    useAutoFill({ inputRef, handlePrefill });
-
-    const textFieldStyle: TextFieldProps = {
-      inputRef,
-      ...inputStyle,
-      label: <DataFieldLabelText />,
-      multiline: true,
-      defaultValue: defaultValue ?? '',
-      onChange: (e) => {
-        handleChange(e.target.value);
-      },
-      error: !!error,
-      helperText: !error
-        ? credentialsDisplayItem.credentialDisplayInfo.credentialRequest
-            ?.description
-        : error,
-      InputLabelProps: {
-        shrink: objectController.field.value.value ? true : undefined,
-      },
-      InputProps: {
-        // The placeholder must be empty in order to not display the one from google places API.
-        placeholder: '',
-        endAdornment: (
-          <DataFieldClearAdornment
-            onClick={() => {
-              //
-              if (inputRef.current) {
-                inputRef.current.value = '';
-              }
-            }}
-          />
-        ),
-      },
-      inputProps: {
-        // Tab index for each block.
-        tabIndex: 0,
-        autoCorrect: 'off',
-        autoCapitalize: 'off',
-      },
-      fullWidth: true,
+    const handleOptionChange = async (option: Option): Promise<void> => {
+      const place = option.value?.placePrediction?.toPlace();
+      if (!place) return;
+      await place.fetchFields({ fields: ['addressComponents'] });
+      const address = buildAddress(place);
+      handleChange(address);
     };
+
+    const handleInputChange = useDebounceCallback((event, newInputValue) => {
+      handleChange(newInputValue);
+      setInputValue(newInputValue);
+      if (!newInputValue) return;
+      // Prevent small input length and same input value from triggering an autocomplete request
+      if (newInputValue.length <= 3 || newInputValue === inputValue) return;
+      handleAutoComplete(newInputValue).catch(console.error);
+    });
 
     return (
       <Box width='100%'>
-        <TextField {...textFieldStyle} />
+        <Autocomplete
+          freeSolo
+          isOptionEqualToValue={(option: Option, value: Option) =>
+            option?.title === value?.title
+          }
+          getOptionLabel={(option: string | Option) =>
+            typeof option === 'string' ? option : option?.title
+          }
+          filterOptions={(x) => x}
+          options={suggestions.map((suggestion) => ({
+            title: suggestion.placePrediction?.text.toString() ?? '',
+            value: suggestion as typeof suggestion | undefined,
+          }))}
+          autoComplete
+          includeInputInList
+          filterSelectedOptions
+          noOptionsText='No locations'
+          loading={isPending}
+          value={value}
+          onChange={(event, newValue: string | Option | null) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!newValue) return;
+            if (typeof newValue === 'string') return;
+            setValue(newValue);
+            handleOptionChange(newValue).catch(console.error);
+          }}
+          onInputChange={handleInputChange}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              {...inputStyle}
+              label={<DataFieldLabelText />}
+              error={!!error}
+              helperText={
+                !error
+                  ? credentialsDisplayItem.credentialDisplayInfo
+                      .credentialRequest?.description
+                  : error
+              }
+              inputProps={{
+                ...params.inputProps,
+                // Tab index for each block.
+                tabIndex: 0,
+                autoCorrect: 'off',
+                autoCapitalize: 'off',
+              }}
+              fullWidth
+              multiline
+            />
+          )}
+          renderOption={(props, option) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Grid2 container sx={{ alignItems: 'center' }}>
+                  <Grid2 sx={{ display: 'flex', width: 44 }}>
+                    <LocationOn sx={{ color: 'text.secondary' }} />
+                  </Grid2>
+                  <Grid2
+                    sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}
+                  >
+                    <Typography
+                      variant='body2'
+                      sx={{ color: 'text.secondary' }}
+                    >
+                      {option?.title}
+                    </Typography>
+                  </Grid2>
+                </Grid2>
+              </li>
+            );
+          }}
+          PaperComponent={CustomPaper}
+        />
       </Box>
     );
   },
