@@ -69,12 +69,12 @@ export function HeaderSelect(): ReactElement {
         width: '100%',
         height: 'auto',
         overflow: 'hidden',
-        whiteSpace: 'unset !important',
+        whiteSpace: 'break-spaces!important',
       },
       '& .MuiSelect-select': {
         display: 'block',
         alignItems: 'center',
-        whiteSpace: 'nowrap!important',
+        whiteSpace: 'break-spaces!important',
       },
       '& .Mui-disabled .MuiOutlinedInput-notchedOutline': {
         border: 'none',

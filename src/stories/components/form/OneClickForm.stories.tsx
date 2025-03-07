@@ -145,7 +145,7 @@ const mockData = {
           mandatory: 'if_available',
           allowUserInput: true,
         },
-        { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: true },
+        // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: true },
         {
           type: 'LastNameCredential',
           mandatory: 'if_available',
@@ -253,6 +253,19 @@ const mockData = {
           issuerUuid: 'dcb2ded6-9618-4d93-9026-ff5e2eb583c5',
           data: {
             line1: '5320 Newell Rd',
+          },
+        },
+        {
+          id: '7b5da728-d94f-4310-857e-d3fcb2ba5dbk',
+          uuid: '7204e529-2041-4e81-ae33-ee9fcf15f03s',
+          createdAt: '1738698702792',
+          updatedAt: '1738698702792',
+          type: 'Line2Credential',
+          issuanceDate: '1738698702792',
+          expirationDate: null,
+          issuerUuid: 'dcb2ded6-9618-4d93-9026-ff5e2eb583c5',
+          data: {
+            line2: 'Apt 606',
           },
         },
         {

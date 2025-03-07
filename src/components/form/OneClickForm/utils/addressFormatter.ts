@@ -25,6 +25,7 @@ export const parseCountryCode = (code: string): string => {
  * Formats an address value.
  * @param {string} rawValue the raw address value in the format street, city, ISO 3166-2code postalcode
  * @returns {string} the formatted address value in the format street\n city, region, postalcode\n country
+ * @deprecated Use toUSaddress and fromUSAddress instead
  */
 export const addressFormatter = (rawValue: string) => {
   const parts = rawValue.split(',');
@@ -52,17 +53,19 @@ export const addressFormatter = (rawValue: string) => {
 
 /**
  * Formats an address to U.S format.
- * @param {string} address the address value in the format: street number street name city, state, postalcode.
- * @returns {string} the formatted address value in the format: street number street name\ncity, state postalcode.
+ * @param {string} address the address value in the format: street number street name city, state, zipCode.
+ * @returns {string} the formatted address value in the format: street number street name\ncity, state zipCode.
  * @returns {null} if the address parts are invalid
  */
 export const toUSaddress = (parts: {
   line1: string;
+  line2?: string;
   city: string;
   state: string;
   zipCode: string;
+  country?: string;
 }): string | null => {
-  const { line1, city, state, zipCode } = parts;
+  const { line1, line2, city, state, zipCode, country } = parts;
 
   // Validate required fields
   if (!line1 || !city || !state || !zipCode) {
@@ -75,10 +78,10 @@ export const toUSaddress = (parts: {
   }
 
   // Format first line (street)
-  const firstLine = line1;
+  const firstLine = `${line1}${line2 ? `, ${line2}` : ''}`;
 
-  // Format second line (city, state, postalCode)
-  const secondLine = `\n${city}, ${state} ${zipCode}`;
+  // Format second line (city, state, country(optional) zipCode)
+  const secondLine = `\n${city}, ${state}${country ? `, ${country}` : ''} ${zipCode}`;
 
   // Join all parts
   return `${firstLine}${secondLine}`;
@@ -86,7 +89,7 @@ export const toUSaddress = (parts: {
 
 /**
  * Parses a US formatted address string back into its component parts.
- * Expected format: "street number street name\ncity, state postalCode"
+ * Expected format: "street number street name\ncity, state zipCode"
  *
  * @param {string} formattedAddress The formatted address string
  * @returns Object containing the address parts or null if parsing fails
@@ -98,7 +101,7 @@ export const fromUSAddress = (
   city?: string;
   state?: string;
   zipCode?: string;
-  country?: string;
+  country: string;
 } | null => {
   // Initialize address parts with default country
   const addressParts: {
@@ -106,7 +109,7 @@ export const fromUSAddress = (
     city?: string;
     state?: string;
     zipCode?: string;
-    country?: string;
+    country: string;
   } = {
     country: 'US',
   };
@@ -136,7 +139,7 @@ export const fromUSAddress = (
       return addressParts;
     }
 
-    // Split state and postal code (state is typically 2 characters followed by a space and then postal code)
+    // Split state and zip code (state is typically 2 characters followed by a space and then zip code)
     const statePostalMatch = statePostalPart.match(/^([A-Z]{2})\s+(.+)$/);
 
     if (!statePostalMatch) {

@@ -1,4 +1,5 @@
 import { useRef, memo, ReactElement, useMemo } from 'react';
+import { produce } from 'immer';
 import { Box, TextField, TextFieldProps } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 import isEqual from 'lodash/isEqual';
@@ -12,7 +13,6 @@ import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
 
 import { DataFieldLabelText } from '../DataFieldLabelText';
 import { DataFieldClearAdornment } from '../DataFieldClearAdornment';
-import { produce } from 'immer';
 import { CredentialFieldSet } from '../../CredentialsDisplay/types';
 
 type DataFieldAddressInputMemoizedProps = {
@@ -34,6 +34,8 @@ const DataFieldAddressInputMemoized = memo(
       for (const [key] of Object.entries(
         extractChildrenFromCredentialFieldSet(fieldValue),
       )) {
+        // Composite address data field does not changes line 2
+        if (key === 'line2') continue;
         const childFieldState = form.getFieldState(`${fieldName}.${key}`);
         if (childFieldState.error?.message)
           return childFieldState.error?.message;
@@ -69,6 +71,8 @@ const DataFieldAddressInputMemoized = memo(
       for (const [key] of Object.entries(
         extractChildrenFromCredentialFieldSet(fieldValue),
       )) {
+        // Composite address data field does not changes line 2
+        if (key === 'line2') continue;
         const path = `${fieldName}.${key}`;
         const fieldValue = produce(
           form.getValues(path),

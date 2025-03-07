@@ -92,7 +92,13 @@ export function DataFieldComposite(
           </Stack>
         </Box>
       </When>
-      {renderCustomDataFieldInput()}
+      <Box
+        width='100%'
+        data-testid='data-field-composite'
+        data-credentialid={credentialDisplayInfo.id}
+      >
+        {renderCustomDataFieldInput()}
+      </Box>
       {children}
     </>
   );

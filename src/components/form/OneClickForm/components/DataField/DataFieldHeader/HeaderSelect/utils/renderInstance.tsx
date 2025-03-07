@@ -1,27 +1,29 @@
-import { Fragment } from 'react';
+import { Fragment, ReactElement } from 'react';
 import { Box, MenuItem } from '@mui/material';
 
-import { DisplayFormatEnum } from '../../../../types/display-format';
-import { useOneClickFormOptions } from '../../../../contexts/one-click-form-options.context';
-import { formatCredentialValue } from '../../../../utils/formatCredentialValue';
+import { DisplayFormatEnum } from '../../../../../types/display-format';
+import { credentialTypes } from '../../../../../constants';
+import { useOneClickFormOptions } from '../../../../../contexts/one-click-form-options.context';
+import { formatCredentialValue } from '../../../../../utils/formatCredentialValue';
 
-import { CredentialDisplayInfo } from '../../../CredentialsDisplay/types';
-import { ImageEncoded } from '../../../shared/ImageEncoded';
+import { CredentialDisplayInfo } from '../../../../CredentialsDisplay/types';
+import { ImageEncoded } from '../../../../shared/ImageEncoded';
 
-import { getCredentialSeparator } from '../../utils';
+import { getCredentialSeparator } from '../../../utils';
 
-import { styles } from './styles';
+import { styles } from '../styles';
+
+import { getAddressFormat } from './getAddressFormat';
 
 export const renderInstance =
   (renderAsString: boolean) =>
-  // eslint-disable-next-line react/display-name
   (credentialDisplayInfo: CredentialDisplayInfo) => {
     const _styles = styles();
     const oneClickFormOptions = useOneClickFormOptions();
 
     const getDisplayByDisplayFormat = (
       credentialDisplayInfo: CredentialDisplayInfo,
-    ) => {
+    ): ReactElement | string => {
       // Format the credential value, so it can be human-readable.
       const formattedValue = formatCredentialValue(
         credentialDisplayInfo.value,
@@ -65,9 +67,19 @@ export const renderInstance =
     // Create the presentation display texts.
     const renderTextValues = (
       credentialDisplayInfo: CredentialDisplayInfo,
-    ): (JSX.Element | string)[] | (JSX.Element | string) => {
+    ): Array<ReactElement | string> | (ReactElement | string) => {
       if (!Array.isArray(credentialDisplayInfo.children)) {
         return getDisplayByDisplayFormat(credentialDisplayInfo);
+      }
+
+      // If is an composite address credential, utilize it custom format.
+      if (
+        Array.isArray(credentialDisplayInfo.children) &&
+        credentialDisplayInfo.credentialRequest.type ===
+          credentialTypes.AddressCredential
+      ) {
+        const addressFormatted = getAddressFormat(credentialDisplayInfo);
+        if (addressFormatted) return addressFormatted;
       }
 
       // Use parent credential type to define the separator.
@@ -77,7 +89,7 @@ export const renderInstance =
 
       // For composite credentials, concat the value of all atomic credentials.
       const listHeader = credentialDisplayInfo.children
-        .reduce<(JSX.Element | string)[]>((acc, credentialDisplayInfo) => {
+        .reduce<Array<ReactElement | string>>((acc, credentialDisplayInfo) => {
           // Add the display only if the value is not empty.
           if (credentialDisplayInfo.value) {
             acc.push(getDisplayByDisplayFormat(credentialDisplayInfo));
@@ -87,10 +99,9 @@ export const renderInstance =
           if (Array.isArray(credentialDisplayInfo.children)) {
             acc.push(
               ...(
-                renderTextValues(credentialDisplayInfo) as (
-                  | JSX.Element
-                  | string
-                )[]
+                renderTextValues(credentialDisplayInfo) as Array<
+                  ReactElement | string
+                >
               )
                 // Flat the nested to make sure they will render linear.
                 .flat(Infinity),
@@ -105,7 +116,7 @@ export const renderInstance =
           const hasNext = !!list[index + 1];
           if (renderAsString) {
             if (hasNext) {
-              return `${element}${separator}`;
+              return `${element as string}${separator}`;
             }
             return element as string;
           }
