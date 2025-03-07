@@ -1,4 +1,4 @@
-import { toUSaddress } from '../../../../../utils/addressFormatter';
+import { toUSaddressPretty } from '../../../../../utils/addressFormatter';
 import { CredentialDisplayInfo } from '../../../../CredentialsDisplay/types';
 import { transformToFormObject } from '../../../../CredentialsDisplay/utils';
 
@@ -7,7 +7,7 @@ export function getAddressFormat(
 ): string | null {
   const { address } = transformToFormObject([credentialDisplayInfo]);
 
-  return toUSaddress({
+  return toUSaddressPretty({
     line1: address.line1.value,
     line2: address.line2.value,
     city: address.city.value,

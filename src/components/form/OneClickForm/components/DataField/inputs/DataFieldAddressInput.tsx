@@ -57,7 +57,7 @@ const DataFieldAddressInputMemoized = memo(
     }, []);
 
     const handleChange = (value: string): void => {
-      const formattedValue = value.split('\n').slice(0, 2).join('\n');
+      const formattedValue = value;
 
       if (inputRef.current) {
         inputRef.current.value = formattedValue;
@@ -95,8 +95,6 @@ const DataFieldAddressInputMemoized = memo(
       ...inputStyle,
       label: <DataFieldLabelText />,
       multiline: true,
-      minRows: 2,
-      maxRows: 2,
       defaultValue: defaultValue ?? '',
       onChange: (e) => {
         handleChange(e.target.value);
