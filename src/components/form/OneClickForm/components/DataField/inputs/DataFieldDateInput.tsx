@@ -69,6 +69,8 @@ const DataFieldDateInputMemoized = memo(
       <Box width='100%'>
         <DateInput
           {...inputStyle}
+          autoComplete='bday'
+          autoCorrect='off'
           label={<DataFieldLabelText />}
           value={localValue}
           error={!isValid}

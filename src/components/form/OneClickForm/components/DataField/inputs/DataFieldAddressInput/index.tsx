@@ -18,6 +18,7 @@ import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/Credentia
 import { useCredentialsDisplayItemValid } from '../../../CredentialsDisplay/hooks';
 
 import { DataFieldLabelText } from '../../DataFieldLabelText';
+import { DataFieldClearAdornment } from '../../DataFieldClearAdornment';
 
 import { useDataFieldAddressInput } from './hook';
 
@@ -86,6 +87,8 @@ const DataFieldAddressInputMemoized = memo(
     return (
       <Box width='100%'>
         <Autocomplete
+          // Disabling clearable to match the appearance and behavior of the other data fields
+          disableClearable
           freeSolo
           isOptionEqualToValue={(option: Option, value: Option) =>
             option?.value === value?.value
@@ -131,6 +134,17 @@ const DataFieldAddressInputMemoized = memo(
                 tabIndex: 0,
                 autoCorrect: 'off',
                 autoCapitalize: 'off',
+              }}
+              InputProps={{
+                endAdornment: (
+                  <DataFieldClearAdornment
+                    onClick={() => {
+                      handleInputChange(undefined, '', {
+                        shouldValidate: false,
+                      });
+                    }}
+                  />
+                ),
               }}
               fullWidth
               multiline
