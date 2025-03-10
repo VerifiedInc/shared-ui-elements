@@ -1,6 +1,7 @@
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactElement, ReactNode, useContext } from 'react';
 
 type OneClickOptionFeatures = {
+  googlePlacesApiKey?: string;
   selectableCredentials?: boolean;
   phoneCredentialWhitelist?: string[];
   phoneCredentialRegexWhitelist?: string;
@@ -12,9 +13,14 @@ type OneClickOptionServicePaths = {
   credentialImagePath: string;
 };
 
+type OneClickOptionApiKeys = {
+  googlePlacesApiKey?: string;
+};
+
 export type OneClickFormOptions = {
   features: OneClickOptionFeatures;
   servicePaths: OneClickOptionServicePaths;
+  apiKeys: OneClickOptionApiKeys;
 };
 
 type OneClickFormOptionsContext = {
@@ -28,7 +34,7 @@ type OneClickFormOptionsProviderProps = {
 
 const Context = createContext<OneClickFormOptionsContext | null>(null);
 
-export function useOneClickFormOptions() {
+export function useOneClickFormOptions(): OneClickFormOptionsContext {
   const context = useContext(Context);
 
   if (!context) {
@@ -47,7 +53,7 @@ export function useOneClickFormOptions() {
  */
 export function OneClickFormOptionsProvider(
   props: OneClickFormOptionsProviderProps,
-) {
+): ReactElement {
   const { selectableCredentials = true } = props.options.features;
   return (
     <Context.Provider

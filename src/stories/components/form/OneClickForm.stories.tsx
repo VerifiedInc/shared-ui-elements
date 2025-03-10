@@ -424,6 +424,9 @@ function Component({ data, schemas }: any) {
           servicePaths: {
             credentialImagePath: '/api/credential-image-search',
           },
+          apiKeys: {
+            // googlePlacesApiKey: 'PLACES_NEW_API_KEY_HERE',
+          },
         }}
         renderExtra={<Footer />}
       />

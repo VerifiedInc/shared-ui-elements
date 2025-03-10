@@ -23,7 +23,7 @@ export const parseCountryCode = (code: string): string => {
 
 /**
  * Formats an address value.
- * @param {string} rawValue the raw address value in the format street, city, ISO 3166-2code postalcode
+ * @param {string} rawValue the raw address value in the format street, city, ISO 3166-2 alpha-2 code postalcode
  * @returns {string} the formatted address value in the format street\n city, region, postalcode\n country
  * @deprecated Use toUSaddress and fromUSAddress instead
  */
@@ -55,32 +55,55 @@ export const addressFormatter = (rawValue: string) => {
  * Formats an address to U.S format.
  * @param {string} address the address value in the format: street number street name city, state, zipCode.
  * @returns {string} the formatted address value in the format: line1, city, state, country(optional), zipCode.
- * @returns {null} if the address parts are invalid
+ * @returns {string} with available parts if some fields are missing
  */
 export const toUSaddress = (parts: {
-  line1: string;
+  line1?: string;
   line2?: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   country?: string;
-}): string | null => {
+}): string => {
   const { line1, line2, city, state, zipCode, country } = parts;
 
-  // Validate required fields
-  if (!line1 || !city || !state || !zipCode) {
-    return null;
+  // Array to hold available address components
+  const addressComponents: string[] = [];
+
+  // Add line1 if available
+  if (line1?.trim()) {
+    addressComponents.push(line1.trim());
   }
 
-  // Validate state format (should be 2 uppercase letters)
-  if (!/^[A-Z]{2}$/.test(state)) {
-    return null;
+  // Add line2 if available
+  if (line2?.trim()) {
+    addressComponents.push(line2.trim());
   }
 
-  // Format address line (line1, city, state, country(optional), zipCode)
-  const addressLine = `${line1}${line2 ? `, ${line2}` : ''}, ${city}, ${state}${country ? `, ${country}` : ''}, ${zipCode}`;
+  // Process city component
+  if (city?.trim()) {
+    addressComponents.push(city.trim());
+  }
 
-  return addressLine;
+  // Process state component if valid
+  if (state?.trim()) {
+    // Add state only if it's in the expected format or just use it as-is
+    addressComponents.push(state.trim());
+  }
+
+  // Process country if available
+  if (country?.trim()) {
+    addressComponents.push(country.trim());
+  }
+
+  const partsString = addressComponents.join(', ');
+
+  // Process zip code if available
+  if (zipCode?.trim()) {
+    return partsString.concat(' ', zipCode.trim());
+  }
+
+  return partsString;
 };
 
 /**
@@ -97,28 +120,26 @@ export const toUSaddressPretty = (parts: {
   zipCode: string;
   country?: string;
 }): string | null => {
-  const { line1, line2, city, state, zipCode, country } = parts;
+  const partsString = toUSaddress(parts);
+  const commaIndex = partsString.indexOf(', ');
+  const secondCommaIndex = partsString.indexOf(', ', commaIndex + 2);
 
-  // Validate required fields
-  if (!line1 || !city || !state || !zipCode) {
-    return null;
+  if (parts.line2 && commaIndex !== -1 && secondCommaIndex !== -1) {
+    // Replace the second comma with a breakline
+    return (
+      partsString.substring(0, secondCommaIndex) +
+      '\n' +
+      partsString.substring(secondCommaIndex + 2)
+    );
   }
 
-  // Validate state format (should be 2 uppercase letters)
-  if (!/^[A-Z]{2}$/.test(state)) {
-    return null;
-  }
-
-  // Format address line (line1, city, state, country(optional), zipCode)
-  const firstLine = `${line1}${line2 ? `, ${line2}` : ''}\n`;
-  const secondLine = `${city}, ${state}${country ? `, ${country}` : ''} ${zipCode}`;
-
-  return `${firstLine}${secondLine}`;
+  return partsString;
 };
 
 /**
  * Parses a US formatted address string back into its component parts.
- * Expected format: "line1, city, state, country(optional), zipCode"
+ * Expected format: "street address, city, state zipCode"
+ * Example: "5320 Newell Rd, Palo Alto, CA 94303"
  *
  * @param {string} formattedAddress The formatted address string
  * @returns Object containing the address parts or null if parsing fails
@@ -132,6 +153,8 @@ export const fromUSAddress = (
   zipCode?: string;
   country: string;
 } | null => {
+  if (!formattedAddress) return null;
+
   // Initialize address parts with default country
   const addressParts: {
     line1?: string;
@@ -154,20 +177,45 @@ export const fromUSAddress = (
     addressParts.line1 = parts[0];
 
     if (!parts[1]) return addressParts;
-    addressParts.city = parts[1];
+    addressParts.city = parts[1]; // City
 
-    // Check if state has the format of 2 uppercase letters
-    const statePattern = /^[A-Z]{2}$/;
-    if (statePattern.test(parts[2])) {
-      addressParts.state = parts[2];
+    if (!parts[2]) return addressParts;
 
-      // If we have 5 parts, then format is line1, city, state, country, zipCode
-      if (parts.length >= 5) {
-        // Country is part[3] (optional)
-        addressParts.zipCode = parts[parts.length - 1];
+    // Handle the last part which contains "state zipCode" format
+    const lastPart = parts[2];
+
+    // Try to extract state ISO 3166-2 alpha-2 and zip code
+    // Format: "CA 94303"
+    const stateZipMatch = lastPart.match(/^([A-Z]{2})\s+(\d{5}(?:-\d{4})?)$/);
+
+    if (stateZipMatch) {
+      // If the last part matches "CA 94303" format
+      addressParts.state = stateZipMatch[1]; // State (e.g., "CA")
+      addressParts.zipCode = stateZipMatch[2]; // Zip code (e.g., "94303")
+    } else {
+      // Fallback to legacy format support
+      const statePattern = /^[A-Z]{2}$/;
+      if (statePattern.test(parts[2])) {
+        addressParts.state = parts[2];
+
+        // If we have more parts, handle zip code from the last part
+        if (parts.length > 3) {
+          addressParts.zipCode = parts[parts.length - 1];
+        }
       } else {
-        // Format is line1, city, state, zipCode
-        addressParts.zipCode = parts[3];
+        // Try to extract zip code from the end of the last part
+        const zipMatch = lastPart.match(/(\d{5}(?:-\d{4})?)$/);
+
+        if (zipMatch) {
+          addressParts.zipCode = zipMatch[0];
+
+          // Extract state by removing the zip code
+          const stateText = lastPart.replace(zipMatch[0], '').trim();
+          // Ensure state is a 2-letter code ISO 3166-2 alpha-2 (e.g., "CA")
+          if (statePattern.test(stateText)) {
+            addressParts.state = stateText;
+          }
+        }
       }
     }
 

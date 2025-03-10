@@ -37,6 +37,11 @@ export type CredentialsDisplayItemContext = {
     value: unknown,
     options?: { shouldValidate?: boolean },
   ): void;
+  handleChangeChildValueCredential(
+    childPath: string,
+    value: unknown,
+    options?: { shouldValidate?: boolean },
+  ): void;
   handleClearValueCredential(): void;
   handleChangeValidationCredential(valid: boolean, message?: string): void;
   handleChangeCredentialInstance(credentialId: string): void;
@@ -142,6 +147,27 @@ export default function CredentialsDisplayItemProvider(
   );
 
   /**
+   * Changes the child credential value by the path.
+   * @param childPath
+   * @param value
+   * @param options
+   */
+  const handleChangeChildValueCredential = (
+    childPath: string,
+    value: unknown,
+    options?: { shouldValidate?: boolean },
+  ): void => {
+    credentialDisplay.handleChangeValueCredential(
+      `${restProps.path}.${childPath}`,
+      value,
+      options,
+    );
+
+    // Select the credential if it has a value.
+    handleSelectCredential(!!value, true);
+  };
+
+  /**
    * Changes the credential validation by the path.
    * @param valid
    * @param message
@@ -203,6 +229,7 @@ export default function CredentialsDisplayItemProvider(
         handleChangeCredentialInstance,
         handleChangeValueCredential,
         handleChangeDebouncedValueCredential,
+        handleChangeChildValueCredential,
         handleChangeValidationCredential,
         handleClearValueCredential,
         handleToggleEditModeCredential,
