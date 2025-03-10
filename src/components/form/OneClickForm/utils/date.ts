@@ -6,7 +6,7 @@ import { TZDate } from '@date-fns/tz';
  * @param timestamp
  * @param separator
  */
-export const formatDateDDMMYYYY = (timestamp?: string) => {
+export const formatDateDDMMYYYY = (timestamp?: string): string => {
   let date = new Date(Number(timestamp));
 
   if (!timestamp) {

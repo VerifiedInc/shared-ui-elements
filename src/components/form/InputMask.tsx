@@ -17,7 +17,7 @@ interface BeforeMaskedStateChangeOptions {
   nextState: State;
 }
 
-interface InputMaskProps {
+export interface InputMaskProps {
   // Custom render function for integration with other input components.
   children: ReactNode;
   // Mask format.

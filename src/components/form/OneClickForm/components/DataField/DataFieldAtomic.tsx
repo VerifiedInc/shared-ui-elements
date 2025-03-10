@@ -113,19 +113,6 @@ export function DataFieldAtomic(): ReactElement | null {
           <DataFieldInputModeHeader sx={{ mb: 0.5 }} />
         </When>
         {renderField()}
-        <When
-          value={
-            isRoot &&
-            !isEditMode &&
-            credentialDisplayInfo.credentialRequest?.description
-          }
-        >
-          {(description) => (
-            <Box sx={{ mx: 1.75 }}>
-              <DataFieldLegend sx={{ mt: 0 }}>{description}</DataFieldLegend>
-            </Box>
-          )}
-        </When>
       </Stack>
     </Stack>
   );
