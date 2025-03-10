@@ -50,7 +50,7 @@
   },
   "scripts": {
     "vitest": "vitest",
-    "lint": "npm run eslint && npm run prettier:check && npm run typecheck",
+    "lint": "npm run eslint && npm run prettier:check && npm run typecheck && npm run build",
     "eslint": "eslint .",
     "prettier": "prettier --write .",
     "prettier:check": "prettier --check .",
