@@ -115,7 +115,9 @@ const DataFieldAddressInputMemoized = memo(
             if (!newValue || typeof newValue === 'string') return;
             handleOptionChange(newValue).catch(console.error);
           }}
-          onInputChange={handleInputChange}
+          onInputChange={(event, newIputvalue) =>
+            handleInputChange(newIputvalue)
+          }
           renderInput={(params) => (
             <TextField
               {...params}
@@ -139,7 +141,7 @@ const DataFieldAddressInputMemoized = memo(
                 endAdornment: (
                   <DataFieldClearAdornment
                     onClick={() => {
-                      handleInputChange(undefined, '', {
+                      handleInputChange('', {
                         shouldValidate: false,
                       });
                     }}

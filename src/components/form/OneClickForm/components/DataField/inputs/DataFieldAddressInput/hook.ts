@@ -24,7 +24,6 @@ export function useDataFieldAddressInput({
   isFetchingPlace: boolean;
   error: string | undefined;
   handleInputChange: (
-    event: unknown | undefined,
     newInputValue: string,
     changeOptions?: { shouldValidate?: boolean },
   ) => void;
@@ -112,8 +111,7 @@ export function useDataFieldAddressInput({
   };
 
   const handleInputChange = (
-    event: any,
-    newInputValue: any,
+    newInputValue: string,
     changeOptions?: { shouldValidate?: boolean },
   ): void => {
     setInputValue(newInputValue);
