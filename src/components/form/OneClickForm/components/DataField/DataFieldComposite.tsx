@@ -77,17 +77,6 @@ export function DataFieldComposite(
               <When value={isRoot}>
                 <DataFieldHeader block />
               </When>
-              <When
-                value={credentialDisplayInfo.credentialRequest?.description}
-              >
-                {(description) => (
-                  <Box sx={{ px: 1.75 }}>
-                    <DataFieldLegend sx={{ mt: 0.5 }}>
-                      {description}
-                    </DataFieldLegend>
-                  </Box>
-                )}
-              </When>
             </Box>
           </Stack>
         </Box>

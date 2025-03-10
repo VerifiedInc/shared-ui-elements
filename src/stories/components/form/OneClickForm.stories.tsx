@@ -170,7 +170,12 @@ const mockData = {
           mandatory: 'if_available',
           allowUserInput: true,
         },
-        { type: 'Line2Credential', mandatory: 'no', allowUserInput: true },
+        {
+          type: 'Line2Credential',
+          mandatory: 'no',
+          allowUserInput: true,
+          description: 'Apt, Unit, etc.',
+        },
         {
           type: 'CityCredential',
           mandatory: 'if_available',
@@ -198,6 +203,7 @@ const mockData = {
       mandatory: 'if_available',
       multi: false,
       type: 'BirthDateCredential',
+      description: 'MM/DD/YYYY',
     },
     {
       allowUserInput: true,

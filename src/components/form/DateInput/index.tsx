@@ -2,22 +2,30 @@ import {
   ForwardedRef,
   forwardRef,
   ReactElement,
+  ReactNode,
   useMemo,
   useRef,
   useState,
   type ChangeEventHandler,
 } from 'react';
-import { Box, Stack, TextField, type TextFieldProps } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Stack,
+  TextField,
+  type TextFieldProps,
+} from '@mui/material';
 import { CalendarToday } from '@mui/icons-material';
 import DatePicker from 'react-datepicker';
 
 import { useOnClickOutside } from '../../../hooks';
 import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 import { masks } from '../../../utils/masks';
-import { InputMask } from '../InputMask';
+
+import { InputMask, InputMaskProps } from '../InputMask';
 
 interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
-  label?: string;
+  label?: ReactNode;
   value?: string;
   helperText?: string;
   onChange?: (value: string) => void;
@@ -25,6 +33,7 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   pickerDefaultSelectedDate?: Date;
   pickerClickOutsideBoundaryElement?: HTMLElement;
   pickerInputOverflow?: boolean;
+  inputMaskProps?: Readonly<Partial<InputMaskProps>>;
 }
 
 const GhostInput = forwardRef(function RenderInput(
@@ -32,17 +41,16 @@ const GhostInput = forwardRef(function RenderInput(
   ref: ForwardedRef<HTMLDivElement>,
 ) {
   return (
-    <Stack
-      ref={ref}
-      onClick={() => {
-        props.onFocus?.();
-      }}
-      sx={{
-        position: 'relative',
-        cursor: 'pointer',
-      }}
-    >
-      <CalendarToday color='neutral' fontSize='small' />
+    <Stack ref={ref} sx={{ position: 'relative' }}>
+      <IconButton
+        edge='end'
+        size='small'
+        onClick={() => {
+          props.onFocus?.();
+        }}
+      >
+        <CalendarToday fontSize='small' />
+      </IconButton>
     </Stack>
   );
 });
@@ -183,7 +191,8 @@ function DateInputComponent(
     pickerDefaultSelectedDate,
     pickerClickOutsideBoundaryElement,
     pickerInputOverflow = false,
-    ...rest
+    inputMaskProps,
+    ...props
   }: Readonly<DateInputProps>,
   ref: any,
 ): React.JSX.Element {
@@ -207,7 +216,10 @@ function DateInputComponent(
     label,
     error,
     helperText,
+    fullWidth: true,
+    ...props,
     inputProps: {
+      ...props.inputProps,
       // Set the input mode to numeric.
       inputMode: 'numeric',
       // Tab index for each block.
@@ -215,19 +227,21 @@ function DateInputComponent(
       // Mask type date.
       mask: masks.DOB_MASK,
     },
-    fullWidth: true,
     InputProps: {
+      ...props.InputProps,
       endAdornment: (
-        <Picker
-          onChange={handleChange}
-          value={value}
-          overflow={pickerInputOverflow}
-          clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
-          defaultSelectedDate={pickerDefaultSelectedDate}
-        />
+        <>
+          <Picker
+            onChange={handleChange}
+            value={value}
+            overflow={pickerInputOverflow}
+            clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
+            defaultSelectedDate={pickerDefaultSelectedDate}
+          />
+          {props.InputProps?.endAdornment}
+        </>
       ),
     },
-    ...rest,
   };
 
   return (
@@ -238,6 +252,7 @@ function DateInputComponent(
       value={value}
       onBlur={onBlur}
       onChange={handleChange}
+      {...inputMaskProps}
     >
       <TextField
         {...textFieldStyle}

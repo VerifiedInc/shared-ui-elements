@@ -263,6 +263,13 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
           variant: 'outlined',
           size: 'medium',
         },
+        styleOverrides: {
+          root: {
+            '& .MuiInputBase-multiline textarea': {
+              minHeight: 28.75,
+            },
+          },
+        },
       },
       MuiSelect: {
         defaultProps: {

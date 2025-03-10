@@ -44,7 +44,9 @@ export const Default: Story = {
     disabled: false,
     error: false,
     size: 'small',
-    helperText: 'Helper text',
+    pickerInputOverflow: true,
+    placeholder: '__/__/____',
+    helperText: 'MM/DD/YYYY',
   },
   argTypes: {},
 };
