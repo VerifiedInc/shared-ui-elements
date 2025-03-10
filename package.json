@@ -51,7 +51,7 @@
   "scripts": {
     "vitest": "vitest",
     "lint": "npm run eslint && npm run prettier:check && npm run typecheck",
-    "eslint": "eslint .",
+    "eslint": "eslint",
     "prettier": "prettier --write .",
     "prettier:check": "prettier --check .",
     "typecheck": "tsc -b",
