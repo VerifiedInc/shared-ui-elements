@@ -2,7 +2,6 @@ import { memo, useState } from 'react';
 import { Box, TextField, TextFieldProps } from '@mui/material';
 import isEqual from 'lodash/isEqual';
 
-import { usePrevious } from '../../../hooks/usePrevious';
 import { inputStyle } from '../../../styles/input';
 
 import { ChangeEvent, TextMaskCustom } from '../../shared/TextMaskCustom';
