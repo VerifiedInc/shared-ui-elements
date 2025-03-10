@@ -2,7 +2,6 @@ import { memo, useState } from 'react';
 import { Box, TextField, TextFieldProps } from '@mui/material';
 import isEqual from 'lodash/isEqual';
 
-import { usePrevious } from '../../../hooks/usePrevious';
 import { inputStyle } from '../../../styles/input';
 
 import { ChangeEvent, TextMaskCustom } from '../../shared/TextMaskCustom';
@@ -35,7 +34,6 @@ const DataFieldSSNInputMemoized = memo(
     const [value, setValue] = useState<string>(
       objectController.field.value.value,
     );
-    const previousValue = usePrevious(value);
 
     const textFieldStyle: TextStyles = {
       ...inputStyle,
@@ -50,16 +48,12 @@ const DataFieldSSNInputMemoized = memo(
       helperText: isValid
         ? credentialDisplayInfo.credentialRequest?.description
         : errorMessage,
+      placeholder: '___-__-____',
       inputProps: {
         onFocus: () => {
           setValue('');
+          handleChangeValueCredential('', { shouldValidate: false });
         },
-        onBlur: () => {
-          if (!objectController.field.value.value.length) return;
-          if (value?.length) return;
-          setValue(previousValue ?? '');
-        },
-
         // Use onChange event.
         useOnComplete: false,
         // Use unmasked value.
@@ -83,11 +77,6 @@ const DataFieldSSNInputMemoized = memo(
       },
       InputProps: {
         inputComponent: TextMaskCustom as any,
-        // prevent this element from being recorded by Sentry
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        // 'data-sentry-mask':
-        // appContext.config.env.env === 'production' || undefined,
         endAdornment: (
           <DataFieldClearAdornment
             onClick={() => {

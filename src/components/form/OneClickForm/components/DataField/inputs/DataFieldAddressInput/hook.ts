@@ -23,7 +23,11 @@ export function useDataFieldAddressInput({
   isPending: boolean;
   isFetchingPlace: boolean;
   error: string | undefined;
-  handleInputChange: (event: any, newInputValue: any) => void;
+  handleInputChange: (
+    event: unknown | undefined,
+    newInputValue: string,
+    changeOptions?: { shouldValidate?: boolean },
+  ) => void;
   handleOptionChange: (option: Option) => Promise<void>;
 } {
   const form = useFormContext();
@@ -65,7 +69,10 @@ export function useDataFieldAddressInput({
   const previousInputValue = usePrevious(inputValue);
   const debouncedInputValue = useDebounceValue(inputValue);
 
-  const handleChange = (value: string | Address): void => {
+  const handleChange = (
+    value: string | Address,
+    changeOptions?: { shouldValidate?: boolean },
+  ): void => {
     let addressParts: string | Address | null;
 
     if (typeof value === 'string') {
@@ -86,6 +93,7 @@ export function useDataFieldAddressInput({
       credentialsDisplayItem.handleChangeChildValueCredential(
         key,
         addressParts?.[key as keyof typeof addressParts] ?? '',
+        changeOptions,
       );
     }
   };
@@ -103,11 +111,15 @@ export function useDataFieldAddressInput({
     setFetchingPlace(false);
   };
 
-  const handleInputChange = (event: any, newInputValue: any): void => {
+  const handleInputChange = (
+    event: any,
+    newInputValue: any,
+    changeOptions?: { shouldValidate?: boolean },
+  ): void => {
     setInputValue(newInputValue);
     // Prevent changes while fetching place to avoid race conditions.
     if (isFetchingPlace) return;
-    handleChange(newInputValue);
+    handleChange(newInputValue, changeOptions);
   };
 
   /**
