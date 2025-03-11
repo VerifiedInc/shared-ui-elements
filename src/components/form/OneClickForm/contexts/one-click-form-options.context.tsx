@@ -1,7 +1,6 @@
 import { createContext, ReactElement, ReactNode, useContext } from 'react';
 
 type OneClickOptionFeatures = {
-  googlePlacesApiKey?: string;
   selectableCredentials?: boolean;
   phoneCredentialWhitelist?: string[];
   phoneCredentialRegexWhitelist?: string;

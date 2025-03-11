@@ -118,7 +118,7 @@ export function useAutoFill(): {
 
   // Initialize the Google Maps API
   useEffect(() => {
-    if (!oneClickFormOptions.options.apiKeys.googlePlacesApiKey) return;
+    if (!oneClickFormOptions.options.apiKeys?.googlePlacesApiKey) return;
 
     const loader = new Loader({
       apiKey: oneClickFormOptions.options.apiKeys.googlePlacesApiKey,
