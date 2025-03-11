@@ -31,7 +31,7 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   onChange?: (value: string) => void;
   onBlur?: ChangeEventHandler<HTMLInputElement>;
   pickerDefaultSelectedDate?: Date;
-  pickerClickOutsideBoundaryElement?: HTMLElement;
+  pickerClickOutsideBoundaryElement?: HTMLElement | null;
   pickerInputOverflow?: boolean;
   inputMaskProps?: Readonly<Partial<InputMaskProps>>;
 }
@@ -66,7 +66,7 @@ const Picker = function RenderPicker({
   onChange: (event: { target: { value: string } }) => void;
   defaultSelectedDate?: Date;
   overflow?: boolean;
-  clickOutsideBoundaryElement?: HTMLElement;
+  clickOutsideBoundaryElement?: HTMLElement | null;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
