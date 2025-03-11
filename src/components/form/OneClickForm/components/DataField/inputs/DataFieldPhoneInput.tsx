@@ -7,7 +7,7 @@ import { PhoneInput } from '../../../../../form/PhoneInput';
 import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
 import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsDisplayItemContext';
 
-import { DataFieldLabelText, DataFieldClearAdornment } from '..';
+import { DataFieldLabelText } from '..';
 
 type DataFieldPhoneInputMemoizedProps = {
   credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
@@ -67,7 +67,7 @@ const DataFieldPhoneInputMemoized = memo(
           error={!isValid}
           handleChangeCountry={handleChangeCountry}
           value={value}
-          InputProps={{ endAdornment: <DataFieldClearAdornment /> }}
+          shouldHaveClearButton
         />
       </Box>
     );
