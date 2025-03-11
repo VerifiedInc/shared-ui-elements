@@ -2,7 +2,7 @@ import { ReactElement, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 
-import { DataFieldStack } from '../DataField/DataFieldStack';
+import { DataFieldRootStack } from '../DataField/DataFieldRootStack';
 import { DataFieldComposite } from '../DataField/DataFieldComposite';
 import { DataFieldAtomic } from '../DataField/DataFieldAtomic';
 
@@ -76,11 +76,11 @@ export default function CredentialsDisplay(): ReactElement {
         sx={{ flex: 1, width: '100%' }}
       >
         <EditModeButton />
-        <DataFieldStack>
+        <DataFieldRootStack>
           {Object.entries(data).map((entry) =>
             renderCredentialDisplayInfo(entry),
           )}
-        </DataFieldStack>
+        </DataFieldRootStack>
       </Box>
     </Box>
   );

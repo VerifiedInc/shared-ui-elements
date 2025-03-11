@@ -166,6 +166,7 @@ const Picker = function RenderPicker({
         minDate={minDate}
         maxDate={maxDate}
         selected={selected}
+        dropdownMode='select'
         onSelect={(date) => {
           const formattedDate = formatDate(date);
           if (formattedDate) {

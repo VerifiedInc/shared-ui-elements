@@ -55,7 +55,7 @@ export const makeCredentialDisplayInfoList = (
     const isComposed = Array.isArray(credential.data);
 
     // Build description along with the receiverName.
-    const description = credentialRequest.description || '';
+    const description = credentialRequest.description ?? '';
 
     const credentialData = Object.values(credential.data ?? {})?.[0] as string;
 
@@ -63,8 +63,8 @@ export const makeCredentialDisplayInfoList = (
       ...credentialRequest,
       mandatory:
         credentialRequest.mandatory ?? options?.mandatory ?? MandatoryEnum.NO,
-      allowUserInput:
-        credentialRequest.allowUserInput ?? options?.allowUserInput,
+      // The SDK currently will allow user input always
+      allowUserInput: true,
       description,
     };
 
@@ -75,7 +75,7 @@ export const makeCredentialDisplayInfoList = (
     const mapCredentialRequests = (credentialDto: any) => ({
       type: credentialDto.type,
       mandatory: credentialRequest.mandatory,
-      allowUserInput: (options || credentialRequest)?.allowUserInput,
+      allowUserInput: (options ?? credentialRequest)?.allowUserInput,
     });
 
     // Make CredentialRequests list from children or from credentials.
