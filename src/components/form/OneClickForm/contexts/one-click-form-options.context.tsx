@@ -1,12 +1,13 @@
 import { createContext, ReactElement, ReactNode, useContext } from 'react';
 
 type OneClickOptionFeatures = {
-  googlePlacesApiKey?: string;
   selectableCredentials?: boolean;
   phoneCredentialWhitelist?: string[];
   phoneCredentialRegexWhitelist?: string;
   /** Array of field names that can be filled by query params. Use '*' to allow all fields. */
   fillEmptyByQueryParam?: string[];
+  /** Element that the date picker should be detached from when clicking outside of it. */
+  datePickerClickOutsideBoundaryElement?: HTMLElement | null;
 };
 
 type OneClickOptionServicePaths = {
@@ -20,7 +21,7 @@ type OneClickOptionApiKeys = {
 export type OneClickFormOptions = {
   features: OneClickOptionFeatures;
   servicePaths: OneClickOptionServicePaths;
-  apiKeys: OneClickOptionApiKeys;
+  apiKeys?: OneClickOptionApiKeys;
 };
 
 type OneClickFormOptionsContext = {

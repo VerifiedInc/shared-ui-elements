@@ -6,6 +6,7 @@ import { DateInput } from '../../../../../form';
 
 import { inputStyle } from '../../../styles/input';
 import { formatDateDDMMYYYY } from '../../../utils/date';
+import { useOneClickFormOptions } from '../../../contexts/one-click-form-options.context';
 
 import { USDateSchema } from '../../validations/schemas/date.schema';
 import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
@@ -24,6 +25,9 @@ const DataFieldDateInputMemoized = memo(
     credentialsDisplayItem,
     itemValid,
   }: DataFieldDateInputMemoizedProps) {
+    const {
+      options: { features },
+    } = useOneClickFormOptions();
     const {
       objectController,
       credentialDisplayInfo,
@@ -74,11 +78,7 @@ const DataFieldDateInputMemoized = memo(
           label={<DataFieldLabelText />}
           value={localValue}
           error={!isValid}
-          helperText={
-            isValid
-              ? credentialDisplayInfo.credentialRequest?.description
-              : errorMessage
-          }
+          helperText={credentialDisplayInfo.credentialRequest?.description}
           onChange={(value) => {
             const valid = USDateSchema.safeParse(value);
 
@@ -111,7 +111,9 @@ const DataFieldDateInputMemoized = memo(
           }}
           pickerInputOverflow
           pickerDefaultSelectedDate={new Date('08/01/1989')}
-          pickerClickOutsideBoundaryElement={document.body}
+          pickerClickOutsideBoundaryElement={
+            features.datePickerClickOutsideBoundaryElement
+          }
         />
       </Box>
     );

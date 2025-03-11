@@ -93,15 +93,8 @@ export function DataFieldSelectInput() {
     ...inputStyle,
     label: <DataFieldLabelText />,
     error: !isValid,
-    helperText: isValid
-      ? credentialDisplayInfo.credentialRequest?.description
-      : errorMessage,
+    helperText: credentialDisplayInfo.credentialRequest?.description,
     inputProps: {
-      // prevent this element from being recorded by Sentry
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      // 'data-sentry-mask':
-      //   appContext.config.env.env === 'production' || undefined,
       // Tab index for each block.
       tabIndex: 0,
     },

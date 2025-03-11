@@ -1,12 +1,13 @@
-import { memo, useEffect } from 'react';
+import { memo, ReactElement, useEffect } from 'react';
 import { Box } from '@mui/material';
 import isEqual from 'lodash/isEqual';
 
+import { PhoneInput } from '../../../../../form/PhoneInput';
+
 import { useCredentialsDisplayItemValid } from '../../CredentialsDisplay/hooks';
 import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsDisplayItemContext';
-import PhoneInput from '../../shared/PhoneInput';
 
-import { DataFieldClearAdornment } from '../DataFieldClearAdornment';
+import { DataFieldLabelText } from '..';
 
 type DataFieldPhoneInputMemoizedProps = {
   credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
@@ -27,7 +28,8 @@ const DataFieldPhoneInputMemoized = memo(
       credentialDisplayInfo,
       handleChangeValueCredential,
     } = credentialsDisplayItem;
-    const { isValid, errorMessage } = itemValid;
+    const { isValid } = itemValid;
+    const value = objectController.field.value.value;
 
     const handleChangeCountry = (_value: string): void => {
       handleChangeValueCredential('');
@@ -49,26 +51,23 @@ const DataFieldPhoneInputMemoized = memo(
       }
     }, []);
 
-    const handleChange = (newValue: string) => {
+    const handleChange = (newValue: string): void => {
       handleChangeValueCredential(newValue, {
         shouldValidate: newValue.length > 3,
       });
     };
 
-    const helperText = isValid
-      ? credentialDisplayInfo.credentialRequest?.description
-      : errorMessage;
-
     return (
       <Box width='100%'>
         <PhoneInput
-          label={credentialDisplayInfo.label}
+          label={<DataFieldLabelText />}
+          size='small'
           onChange={handleChange}
-          helperText={helperText}
+          helperText={credentialDisplayInfo.credentialRequest?.description}
           error={!isValid}
           handleChangeCountry={handleChangeCountry}
-          value={objectController.field.value.value}
-          InputProps={{ endAdornment: <DataFieldClearAdornment /> }}
+          value={value}
+          shouldHaveClearButton
         />
       </Box>
     );
@@ -87,7 +86,7 @@ const DataFieldPhoneInputMemoized = memo(
   },
 );
 
-export function DataFieldPhoneInput() {
+export function DataFieldPhoneInput(): ReactElement {
   const credentialsDisplayItem = useCredentialsDisplayItem();
   const itemValid = useCredentialsDisplayItemValid();
   return (

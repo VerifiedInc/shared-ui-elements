@@ -6,3 +6,4 @@ export * from './DataFieldLabelText';
 export * from './DataFieldLabel';
 export * from './DataFieldInputModeHeader';
 export * from './DataFieldLeftSide';
+export * from './DataFieldClearAdornment';

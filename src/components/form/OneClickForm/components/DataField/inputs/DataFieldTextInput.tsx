@@ -64,19 +64,13 @@ const DataFieldTextInputMemoized = memo(
       defaultValue: objectController.field.value.value || '',
       onChange: (e) => handleChangeDebouncedValueCredential(e.target.value),
       error: !itemValid.isValid,
-      helperText: itemValid.isValid
-        ? credentialsDisplayItem.credentialDisplayInfo.credentialRequest
-            ?.description
-        : itemValid.errorMessage,
+      helperText:
+        credentialsDisplayItem.credentialDisplayInfo.credentialRequest
+          ?.description,
       InputLabelProps: {
         shrink: objectController.field.value.value ? true : undefined,
       },
       InputProps: {
-        // prevent this element from being recorded by Sentry
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        // 'data-sentry-mask':
-        //   appContext.config.env.env === 'production' || undefined,
         // The placeholder must be empty in order to not display the one from google places API.
         placeholder: '',
         endAdornment: (

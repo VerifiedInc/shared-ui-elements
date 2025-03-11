@@ -30,7 +30,7 @@ const DataFieldImageInputMemoized = memo(
       credentialDisplayInfo,
       handleChangeValueCredential,
     } = credentialsDisplayItem;
-    const { isValid, errorMessage } = itemValid;
+    const { isValid } = itemValid;
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     return (
@@ -101,9 +101,6 @@ const DataFieldImageInputMemoized = memo(
               {credentialDisplayInfo.credentialRequest?.description}
             </DataFieldLegend>
           </When>
-        </When>
-        <When value={!isValid}>
-          <DataFieldLegend error={!isValid}>{errorMessage}</DataFieldLegend>
         </When>
       </Stack>
     );

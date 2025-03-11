@@ -1,9 +1,10 @@
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, InputAdornment, type InputProps } from '@mui/material';
-import { type TextFieldProps } from '../TextField';
-import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { getPhoneDataByFieldName } from '../../utils/phone';
 import { phoneSchema } from '../../validations/phone.schema';
+
+import { type TextFieldProps } from '../TextField';
 
 import { TextMaskCustom } from './TextMaskCustom';
 import CountrySelector from './CountrySelector';
@@ -11,7 +12,7 @@ import DefaultInput from './DefaultInput';
 import { DataFieldClearAdornment } from './DataFieldClearAdornment';
 
 export interface PhoneInputProps {
-  label?: string;
+  label?: ReactNode;
   name?: string;
   helperText?: string;
   initialValue?: string;
@@ -24,6 +25,7 @@ export interface PhoneInputProps {
   shouldHaveSelectCountryButton?: boolean;
   shouldHaveClearButton?: boolean;
   variant?: TextFieldProps['variant'];
+  size?: TextFieldProps['size'];
   autoFocus?: boolean;
   disabled?: boolean;
   InputProps?: InputProps;
@@ -47,6 +49,8 @@ export interface PhoneInputProps {
  * @param shouldHaveSelectCountryButton - Whether to show the country selector button. Defaults to true.
  * @param shouldHaveClearButton - Whether to show the clear button. Defaults to false.
  * @param disabled - Whether the phone input is disabled. Defaults to false.
+ * @param size - The size of the phone input. Defaults to 'small'.
+ * @param variant - The variant of the phone input. Defaults to 'outlined'.
  */
 export function PhoneInput({
   label = 'Phone',
@@ -64,6 +68,7 @@ export function PhoneInput({
   shouldHaveSelectCountryButton = true,
   shouldHaveClearButton = false,
   disabled = false,
+  size,
 }: Readonly<PhoneInputProps>): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -120,7 +125,7 @@ export function PhoneInput({
     inputRef,
     autoFocus,
     label,
-    name: `_${name}`,
+    name,
     helperText,
     // if the value prop is passed, use it, otherwise use the value from component state
     // this allows the parent component to control the value of the input field
@@ -131,6 +136,7 @@ export function PhoneInput({
     },
     onBlur,
     autoComplete: 'tel',
+    size,
     inputProps: {
       // Receive unmasked value on change.
       unmask: true,
@@ -166,8 +172,10 @@ export function PhoneInput({
 
   return (
     <Box width='100%'>
-      <input name={name} value={value} readOnly type='hidden' hidden />
-      <DefaultInput {...inputProps} />
+      <DefaultInput
+        {...inputProps}
+        sx={{ m: 0, '& input': { letterSpacing: '1px' } }}
+      />
     </Box>
   );
 }

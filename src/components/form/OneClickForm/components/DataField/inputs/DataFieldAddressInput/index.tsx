@@ -138,6 +138,7 @@ const DataFieldAddressInputMemoized = memo(
                 autoCapitalize: 'off',
               }}
               InputProps={{
+                ...params.InputProps,
                 endAdornment: (
                   <DataFieldClearAdornment
                     onClick={() => {

@@ -255,6 +255,10 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
               fontSize: 20,
               fontWeight: 300,
             },
+            '& .MuiInputBase-input:not(.MuiInputBase-inputSizeSmall)': {
+              paddingTop: '13.625px',
+              paddingBottom: '13.625px',
+            },
             '&.MuiInputBase-multiline.MuiInputBase-sizeSmall': {
               paddingRight: '14px!important',
             },

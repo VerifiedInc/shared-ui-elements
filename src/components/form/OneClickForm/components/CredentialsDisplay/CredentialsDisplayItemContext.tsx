@@ -162,9 +162,6 @@ export default function CredentialsDisplayItemProvider(
       value,
       options,
     );
-
-    // Select the credential if it has a value.
-    handleSelectCredential(!!value, true);
   };
 
   /**
