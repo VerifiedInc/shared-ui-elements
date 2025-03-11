@@ -303,6 +303,17 @@ export default function CredentialsDisplayProvider({
   const handleClearValueCredential = (path: string): void => {
     const field = produce(form.getValues(path), (draft: CredentialFieldSet) => {
       draft.value = '';
+      const children = extractChildrenFromCredentialFieldSet(draft);
+
+      // If the field is not required, and is not a parent, clear the checkbox.
+      if (
+        !Object.values(children).length &&
+        !isRequiredCredentialDisplayInfo(
+          draft.credentialDisplayInfo.credentialRequest,
+        )
+      ) {
+        draft.credentialDisplayInfo.uiState.isChecked = false;
+      }
     });
     form.setValue(path, field, {
       shouldValidate: false,
