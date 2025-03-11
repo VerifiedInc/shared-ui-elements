@@ -934,3 +934,12 @@ a.react-datepicker__navigation--years-previous::after {
 .react-datepicker__month-option--selected_month {
   background-color: #008a01;
 }
+
+select.react-datepicker__month-select,
+select.react-datepicker__year-select {
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  color: white;
+  outline: none;
+}
