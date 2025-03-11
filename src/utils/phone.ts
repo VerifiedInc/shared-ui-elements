@@ -31,7 +31,12 @@ export const countries: CountryData[] = [
 
 export function parseToPhoneNational(internationalPhone: string): string {
   const phoneMeta = parsePhoneNumber(internationalPhone);
-  if (!phoneMeta) return internationalPhone;
+
+  if (!phoneMeta?.country) {
+    // If the phone meta couldn't be retrieved, format like us number
+    const digitsOnly = internationalPhone.replace(/\D/g, '');
+    return `+${phoneMeta?.countryCallingCode} (${digitsOnly.substring(1, 4)}) ${digitsOnly.substring(4, 7)}-${digitsOnly.substring(7)}`;
+  }
   return `+${phoneMeta.countryCallingCode} ${phoneMeta.formatNational()}`;
 }
 

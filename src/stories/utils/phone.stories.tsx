@@ -33,7 +33,7 @@ const Example = () => {
   const usPhone = '+1 (404) 432-0000';
   const brPhone = '+55 (11) 98999-0000';
   const caPhone = '+1 (604) 432-0000';
-  const invalidPhone = '+999 invalid';
+  const invalidPhone = '+10123456789';
 
   return (
     <div>
