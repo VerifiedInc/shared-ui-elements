@@ -82,6 +82,10 @@ export function HeaderSelect(): ReactElement {
       '& .Mui-disabled.MuiSelect-icon': {
         display: 'none',
       },
+      '& .Mui-disabled': {
+        color: (theme) => `${theme.palette.text.primary}`,
+        WebkitTextFillColor: (theme) => `${theme.palette.text.primary}`,
+      },
     },
   };
 

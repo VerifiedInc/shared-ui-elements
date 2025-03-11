@@ -1,8 +1,5 @@
 import { ReactElement } from 'react';
 import { Stack, SxProps } from '@mui/material';
-import { ChevronLeft } from '@mui/icons-material';
-
-import { Button } from '../../../../../components/Button';
 
 import { When } from '../../components/shared/When';
 
@@ -22,8 +19,7 @@ type DataFieldInputModeHeaderProps = {
 export function DataFieldInputModeHeader(
   props: Readonly<DataFieldInputModeHeaderProps>,
 ): ReactElement | null {
-  const { credentialDisplayInfo, handleToggleEditModeCredential } =
-    useCredentialsDisplayItem();
+  const { credentialDisplayInfo } = useCredentialsDisplayItem();
   const instancesLength = credentialDisplayInfo.instances.length;
   const isComposite = credentialDisplayInfo.children?.length;
   const hasMoreInstances = instancesLength > 1;
@@ -41,19 +37,6 @@ export function DataFieldInputModeHeader(
     >
       <When value={isComposite}>
         <DataFieldInputLabel label={<DataFieldLabelText />} />
-      </When>
-      <When value={hasMoreInstances}>
-        <Button
-          variant='text'
-          size='small'
-          color={'neutral' as any}
-          startIcon={<ChevronLeft />}
-          type='button'
-          onClick={() => handleToggleEditModeCredential(false)}
-          sx={{ alignSelf: 'flex-end', marginLeft: 'auto!important' }}
-        >
-          Back
-        </Button>
       </When>
     </Stack>
   );

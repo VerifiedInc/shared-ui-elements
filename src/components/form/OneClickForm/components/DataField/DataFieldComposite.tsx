@@ -8,7 +8,6 @@ import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisp
 
 import { DataFieldAddressInput } from './inputs';
 import { DataFieldHeader } from './DataFieldHeader';
-import { DataFieldLegend } from './DataFieldLegend';
 import { DataFieldLeftSide } from './DataFieldLeftSide';
 
 type DataFieldCompositeProps = {
