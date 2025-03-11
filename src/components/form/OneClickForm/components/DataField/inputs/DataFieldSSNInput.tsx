@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, ReactElement, useState } from 'react';
 import { Box, TextField, TextFieldProps } from '@mui/material';
 import isEqual from 'lodash/isEqual';
 
@@ -28,7 +28,6 @@ const DataFieldSSNInputMemoized = memo(
       credentialDisplayInfo,
       handleChangeValueCredential,
     } = credentialsDisplayItem;
-    const { isValid, errorMessage } = itemValid;
 
     // Arbitrary states to allow to empty input field.
     const [value, setValue] = useState<string>(
@@ -38,8 +37,8 @@ const DataFieldSSNInputMemoized = memo(
     const textFieldStyle: TextStyles = {
       ...inputStyle,
       label: <DataFieldLabelText />,
-      error: !isValid,
-      value,
+      error: !itemValid.isValid,
+      value: value.replace(/-/g, ''),
       onChange: ((e, nativeEvent) => {
         if (!nativeEvent) return;
         handleChangeValueCredential(e.target.value);
@@ -56,16 +55,17 @@ const DataFieldSSNInputMemoized = memo(
         useOnComplete: false,
         // Use unmasked value.
         unmask: true,
+        // Make placeholder always visible
+        lazy: false,
         // Mask in the pattern of SSN.
         mask: 'XXX-XX-0000',
-
         definitions: {
           X: {
             mask: /[0-9•]/,
             displayChar: '•',
           },
         },
-
+        placeholderChar: '_',
         // Set input mode to numeric, so mobile virtual keyboards just show numeric keys.
         inputMode: 'numeric',
 
@@ -85,6 +85,9 @@ const DataFieldSSNInputMemoized = memo(
             }}
           />
         ),
+      },
+      InputLabelProps: {
+        shrink: true,
       },
       fullWidth: true,
       sx: {
@@ -118,7 +121,7 @@ const DataFieldSSNInputMemoized = memo(
  * This component manages the input of type SSN.
  * @constructor
  */
-export function DataFieldSSNInput() {
+export function DataFieldSSNInput(): ReactElement {
   const credentialsDisplayItem = useCredentialsDisplayItem();
   const itemValid = useCredentialsDisplayItemValid();
   return (
