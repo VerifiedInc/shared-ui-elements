@@ -7,12 +7,7 @@ export function AnimateHeight(props: PropsWithChildren): ReactElement {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [, height] = useResizeObserver(containerRef);
   return (
-    <motion.div
-      style={{
-        height,
-        transition: 'height 75ms ease-out',
-      }}
-    >
+    <motion.div animate={{ height, transition: { duration: 0.2 } }}>
       <div ref={containerRef}>{props.children}</div>
     </motion.div>
   );
