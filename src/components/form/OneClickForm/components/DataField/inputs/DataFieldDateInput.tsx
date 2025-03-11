@@ -69,7 +69,6 @@ const DataFieldDateInputMemoized = memo(
       999,
     );
 
-    console.log(features.datePickerClickOutsideBoundaryElement);
     return (
       <Box width='100%'>
         <DateInput
