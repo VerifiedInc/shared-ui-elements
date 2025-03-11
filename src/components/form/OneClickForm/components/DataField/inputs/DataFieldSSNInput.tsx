@@ -45,9 +45,7 @@ const DataFieldSSNInputMemoized = memo(
         handleChangeValueCredential(e.target.value);
         setValue(e.target.value);
       }) as ChangeEvent,
-      helperText: isValid
-        ? credentialDisplayInfo.credentialRequest?.description
-        : errorMessage,
+      helperText: credentialDisplayInfo.credentialRequest?.description,
       placeholder: '___-__-____',
       inputProps: {
         onFocus: () => {
@@ -89,6 +87,11 @@ const DataFieldSSNInputMemoized = memo(
         ),
       },
       fullWidth: true,
+      sx: {
+        '& input': {
+          letterSpacing: '1px',
+        },
+      },
     };
 
     return (

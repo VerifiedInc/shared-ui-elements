@@ -78,11 +78,7 @@ const DataFieldDateInputMemoized = memo(
           label={<DataFieldLabelText />}
           value={localValue}
           error={!isValid}
-          helperText={
-            isValid
-              ? credentialDisplayInfo.credentialRequest?.description
-              : errorMessage
-          }
+          helperText={credentialDisplayInfo.credentialRequest?.description}
           onChange={(value) => {
             const valid = USDateSchema.safeParse(value);
 

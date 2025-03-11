@@ -172,7 +172,10 @@ export function PhoneInput({
 
   return (
     <Box width='100%'>
-      <DefaultInput {...inputProps} sx={{ m: 0 }} />
+      <DefaultInput
+        {...inputProps}
+        sx={{ m: 0, '& input': { letterSpacing: '1px' } }}
+      />
     </Box>
   );
 }

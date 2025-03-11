@@ -263,6 +263,7 @@ function DateInputComponent(
           '& input': {
             boxShadow: 'none!important',
             border: 'none!important',
+            letterSpacing: '1px',
           },
         }}
       />
