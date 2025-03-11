@@ -153,12 +153,12 @@ const mockData = {
         },
       ],
     },
-    // {
-    //   allowUserInput: true,
-    //   mandatory: 'if_available',
-    //   multi: false,
-    //   type: 'PhoneCredential',
-    // },
+    {
+      allowUserInput: true,
+      mandatory: 'if_available',
+      multi: false,
+      type: 'PhoneCredential',
+    },
     {
       allowUserInput: true,
       mandatory: 'if_available',
@@ -261,19 +261,19 @@ const mockData = {
             line1: '5320 Newell Rd',
           },
         },
-        {
-          id: '7b5da728-d94f-4310-857e-d3fcb2ba5dbk',
-          uuid: '7204e529-2041-4e81-ae33-ee9fcf15f03s',
-          createdAt: '1738698702792',
-          updatedAt: '1738698702792',
-          type: 'Line2Credential',
-          issuanceDate: '1738698702792',
-          expirationDate: null,
-          issuerUuid: 'dcb2ded6-9618-4d93-9026-ff5e2eb583c5',
-          data: {
-            line2: 'Apt 606',
-          },
-        },
+        // {
+        //   id: '7b5da728-d94f-4310-857e-d3fcb2ba5dbk',
+        //   uuid: '7204e529-2041-4e81-ae33-ee9fcf15f03s',
+        //   createdAt: '1738698702792',
+        //   updatedAt: '1738698702792',
+        //   type: 'Line2Credential',
+        //   issuanceDate: '1738698702792',
+        //   expirationDate: null,
+        //   issuerUuid: 'dcb2ded6-9618-4d93-9026-ff5e2eb583c5',
+        //   data: {
+        //     line2: 'Apt 606',
+        //   },
+        // },
         {
           id: 'f0cec9b6-9664-447d-b073-6f7c7862ceaa',
           uuid: '3e8a489e-c1a1-4a56-a6fd-dd4caa4f8df6',
@@ -426,6 +426,7 @@ function Component({ data, schemas }: any) {
             phoneCredentialWhitelist: [],
             phoneCredentialRegexWhitelist:
               '^\\+1[-.\\s]?0\\d{2}[-.\\s]?\\d{3}[-.\\s]?\\d{4}$',
+            // datePickerClickOutsideBoundaryElement: document.body,
           },
           servicePaths: {
             credentialImagePath: '/api/credential-image-search',
