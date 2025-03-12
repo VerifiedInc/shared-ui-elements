@@ -45,7 +45,9 @@ export function useDataFieldAddressInput({
       // Composite address data field does not changes line 2
       if (key === 'line2') continue;
       const childFieldState = form.getFieldState(`${fieldName}.${key}`);
-      if (childFieldState.error?.message) return childFieldState.error?.message;
+      if (childFieldState.error?.message) {
+        return `${fieldValue.credentialDisplayInfo.label} is invalid`;
+      }
     }
     return undefined;
   }, [form]);
