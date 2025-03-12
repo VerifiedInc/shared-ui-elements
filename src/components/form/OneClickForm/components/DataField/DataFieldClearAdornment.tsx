@@ -1,4 +1,3 @@
-import { ReactElement, ReactNode } from 'react';
 import { InputAdornment, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
