@@ -42,6 +42,7 @@ export function DataFieldLabelText(
         {(props.prefix ?? '') + label}{' '}
         {!props.hideRequired && (
           <Typography
+            data-asterisk
             component='span'
             color='error'
             variant='subtitle2'

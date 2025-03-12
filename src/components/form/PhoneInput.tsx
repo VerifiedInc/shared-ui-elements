@@ -151,7 +151,6 @@ export function PhoneInput({
       shrink: true,
     },
     InputProps: {
-      ...InputProps,
       inputComponent: TextMaskCustom as any,
       startAdornment: shouldHaveSelectCountryButton && (
         <InputAdornment position='start'>
@@ -165,6 +164,7 @@ export function PhoneInput({
           }}
         />
       ),
+      ...InputProps,
     },
     fullWidth: true,
     disabled,

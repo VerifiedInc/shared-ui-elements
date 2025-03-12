@@ -943,3 +943,9 @@ select.react-datepicker__year-select {
   color: white;
   outline: none;
 }
+
+/* Selected date and hovered date */
+.react-datepicker__day--selected,
+.react-datepicker__day:not([aria-disabled='true']):hover {
+  color: #fff;
+}

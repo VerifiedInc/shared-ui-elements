@@ -1,4 +1,3 @@
-import { ReactElement } from 'react';
 import { InputAdornment, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
@@ -8,10 +7,23 @@ type DataFieldClearAdornmentProps = Readonly<{
   onClick?: () => void;
 }>;
 
+type QueryInputReturn =
+  | HTMLInputElement
+  | HTMLTextAreaElement
+  | null
+  | undefined;
+
 export function DataFieldClearAdornment({
   onClick,
-}: DataFieldClearAdornmentProps): ReactElement {
+}: DataFieldClearAdornmentProps) {
   const { handleClearValueCredential } = useCredentialsDisplayItem();
+  const queryInput = (button: HTMLButtonElement): QueryInputReturn => {
+    return (
+      button.parentElement?.parentElement?.querySelector('input') ??
+      button.parentElement?.parentElement?.querySelector('textarea')
+    );
+  };
+
   return (
     <InputAdornment position='end'>
       <IconButton
@@ -19,7 +31,8 @@ export function DataFieldClearAdornment({
         aria-label='clear value'
         edge='end'
         size='small'
-        onClick={() => {
+        onClick={(e) => {
+          queryInput(e.currentTarget)?.focus();
           handleClearValueCredential();
           onClick?.();
         }}

@@ -265,6 +265,20 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
           },
         },
       },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: {
+            '&[data-shrink="false"]': {
+              fontSize: 20,
+              fontWeight: 300,
+              transform: 'translate(14px, 7px) scale(1)',
+              '& span[data-asterisk]': {
+                display: 'none',
+              },
+            },
+          },
+        },
+      },
       MuiTextField: {
         defaultProps: {
           variant: 'outlined',

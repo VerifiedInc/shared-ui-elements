@@ -432,7 +432,7 @@ function Component({ data, schemas }: any) {
             credentialImagePath: '/api/credential-image-search',
           },
           apiKeys: {
-            // googlePlacesApiKey: 'PLACES_NEW_API_KEY_HERE',
+            googlePlacesApiKey: 'AIzaSyBUvmcIsJie86HFu80PaS8o_yfWxHn9n3M',
           },
         }}
         renderExtra={<Footer />}
