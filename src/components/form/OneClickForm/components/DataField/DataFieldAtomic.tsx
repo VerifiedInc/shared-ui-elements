@@ -20,11 +20,7 @@ import {
   DataFieldSSNInput,
   DataFieldImageInput,
 } from './inputs';
-import {
-  DataFieldInputModeHeader,
-  DataFieldLegend,
-  DataFieldLeftSide,
-} from './';
+import { DataFieldInputModeHeader, DataFieldLeftSide } from './';
 
 /**
  * This component renders an atomic level credential, it displays the component by displayFormat.
@@ -39,6 +35,7 @@ export function DataFieldAtomic(): ReactElement | null {
     credentialDisplayInfo.credentialRequest?.allowUserInput;
   const canEdit = allowUserInput;
   const isEditMode = credentialDisplayInfo.uiState.isEditMode;
+  const fieldType = objectController.field.value.type;
 
   // HACK alert:
   // This calculation subtracts left side component and right side component to fit in.
@@ -92,6 +89,12 @@ export function DataFieldAtomic(): ReactElement | null {
     if (!isEditMode) {
       return null;
     }
+  }
+
+  // Phone credential should not be rendered as user already has provided the information.
+  // TODO - Provide this from features in one click form context options, this does not belong to the domain logic.
+  if (fieldType === credentialTypes.PhoneCredential) {
+    return null;
   }
 
   return (
