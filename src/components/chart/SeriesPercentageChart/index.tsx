@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Line,
 } from 'recharts';
 import Decimal from 'decimal.js';
 import { Box, useTheme, type SxProps } from '@mui/material';
@@ -150,10 +151,64 @@ export function SeriesPercentageChart(
   props: SeriesPercentageChartProps,
 ): ReactElement {
   const theme = useTheme();
+
+  const brands = [
+    {
+      uuid: 'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cd',
+      name: 'Google',
+      color: '#ff0000',
+    },
+    {
+      uuid: 'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cf',
+      name: 'Apple',
+      color: '#00ff00',
+    },
+  ];
+
   const formattedData = useMemo(() => {
-    if (!props.data) return [];
-    return formatChartData(props.data, props.keyValues);
+    return [
+      {
+        date: '1739968920000',
+        relative: 4,
+        absolute: 4,
+        brands: {
+          'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cd': {
+            color: '#ff0000',
+            name: 'Google',
+            oneClickSuccess: 2,
+            oneClickSuccess_absolute: 1,
+          },
+          'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cf': {
+            color: '#00ff00',
+            name: 'Apple',
+            oneClickSuccess: 1,
+            oneClickSuccess_absolute: 1,
+          },
+        },
+      },
+      {
+        date: '1739968950000',
+        relative: 4,
+        absolute: 4,
+        brands: {
+          'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cd': {
+            name: 'Google',
+            oneClickSuccess: 1,
+            oneClickSuccess_absolute: 1,
+          },
+          'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cf': {
+            name: 'Apple',
+            oneClickSuccess: 1,
+            oneClickSuccess_absolute: 1,
+          },
+        },
+      },
+    ];
+    // if (!props.data) return [];
+    // return formatChartData(props.data, props.keyValues);
   }, [props.data, props.keyValues]);
+
+  console.log(formattedData);
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...props.sx }}>
@@ -226,24 +281,30 @@ export function SeriesPercentageChart(
               ];
             }}
           />
-          {props.keyValues
-            .sort((a, b) => {
-              if (a.isTotal) return -1;
-              if (b.isTotal) return 1;
-              return 0;
-            })
-            .map((keyValue) => (
-              <Area
-                key={keyValue.key}
-                type='monotone'
-                dataKey={keyValue.key}
-                name={keyValue.name}
-                stroke={keyValue.color}
-                fill={keyValue.color}
-                strokeWidth={2}
-                fillOpacity={0.6}
-              />
-            ))}
+
+          <Area
+            type='monotone'
+            dataKey={(value) => 100}
+            name='Total'
+            stroke='#000000'
+            fill={'transparent'}
+            strokeWidth={0}
+            dot={{ r: 4 }}
+          />
+
+          {brands.map((keyValue) => (
+            <Area
+              key={keyValue.uuid}
+              type='monotone'
+              dataKey={(value) => value.brands[keyValue.uuid].oneClickSuccess}
+              name={keyValue.name}
+              stroke={keyValue.color}
+              fill={'transparent'}
+              strokeWidth={2}
+              fillOpacity={0.6}
+              dot={{ r: 4 }}
+            />
+          ))}
         </AreaChart>
       </ResponsiveContainer>
     </Box>
