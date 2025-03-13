@@ -12,12 +12,12 @@ type ChartData = {
     oneClickCreated: number;
     oneClickSuccess: number;
     date: number;
-    totalCost: string;
+    totalCost?: string;
   }>;
   overall: {
     oneClickCreated: number;
     oneClickSuccess: number;
-    totalCost: string;
+    totalCost?: string;
   };
 };
 
