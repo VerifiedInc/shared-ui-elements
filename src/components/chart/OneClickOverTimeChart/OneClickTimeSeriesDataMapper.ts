@@ -23,7 +23,7 @@ export interface MapTimeSeriesDataOptions {
       oneClickCreated: number;
       oneClickSuccess: number;
       date: number;
-      totalCost: string;
+      totalCost?: string;
       [key: string]: any;
     }>;
     brandUuid: string;
@@ -31,7 +31,7 @@ export interface MapTimeSeriesDataOptions {
     overall: {
       oneClickCreated: number;
       oneClickSuccess: number;
-      totalCost: string;
+      totalCost?: string;
     };
   }>;
   keyValue: string;
