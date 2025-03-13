@@ -296,6 +296,9 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
         defaultProps: {
           variant: 'outlined',
           size: 'medium',
+          MenuProps: {
+            disableScrollLock: true,
+          },
         },
       },
       MuiAutocomplete: {
