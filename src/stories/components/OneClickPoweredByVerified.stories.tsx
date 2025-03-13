@@ -10,14 +10,28 @@ export default {
   },
   // This component will have an automatically generated Autodocs entry
   tags: ['autodocs'],
+  argTypes: {
+    title: {
+      options: ['Signup', 'Login', 'Verify', 'Apply', 'Access', 'AutoFill'],
+      control: { type: 'select' },
+      description: 'The type of 1-Click button to display',
+    },
+    variant: {
+      options: ['default', 'green', 'gray', 'white', 'black'],
+      control: { type: 'select' },
+      description: 'The color variant of the button',
+    },
+  },
 };
 
-// Since this component accepts variants, we'll create a template for each variant
+// Create a template for the component
 const Template = (args: any) => <OneClickPoweredByVerified {...args} />;
 
+// Default story (Signup with green variant)
 export const Default = Template.bind({});
 Default.args = {};
 
+// Different variants
 export const Gray = Template.bind({});
 Gray.args = {
   variant: 'gray',
@@ -42,4 +56,30 @@ White.parameters = {
 export const Black = Template.bind({});
 Black.args = {
   variant: 'black',
+};
+
+// Different titles
+export const Login = Template.bind({});
+Login.args = {
+  title: 'Login',
+};
+
+export const Verify = Template.bind({});
+Verify.args = {
+  title: 'Verify',
+};
+
+export const Apply = Template.bind({});
+Apply.args = {
+  title: 'Apply',
+};
+
+export const Access = Template.bind({});
+Access.args = {
+  title: 'Access',
+};
+
+export const AutoFill = Template.bind({});
+AutoFill.args = {
+  title: 'AutoFill',
 };
