@@ -49,7 +49,6 @@ export function OneClickPoweredByVerified(
 
     return component;
   }, [title, variantCapitalized]);
-  console.log(Component);
 
   return (
     <Box
