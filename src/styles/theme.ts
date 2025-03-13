@@ -255,10 +255,17 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
               fontSize: 20,
               fontWeight: 300,
             },
-            '& .MuiInputBase-input:not(.MuiInputBase-inputSizeSmall)': {
-              paddingTop: '13.625px',
-              paddingBottom: '13.625px',
-            },
+
+            '& .MuiInputBase-input:not(.MuiInputBase-inputSizeSmall):not(.MuiAutocomplete-input)':
+              {
+                paddingTop: 13.625,
+                paddingBottom: 13.625,
+              },
+            '& .MuiInputBase-input.MuiAutocomplete-input:not(.MuiInputBase-inputSizeSmall)':
+              {
+                paddingTop: 4.625,
+                paddingBottom: 4.625,
+              },
             '&.MuiInputBase-multiline.MuiInputBase-sizeSmall': {
               paddingRight: '14px!important',
             },
@@ -271,9 +278,13 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
             '&[data-shrink="false"]': {
               fontSize: 20,
               fontWeight: 300,
-              transform: 'translate(14px, 7px) scale(1)',
+              transform: 'translate(14px, 14px) scale(1)',
+              // This is to be applied on the component DataFieldLabelText when required.
               '& span[data-asterisk]': {
                 display: 'none',
+              },
+              '&.MuiInputLabel-sizeSmall': {
+                transform: 'translate(14px, 9px) scale(1)',
               },
             },
           },
