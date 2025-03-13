@@ -9,8 +9,8 @@ import { fromUSAddress, toUSaddress } from '../../../../utils/addressFormatter';
 import { extractChildrenFromCredentialFieldSet } from '../../../CredentialsDisplay/utils';
 import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/CredentialsDisplayItemContext';
 
-import { Address, useAutoFill } from './autofill.hook';
-import { Option } from './types';
+import { Address, Option, PlaceSuggestion } from './types';
+import { useAutoFill } from './autofill.hook';
 
 export function useDataFieldAddressInput({
   credentialsDisplayItem,
@@ -19,7 +19,7 @@ export function useDataFieldAddressInput({
 }): {
   value: Option;
   inputValue: string;
-  suggestions: google.maps.places.AutocompleteSuggestion[];
+  suggestions: PlaceSuggestion[];
   isPending: boolean;
   isFetchingPlace: boolean;
   error: string | undefined;
@@ -35,8 +35,13 @@ export function useDataFieldAddressInput({
   const fieldValue = objectController.field.value;
 
   const [isFetchingPlace, setFetchingPlace] = useState(false);
-  const { handleAutoComplete, buildAddress, suggestions, isPending } =
-    useAutoFill();
+  const {
+    handleAutoComplete,
+    fetchPlace,
+    buildAddress,
+    suggestions,
+    isPending,
+  } = useAutoFill();
 
   const error = useMemo(() => {
     for (const [key] of Object.entries(
@@ -63,7 +68,7 @@ export function useDataFieldAddressInput({
 
   const [value, setValue] = useState<Option>({
     title: defaultValue ?? '',
-    value: undefined,
+    value: '',
   });
 
   const [inputValue, setInputValue] = useState('');
@@ -101,12 +106,10 @@ export function useDataFieldAddressInput({
 
   const handleOptionChange = async (option: Option): Promise<void> => {
     setValue(option);
-
-    const place = option.value?.placePrediction?.toPlace();
-    if (!place) return;
-
+    if (!option.value) return;
     setFetchingPlace(true);
-    await wrapPromise(place.fetchFields({ fields: ['addressComponents'] }));
+    const [place] = await wrapPromise(fetchPlace(option.value));
+    if (!place) return;
     const address = buildAddress(place);
     handleChange(address);
     setFetchingPlace(false);

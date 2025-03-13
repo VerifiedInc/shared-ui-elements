@@ -12,16 +12,13 @@ type OneClickOptionFeatures = {
 
 type OneClickOptionServicePaths = {
   credentialImagePath: string;
-};
-
-type OneClickOptionApiKeys = {
-  googlePlacesApiKey?: string;
+  googlePlacesAutocompletePlaces?: string;
+  googlePlacesGetPlace?: string;
 };
 
 export type OneClickFormOptions = {
   features: OneClickOptionFeatures;
   servicePaths: OneClickOptionServicePaths;
-  apiKeys?: OneClickOptionApiKeys;
 };
 
 type OneClickFormOptionsContext = {

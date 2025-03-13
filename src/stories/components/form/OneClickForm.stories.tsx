@@ -430,9 +430,10 @@ function Component({ data, schemas }: any) {
           },
           servicePaths: {
             credentialImagePath: '/api/credential-image-search',
-          },
-          apiKeys: {
-            googlePlacesApiKey: 'AIzaSyBUvmcIsJie86HFu80PaS8o_yfWxHn9n3M',
+            googlePlacesAutocompletePlaces:
+              'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
+            googlePlacesGetPlace:
+              'http://localhost:3070/api/googleapis/places/GetPlace',
           },
         }}
         renderExtra={<Footer />}
