@@ -1,32 +1,28 @@
-import { useEffect, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
+import { useState, useRef } from 'react';
 
 import { wrapPromise } from '../../../../../../../utils';
 
 import { useOneClickFormOptions } from '../../../../contexts/one-click-form-options.context';
 
-export type Address = {
-  line1?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country: string;
+import { Address, PlaceAddressComponent, PlaceSuggestion } from './types';
+
+type AutoFillHookReturn = {
+  handleAutoComplete: (value: string) => Promise<void>;
+  fetchPlace: (placeId: string) => Promise<PlaceAddressComponent[] | null>;
+  buildAddress: (placeComponents: PlaceAddressComponent[]) => Address;
+  suggestions: PlaceSuggestion[];
+  isPending: boolean;
 };
 
-export function useAutoFill(): {
-  handleAutoComplete: (value: string) => Promise<void>;
-  buildAddress: (place: google.maps.places.Place) => Address;
-  suggestions: google.maps.places.AutocompleteSuggestion[];
-  isPending: boolean;
-} {
+export function useAutoFill(): AutoFillHookReturn {
   const oneClickFormOptions = useOneClickFormOptions();
-  const [library, setLibrary] = useState<google.maps.PlacesLibrary>();
-  const [suggestions, setSuggestions] = useState<
-    google.maps.places.AutocompleteSuggestion[]
-  >([]);
+  const { googlePlacesAutocompletePlaces, googlePlacesGetPlace } =
+    oneClickFormOptions.options.servicePaths ?? {};
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [isPending, setIsPending] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const buildAddress = (place: google.maps.places.Place): Address => {
+  const buildAddress = (placeComponents: PlaceAddressComponent[]): Address => {
     const address: Address = {
       line1: '',
       city: '',
@@ -36,7 +32,7 @@ export function useAutoFill(): {
     };
 
     // Get each component of the address from the place details,
-    for (const component of place?.addressComponents ?? []) {
+    for (const component of placeComponents ?? []) {
       const componentType = component.types[0];
 
       switch (componentType) {
@@ -67,6 +63,21 @@ export function useAutoFill(): {
           address.city = component.longText ?? '';
           break;
 
+        case 'sublocality_level_1':
+        case 'sublocality':
+          // Only set city from sublocality if locality hasn't already set it
+          if (!address.city) {
+            address.city = component.longText ?? '';
+          }
+          break;
+
+        case 'neighborhood':
+          // Use neighborhood as a last resort if no locality or sublocality
+          if (!address.city) {
+            address.city = component.longText ?? '';
+          }
+          break;
+
         case 'administrative_area_level_1': {
           // Ensure the state is a 2-letter code complying with ISO 3166-2
           if (component.shortText && component.shortText.length === 2) {
@@ -85,53 +96,97 @@ export function useAutoFill(): {
   };
 
   const handleAutoComplete = async (value: string): Promise<void> => {
-    if (!library) return;
+    if (!googlePlacesAutocompletePlaces) return;
 
-    const { AutocompleteSessionToken, AutocompleteSuggestion } = library;
+    // Cancel any ongoing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
-    // Add an initial request body.
-    const request: google.maps.places.AutocompleteRequest = {
-      input: value,
-      language: 'en-US',
-      includedRegionCodes: ['us'],
-      region: 'us',
-    };
-
-    // Create a session token.
-    const token = new AutocompleteSessionToken();
-    // Add the token to the request.
-    request.sessionToken = token;
+    // Create a new AbortController for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     setIsPending(true);
 
-    // Fetch autocomplete suggestions.
-    const promise =
-      AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
-    const [result, error] = await wrapPromise(promise);
+    try {
+      const response = await fetch(googlePlacesAutocompletePlaces, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ input: value }),
+        signal: abortController.signal,
+      });
 
-    if (!error) {
-      setSuggestions(result.suggestions);
+      // If the request was aborted, don't proceed
+      if (abortController.signal.aborted) {
+        return;
+      }
+
+      if (!response.ok) {
+        setIsPending(false);
+        return;
+      }
+
+      const [result, error] = await wrapPromise<PlaceSuggestion[]>(
+        response.json(),
+      );
+
+      // Check again if aborted after the json parsing
+      if (abortController.signal.aborted) {
+        return;
+      }
+
+      if (!error) {
+        setSuggestions(result);
+      }
+    } catch (error) {
+      // If the error is due to abortion, we can silently ignore it
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
+      // Otherwise, handle other errors
+      console.error('Failed to fetch address suggestions:', error);
+    } finally {
+      // Only clear isPending if this is still the most recent request
+      if (abortControllerRef.current === abortController) {
+        setIsPending(false);
+      }
     }
-
-    setIsPending(false);
   };
 
-  // Initialize the Google Maps API
-  useEffect(() => {
-    if (!oneClickFormOptions.options.apiKeys?.googlePlacesApiKey) return;
+  const fetchPlace = async (
+    placeId: string,
+  ): Promise<PlaceAddressComponent[] | null> => {
+    if (!googlePlacesGetPlace) return null;
 
-    const loader = new Loader({
-      apiKey: oneClickFormOptions.options.apiKeys.googlePlacesApiKey,
-      version: 'weekly',
+    const response = await fetch(googlePlacesGetPlace, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: placeId }),
     });
 
-    const init = async (): Promise<void> => {
-      const library = await loader.importLibrary('places');
-      setLibrary(library);
-    };
+    if (!response.ok) {
+      return null;
+    }
 
-    init().catch(console.error);
-  }, []);
+    const [result, error] = await wrapPromise(response.json());
 
-  return { handleAutoComplete, buildAddress, suggestions, isPending };
+    if (!error) {
+      return result;
+    }
+
+    return null;
+  };
+
+  return {
+    handleAutoComplete,
+    fetchPlace,
+    buildAddress,
+    suggestions,
+    isPending,
+  };
 }

@@ -29,7 +29,7 @@ type DataFieldAddressInputMemoizedProps = {
 
 type Option = {
   title: string;
-  value: google.maps.places.AutocompleteSuggestion | undefined;
+  value: string;
 };
 
 function CustomPaper(props: PaperProps): ReactElement {
@@ -93,21 +93,25 @@ const DataFieldAddressInputMemoized = memo(
           isOptionEqualToValue={(option: Option, value: Option) =>
             option?.value === value?.value
           }
-          getOptionLabel={(option: string | Option) =>
-            typeof option === 'string' ? option : option?.title
-          }
+          getOptionLabel={(option: string | Option) => {
+            return typeof option === 'string' ? option : option?.title;
+          }}
           filterOptions={(x) => x}
-          options={suggestions.map((suggestion) => ({
-            title: suggestion.placePrediction?.text.toString() ?? '',
-            value: suggestion as typeof suggestion | undefined,
-          }))}
+          options={
+            isPending
+              ? []
+              : suggestions.map((suggestion) => ({
+                  title: suggestion.placePrediction.text.text ?? '',
+                  value: suggestion.placePrediction.place ?? '',
+                }))
+          }
           autoComplete
           includeInputInList
           filterSelectedOptions
           noOptionsText='No locations'
           value={value}
           inputValue={inputValue}
-          loading={isPending}
+          loading={isPending || isFetchingPlace}
           disabled={isFetchingPlace}
           onChange={(event, newValue: string | Option | null) => {
             event.preventDefault();
