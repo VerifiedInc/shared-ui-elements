@@ -19,6 +19,7 @@ import {
   Checkbox,
   Box,
   Typography,
+  SxProps,
 } from '@mui/material';
 import { useSnackbar } from '../Snackbar';
 import { useMemo, useState } from 'react';
@@ -39,6 +40,7 @@ interface BrandFilterInputProps {
   groupConfig?: BrandGroupConfig;
   /** Array of brand UUIDs to use as default values when no selection is made */
   defaultBrandUuids?: string[];
+  sx?: SxProps;
 }
 
 export function BrandFilterInput({
@@ -51,6 +53,7 @@ export function BrandFilterInput({
   maximumSelectedBrands,
   groupConfig,
   defaultBrandUuids,
+  sx,
 }: Readonly<BrandFilterInputProps>) {
   const handleChange = (newValue: Value | Value[] | null) => {
     if (multiple && Array.isArray(newValue)) {
@@ -160,7 +163,7 @@ export function BrandFilterInput({
   return (
     <Box
       onClick={openDropdown}
-      sx={{ position: 'relative', cursor: 'pointer' }}
+      sx={{ position: 'relative', cursor: 'pointer', ...sx }}
     >
       <Autocomplete
         key={autocompleteKey}
