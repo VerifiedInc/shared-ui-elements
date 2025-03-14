@@ -5,7 +5,12 @@ import {
   MINIMAL_VIEWPORTS,
 } from '@storybook/addon-viewport';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import {
+  CustomAlertComponent,
+  SnackbarProvider,
+} from '../src/components/Snackbar';
 import { theme } from '../src/styles/theme';
+import React from 'react';
 
 import '@fontsource/lato/300.css';
 import '@fontsource/lato/400.css';
@@ -41,6 +46,18 @@ export const decorators = [
     Provider: ThemeProvider,
     GlobalStyles: CssBaseline,
   }),
+  // Add SnackbarProvider to enable snackbar notifications in storybook
+  (Story) => (
+    <SnackbarProvider
+      maxSnack={3}
+      autoHideDuration={5000}
+      Components={{
+        customAlertComponent: CustomAlertComponent,
+      }}
+    >
+      <Story />
+    </SnackbarProvider>
+  ),
 ];
 
 export default preview;
