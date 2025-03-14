@@ -128,13 +128,15 @@ export function BrandFilterInput({
   // Determine if all available brands are currently selected
   // Used to show the Select All option as checked when all brands are selected individually
   const areAllBrandsSelected = useMemo(() => {
-    if (!multiple || !Array.isArray(value) || brandOptions.length === 0)
+    if (!multiple || !Array.isArray(localValue) || brandOptions.length === 0)
       return false;
     return (
-      value.length === brandOptions.length &&
-      brandOptions.every((brand) => value.some((v) => v.value === brand.value))
+      localValue.length === brandOptions.length &&
+      brandOptions.every((brand) =>
+        localValue.some((v) => v.value === brand.value),
+      )
     );
-  }, [multiple, value, brandOptions]);
+  }, [multiple, localValue, brandOptions]);
 
   // Handle select all functionality
   const handleSelectAll = (newValue: Value | Value[] | null) => {
@@ -163,8 +165,8 @@ export function BrandFilterInput({
         );
         // Don't select any brands when limit would be surpassed
         // Return the current selection without the Select All option
-        return Array.isArray(value)
-          ? value.filter((item) => item.value !== 'select-all')
+        return Array.isArray(localValue)
+          ? localValue.filter((item) => item.value !== 'select-all')
           : [];
       }
       // Otherwise, select all brands
