@@ -111,17 +111,6 @@ export function ErrorCodesChart({
       tooltip={{
         labelFormatter: (value) => 'Total',
       }}
-      referenceLines={[
-        {
-          y: threshold,
-          stroke: theme.palette.error.dark,
-          strokeDasharray: '3 3',
-          label: (
-            <Label value='Unhealthy threshold' position='insideBottomRight' />
-          ),
-          isFront: true,
-        },
-      ]}
     />
   );
 }
