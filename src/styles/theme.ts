@@ -7,6 +7,7 @@ declare module '@mui/material/Button' {
     neutralContrast: true;
     warningContrast: true;
     infoContrast: true;
+    dangerContrast: true;
   }
 }
 
@@ -17,6 +18,7 @@ declare module '@mui/material/styles' {
     neutralContrast: Palette['primary'];
     warningContrast: Palette['primary'];
     infoContrast: Palette['primary'];
+    dangerContrast: Palette['primary'];
   }
 
   interface PaletteOptions {
@@ -24,6 +26,7 @@ declare module '@mui/material/styles' {
     neutralContrast: PaletteOptions['primary'];
     warningContrast: PaletteOptions['primary'];
     infoContrast: PaletteOptions['primary'];
+    dangerContrast: PaletteOptions['primary'];
   }
 }
 
@@ -33,11 +36,13 @@ declare module '@mui/material' {
     neutral: true;
     neutralContrast: true;
     warningContrast: true;
+    dangerContrast: true;
   }
   interface SvgIconPropsColorOverrides {
     neutral: true;
     neutralContrast: true;
     warningContrast: true;
+    dangerContrast: true;
   }
 }
 
@@ -116,6 +121,9 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
       },
       infoContrast: {
         main: colors.infoContrast,
+      },
+      dangerContrast: {
+        main: colors.dangerContrast,
       },
     },
     components: {
