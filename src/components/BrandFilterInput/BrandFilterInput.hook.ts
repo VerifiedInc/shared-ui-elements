@@ -37,7 +37,8 @@ export function useBrandFilterInput({
   const brandOptions = useMemo(
     () =>
       _.sortBy(toOption(groupedBrands), [
-        (option) => (option._raw as any).live,
+        // Sort by isLiveBrand property (if it exists) or fallback to live property
+        (option) => !option._raw.isLiveBrand,
       ]),
     [groupedBrands],
   );
