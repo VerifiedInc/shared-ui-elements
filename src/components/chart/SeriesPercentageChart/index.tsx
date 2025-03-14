@@ -1,7 +1,7 @@
 import React, { type ReactElement, useMemo } from 'react';
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -158,7 +158,7 @@ export function SeriesPercentageChart(
   return (
     <Box sx={{ width: '100%', height: '100%', ...props.sx }}>
       <ResponsiveContainer width='100%' height='100%'>
-        <AreaChart
+        <LineChart
           data={formattedData}
           width={500}
           height={300}
@@ -233,18 +233,17 @@ export function SeriesPercentageChart(
               return 0;
             })
             .map((keyValue) => (
-              <Area
+              <Line
                 key={keyValue.key}
                 type='monotone'
                 dataKey={keyValue.key}
                 name={keyValue.name}
                 stroke={keyValue.color}
-                fill={keyValue.color}
                 strokeWidth={2}
-                fillOpacity={0.6}
+                dot={false}
               />
             ))}
-        </AreaChart>
+        </LineChart>
       </ResponsiveContainer>
     </Box>
   );
