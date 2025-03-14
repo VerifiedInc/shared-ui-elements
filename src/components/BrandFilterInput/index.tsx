@@ -19,9 +19,10 @@ import {
   Checkbox,
   Box,
   Typography,
+  SxProps,
 } from '@mui/material';
 import { useSnackbar } from '../Snackbar';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BrandFilter, BrandGroupConfig } from './types';
 import { useBrandFilterInput } from './BrandFilterInput.hook';
 
@@ -39,6 +40,9 @@ interface BrandFilterInputProps {
   groupConfig?: BrandGroupConfig;
   /** Array of brand UUIDs to use as default values when no selection is made */
   defaultBrandUuids?: string[];
+  /** Debounce time in milliseconds for onChange when in multiple mode. Defaults to 2000ms */
+  debounceMs?: number;
+  sx?: SxProps;
 }
 
 export function BrandFilterInput({
@@ -51,15 +55,41 @@ export function BrandFilterInput({
   maximumSelectedBrands,
   groupConfig,
   defaultBrandUuids,
+  debounceMs = 2000,
+  sx,
 }: Readonly<BrandFilterInputProps>) {
+  // Local state for immediate UI updates
+  const [localValue, setLocalValue] = useState<Value | Value[] | null>(
+    value ?? null,
+  );
+
+  // Debounced onChange handler for multiple mode
+  const debouncedOnChange = useMemo(() => {
+    if (!multiple) return onChange;
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return (newValue: Value | Value[] | null) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        onChange(newValue);
+      }, debounceMs);
+    };
+  }, [multiple, onChange, debounceMs]);
+
   const handleChange = (newValue: Value | Value[] | null) => {
     if (multiple && Array.isArray(newValue)) {
-      onChange(newValue.slice(0, maximumSelectedBrands));
+      const slicedValue = newValue.slice(0, maximumSelectedBrands);
+      setLocalValue(slicedValue);
+      debouncedOnChange(slicedValue);
       return;
     }
-
+    setLocalValue(newValue);
     onChange(newValue);
   };
+
+  // Update local value when prop value changes
+  useEffect(() => {
+    setLocalValue(value ?? null);
+  }, [value]);
 
   const { enqueueSnackbar } = useSnackbar();
   const { brandOptions } = useBrandFilterInput({
@@ -98,13 +128,15 @@ export function BrandFilterInput({
   // Determine if all available brands are currently selected
   // Used to show the Select All option as checked when all brands are selected individually
   const areAllBrandsSelected = useMemo(() => {
-    if (!multiple || !Array.isArray(value) || brandOptions.length === 0)
+    if (!multiple || !Array.isArray(localValue) || brandOptions.length === 0)
       return false;
     return (
-      value.length === brandOptions.length &&
-      brandOptions.every((brand) => value.some((v) => v.value === brand.value))
+      localValue.length === brandOptions.length &&
+      brandOptions.every((brand) =>
+        localValue.some((v) => v.value === brand.value),
+      )
     );
-  }, [multiple, value, brandOptions]);
+  }, [multiple, localValue, brandOptions]);
 
   // Handle select all functionality
   const handleSelectAll = (newValue: Value | Value[] | null) => {
@@ -133,8 +165,8 @@ export function BrandFilterInput({
         );
         // Don't select any brands when limit would be surpassed
         // Return the current selection without the Select All option
-        return Array.isArray(value)
-          ? value.filter((item) => item.value !== 'select-all')
+        return Array.isArray(localValue)
+          ? localValue.filter((item) => item.value !== 'select-all')
           : [];
       }
       // Otherwise, select all brands
@@ -160,12 +192,12 @@ export function BrandFilterInput({
   return (
     <Box
       onClick={openDropdown}
-      sx={{ position: 'relative', cursor: 'pointer' }}
+      sx={{ position: 'relative', cursor: 'pointer', ...sx }}
     >
       <Autocomplete
         key={autocompleteKey}
         multiple={multiple}
-        value={multiple ? (value as Value[]) || [] : (value as Value)}
+        value={multiple ? (localValue as Value[]) || [] : (localValue as Value)}
         limitTags={3}
         options={optionsWithSelectAll}
         getOptionKey={(option: Value) => option.value}
