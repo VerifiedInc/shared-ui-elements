@@ -22,7 +22,7 @@ import {
   SxProps,
 } from '@mui/material';
 import { useSnackbar } from '../Snackbar';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BrandFilter, BrandGroupConfig } from './types';
 import { useBrandFilterInput } from './BrandFilterInput.hook';
 
@@ -40,6 +40,8 @@ interface BrandFilterInputProps {
   groupConfig?: BrandGroupConfig;
   /** Array of brand UUIDs to use as default values when no selection is made */
   defaultBrandUuids?: string[];
+  /** Debounce time in milliseconds for onChange when in multiple mode. Defaults to 2000ms */
+  debounceMs?: number;
   sx?: SxProps;
 }
 
@@ -53,16 +55,41 @@ export function BrandFilterInput({
   maximumSelectedBrands,
   groupConfig,
   defaultBrandUuids,
+  debounceMs = 2000,
   sx,
 }: Readonly<BrandFilterInputProps>) {
+  // Local state for immediate UI updates
+  const [localValue, setLocalValue] = useState<Value | Value[] | null>(
+    value ?? null,
+  );
+
+  // Debounced onChange handler for multiple mode
+  const debouncedOnChange = useMemo(() => {
+    if (!multiple) return onChange;
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return (newValue: Value | Value[] | null) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        onChange(newValue);
+      }, debounceMs);
+    };
+  }, [multiple, onChange, debounceMs]);
+
   const handleChange = (newValue: Value | Value[] | null) => {
     if (multiple && Array.isArray(newValue)) {
-      onChange(newValue.slice(0, maximumSelectedBrands));
+      const slicedValue = newValue.slice(0, maximumSelectedBrands);
+      setLocalValue(slicedValue);
+      debouncedOnChange(slicedValue);
       return;
     }
-
+    setLocalValue(newValue);
     onChange(newValue);
   };
+
+  // Update local value when prop value changes
+  useEffect(() => {
+    setLocalValue(value ?? null);
+  }, [value]);
 
   const { enqueueSnackbar } = useSnackbar();
   const { brandOptions } = useBrandFilterInput({
@@ -168,7 +195,7 @@ export function BrandFilterInput({
       <Autocomplete
         key={autocompleteKey}
         multiple={multiple}
-        value={multiple ? (value as Value[]) || [] : (value as Value)}
+        value={multiple ? (localValue as Value[]) || [] : (localValue as Value)}
         limitTags={3}
         options={optionsWithSelectAll}
         getOptionKey={(option: Value) => option.value}
