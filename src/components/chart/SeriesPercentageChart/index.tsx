@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import Decimal from 'decimal.js';
-import { Box, useTheme, type SxProps } from '@mui/material';
+import { Box, useTheme, type SxProps, type Theme } from '@mui/material';
 
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 
@@ -22,11 +22,12 @@ interface KeyValue {
 
 interface ChartDataPoint {
   date: string;
-  [key: string]: string | number; // Allow both string and number values
+  [key: string]: string | number;
 }
 
 interface SeriesChartData {
   uuid: string;
+  name?: string;
   chartData: ChartDataPoint[];
 }
 
@@ -39,21 +40,15 @@ interface SeriesPercentageChartProps {
 
 interface FormattedChartData {
   date: string;
-  total: number;
-  diff: number;
-  totalKey: string;
-  originalTotal: number;
-  [key: string]: string | number; // Allow both string and number values
+  [key: string]: string | number;
 }
 
 const formatChartData = (
   data: SeriesChartData[],
   keyValues: KeyValue[],
 ): FormattedChartData[] => {
-  // Create a map to store all unique dates
   const dateMap = new Map<string, FormattedChartData>();
 
-  // First pass: collect all data points
   data.forEach((series) => {
     series.chartData.forEach((point) => {
       const dateKey = new Date(point.date).getTime().toString();
@@ -61,26 +56,18 @@ const formatChartData = (
       if (!dateMap.has(dateKey)) {
         const entry: FormattedChartData = {
           date: dateKey,
-          total: 0,
-          diff: 0,
-          totalKey: '',
-          originalTotal: 0,
         };
-        // Initialize all keyValues with 0
-        keyValues.forEach(({ key }) => {
-          entry[key] = 0;
-          entry[`${key}_absolute`] = 0;
-        });
         dateMap.set(dateKey, entry);
       }
 
-      // Add the values for each key
+      const currentEntry = dateMap.get(dateKey) as FormattedChartData;
+
+      // Add the values for each key with series prefix
       keyValues.forEach(({ key }) => {
-        const currentEntry = dateMap.get(
-          dateKey,
-        ) as unknown as FormattedChartData;
+        const seriesKey = `${series.uuid}_${key}`;
         const rawValue = point[key];
-        // Convert string values to numbers, handling empty strings and undefined
+        const totalKey = keyValues.find((kv) => kv.isTotal)?.key;
+        
         const value =
           typeof rawValue === 'string'
             ? rawValue.trim() === ''
@@ -90,60 +77,36 @@ const formatChartData = (
               ? rawValue
               : 0;
 
-        // Store absolute value
-        currentEntry[`${key}_absolute`] = value;
-        // Initialize relative value (will be calculated later)
-        currentEntry[key] = 0;
+        currentEntry[`${seriesKey}_absolute`] = value;
+
+        if (key !== totalKey) {
+          const totalValue = point[totalKey || ''] as number;
+          let percentage;
+
+          if (totalValue === 0) {
+            percentage = 100;
+          } else {
+            percentage =
+              totalValue > 0
+                ? parseFloat(
+                    new Decimal(value.toString())
+                      .div(totalValue)
+                      .mul(100)
+                      .toFixed(2, Decimal.ROUND_DOWN),
+                  )
+                : 0;
+          }
+          currentEntry[seriesKey] = percentage;
+        } else {
+          currentEntry[seriesKey] = 100;
+        }
       });
     });
   });
 
-  // Convert the map to array and calculate percentages
-  return Array.from(dateMap.values())
-    .map((entry) => {
-      const totalKey = keyValues.find((kv) => kv.isTotal)?.key;
-      const nonTotalKeys = keyValues
-        .filter((kv) => !kv.isTotal)
-        .map((kv) => kv.key);
-
-      if (!totalKey || nonTotalKeys.length === 0) return entry;
-
-      const totalValue = entry[`${totalKey}_absolute`] as number;
-
-      // Store original total
-      entry.originalTotal = totalValue;
-      entry.total = totalValue;
-
-      // Set total value to always be 100%
-      entry[totalKey] = 100;
-
-      // Calculate percentages for non-total fields
-      nonTotalKeys.forEach((key) => {
-        const absoluteValue = entry[`${key}_absolute`] as number;
-        let percentage;
-
-        if (totalValue === 0) {
-          percentage = '100.00';
-          entry[key] = 100;
-        } else {
-          percentage =
-            totalValue > 0
-              ? new Decimal(absoluteValue.toString())
-                  .div(totalValue)
-                  .mul(100)
-                  .toFixed(2, Decimal.ROUND_DOWN)
-              : '0.00';
-          // Store the percentage for the area chart
-          entry[key] = parseFloat(percentage);
-        }
-      });
-
-      return {
-        ...entry,
-        totalKey,
-      };
-    })
-    .sort((a, b) => parseInt(a.date) - parseInt(b.date));
+  return Array.from(dateMap.values()).sort(
+    (a, b) => parseInt(a.date) - parseInt(b.date),
+  );
 };
 
 export function SeriesPercentageChart(
@@ -189,7 +152,7 @@ export function SeriesPercentageChart(
           <YAxis
             textAnchor='end'
             tickLine={false}
-            tickFormatter={(value) => `${value.toFixed(2)}%`}
+            tickFormatter={(value) => `${value.toFixed(0)}%`}
           />
           <Tooltip
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
@@ -199,50 +162,26 @@ export function SeriesPercentageChart(
                 hour12: false,
               })
             }
-            formatter={(value, name, item) => {
-              const totalKey = item.payload.totalKey;
-              const dataKey = item.dataKey as string;
-              const isTotal = dataKey === totalKey;
-
-              // Get the absolute value for this specific key
-              const absoluteValue = item.payload[`${dataKey}_absolute`];
-              const total = item.payload.originalTotal;
-
-              // Calculate percentage
-              const percentage = !isTotal
-                ? total === 0
-                  ? '100.00'
-                  : new Decimal(absoluteValue.toString())
-                      .div(total)
-                      .mul(100)
-                      .toFixed(2, Decimal.ROUND_DOWN)
-                : null;
-
-              return [
-                percentage
-                  ? `${absoluteValue.toLocaleString()} (${percentage}%)`
-                  : `${absoluteValue.toLocaleString()} (TOTAL)`,
-                name,
-              ];
+            formatter={(value, name) => {
+              const percentage = typeof value === 'number' ? value.toFixed(0) : value;
+              return [`${name}: ${percentage}%`];
             }}
           />
-          {props.keyValues
-            .sort((a, b) => {
-              if (a.isTotal) return -1;
-              if (b.isTotal) return 1;
-              return 0;
-            })
-            .map((keyValue) => (
-              <Line
-                key={keyValue.key}
-                type='monotone'
-                dataKey={keyValue.key}
-                name={keyValue.name}
-                stroke={keyValue.color}
-                strokeWidth={2}
-                dot={false}
-              />
-            ))}
+          {props.data.map((series) =>
+            props.keyValues
+              .filter((kv) => !kv.isTotal && kv.key === 'oneClickSuccess')
+              .map((keyValue) => (
+                <Line
+                  key={`${series.uuid}_${keyValue.key}`}
+                  type='monotone'
+                  dataKey={`${series.uuid}_${keyValue.key}`}
+                  name={series.name || series.uuid}
+                  stroke={keyValue.color}
+                  strokeWidth={2}
+                  dot={false}
+                />
+              )),
+          )}
         </LineChart>
       </ResponsiveContainer>
     </Box>

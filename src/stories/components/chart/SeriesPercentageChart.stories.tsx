@@ -43,6 +43,7 @@ const generateRandomData = (days = 30) => {
 const sampleData = [
   {
     uuid: 'b07cbc37-fe8f-4920-a6b9-c4e9dfe193cd',
+    name: 'Series 1',
     chartData: [
       ...generateRandomData(20),
       {
