@@ -1,6 +1,8 @@
 import { type ReactElement } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
+import { RISK_SCORE_RANGES } from '../constants';
+
 import { PieChart } from '../PieChart';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -10,7 +12,7 @@ export interface RiskScorePieChartProps {
   /**
    * Array of data points containing values for the pie chart segments like:
    * [{ value: 1000 }, { value: 2000 }, { value: 3000 }]
-   * First index represents 0-299, second 300-599, and 600-1000.
+   * First index represents Allow (0-400), second Flag (401-600), and Block (601-1000).
    */
   data: Array<{ value: number }>;
   /** The current risk score value (0-1000) */
@@ -62,20 +64,20 @@ export function RiskScorePieChart({
 
   const mappedData = [
     {
-      name: 'Allow',
-      customText: '0-299',
+      name: RISK_SCORE_RANGES.ALLOW.NAME,
+      customText: RISK_SCORE_RANGES.ALLOW.LABEL,
       value: data[0].value,
       color: theme.palette.primary.main,
     },
     {
-      name: 'Flag',
-      customText: '300-599',
+      name: RISK_SCORE_RANGES.FLAG.NAME,
+      customText: RISK_SCORE_RANGES.FLAG.LABEL,
       value: data[1].value,
       color: theme.palette.warning.main,
     },
     {
-      name: 'Block',
-      customText: 'Over 600',
+      name: RISK_SCORE_RANGES.BLOCK.NAME,
+      customText: RISK_SCORE_RANGES.BLOCK.LABEL,
       value: data[2].value,
       color: theme.palette.error.main,
     },

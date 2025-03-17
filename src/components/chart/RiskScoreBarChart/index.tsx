@@ -1,6 +1,8 @@
 import { type ReactElement } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
+import { RISK_SCORE_RANGES } from '../constants';
+
 import { SimpleBarChart } from '../SimpleBarChart';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -105,24 +107,24 @@ export function RiskScoreBarChart({
       }}
       referenceAreas={[
         {
-          x1: 0,
-          x2: 299,
+          x1: RISK_SCORE_RANGES.ALLOW.MIN,
+          x2: RISK_SCORE_RANGES.ALLOW.MAX,
           fill: '#ffffff00',
           isFront: false,
-          label: 'Allow',
+          label: RISK_SCORE_RANGES.ALLOW.NAME,
         },
         {
-          x1: 300,
-          x2: 600,
+          x1: RISK_SCORE_RANGES.FLAG.MIN,
+          x2: RISK_SCORE_RANGES.FLAG.MAX,
           fill: theme.palette.warning.light,
           isFront: false,
-          label: 'Flag',
+          label: RISK_SCORE_RANGES.FLAG.NAME,
         },
         {
-          x1: 600,
+          x1: RISK_SCORE_RANGES.BLOCK.MIN,
           fill: theme.palette.error.light,
           isFront: false,
-          label: 'Block',
+          label: RISK_SCORE_RANGES.BLOCK.NAME,
         },
       ]}
     />
