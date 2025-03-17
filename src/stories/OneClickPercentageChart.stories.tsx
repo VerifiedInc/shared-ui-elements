@@ -61,8 +61,8 @@ Default.args = {
   isFetching: false,
   isSuccess: true,
   filter: {
-    timezone: 'UTC'
-  }
+    timezone: 'UTC',
+  },
 };
 
 export const Loading = Template.bind({});
@@ -72,8 +72,8 @@ Loading.args = {
   isFetching: false,
   isSuccess: false,
   filter: {
-    timezone: 'UTC'
-  }
+    timezone: 'UTC',
+  },
 };
 
 export const Empty = Template.bind({});
@@ -83,8 +83,8 @@ Empty.args = {
   isFetching: false,
   isSuccess: true,
   filter: {
-    timezone: 'UTC'
-  }
+    timezone: 'UTC',
+  },
 };
 
 export const Fetching = Template.bind({});

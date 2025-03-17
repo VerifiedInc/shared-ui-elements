@@ -67,7 +67,7 @@ const formatChartData = (
         const seriesKey = `${series.uuid}_${key}`;
         const rawValue = point[key];
         const totalKey = keyValues.find((kv) => kv.isTotal)?.key;
-        
+
         const value =
           typeof rawValue === 'string'
             ? rawValue.trim() === ''
@@ -163,7 +163,8 @@ export function SeriesPercentageChart(
               })
             }
             formatter={(value, name) => {
-              const percentage = typeof value === 'number' ? value.toFixed(0) : value;
+              const percentage =
+                typeof value === 'number' ? value.toFixed(0) : value;
               return [`${name}: ${percentage}%`];
             }}
           />
