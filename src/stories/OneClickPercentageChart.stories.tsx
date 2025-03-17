@@ -38,7 +38,7 @@ Default.args = {
     {
       uuid: 'series2',
       name: 'Hooli',
-      color: '#1976D2', // blue
+      color: '#1976D2',
       chartData: [
         {
           date: '2025-01-01',
