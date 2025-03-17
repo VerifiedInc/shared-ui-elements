@@ -38,6 +38,7 @@ Default.args = {
     {
       uuid: 'series2',
       name: 'Hooli',
+      color: '#1976D2', // blue
       chartData: [
         {
           date: '2025-01-01',
@@ -61,8 +62,8 @@ Default.args = {
   isFetching: false,
   isSuccess: true,
   filter: {
-    timezone: 'UTC',
-  },
+    timezone: 'UTC'
+  }
 };
 
 export const Loading = Template.bind({});
@@ -72,8 +73,8 @@ Loading.args = {
   isFetching: false,
   isSuccess: false,
   filter: {
-    timezone: 'UTC',
-  },
+    timezone: 'UTC'
+  }
 };
 
 export const Empty = Template.bind({});
@@ -83,8 +84,8 @@ Empty.args = {
   isFetching: false,
   isSuccess: true,
   filter: {
-    timezone: 'UTC',
-  },
+    timezone: 'UTC'
+  }
 };
 
 export const Fetching = Template.bind({});

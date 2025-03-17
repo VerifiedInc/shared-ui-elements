@@ -7,6 +7,8 @@ import { useStyle } from '../styles';
 
 export interface OneClickChartData {
   uuid: string;
+  name?: string;
+  color?: string;
   chartData: Array<{
     date: string;
     oneClickSuccess: number;
@@ -38,13 +40,11 @@ export function OneClickPercentageChart({
     oneClickCreated: {
       key: 'oneClickCreated',
       name: 'Started',
-      color: theme.palette.neutral.main,
       isTotal: true,
     },
     oneClickSuccess: {
       key: 'oneClickSuccess',
       name: 'Finished',
-      color: theme.palette.primary.main,
     },
   };
 

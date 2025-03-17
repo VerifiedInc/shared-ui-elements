@@ -16,7 +16,6 @@ import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 interface KeyValue {
   key: string;
   name: string;
-  color: string;
   isTotal?: boolean;
 }
 
@@ -28,6 +27,7 @@ interface ChartDataPoint {
 interface SeriesChartData {
   uuid: string;
   name?: string;
+  color?: string;
   chartData: ChartDataPoint[];
 }
 
@@ -62,7 +62,6 @@ const formatChartData = (
 
       const currentEntry = dateMap.get(dateKey) as FormattedChartData;
 
-      // Add the values for each key with series prefix
       keyValues.forEach(({ key }) => {
         const seriesKey = `${series.uuid}_${key}`;
         const rawValue = point[key];
@@ -177,7 +176,7 @@ export function SeriesPercentageChart(
                   type='monotone'
                   dataKey={`${series.uuid}_${keyValue.key}`}
                   name={series.name || series.uuid}
-                  stroke={keyValue.color}
+                  stroke={series.color || theme.palette.primary.main}
                   strokeWidth={2}
                   dot={false}
                 />
