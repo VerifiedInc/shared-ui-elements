@@ -97,6 +97,7 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
                 hour12: false,
               })
             }
+            itemSorter={(item) => -Number(item?.value ?? 0)}
           />
           <Legend content={<SeriesChartLegend showUuid={props.showUuid} />} />
           {props.data.map((value) => {

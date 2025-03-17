@@ -1,10 +1,11 @@
-import { type ReactElement } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
-import { Label } from 'recharts';
+import { type ReactElement } from 'react';
 
-import { SimpleBarChart } from '../SimpleBarChart';
+import { ERROR_CODES_MESSAGES } from '../constants';
+
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
+import { SimpleBarChart } from '../SimpleBarChart';
 import { useStyle } from '../styles';
 
 /**
@@ -109,7 +110,8 @@ export function ErrorCodesChart({
         domain: [0, `dataMax + ${threshold > 0 ? threshold + 5 : 0}`],
       }}
       tooltip={{
-        labelFormatter: (value) => 'Total',
+        labelFormatter: (value) =>
+          `${ERROR_CODES_MESSAGES[value] ? `${ERROR_CODES_MESSAGES[value]}` : ''}`,
       }}
     />
   );

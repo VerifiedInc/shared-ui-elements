@@ -73,7 +73,7 @@ export function TimezoneInput({
               value:
                 params.inputProps?.value
                   ?.toString()
-                  ?.match(/.*\((.*)\)/)?.[1] || '',
+                  ?.match(/.*\((.*)\)/)?.[1] ?? '',
             }}
             label='Timezone'
           />
@@ -85,7 +85,7 @@ export function TimezoneInput({
           onChange(newValue.tzCode);
         }}
         sx={{
-          width: 145,
+          width: 158,
           '& *': { whiteSpace: 'pre', wordBreak: 'break-all' },
           '& .MuiAutocomplete-option': {
             scrollbarWidth: 'thin',
