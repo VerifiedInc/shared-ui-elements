@@ -176,44 +176,46 @@ export function SeriesPercentageChart(
               return [`${name}: ${percentage}%`];
             }}
           />
-          <Legend content={(legendProps) => {
-            const { height, width, ...otherProps } = legendProps;
-            const latestData = formattedData[formattedData.length - 1];
-            const numericData: Record<string, number> = {};
-            
-            Object.entries(latestData).forEach(([key, value]) => {
-              if (key !== 'date' && typeof value === 'number') {
-                numericData[key] = value;
-              }
-            });
+          <Legend
+            content={(legendProps) => {
+              const { height, width, ...otherProps } = legendProps;
+              const latestData = formattedData[formattedData.length - 1];
+              const numericData: Record<string, number> = {};
 
-            const dataKeyToUuid = new Map<string, string>();
-            props.data.forEach(series => {
-              props.keyValues
-                .filter(kv => !kv.isTotal && kv.key === 'oneClickSuccess')
-                .forEach(keyValue => {
-                  const dataKey = `${series.uuid}_${keyValue.key}`;
-                  dataKeyToUuid.set(dataKey, series.uuid);
-                });
-            });
+              Object.entries(latestData).forEach(([key, value]) => {
+                if (key !== 'date' && typeof value === 'number') {
+                  numericData[key] = value;
+                }
+              });
 
-            return (
-              <SeriesPercentageChartLegend 
-                {...otherProps} 
-                payload={legendProps.payload?.map(entry => ({
-                  uuid: dataKeyToUuid.get(entry.dataKey as string) || '',
-                  value: entry.value,
-                  color: entry.color || theme.palette.primary.main,
-                  dataKey: entry.dataKey as string,
-                  payload: {
-                    ...entry.payload,
-                    latestData: numericData,
-                    uuid: dataKeyToUuid.get(entry.dataKey as string)
-                  }
-                }))}
-              />
-            );
-          }} />
+              const dataKeyToUuid = new Map<string, string>();
+              props.data.forEach((series) => {
+                props.keyValues
+                  .filter((kv) => !kv.isTotal && kv.key === 'oneClickSuccess')
+                  .forEach((keyValue) => {
+                    const dataKey = `${series.uuid}_${keyValue.key}`;
+                    dataKeyToUuid.set(dataKey, series.uuid);
+                  });
+              });
+
+              return (
+                <SeriesPercentageChartLegend
+                  {...otherProps}
+                  payload={legendProps.payload?.map((entry) => ({
+                    uuid: dataKeyToUuid.get(entry.dataKey as string) || '',
+                    value: entry.value,
+                    color: entry.color || theme.palette.primary.main,
+                    dataKey: entry.dataKey as string,
+                    payload: {
+                      ...entry.payload,
+                      latestData: numericData,
+                      uuid: dataKeyToUuid.get(entry.dataKey as string),
+                    },
+                  }))}
+                />
+              );
+            }}
+          />
           {props.data.map((series) =>
             props.keyValues
               .filter((kv) => !kv.isTotal && kv.key === 'oneClickSuccess')

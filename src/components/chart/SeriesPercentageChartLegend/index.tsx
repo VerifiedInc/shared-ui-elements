@@ -27,15 +27,15 @@ function EntryBlock({
   entry: CustomPayload;
   showUuid?: boolean;
 }>): ReactElement {
-  const getEntryPercentage = useCallback(
-    (entry: CustomPayload): number => {
-      const latestData = entry.payload.latestData;
-      return latestData && entry.dataKey ? latestData[entry.dataKey] ?? 0 : 0;
-    },
-    [],
-  );
+  const getEntryPercentage = useCallback((entry: CustomPayload): number => {
+    const latestData = entry.payload.latestData;
+    return latestData && entry.dataKey ? (latestData[entry.dataKey] ?? 0) : 0;
+  }, []);
 
-  const entryPercentage = useMemo(() => getEntryPercentage(entry), [entry, getEntryPercentage]);
+  const entryPercentage = useMemo(
+    () => getEntryPercentage(entry),
+    [entry, getEntryPercentage],
+  );
   const previousEntryPercentage = usePrevious(entryPercentage);
 
   const mapValue = useCallback((value: number) => value.toFixed(1), []);
@@ -105,12 +105,15 @@ function EntryBlock({
   );
 }
 
-interface SeriesPercentageChartLegendProps extends Omit<LegendProps, 'payload'> {
+interface SeriesPercentageChartLegendProps
+  extends Omit<LegendProps, 'payload'> {
   showUuid?: boolean;
   payload?: CustomPayload[];
 }
 
-export function SeriesPercentageChartLegend(props: SeriesPercentageChartLegendProps): ReactElement {
+export function SeriesPercentageChartLegend(
+  props: SeriesPercentageChartLegendProps,
+): ReactElement {
   const { payload } = props;
 
   console.log(props);
@@ -131,10 +134,7 @@ export function SeriesPercentageChartLegend(props: SeriesPercentageChartLegendPr
       <AnimatePresence>
         {payload?.map((entry) => (
           <Grid2 key={`item-${(entry.payload as any).uuid}-${entry.value}`}>
-            <EntryBlock
-              entry={entry}
-              showUuid={props.showUuid}
-            />
+            <EntryBlock entry={entry} showUuid={props.showUuid} />
           </Grid2>
         ))}
       </AnimatePresence>
