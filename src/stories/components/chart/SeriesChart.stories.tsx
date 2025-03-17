@@ -152,3 +152,62 @@ export const WithoutUuids: Story = {
     },
   },
 };
+
+/**
+ * This story shows multiple brands with overlapping data points to demonstrate
+ * how the tooltip handles and sorts multiple values at intersection points.
+ */
+export const OverlappingSeries: Story = {
+  args: {
+    label: 'Daily Active Users',
+    data: [
+      {
+        uuid: '4c8ccbe5-ce86-44d7-a463-8ac9955af937',
+        name: 'Brand A',
+        color: '#2196f3', // Blue
+        integrationType: 'hosted',
+        chartData: [
+          { date: 1734973560000, value: 150 },
+          { date: 1734969240000, value: 200 },
+          { date: 1734562140000, value: 180 },
+          { date: 1734562080000, value: 220 },
+          { date: 1734558840000, value: 190 },
+        ],
+      },
+      {
+        uuid: '7d9ccbe5-ce86-44d7-a463-8ac9955af123',
+        name: 'Brand B',
+        color: '#f44336', // Red
+        integrationType: 'semi-hosted',
+        chartData: [
+          { date: 1734973560000, value: 180 },
+          { date: 1734969240000, value: 160 },
+          { date: 1734562140000, value: 220 },
+          { date: 1734562080000, value: 190 },
+          { date: 1734558840000, value: 210 },
+        ],
+      },
+      {
+        uuid: '9e7ccbe5-ce86-44d7-a463-8ac9955af456',
+        name: 'Brand C',
+        color: '#4caf50', // Green
+        integrationType: 'hosted',
+        chartData: [
+          { date: 1734973560000, value: 200 },
+          { date: 1734969240000, value: 180 },
+          { date: 1734562140000, value: 170 },
+          { date: 1734562080000, value: 220 },
+          { date: 1734558840000, value: 160 },
+        ],
+      },
+    ],
+    filter: {
+      timezone: 'UTC',
+    },
+    showUuid: false,
+    sx: {
+      width: '100%',
+      height: 500,
+    },
+  },
+};
