@@ -23,6 +23,8 @@ export const darkYellow = '#bea008';
 
 export const warningContrast = '#625410';
 
+export const dangerContrast = '#4b1113';
+
 export const infoContrast = '#09225E';
 
 export const lightGrey = '#F9F9FB';
@@ -50,6 +52,7 @@ export const colors = {
   lightYellow,
   darkYellow,
   warningContrast,
+  dangerContrast,
   infoContrast,
   lightGrey,
   grey,
