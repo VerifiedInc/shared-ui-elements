@@ -19,3 +19,12 @@ export const lighten = (color: string, amount: number) => {
 export const darken = (color: string, amount: number) => {
   return tinycolor(color).darken(amount).toHex();
 };
+
+/**
+ * Get the color that has the highest contrast with the given color.
+ * @param color The color to check.
+ * @returns The best color to use for text on the given color.
+ */
+export const contrastColor = (color: string) => {
+  return tinycolor(color).isLight() ? '#000000' : '#FFFFFF';
+};
