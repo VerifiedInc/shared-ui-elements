@@ -28,5 +28,5 @@ export const darken = (color: string, amount: number) => {
 export const contrastColor = (color: string, alpha: number = 1) => {
   return tinycolor(tinycolor(color).isLight() ? '#000000' : '#ffffff')
     .setAlpha(alpha)
-    .toHexString();
+    .toHex8String();
 };
