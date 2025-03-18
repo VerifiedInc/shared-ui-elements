@@ -1,4 +1,3 @@
-import React, { type ReactElement, useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -7,11 +6,14 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from 'recharts';
 import Decimal from 'decimal.js';
 import { Box, useTheme, type SxProps, type Theme } from '@mui/material';
+import { type ReactElement, useMemo } from 'react';
 
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
+import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
 
 interface KeyValue {
   key: string;
@@ -41,6 +43,13 @@ interface SeriesPercentageChartProps {
 interface FormattedChartData {
   date: string;
   [key: string]: string | number;
+}
+
+interface CustomLegendPayload {
+  strokeDasharray?: string | number;
+  value?: any;
+  uuid?: string;
+  [key: string]: any;
 }
 
 const formatChartData = (
@@ -163,8 +172,48 @@ export function SeriesPercentageChart(
             }
             formatter={(value, name) => {
               const percentage =
-                typeof value === 'number' ? value.toFixed(0) : value;
+                typeof value === 'number' ? value.toFixed(1) : value;
               return [`${name}: ${percentage}%`];
+            }}
+          />
+          <Legend
+            content={(legendProps) => {
+              const { height, width, ...otherProps } = legendProps;
+              const latestData = formattedData[formattedData.length - 1];
+              const numericData: Record<string, number> = {};
+
+              Object.entries(latestData).forEach(([key, value]) => {
+                if (key !== 'date' && typeof value === 'number') {
+                  numericData[key] = value;
+                }
+              });
+
+              const dataKeyToUuid = new Map<string, string>();
+              props.data.forEach((series) => {
+                props.keyValues
+                  .filter((kv) => !kv.isTotal && kv.key === 'oneClickSuccess')
+                  .forEach((keyValue) => {
+                    const dataKey = `${series.uuid}_${keyValue.key}`;
+                    dataKeyToUuid.set(dataKey, series.uuid);
+                  });
+              });
+
+              return (
+                <SeriesPercentageChartLegend
+                  {...otherProps}
+                  payload={legendProps.payload?.map((entry) => ({
+                    uuid: dataKeyToUuid.get(entry.dataKey as string) || '',
+                    value: entry.value,
+                    color: entry.color || theme.palette.primary.main,
+                    dataKey: entry.dataKey as string,
+                    payload: {
+                      ...entry.payload,
+                      latestData: numericData,
+                      uuid: dataKeyToUuid.get(entry.dataKey as string),
+                    },
+                  }))}
+                />
+              );
             }}
           />
           {props.data.map((series) =>
