@@ -1,7 +1,7 @@
 export function useStyle() {
   return {
     wrapper: {
-      width: 400,
+      width: 450,
       '& input[type="text"]': {
         textAlign: 'center',
         width: '100%',
