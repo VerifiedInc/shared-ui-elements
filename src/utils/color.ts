@@ -25,6 +25,8 @@ export const darken = (color: string, amount: number) => {
  * @param color The color to check.
  * @returns The best color to use for text on the given color.
  */
-export const contrastColor = (color: string) => {
-  return tinycolor(color).isLight() ? '#000000' : '#FFFFFF';
+export const contrastColor = (color: string, alpha: number = 1) => {
+  return tinycolor(tinycolor(color).isLight() ? '#000000' : '#fff000')
+    .setAlpha(alpha)
+    .toHex();
 };
