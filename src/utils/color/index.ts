@@ -7,7 +7,7 @@ import tinycolor from 'tinycolor2';
  * @returns The lightened color.
  */
 export const lighten = (color: string, amount: number) => {
-  return tinycolor(color).lighten(amount).toHex();
+  return tinycolor(color).lighten(amount).toHexString();
 };
 
 /**
@@ -17,7 +17,7 @@ export const lighten = (color: string, amount: number) => {
  * @returns The darkened color.
  */
 export const darken = (color: string, amount: number) => {
-  return tinycolor(color).darken(amount).toHex();
+  return tinycolor(color).darken(amount).toHexString();
 };
 
 /**
@@ -26,7 +26,7 @@ export const darken = (color: string, amount: number) => {
  * @returns The best color to use for text on the given color.
  */
 export const contrastColor = (color: string, alpha: number = 1) => {
-  return tinycolor(tinycolor(color).isLight() ? '#000000' : '#fff000')
+  return tinycolor(tinycolor(color).isLight() ? '#000000' : '#ffffff')
     .setAlpha(alpha)
-    .toHex();
+    .toHexString();
 };
