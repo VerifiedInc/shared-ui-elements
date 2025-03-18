@@ -17,6 +17,7 @@ Default.args = {
     {
       uuid: 'series1',
       name: 'Verified',
+      integrationType: 'hosted',
       chartData: [
         {
           date: '2025-01-01',
@@ -39,6 +40,7 @@ Default.args = {
       uuid: 'series2',
       name: 'Hooli',
       color: '#1976D2',
+      integrationType: 'non-hosted',
       chartData: [
         {
           date: '2025-01-01',

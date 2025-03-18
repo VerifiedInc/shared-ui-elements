@@ -9,6 +9,7 @@ export interface OneClickChartData {
   uuid: string;
   name?: string;
   color?: string;
+  integrationType?: string;
   chartData: Array<{
     date: string;
     oneClickSuccess: number;

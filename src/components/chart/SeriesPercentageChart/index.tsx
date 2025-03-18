@@ -1,16 +1,16 @@
+import { Box, useTheme, type SxProps } from '@mui/material';
+import Decimal from 'decimal.js';
+import { useMemo, type ReactElement } from 'react';
 import {
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from 'recharts';
-import Decimal from 'decimal.js';
-import { Box, useTheme, type SxProps, type Theme } from '@mui/material';
-import { type ReactElement, useMemo } from 'react';
 
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
@@ -30,6 +30,7 @@ interface SeriesChartData {
   uuid: string;
   name?: string;
   color?: string;
+  integrationType?: string;
   chartData: ChartDataPoint[];
 }
 
@@ -43,13 +44,6 @@ interface SeriesPercentageChartProps {
 interface FormattedChartData {
   date: string;
   [key: string]: string | number;
-}
-
-interface CustomLegendPayload {
-  strokeDasharray?: string | number;
-  value?: any;
-  uuid?: string;
-  [key: string]: any;
 }
 
 const formatChartData = (
@@ -69,7 +63,9 @@ const formatChartData = (
         dateMap.set(dateKey, entry);
       }
 
-      const currentEntry = dateMap.get(dateKey) as FormattedChartData;
+      const currentEntry = dateMap.get(
+        dateKey,
+      ) as unknown as FormattedChartData;
 
       keyValues.forEach(({ key }) => {
         const seriesKey = `${series.uuid}_${key}`;
@@ -88,7 +84,7 @@ const formatChartData = (
         currentEntry[`${seriesKey}_absolute`] = value;
 
         if (key !== totalKey) {
-          const totalValue = point[totalKey || ''] as number;
+          const totalValue = point[totalKey ?? ''] as number;
           let percentage;
 
           if (totalValue === 0) {
@@ -170,10 +166,11 @@ export function SeriesPercentageChart(
                 hour12: false,
               })
             }
+            itemSorter={(item) => -Number(item?.value ?? 0)}
             formatter={(value, name) => {
               const percentage =
                 typeof value === 'number' ? value.toFixed(1) : value;
-              return [`${name}: ${percentage}%`];
+              return [`${name}: ${percentage as string}%`];
             }}
           />
           <Legend
@@ -195,6 +192,10 @@ export function SeriesPercentageChart(
                   .forEach((keyValue) => {
                     const dataKey = `${series.uuid}_${keyValue.key}`;
                     dataKeyToUuid.set(dataKey, series.uuid);
+                    dataKeyToUuid.set(
+                      `${dataKey}_integrationType`,
+                      series.integrationType ?? '',
+                    );
                   });
               });
 
@@ -202,15 +203,13 @@ export function SeriesPercentageChart(
                 <SeriesPercentageChartLegend
                   {...otherProps}
                   payload={legendProps.payload?.map((entry) => ({
-                    uuid: dataKeyToUuid.get(entry.dataKey as string) || '',
+                    uuid: dataKeyToUuid.get(entry.dataKey as string) ?? '',
                     value: entry.value,
-                    color: entry.color || theme.palette.primary.main,
+                    color: entry.color ?? theme.palette.primary.main,
+                    integrationType: dataKeyToUuid.get(
+                      `${entry.dataKey as string}_integrationType`,
+                    ),
                     dataKey: entry.dataKey as string,
-                    payload: {
-                      ...entry.payload,
-                      latestData: numericData,
-                      uuid: dataKeyToUuid.get(entry.dataKey as string),
-                    },
                   }))}
                 />
               );
@@ -224,8 +223,8 @@ export function SeriesPercentageChart(
                   key={`${series.uuid}_${keyValue.key}`}
                   type='monotone'
                   dataKey={`${series.uuid}_${keyValue.key}`}
-                  name={series.name || series.uuid}
-                  stroke={series.color || theme.palette.primary.main}
+                  name={series.name ?? series.uuid}
+                  stroke={series.color ?? theme.palette.primary.main}
                   strokeWidth={2}
                   dot={false}
                 />

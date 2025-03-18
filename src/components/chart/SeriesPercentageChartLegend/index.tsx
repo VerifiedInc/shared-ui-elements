@@ -1,11 +1,11 @@
-import { type ReactElement, useCallback, useMemo } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { type LegendProps } from 'recharts';
 import { AnimatePresence } from 'framer-motion';
+import { type ReactElement } from 'react';
+import { type LegendProps } from 'recharts';
 
-import { usePrevious, useCopyToClipboard } from '../../../hooks';
-import { MotionStack, Counter } from '../../animation';
+import { useCopyToClipboard } from '../../../hooks';
+import { MotionStack } from '../../animation';
 import { useSnackbar } from '../../Snackbar';
 
 type CustomPayload = {
@@ -13,11 +13,7 @@ type CustomPayload = {
   value: string;
   color: string;
   dataKey: string;
-  payload: {
-    latestData?: Record<string, number>;
-    uuid?: string;
-    integrationType?: string;
-  };
+  integrationType?: string;
 };
 
 function EntryBlock({
@@ -27,19 +23,6 @@ function EntryBlock({
   entry: CustomPayload;
   showUuid?: boolean;
 }>): ReactElement {
-  const getEntryPercentage = useCallback((entry: CustomPayload): number => {
-    const latestData = entry.payload.latestData;
-    return latestData && entry.dataKey ? (latestData[entry.dataKey] ?? 0) : 0;
-  }, []);
-
-  const entryPercentage = useMemo(
-    () => getEntryPercentage(entry),
-    [entry, getEntryPercentage],
-  );
-  const previousEntryPercentage = usePrevious(entryPercentage);
-
-  const mapValue = useCallback((value: number) => value.toFixed(1), []);
-
   const copyToClipboard = useCopyToClipboard({ type: 'text/plain' });
   const snackbar = useSnackbar();
 
@@ -65,25 +48,11 @@ function EntryBlock({
         }}
       />
       <Stack>
-        <Typography component='p' variant='caption'>
-          <Stack component='span' direction='row' display='inline-flex'>
-            <Counter
-              from={previousEntryPercentage ?? 0}
-              to={entryPercentage}
-              map={mapValue}
-            >
-              0
-            </Counter>
-            %
-          </Stack>
-        </Typography>
         <Typography variant='body1'>{entry.value}</Typography>
-        {entry.payload.integrationType && (
-          <Typography variant='body2'>
-            {entry.payload.integrationType}
-          </Typography>
+        {entry.integrationType && (
+          <Typography variant='body2'>{entry.integrationType}</Typography>
         )}
-        {showUuid && entry.payload.uuid && (
+        {showUuid && entry.uuid && (
           <Typography
             variant='body2'
             sx={{
@@ -91,13 +60,13 @@ function EntryBlock({
               '&:hover': { textDecoration: 'underline' },
             }}
             onClick={() => {
-              if (entry.payload.uuid) {
-                copyToClipboard.copy(entry.payload.uuid).catch(() => undefined);
+              if (entry.uuid) {
+                copyToClipboard.copy(entry.uuid).catch(() => undefined);
                 snackbar.enqueueSnackbar('UUID copied to clipboard', 'success');
               }
             }}
           >
-            {entry.payload.uuid.slice(0, 5)}...
+            {entry.uuid.slice(0, 5)}...
           </Typography>
         )}
       </Stack>
@@ -131,7 +100,7 @@ export function SeriesPercentageChartLegend(
     >
       <AnimatePresence>
         {payload?.map((entry) => (
-          <Grid2 key={`item-${(entry.payload as any).uuid}-${entry.value}`}>
+          <Grid2 key={`item-${entry.uuid}-${entry.value}`}>
             <EntryBlock entry={entry} showUuid={props.showUuid} />
           </Grid2>
         ))}
