@@ -85,7 +85,7 @@ export function TimezoneInput({
           onChange(newValue.tzCode);
         }}
         sx={{
-          width: 158,
+          width: 166,
           '& *': { whiteSpace: 'pre', wordBreak: 'break-all' },
           '& .MuiAutocomplete-option': {
             scrollbarWidth: 'thin',
