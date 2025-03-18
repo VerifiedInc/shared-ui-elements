@@ -116,8 +116,6 @@ export function SeriesPercentageChartLegend(
 ): ReactElement {
   const { payload } = props;
 
-  console.log(props);
-
   return (
     <Grid2
       container

@@ -1,4 +1,3 @@
-import React, { type ReactElement, useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -11,6 +10,7 @@ import {
 } from 'recharts';
 import Decimal from 'decimal.js';
 import { Box, useTheme, type SxProps, type Theme } from '@mui/material';
+import { type ReactElement, useMemo } from 'react';
 
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
