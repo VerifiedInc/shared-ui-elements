@@ -23,6 +23,7 @@ import {
   FormControl,
 } from '@mui/material';
 import { v4 as uuid } from 'uuid';
+import { theme } from '@/styles/theme';
 
 interface OTPInputProps {
   name?: string;
@@ -84,6 +85,24 @@ function OTPInputComponent(
     [props, values],
   );
 
+  const idleInputStyle: SxProps = {
+    borderColor: props.error
+      ? theme.palette.error.main
+      : // FIXME - don't know what the original color are from the palette, so assume it is disabled.
+        theme.palette.action.disabled,
+  };
+  const hoverInputStyle: SxProps = {
+    borderColor: props.error
+      ? theme.palette.error.main
+      : theme.palette.text.primary,
+  };
+  const focusInputStyle: SxProps = {
+    borderColor: props.error
+      ? theme.palette.error.main
+      : theme.palette.primary.main,
+    boxShadow: `inset 0 0 0 1px ${props.error ? theme.palette.error.main : theme.palette.primary.main}`,
+  };
+
   const inputContainerProps: StackProps = {
     boxSizing: 'content-box',
     direction: 'row',
@@ -107,9 +126,24 @@ function OTPInputComponent(
         },
         fontSize: 32,
         py: 1.75,
+        borderRadius: 1,
+        borderStyle: 'solid',
+        borderWidth: 1,
+        ...idleInputStyle,
       },
+      ...(!props.disabled && {
+        '&:hover input': {
+          ...hoverInputStyle,
+        },
+      }),
+      ...(isFocused && {
+        '& input, &:hover input': {
+          ...focusInputStyle,
+        },
+      }),
     },
   };
+
   const inputProps: InputBaseProps = useMemo(
     () => ({
       inputProps: {
@@ -118,31 +152,8 @@ function OTPInputComponent(
         autoCorrect: 'off',
         autoCapitalize: 'off',
       },
-      sx: {
-        '& input': {
-          borderRadius: 1,
-          borderStyle: 'solid',
-          borderColor: 'rgba(0, 0, 0, 0.23)',
-          borderWidth: 1,
-          ...(props.error && {
-            borderColor: theme.palette.error.main,
-            boxShadow: `inset 0 0 0 1px ${theme.palette.error.main}`,
-          }),
-        },
-        ...(isFocused && {
-          '& input': {
-            borderRadius: 1,
-            borderStyle: 'solid',
-            borderWidth: 1,
-            borderColor: props.error
-              ? theme.palette.error.main
-              : theme.palette.primary.main,
-            boxShadow: `inset 0 0 0 1px ${props.error ? theme.palette.error.main : theme.palette.primary.main}`,
-          },
-        }),
-      },
     }),
-    [isFocused, theme.palette.primary.main, props.error],
+    [],
   );
 
   const focusFirstEmptyInput = useCallback(() => {
@@ -250,7 +261,11 @@ function OTPInputComponent(
           inputProps={{ hidden: true }}
         />
       </div>
-      <Stack {...inputContainerProps} onClick={focusFirstEmptyInput}>
+      <Stack
+        data-testid='otp-input-container'
+        {...inputContainerProps}
+        onClick={focusFirstEmptyInput}
+      >
         {renderInputGroup(0)}
         <Typography sx={{ fontWeight: '700', fontSize: 32 }}>-</Typography>
         {renderInputGroup(3)}
