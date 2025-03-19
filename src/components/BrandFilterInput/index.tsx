@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 import { useSnackbar } from '../Snackbar';
 import { useEffect, useMemo, useState } from 'react';
-import { BrandFilter, BrandGroupConfig } from './types';
+import { BrandFilter } from './types';
 import { useBrandFilterInput } from './BrandFilterInput.hook';
 
 export type Value = BrandFilter;
@@ -36,8 +36,12 @@ interface BrandFilterInputProps {
   brands?: any[];
   isLoading: boolean;
   maximumSelectedBrands?: number;
-  /** Configuration for how to group the brands. If null, no grouping will be applied */
-  groupConfig?: BrandGroupConfig;
+  /** If true, brands will be grouped by their live status */
+  groupLiveBrand?: boolean;
+  /** If true, shows a 'Select All' option in multiple select mode */
+  selectAll?: boolean;
+  /** If true, shows a 'Select Live Brands' option in multiple select mode */
+  selectLiveBrands?: boolean;
   /** Array of brand UUIDs to use as default values when no selection is made */
   defaultBrandUuids?: string[];
   /** Debounce time in milliseconds for onChange when in multiple mode. Defaults to 2000ms */
@@ -53,7 +57,9 @@ export function BrandFilterInput({
   brands,
   isLoading,
   maximumSelectedBrands,
-  groupConfig,
+  groupLiveBrand = false,
+  selectAll = false,
+  selectLiveBrands = false,
   defaultBrandUuids,
   debounceMs = 2000,
   sx,
@@ -110,51 +116,91 @@ export function BrandFilterInput({
     autocompleteKey = 'single';
   }
 
-  // Create a Select All option for multi-select mode
-  const selectAllOption: Value = useMemo(
+  // Validate selectAll and selectLiveBrands props
+  if ((selectAll || selectLiveBrands) && !multiple) {
+    throw new Error(
+      'selectAll and selectLiveBrands props can only be used when multiple is true',
+    );
+  }
+
+  // Create virtual options for multi-select mode
+  const virtualOptions = useMemo(
     () => ({
-      name: 'Select All',
-      value: 'select-all',
-      _raw: {} as any, // This is a virtual option, not a real brand
+      selectAll: {
+        name: 'Select All',
+        value: 'select-all',
+        _raw: {} as any,
+      },
+      selectLiveBrands: {
+        name: 'Select Live Brands',
+        value: 'select-live-brands',
+        _raw: {} as any,
+      },
     }),
     [],
   );
 
-  // Add Select All option at the beginning of options array when in multiple mode
-  const optionsWithSelectAll = useMemo(() => {
-    return multiple ? [selectAllOption, ...brandOptions] : brandOptions;
-  }, [multiple, selectAllOption, brandOptions]);
+  // Add virtual options at the beginning of options array when in multiple mode
+  const optionsWithVirtualOptions = useMemo(() => {
+    if (!multiple) return brandOptions;
 
-  // Determine if all available brands are currently selected
-  // Used to show the Select All option as checked when all brands are selected individually
-  const areAllBrandsSelected = useMemo(() => {
+    const virtualOptionsList = [];
+    if (selectAll) virtualOptionsList.push(virtualOptions.selectAll);
+    if (selectLiveBrands)
+      virtualOptionsList.push(virtualOptions.selectLiveBrands);
+
+    return virtualOptionsList.length > 0
+      ? [...virtualOptionsList, ...brandOptions]
+      : brandOptions;
+  }, [multiple, selectAll, selectLiveBrands, virtualOptions, brandOptions]);
+
+  // Determine if all brands or all live brands are selected
+  const selectionState = useMemo(() => {
     if (!multiple || !Array.isArray(localValue) || brandOptions.length === 0)
-      return false;
-    return (
-      localValue.length === brandOptions.length &&
-      brandOptions.every((brand) =>
-        localValue.some((v) => v.value === brand.value),
-      )
+      return { areAllSelected: false, areLiveBrandsSelected: false };
+
+    const liveBrands = brandOptions.filter((brand) => brand._raw.isLiveBrand);
+    const selectedBrands = localValue.filter(
+      (v) => v.value !== 'select-all' && v.value !== 'select-live-brands',
     );
+
+    const areAllSelected =
+      selectedBrands.length === brandOptions.length &&
+      brandOptions.every((brand) =>
+        selectedBrands.some((v) => v.value === brand.value),
+      );
+
+    const areLiveBrandsSelected =
+      liveBrands.length > 0 &&
+      liveBrands.every((brand) =>
+        selectedBrands.some((v) => v.value === brand.value),
+      );
+
+    return { areAllSelected, areLiveBrandsSelected };
   }, [multiple, localValue, brandOptions]);
 
-  // Handle select all functionality
-  const handleSelectAll = (newValue: Value | Value[] | null) => {
+  const { areAllSelected, areLiveBrandsSelected } = selectionState;
+
+  // Handle virtual options functionality (Select All and Select Live Brands)
+  const handleVirtualOptions = (newValue: Value | Value[] | null) => {
     if (!multiple || !Array.isArray(newValue)) return newValue;
 
-    // Check if Select All is being selected or deselected
+    // Check which virtual option is being selected
     const isSelectAllSelected = newValue.some(
       (item) => item.value === 'select-all',
     );
+    const isSelectLiveBrandsSelected = newValue.some(
+      (item) => item.value === 'select-live-brands',
+    );
 
-    // If all brands are already selected and user clicks on Select All again, unselect all brands
-    // This provides a quick way to clear all selections with a single click
-    if (isSelectAllSelected && areAllBrandsSelected) {
-      return [];
-    }
+    // Handle Select All
     if (isSelectAllSelected) {
-      // If Select All is selected, select all brand options (excluding Select All)
-      // If maximumSelectedBrands is set and there are more brands than allowed, show error
+      // If all brands are already selected, unselect all
+      if (areAllSelected) {
+        return [];
+      }
+
+      // Check maximum selection limit
       if (
         maximumSelectedBrands &&
         brandOptions.length > maximumSelectedBrands
@@ -163,18 +209,67 @@ export function BrandFilterInput({
           `You can't select more than ${maximumSelectedBrands} brands.`,
           'error',
         );
-        // Don't select any brands when limit would be surpassed
-        // Return the current selection without the Select All option
         return Array.isArray(localValue)
-          ? localValue.filter((item) => item.value !== 'select-all')
+          ? localValue.filter(
+              (item) =>
+                item.value !== 'select-all' &&
+                item.value !== 'select-live-brands',
+            )
           : [];
       }
-      // Otherwise, select all brands
+
+      // Select all brands
       return brandOptions;
-    } else {
-      // If Select All is not in the selection, filter it out from the result
-      return newValue.filter((item) => item.value !== 'select-all');
     }
+
+    // Handle Select Live Brands
+    if (isSelectLiveBrandsSelected) {
+      const liveBrands = brandOptions.filter((brand) => brand._raw.isLiveBrand);
+
+      // If all live brands are already selected, unselect them
+      if (areLiveBrandsSelected) {
+        const nonLiveBrands = Array.isArray(localValue)
+          ? localValue.filter(
+              (item) =>
+                item.value !== 'select-live-brands' &&
+                !liveBrands.some((b) => b.value === item.value),
+            )
+          : [];
+        return nonLiveBrands;
+      }
+
+      // Check maximum selection limit
+      if (maximumSelectedBrands && liveBrands.length > maximumSelectedBrands) {
+        enqueueSnackbar(
+          `You can't select more than ${maximumSelectedBrands} brands.`,
+          'error',
+        );
+        return Array.isArray(localValue)
+          ? localValue.filter(
+              (item) =>
+                item.value !== 'select-all' &&
+                item.value !== 'select-live-brands',
+            )
+          : [];
+      }
+
+      // Select all live brands while preserving other selected brands
+      const currentSelection = Array.isArray(localValue)
+        ? localValue.filter(
+            (item) =>
+              item.value !== 'select-all' &&
+              item.value !== 'select-live-brands' &&
+              !liveBrands.some((b) => b.value === item.value),
+          )
+        : [];
+      return [...currentSelection, ...liveBrands];
+    }
+
+    // If neither virtual option is selected, return the selection without virtual options
+    return newValue.filter(
+      (item) =>
+        item.value !== 'select-all' && item.value !== 'select-live-brands',
+    );
   };
 
   // Track if the dropdown is open
@@ -199,7 +294,7 @@ export function BrandFilterInput({
         multiple={multiple}
         value={multiple ? (localValue as Value[]) || [] : (localValue as Value)}
         limitTags={3}
-        options={optionsWithSelectAll}
+        options={optionsWithVirtualOptions}
         getOptionKey={(option: Value) => option.value}
         getOptionLabel={(option: Value) => option.name}
         isOptionEqualToValue={(option: Value, value: Value | undefined) => {
@@ -213,8 +308,8 @@ export function BrandFilterInput({
         onOpen={() => {}}
         onClose={() => setIsOpen(false)}
         onChange={(_, newValue) => {
-          // Process Select All option if needed
-          const processedValue = handleSelectAll(newValue);
+          // Process virtual options if needed
+          const processedValue = handleVirtualOptions(newValue);
           // Check if we're trying to select more than the maximum allowed
           if (
             maximumSelectedBrands &&
@@ -237,27 +332,25 @@ export function BrandFilterInput({
         disableClearable={!multiple}
         disabled={isLoading}
         disableCloseOnSelect={multiple}
-        {...(groupConfig && {
+        {...(groupLiveBrand && {
           // Define how options should be grouped
           groupBy: (option: Value) => {
             // Don't group the Select All option
             if (option.value === 'select-all') return '';
-            // Extract the raw value using the specified key
-            const value = option._raw[groupConfig.key];
-            // Transform the value using the provided transform function or fallback to string conversion
-            return groupConfig.transform
-              ? groupConfig.transform(value)
-              : String(value);
+            // Group by live status
+            return option._raw.isLiveBrand ? 'Live Brands' : 'Not Live Yet';
           },
-          // Use the provided sort function to determine group order
-          // If not provided, MUI will use alphabetical ordering
-          groupOrder: groupConfig.sortGroups,
+          // Live brands should appear first
+          groupOrder: (a: string, b: string) => (a === 'Live Brands' ? -1 : 1),
         })}
         renderOption={(props, option, { selected }) => {
-          // For the Select All option, show it as selected if all brands are selected
-          // This creates a consistent UX where Select All appears checked when all items are selected
+          // For virtual options, show them as selected based on the current selection state
           const isSelected =
-            option.value === 'select-all' ? areAllBrandsSelected : selected;
+            option.value === 'select-all'
+              ? areAllSelected
+              : option.value === 'select-live-brands'
+                ? areLiveBrandsSelected
+                : selected;
 
           return (
             <li {...props}>
