@@ -335,8 +335,13 @@ export function BrandFilterInput({
         {...(groupLiveBrand && {
           // Define how options should be grouped
           groupBy: (option: Value) => {
-            // Don't group the Select All option
-            if (option.value === 'select-all') return '';
+            // Don't group virtual options
+            if (
+              option.value === 'select-all' ||
+              option.value === 'select-live-brands'
+            ) {
+              return '';
+            }
             // Group by live status
             return option._raw.isLiveBrand ? 'Live Brands' : 'Not Live Yet';
           },
