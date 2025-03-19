@@ -224,10 +224,10 @@ SingleSelect.args = {
   multiple: false,
   brands: mockBrands,
   isLoading: false,
-  groupConfig: null,
+  groupLiveBrand: false,
 };
 
-// Multi select without grouping
+// Multi select with all virtual options
 export const MultiSelect = Template.bind({});
 MultiSelect.args = {
   value: [],
@@ -236,7 +236,9 @@ MultiSelect.args = {
   brands: mockBrands,
   isLoading: false,
   defaultBrandUuids: ['1', '2'],
-  groupConfig: null,
+  groupLiveBrand: false,
+  selectAll: true,
+  selectLiveBrands: true,
 };
 
 // Grouped by live status
@@ -247,26 +249,7 @@ GroupedByLiveStatus.args = {
   multiple: false,
   brands: mockBrands,
   isLoading: false,
-  groupConfig: {
-    key: 'isLiveBrand',
-    transform: (value: boolean) => (value ? 'Live Brands' : 'Not Live Yet'),
-    sortGroups: (a, b) => (a === 'Live Brands' ? -1 : 1),
-  },
-};
-
-// Grouped by approval status
-export const GroupedByApprovalStatus = Template.bind({});
-GroupedByApprovalStatus.args = {
-  value: undefined,
-  label: 'Select Brand (Grouped by Approval)',
-  multiple: false,
-  brands: mockBrands,
-  isLoading: false,
-  groupConfig: {
-    key: 'isApproved',
-    transform: (value: boolean) => (value ? 'Approved' : 'Pending Approval'),
-    sortGroups: (a, b) => (a === 'Approved' ? -1 : 1),
-  },
+  groupLiveBrand: true,
 };
 
 // Loading state
@@ -277,7 +260,7 @@ Loading.args = {
   multiple: false,
   brands: mockBrands,
   isLoading: true,
-  groupConfig: null,
+  groupLiveBrand: false,
 };
 
 // Multi select grouped by live status
@@ -290,29 +273,23 @@ MultiSelectGroupedByLiveStatus.args = {
   isLoading: false,
   maximumSelectedBrands: 3,
   defaultBrandUuids: ['1', '2', '3'],
-  groupConfig: {
-    key: 'isLiveBrand',
-    transform: (value: boolean) => (value ? 'Live Brands' : 'Not Live Yet'),
-    sortGroups: (a, b) => (a === 'Live Brands' ? -1 : 1),
-  },
+  groupLiveBrand: true,
 };
 
-// Multi select with many brands grouped by integration type (no max limit)
-export const MultiSelectManyBrandsGroupedByIntegrationType = Template.bind({});
-MultiSelectManyBrandsGroupedByIntegrationType.args = {
+// Multi select with many brands and all virtual options
+export const MultiSelectManyBrands = Template.bind({});
+MultiSelectManyBrands.args = {
   value: [],
-  label: 'Select Multiple Brands (Grouped by Integration Type)',
+  label: 'Select Multiple Brands',
   multiple: true,
   brands: extendedMockBrands,
   isLoading: false,
-  groupConfig: {
-    key: 'integrationType',
-    transform: (value: string) => `${value} Integration`,
-    sortGroups: (a, b) => a.localeCompare(b),
-  },
+  groupLiveBrand: false,
+  selectAll: true,
+  selectLiveBrands: true,
 };
 
-// Multi select with many brands grouped by live status (no max limit)
+// Multi select with many brands grouped by live status and all virtual options
 export const MultiSelectManyBrandsGroupedByLiveStatus = Template.bind({});
 MultiSelectManyBrandsGroupedByLiveStatus.args = {
   value: [],
@@ -320,25 +297,20 @@ MultiSelectManyBrandsGroupedByLiveStatus.args = {
   multiple: true,
   brands: extendedMockBrands,
   isLoading: false,
-  groupConfig: {
-    key: 'isLiveBrand',
-    transform: (value: boolean) => (value ? 'Live Brands' : 'Not Live Yet'),
-    sortGroups: (a, b) => (a === 'Live Brands' ? -1 : 1),
-  },
+  groupLiveBrand: true,
+  selectAll: true,
+  selectLiveBrands: true,
 };
 
-// Multi select with many brands grouped by approval status (no max limit)
-export const MultiSelectManyBrandsGroupedByApprovalStatus = Template.bind({});
-MultiSelectManyBrandsGroupedByApprovalStatus.args = {
+// Multi select with many brands (no grouping, no virtual options)
+export const MultiSelectManyBrandsNoGrouping = Template.bind({});
+MultiSelectManyBrandsNoGrouping.args = {
   value: [],
-  label: 'Select Multiple Brands (Grouped by Approval Status)',
+  label: 'Select Multiple Brands',
   multiple: true,
   brands: extendedMockBrands,
   isLoading: false,
-  groupConfig: {
-    key: 'isApproved',
-    transform: (value: boolean) =>
-      value ? 'Approved Brands' : 'Pending Approval',
-    sortGroups: (a, b) => (a === 'Approved Brands' ? -1 : 1),
-  },
+  groupLiveBrand: false,
+  selectAll: false,
+  selectLiveBrands: false,
 };
