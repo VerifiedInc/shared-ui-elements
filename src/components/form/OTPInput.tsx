@@ -86,8 +86,10 @@ function OTPInputComponent(
   );
 
   const idleInputStyle: SxProps = {
-    // FIXME - don't know what these hardcoded color are from the palette.
-    borderColor: props.error ? theme.palette.error.main : 'rgba(0, 0, 0, 0.23)',
+    borderColor: props.error
+      ? theme.palette.error.main
+      : // FIXME - don't know what the original color are from the palette, so assume it is disabled.
+        theme.palette.action.disabled,
   };
   const hoverInputStyle: SxProps = {
     borderColor: props.error
