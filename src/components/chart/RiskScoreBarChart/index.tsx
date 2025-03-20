@@ -6,6 +6,7 @@ import { RISK_SCORE_RANGES } from '../constants';
 import { SimpleBarChart } from '../SimpleBarChart';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
+import { NoRiskSignalsPermissionSection } from '../NoRiskSignalsPermissionSection';
 import { useStyle } from '../styles';
 
 export interface RiskScoreBarChartProps {
@@ -27,6 +28,10 @@ export interface RiskScoreBarChartProps {
    */
   isSuccess: boolean;
   /**
+   * Whether the user has permission to view risk signals
+   */
+  hasPermissionToDisplay?: boolean;
+  /**
    * MUI System props object for custom styling of the chart container
    */
   sx?: SxProps;
@@ -37,6 +42,7 @@ export function RiskScoreBarChart({
   isLoading,
   isFetching,
   isSuccess,
+  hasPermissionToDisplay = true,
   sx,
 }: RiskScoreBarChartProps): ReactElement {
   const theme = useTheme();
@@ -73,6 +79,10 @@ export function RiskScoreBarChart({
       color: theme.palette.error.main,
     },
   ];
+
+  if (!hasPermissionToDisplay) {
+    return <NoRiskSignalsPermissionSection />;
+  }
 
   if (isLoading) {
     return <LoadingChartSection />;
