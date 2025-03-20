@@ -1,10 +1,10 @@
 import { type ReactElement } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
-import { Label } from 'recharts';
 
 import { SimpleBarChart } from '../SimpleBarChart';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
+import { NoRiskSignalsPermissionSection } from '../NoRiskSignalsPermissionSection';
 import { useStyle } from '../styles';
 
 /**
@@ -33,6 +33,10 @@ interface ReasonCodesChartProps {
    * Data success state
    */
   isSuccess: boolean;
+  /**
+   * Whether the user has permission to view risk signals
+   */
+  hasPermissionToDisplay?: boolean;
   /**
    * MUI System props object for custom styling of the chart container
    */
@@ -67,6 +71,7 @@ export function ReasonCodesChart({
   isLoading = false,
   isFetching = false,
   isSuccess = true,
+  hasPermissionToDisplay = true,
   sx,
 }: ReasonCodesChartProps): ReactElement {
   const theme = useTheme();
@@ -82,6 +87,10 @@ export function ReasonCodesChart({
     dataKey: key,
     color: theme.palette.warning.light,
   }));
+
+  if (!hasPermissionToDisplay) {
+    return <NoRiskSignalsPermissionSection />;
+  }
 
   if (isLoading) {
     return <LoadingChartSection />;

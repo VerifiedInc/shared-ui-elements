@@ -6,6 +6,7 @@ import { RISK_SCORE_RANGES } from '../constants';
 import { PieChart } from '../PieChart';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
+import { NoRiskSignalsPermissionSection } from '../NoRiskSignalsPermissionSection';
 import { useStyle } from '../styles';
 
 export interface RiskScorePieChartProps {
@@ -32,6 +33,10 @@ export interface RiskScorePieChartProps {
    */
   isSuccess: boolean;
   /**
+   * Whether the user has permission to view risk signals
+   */
+  hasPermissionToDisplay?: boolean;
+  /**
    * MUI System props object for custom styling of the chart container
    */
   sx?: SxProps;
@@ -49,10 +54,15 @@ export function RiskScorePieChart({
   isLoading,
   isFetching,
   isSuccess,
+  hasPermissionToDisplay = true,
   sx,
 }: RiskScorePieChartProps): ReactElement {
   const theme = useTheme();
   const style = useStyle();
+
+  if (!hasPermissionToDisplay) {
+    return <NoRiskSignalsPermissionSection />;
+  }
 
   if (isLoading) {
     return <LoadingChartSection />;
