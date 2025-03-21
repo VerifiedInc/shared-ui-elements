@@ -1,9 +1,10 @@
 import { z } from 'zod';
 
 // SSN schema, validation regex were gathered from: https://uibakery.io/regex-library/ssn
-export const SSNSchema = z
-  .string()
-  .regex(/^(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$/);
+// The 000 allows for SSN testing. Ref: https://secure.ssa.gov/poms.nsf/lnx/0110201020
+const ssnRegex = /^(?!666|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$/;
+
+export const SSNSchema = z.string().regex(ssnRegex);
 
 /**
  * It accepts SSN in the format '•••-••-1900' or '123-45-6789'.
@@ -14,9 +15,7 @@ export const SSNSchema = z
 export const MaskedAndUnmaskedSSNSchema = z.string().refine(
   (val) => {
     const maskedRegex = /^•••-••-(\d{4})$/;
-    const unmaskedRegex = /^(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4}$/;
-
-    return maskedRegex.test(val) || unmaskedRegex.test(val);
+    return maskedRegex.test(val) || ssnRegex.test(val);
   },
   {
     message: 'Invalid SSN',
