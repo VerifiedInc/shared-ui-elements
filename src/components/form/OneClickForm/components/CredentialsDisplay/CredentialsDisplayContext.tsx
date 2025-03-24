@@ -4,6 +4,7 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useState,
@@ -26,6 +27,7 @@ import {
   transformToFormObject,
   transformToFormSchema,
   extractChildrenFromCredentialFieldSet,
+  hasMandatoryCredentialRequests,
 } from './utils';
 
 export type CredentialsDisplayContext = {
@@ -408,6 +410,11 @@ export default function CredentialsDisplayProvider({
 
     process();
   };
+
+  // Set initial edit mode based on the presence of mandatory credential requests.
+  useLayoutEffect(() => {
+    setEditMode(hasMandatoryCredentialRequests(defaultValues));
+  }, [defaultValues]);
 
   return (
     <FormProvider {...form}>
