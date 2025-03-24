@@ -272,6 +272,9 @@ export default function CredentialsDisplayProvider({
     value: unknown,
     options?: { shouldValidate?: boolean },
   ): void => {
+    // Select the credential if it has a value.
+    handleSelectCredential(path, !!value, false);
+
     const field = produce(form.getValues(path), (draft: CredentialFieldSet) => {
       draft.value = value as any;
     });
