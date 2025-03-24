@@ -154,7 +154,7 @@ export default function CredentialsDisplayProvider({
   });
 
   useEffect(() => {
-    const subscription = form.watch((value) => {
+    const subscription = form.watch((value, field) => {
       // Refresh form schema is needed to be able to compare the updated values of sibling fields and their schemas.
       setFormSchema(() => {
         return transformToFormSchema(
@@ -165,7 +165,11 @@ export default function CredentialsDisplayProvider({
           oneClickFormOptions.options,
         );
       });
+
+      // Because the form schema is updating it state, we have to trigger the field validation.
+      void form.trigger(field.name);
     });
+
     return () => {
       subscription.unsubscribe();
     };

@@ -414,7 +414,7 @@ function Footer() {
 
 function Component({ data, schemas }: any) {
   return (
-    <Stack width={362} flex={1} mt={1} justifyContent='space-between'>
+    <Stack width={362} flex={1} mt={1}>
       <OneClickForm
         credentials={data.credentials}
         schema={schemas}
