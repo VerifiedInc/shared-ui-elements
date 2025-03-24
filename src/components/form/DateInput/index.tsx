@@ -219,6 +219,7 @@ function DateInputComponent(
     helperText,
     fullWidth: true,
     ...props,
+    autoComplete: 'bday',
     inputProps: {
       ...props.inputProps,
       // Set the input mode to numeric.

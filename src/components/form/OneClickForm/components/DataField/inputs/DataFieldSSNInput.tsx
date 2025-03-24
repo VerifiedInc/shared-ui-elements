@@ -56,7 +56,7 @@ const DataFieldSSNInputMemoized = memo(
         // Use unmasked value.
         unmask: true,
         // Make placeholder always visible
-        lazy: false,
+        lazy: true,
         // Mask in the pattern of SSN.
         mask: 'XXX-XX-0000',
         definitions: {
