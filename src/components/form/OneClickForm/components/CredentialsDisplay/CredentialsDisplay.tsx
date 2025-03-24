@@ -60,6 +60,9 @@ export default function CredentialsDisplay(): ReactElement {
     <Box
       display='flex'
       sx={{
+        alignSelf: 'flex-start',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
         width: '100%',
         // Traverse the card image elements to apply flex to them.
         '& > div, & > div > div': {

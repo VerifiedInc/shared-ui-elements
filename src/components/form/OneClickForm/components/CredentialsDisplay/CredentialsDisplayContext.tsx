@@ -4,6 +4,7 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useState,
@@ -26,6 +27,7 @@ import {
   transformToFormObject,
   transformToFormSchema,
   extractChildrenFromCredentialFieldSet,
+  hasMandatoryCredentialRequests,
 } from './utils';
 
 export type CredentialsDisplayContext = {
@@ -154,7 +156,7 @@ export default function CredentialsDisplayProvider({
   });
 
   useEffect(() => {
-    const subscription = form.watch((value) => {
+    const subscription = form.watch((value, field) => {
       // Refresh form schema is needed to be able to compare the updated values of sibling fields and their schemas.
       setFormSchema(() => {
         return transformToFormSchema(
@@ -165,7 +167,11 @@ export default function CredentialsDisplayProvider({
           oneClickFormOptions.options,
         );
       });
+
+      // Because the form schema is updating it state, we have to trigger the field validation.
+      void form.trigger(field.name);
     });
+
     return () => {
       subscription.unsubscribe();
     };
@@ -268,6 +274,9 @@ export default function CredentialsDisplayProvider({
     value: unknown,
     options?: { shouldValidate?: boolean },
   ): void => {
+    // Select the credential if it has a value.
+    handleSelectCredential(path, !!value, false);
+
     const field = produce(form.getValues(path), (draft: CredentialFieldSet) => {
       draft.value = value as any;
     });
@@ -401,6 +410,11 @@ export default function CredentialsDisplayProvider({
 
     process();
   };
+
+  // Set initial edit mode based on the presence of mandatory credential requests.
+  useLayoutEffect(() => {
+    setEditMode(hasMandatoryCredentialRequests(defaultValues));
+  }, [defaultValues]);
 
   return (
     <FormProvider {...form}>

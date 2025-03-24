@@ -167,7 +167,7 @@ const mockData = {
       children: [
         {
           type: 'Line1Credential',
-          mandatory: 'if_available',
+          // mandatory: 'no',
           allowUserInput: false,
         },
         {
@@ -178,22 +178,22 @@ const mockData = {
         },
         {
           type: 'CityCredential',
-          mandatory: 'if_available',
+          // mandatory: 'no',
           allowUserInput: false,
         },
         {
           type: 'CountryCredential',
-          mandatory: 'if_available',
+          // mandatory: 'no',
           allowUserInput: false,
         },
         {
           type: 'StateCredential',
-          mandatory: 'if_available',
+          // mandatory: 'no',
           allowUserInput: false,
         },
         {
           type: 'ZipCodeCredential',
-          mandatory: 'if_available',
+          // mandatory: 'no',
           allowUserInput: false,
         },
       ],
@@ -414,7 +414,7 @@ function Footer() {
 
 function Component({ data, schemas }: any) {
   return (
-    <Stack width={362} flex={1} mt={1} justifyContent='space-between'>
+    <Stack width={362} flex={1} mt={1}>
       <OneClickForm
         credentials={data.credentials}
         schema={schemas}
