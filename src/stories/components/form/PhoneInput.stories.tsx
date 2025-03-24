@@ -62,3 +62,20 @@ export const WithoutClearButton: Story = {
     onBlur: fn(),
   },
 };
+
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const Autocomplete: Story = {
+  args: {
+    name: 'date',
+    label: 'Label',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Helper text',
+    shouldHaveSelectCountryButton: true,
+    shouldHaveClearButton: false,
+    onBlur: fn(),
+    placeholder: '+1 (___) ___-____',
+    lazy: true,
+  },
+};
