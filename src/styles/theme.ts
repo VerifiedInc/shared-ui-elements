@@ -264,7 +264,7 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
               fontWeight: 300,
             },
 
-            '& .MuiInputBase-input:not(.MuiInputBase-inputSizeSmall):not(.MuiAutocomplete-input)':
+            '& .MuiInputBase-input:not(.MuiInputBase-inputSizeSmall):not(.MuiAutocomplete-input):not(.MuiInputBase-inputMultiline)':
               {
                 paddingTop: 13.625,
                 paddingBottom: 13.625,
