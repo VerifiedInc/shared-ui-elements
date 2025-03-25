@@ -10,7 +10,6 @@ import {
   useTheme,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { LocationOn } from '@mui/icons-material';
 
 import { inputStyle } from '../../../../styles/input';
 
@@ -125,7 +124,8 @@ const DataFieldAddressInputMemoized = memo(
           }}
           renderInput={(params) => (
             <TextField
-              {...params}
+              id={params.id}
+              disabled={params.disabled}
               {...inputStyle}
               label={<DataFieldLabelText />}
               error={!!error}

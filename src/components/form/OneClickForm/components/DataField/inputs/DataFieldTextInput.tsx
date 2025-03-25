@@ -71,9 +71,6 @@ const DataFieldTextInputMemoized = memo(
       helperText:
         credentialsDisplayItem.credentialDisplayInfo.credentialRequest
           ?.description,
-      InputLabelProps: {
-        shrink: objectController.field.value.value ? true : undefined,
-      },
       InputProps: {
         // The placeholder must be empty in order to not display the one from google places API.
         placeholder: '',

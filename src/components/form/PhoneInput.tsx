@@ -155,9 +155,6 @@ export function PhoneInput({
       tabIndex: 0,
       type: 'tel',
     },
-    InputLabelProps: {
-      shrink: true,
-    },
     InputProps: {
       inputComponent: TextMaskCustom as any,
       startAdornment: shouldHaveSelectCountryButton && (

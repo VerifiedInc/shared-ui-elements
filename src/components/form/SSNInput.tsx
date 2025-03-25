@@ -91,9 +91,6 @@ export function SSNInput({
         </>
       ),
     },
-    InputLabelProps: {
-      shrink: true,
-    },
     fullWidth: true,
     sx: {
       '& input': {
