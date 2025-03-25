@@ -33,7 +33,7 @@ const DataFieldDateInputMemoized = memo(
       credentialDisplayInfo,
       handleChangeValueCredential,
     } = credentialsDisplayItem;
-    const { isValid, errorMessage } = itemValid;
+    const { isValid } = itemValid;
 
     // Arbitrary value to format the timestamp into human-readable date.
     const [localValue, setLocalValue] = useState<string>(
@@ -79,30 +79,34 @@ const DataFieldDateInputMemoized = memo(
           value={localValue}
           error={!isValid}
           helperText={credentialDisplayInfo.credentialRequest?.description}
+          placeholder='__/__/____'
           onChange={(value) => {
             const valid = USDateSchema.safeParse(value);
+            const valueParsed = value.replace(/[^0-9]/g, '');
 
             // Update the facade input value, so it let user input wrong/right values.
             setLocalValue(value);
 
+            if (valueParsed.length <= 0) {
+              // A way to make sure the data field state is empty is to empty the value.
+              return handleChangeValueCredential('');
+            }
+
             if (!valid.success) {
-              // A way to make sure the data field state is invalid is to empty the value.
-              return handleChangeValueCredential('-');
+              // A way to make sure the data field state is invalid is to add an invalid date value.
+              return handleChangeValueCredential('NaN');
             }
 
             const date = new Date(value);
             if (date < minDateInstance || date > maxDateInstance) {
-              // A way to make sure the data field state is invalid is to empty the value.
-              return handleChangeValueCredential('-');
+              // A way to make sure the data field state is invalid is to add an invalid date value.
+              return handleChangeValueCredential('NaN');
             }
 
             // Ensures the date is in UTC at noon.
             date.setUTCHours(12);
 
             handleChangeValueCredential(String(+date));
-          }}
-          inputMaskProps={{
-            maskPlaceholder: '__/__/____',
           }}
           InputProps={{
             endAdornment: (

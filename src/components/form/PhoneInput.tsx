@@ -29,6 +29,8 @@ export interface PhoneInputProps {
   autoFocus?: boolean;
   disabled?: boolean;
   InputProps?: InputProps;
+  placeholder?: string;
+  lazy?: boolean;
 }
 
 /**
@@ -51,6 +53,8 @@ export interface PhoneInputProps {
  * @param disabled - Whether the phone input is disabled. Defaults to false.
  * @param size - The size of the phone input. Defaults to 'small'.
  * @param variant - The variant of the phone input. Defaults to 'outlined'.
+ * @param placeholder - The placeholder for the phone input.
+ * @param lazy - Whether to use lazy loading for the phone input. Defaults to false.
  */
 export function PhoneInput({
   label = 'Phone',
@@ -69,6 +73,8 @@ export function PhoneInput({
   shouldHaveClearButton = false,
   disabled = false,
   size,
+  placeholder = '+1 (___) ___-____',
+  lazy = true,
 }: Readonly<PhoneInputProps>): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -137,24 +143,27 @@ export function PhoneInput({
     onBlur,
     autoComplete: 'tel',
     size,
+    placeholder,
     inputProps: {
       // Receive unmasked value on change.
       unmask: true,
       // Make placeholder always visible
-      lazy: false,
+      lazy,
       mask: phoneData?.mask,
       placeholderChar: '_',
       // Tab index for each block.
       tabIndex: 0,
-    },
-    InputLabelProps: {
-      shrink: true,
+      type: 'tel',
     },
     InputProps: {
       inputComponent: TextMaskCustom as any,
       startAdornment: shouldHaveSelectCountryButton && (
         <InputAdornment position='start'>
-          <CountrySelector value={country} onChange={_handleChangeCountry} />
+          <CountrySelector
+            value={country}
+            onChange={_handleChangeCountry}
+            shouldShowOnlyNorthAmericanCountries={false}
+          />
         </InputAdornment>
       ),
       endAdornment: shouldHaveClearButton && (

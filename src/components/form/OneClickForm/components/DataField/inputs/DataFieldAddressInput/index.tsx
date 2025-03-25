@@ -10,13 +10,13 @@ import {
   useTheme,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { LocationOn } from '@mui/icons-material';
 
 import { inputStyle } from '../../../../styles/input';
 
 import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/CredentialsDisplayItemContext';
 import { useCredentialsDisplayItemValid } from '../../../CredentialsDisplay/hooks';
 
+import { getAutoCompleteAttributeValue } from '../../utils';
 import { DataFieldLabelText } from '../../DataFieldLabelText';
 import { DataFieldClearAdornment } from '../../DataFieldClearAdornment';
 
@@ -119,12 +119,13 @@ const DataFieldAddressInputMemoized = memo(
             if (!newValue || typeof newValue === 'string') return;
             handleOptionChange(newValue).catch(console.error);
           }}
-          onInputChange={(event, newIputvalue) =>
-            handleInputChange(newIputvalue)
-          }
+          onInputChange={(event, newIputvalue) => {
+            handleInputChange(newIputvalue);
+          }}
           renderInput={(params) => (
             <TextField
-              {...params}
+              id={params.id}
+              disabled={params.disabled}
               {...inputStyle}
               label={<DataFieldLabelText />}
               error={!!error}
@@ -138,8 +139,10 @@ const DataFieldAddressInputMemoized = memo(
                 ...params.inputProps,
                 // Tab index for each block.
                 tabIndex: 0,
-                autoCorrect: 'off',
                 autoCapitalize: 'off',
+                autoComplete: getAutoCompleteAttributeValue(
+                  credentialsDisplayItem.objectController.field.value.type,
+                ),
               }}
               InputProps={{
                 ...params.InputProps,
@@ -154,24 +157,17 @@ const DataFieldAddressInputMemoized = memo(
                 ),
               }}
               fullWidth
-              multiline
-              maxRows={3}
             />
           )}
           renderOption={(props, option) => {
             const { key, ...optionProps } = props;
             return (
               <li key={key} {...optionProps}>
-                <Grid2 container sx={{ alignItems: 'center' }}>
-                  <Grid2 sx={{ display: 'flex', width: 44 }}>
-                    <LocationOn sx={{ color: 'text.secondary' }} />
-                  </Grid2>
-                  <Grid2
-                    sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}
-                  >
+                <Grid2 container sx={{ alignItems: 'flex-start' }}>
+                  <Grid2 sx={{ width: '100%', wordWrap: 'break-word' }}>
                     <Typography
                       variant='body2'
-                      sx={{ color: 'text.secondary' }}
+                      sx={{ color: 'text.secondary', textAlign: 'left' }}
                     >
                       {option?.title}
                     </Typography>

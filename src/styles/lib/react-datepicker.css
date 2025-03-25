@@ -942,6 +942,7 @@ select.react-datepicker__year-select {
   border: none;
   color: white;
   outline: none;
+  cursor: pointer;
 }
 
 /* Selected date and hovered date */
