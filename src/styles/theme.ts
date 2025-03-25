@@ -302,6 +302,9 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
         defaultProps: {
           variant: 'outlined',
           size: 'medium',
+          InputLabelProps: {
+            shrink: true,
+          },
         },
         styleOverrides: {
           root: {

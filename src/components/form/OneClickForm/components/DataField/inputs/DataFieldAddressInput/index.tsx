@@ -10,7 +10,6 @@ import {
   useTheme,
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { LocationOn } from '@mui/icons-material';
 
 import { inputStyle } from '../../../../styles/input';
 
@@ -125,7 +124,8 @@ const DataFieldAddressInputMemoized = memo(
           }}
           renderInput={(params) => (
             <TextField
-              {...params}
+              id={params.id}
+              disabled={params.disabled}
               {...inputStyle}
               label={<DataFieldLabelText />}
               error={!!error}
@@ -163,16 +163,11 @@ const DataFieldAddressInputMemoized = memo(
             const { key, ...optionProps } = props;
             return (
               <li key={key} {...optionProps}>
-                <Grid2 container sx={{ alignItems: 'center' }}>
-                  <Grid2 sx={{ display: 'flex', width: 44 }}>
-                    <LocationOn sx={{ color: 'text.secondary' }} />
-                  </Grid2>
-                  <Grid2
-                    sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}
-                  >
+                <Grid2 container sx={{ alignItems: 'flex-start' }}>
+                  <Grid2 sx={{ width: '100%', wordWrap: 'break-word' }}>
                     <Typography
                       variant='body2'
-                      sx={{ color: 'text.secondary' }}
+                      sx={{ color: 'text.secondary', textAlign: 'left' }}
                     >
                       {option?.title}
                     </Typography>

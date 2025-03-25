@@ -108,9 +108,6 @@ const DataFieldDateInputMemoized = memo(
 
             handleChangeValueCredential(String(+date));
           }}
-          InputLabelProps={{
-            shrink: true,
-          }}
           InputProps={{
             endAdornment: (
               <DataFieldClearAdornment onClick={() => setLocalValue('')} />
