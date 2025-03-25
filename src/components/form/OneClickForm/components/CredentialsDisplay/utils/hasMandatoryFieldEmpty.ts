@@ -5,17 +5,22 @@ import {
   isRequiredCredentialDisplayInfo,
 } from '../utils';
 
-export function hasMandatoryCredentialRequests(
-  fieldSet: CredentialFieldSet,
-): boolean {
+/**
+ * Checks if there is a mandatory field that is empty.
+ *
+ * @param fieldSet The field set to check.
+ * @returns True if there is a mandatory field that is empty, false otherwise.
+ */
+export function hasMandatoryFieldEmpty(fieldSet: CredentialFieldSet): boolean {
   const children = extractChildrenFromCredentialFieldSet(fieldSet);
   const childEntries = Object.entries(children);
   if (!childEntries.length) {
-    return isRequiredCredentialDisplayInfo(
+    const isMandatory = isRequiredCredentialDisplayInfo(
       fieldSet.credentialDisplayInfo.credentialRequest,
     );
+    return isMandatory && !fieldSet.value;
   }
   return childEntries.some(([_, childFieldSet]) =>
-    hasMandatoryCredentialRequests(childFieldSet),
+    hasMandatoryFieldEmpty(childFieldSet),
   );
 }

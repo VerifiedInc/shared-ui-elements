@@ -15,4 +15,4 @@ export * from './transformToFormSchema';
 export * from './getParentPath';
 export * from './getLastPathName';
 export * from './extractChildrenFromCredentialFieldSet';
-export * from './hasMandatoryCredentialRequests';
+export * from './hasMandatoryFieldEmpty';

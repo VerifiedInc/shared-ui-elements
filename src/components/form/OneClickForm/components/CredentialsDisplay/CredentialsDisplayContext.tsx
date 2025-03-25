@@ -27,7 +27,7 @@ import {
   transformToFormObject,
   transformToFormSchema,
   extractChildrenFromCredentialFieldSet,
-  hasMandatoryCredentialRequests,
+  hasMandatoryFieldEmpty,
 } from './utils';
 
 export type CredentialsDisplayContext = {
@@ -413,7 +413,7 @@ export default function CredentialsDisplayProvider({
 
   // Set initial edit mode based on the presence of mandatory credential requests.
   useLayoutEffect(() => {
-    setEditMode(hasMandatoryCredentialRequests(defaultValues));
+    setEditMode(hasMandatoryFieldEmpty(defaultValues));
   }, [defaultValues]);
 
   return (
