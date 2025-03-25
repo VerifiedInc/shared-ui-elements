@@ -17,7 +17,7 @@ export function EditModeButton(): ReactElement | null {
       startIcon={<Edit />}
       sx={{
         position: 'absolute',
-        top: 0,
+        top: 14,
         right: 0,
         zIndex: 1,
       }}
