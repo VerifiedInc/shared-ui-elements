@@ -11,6 +11,7 @@ import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsD
 
 import { DataFieldLabelText } from '../DataFieldLabelText';
 import { DataFieldClearAdornment } from '../DataFieldClearAdornment';
+import { getAutoCompleteAttributeValue } from '../utils';
 
 type DataFieldTextInputMemoizedProps = {
   credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
@@ -60,6 +61,9 @@ const DataFieldTextInputMemoized = memo(
     const textFieldStyle: TextFieldProps = {
       inputRef,
       ...inputStyle,
+      autoComplete: getAutoCompleteAttributeValue(
+        objectController.field.value.type,
+      ),
       label: <DataFieldLabelText />,
       defaultValue: objectController.field.value.value || '',
       onChange: (e) => handleChangeDebouncedValueCredential(e.target.value),

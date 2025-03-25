@@ -17,6 +17,7 @@ import { inputStyle } from '../../../../styles/input';
 import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/CredentialsDisplayItemContext';
 import { useCredentialsDisplayItemValid } from '../../../CredentialsDisplay/hooks';
 
+import { getAutoCompleteAttributeValue } from '../../utils';
 import { DataFieldLabelText } from '../../DataFieldLabelText';
 import { DataFieldClearAdornment } from '../../DataFieldClearAdornment';
 
@@ -119,9 +120,9 @@ const DataFieldAddressInputMemoized = memo(
             if (!newValue || typeof newValue === 'string') return;
             handleOptionChange(newValue).catch(console.error);
           }}
-          onInputChange={(event, newIputvalue) =>
-            handleInputChange(newIputvalue)
-          }
+          onInputChange={(event, newIputvalue) => {
+            handleInputChange(newIputvalue);
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -138,8 +139,10 @@ const DataFieldAddressInputMemoized = memo(
                 ...params.inputProps,
                 // Tab index for each block.
                 tabIndex: 0,
-                autoCorrect: 'off',
                 autoCapitalize: 'off',
+                autoComplete: getAutoCompleteAttributeValue(
+                  credentialsDisplayItem.objectController.field.value.type,
+                ),
               }}
               InputProps={{
                 ...params.InputProps,
@@ -154,8 +157,6 @@ const DataFieldAddressInputMemoized = memo(
                 ),
               }}
               fullWidth
-              multiline
-              maxRows={3}
             />
           )}
           renderOption={(props, option) => {
