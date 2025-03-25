@@ -164,9 +164,7 @@ const DataFieldAddressInputMemoized = memo(
             return (
               <li key={key} {...optionProps}>
                 <Grid2 container sx={{ alignItems: 'flex-start' }}>
-                  <Grid2
-                    sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}
-                  >
+                  <Grid2 sx={{ width: '100%', wordWrap: 'break-word' }}>
                     <Typography
                       variant='body2'
                       sx={{ color: 'text.secondary', textAlign: 'left' }}
