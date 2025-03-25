@@ -62,7 +62,7 @@ export function SSNInput({
       unmask: true,
       // Mask in the pattern of SSN.
       mask: 'XXX-XX-0000',
-
+      lazy: false,
       definitions: {
         X: {
           mask: /[0-9•]/,

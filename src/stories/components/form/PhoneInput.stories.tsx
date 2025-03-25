@@ -5,7 +5,7 @@ import { fn } from '@storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-  title: 'Components/PhoneInput',
+  title: 'Components/form/PhoneInput',
   component: PhoneInput,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
@@ -60,5 +60,22 @@ export const WithoutClearButton: Story = {
     shouldHaveSelectCountryButton: false,
     shouldHaveClearButton: false,
     onBlur: fn(),
+  },
+};
+
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const Autocomplete: Story = {
+  args: {
+    name: 'date',
+    label: 'Label',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Helper text',
+    shouldHaveSelectCountryButton: true,
+    shouldHaveClearButton: false,
+    onBlur: fn(),
+    placeholder: '+1 (___) ___-____',
+    lazy: true,
   },
 };

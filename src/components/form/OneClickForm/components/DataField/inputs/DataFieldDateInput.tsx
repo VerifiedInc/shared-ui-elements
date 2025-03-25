@@ -79,6 +79,7 @@ const DataFieldDateInputMemoized = memo(
           value={localValue}
           error={!isValid}
           helperText={credentialDisplayInfo.credentialRequest?.description}
+          placeholder='__/__/____'
           onChange={(value) => {
             const valid = USDateSchema.safeParse(value);
             const valueParsed = value.replace(/[^0-9]/g, '');
@@ -107,8 +108,8 @@ const DataFieldDateInputMemoized = memo(
 
             handleChangeValueCredential(String(+date));
           }}
-          inputMaskProps={{
-            maskPlaceholder: '__/__/____',
+          InputLabelProps={{
+            shrink: true,
           }}
           InputProps={{
             endAdornment: (
