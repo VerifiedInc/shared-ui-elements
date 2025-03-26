@@ -13,6 +13,8 @@ import {
   CredentialSchemas,
 } from './types/request';
 
+export * from './components/CredentialsDisplay/types';
+
 type OneClickFormProps = {
   credentialRequests?: CredentialRequests[];
   credentials: Credentials[];
