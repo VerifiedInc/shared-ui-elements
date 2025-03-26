@@ -14,6 +14,7 @@ import {
 } from './types/request';
 
 export * from './components/CredentialsDisplay/types';
+export * from './components/CredentialsDisplay/utils';
 
 type OneClickFormProps = {
   credentialRequests?: CredentialRequests[];
