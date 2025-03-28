@@ -157,6 +157,7 @@ const DataFieldAddressInputMemoized = memo(
                 ),
               }}
               fullWidth
+              multiline
             />
           )}
           renderOption={(props, option) => {
