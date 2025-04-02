@@ -3,11 +3,19 @@ import { motion } from 'framer-motion';
 
 import { useResizeObserver } from '../../hooks/useResizeObserver';
 
-export function AnimateHeight(props: PropsWithChildren): ReactElement {
+type AnimateHeightProps = {
+  duration?: number;
+};
+
+export function AnimateHeight(
+  props: PropsWithChildren<AnimateHeightProps>,
+): ReactElement {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [, height] = useResizeObserver(containerRef);
   return (
-    <motion.div animate={{ height, transition: { duration: 0.2 } }}>
+    <motion.div
+      animate={{ height, transition: { duration: props.duration ?? 0.2 } }}
+    >
       <div ref={containerRef}>{props.children}</div>
     </motion.div>
   );
