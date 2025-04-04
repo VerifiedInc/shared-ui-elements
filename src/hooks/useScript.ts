@@ -8,7 +8,11 @@ import { useEffect, useRef, useState } from 'react';
  */
 export function useScript(
   src: string,
-  options = { removeOnUnmount: false },
+  options: {
+    addToHead?: boolean;
+    removeOnUnmount?: boolean;
+    nonce?: string;
+  } = { addToHead: false, removeOnUnmount: false, nonce: undefined },
 ): string {
   const [status, setStatus] = useState('loading');
   const optionsRef = useRef(options);
@@ -29,7 +33,17 @@ export function useScript(
       script.src = src;
       script.async = true;
       script.setAttribute('data-status', 'loading');
-      document.body.appendChild(script);
+
+      // Set nonce if provided
+      optionsRef.current.nonce &&
+        script.setAttribute('nonce', optionsRef.current.nonce);
+
+      // Add script to head or body based on options
+      if (optionsRef.current.addToHead) {
+        document.head.appendChild(script);
+      } else {
+        document.body.appendChild(script);
+      }
 
       const handleScriptLoad = (): void => {
         script?.setAttribute('data-status', 'ready');
