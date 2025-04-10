@@ -1,4 +1,4 @@
-import { type MandatoryEnum } from './mandatoryEnum';
+import { type MandatoryEnum } from '@verifiedinc/constants';
 
 export interface CredentialRequests {
   type: string;

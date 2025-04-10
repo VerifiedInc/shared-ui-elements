@@ -13,9 +13,3 @@ export type CredentialRequests = {
 };
 
 export type CredentialSchemas = Record<string, any>;
-
-export enum MandatoryEnum {
-  YES = 'yes',
-  NO = 'no',
-  IF_AVAILABLE = 'if_available',
-}

@@ -2,7 +2,7 @@ import { useController } from 'react-hook-form';
 import { RadioGroup } from '@mui/material';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
-import { MandatoryEnum } from '../types/mandatoryEnum';
+import { MandatoryEnum } from '@verifiedinc/constants';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { RadioOption } from './RadioOption';

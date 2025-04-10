@@ -27,7 +27,7 @@ import {
   type CredentialRequestsEditorForm,
   type CredentialRequestsWithNew,
 } from '../types/form';
-import { MandatoryEnum } from '../types/mandatoryEnum';
+import { MandatoryEnum } from '@verifiedinc/constants';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { DataFieldOptionType } from './DataFieldOptionType';
 import { DataFieldDescription } from './DataFieldDescription';

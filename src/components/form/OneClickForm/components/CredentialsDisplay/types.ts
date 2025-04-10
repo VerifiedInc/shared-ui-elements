@@ -1,3 +1,5 @@
+import { MandatoryEnum } from '@verifiedinc/constants';
+
 /**
  * Represents the information to display for a single credential.
  */
@@ -35,12 +37,6 @@ export interface CredentialTypeDisplayInfo {
   label: string;
   type: string;
   schema: any;
-}
-
-export enum MandatoryEnum {
-  YES = 'yes',
-  NO = 'no',
-  IF_AVAILABLE = 'if_available',
 }
 
 export interface CredentialRequests {
