@@ -1,4 +1,4 @@
-import { MandatoryEnum } from '../../../types/request';
+import { MandatoryEnum } from '@verifiedinc/constants';
 
 // Check if the display info is strictly required by looking at the mandatory.
 export const isRequiredCredentialDisplayInfo = (displayInfo: {

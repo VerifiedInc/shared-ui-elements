@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { type CompositeCredentialSchema } from '../types/compositeCredentialSchema';
 import { CredentialRequests } from '../types/form';
 import { type CredentialSchemaDto } from '../types/credentialSchemasDto';
-import { MandatoryEnum } from '../types/mandatoryEnum';
+import { MandatoryEnum } from '@verifiedinc/constants';
 
 const isComposed = (schema: unknown): schema is CompositeCredentialSchema =>
   Object.prototype.hasOwnProperty.call(schema || {}, 'anyOf') ||

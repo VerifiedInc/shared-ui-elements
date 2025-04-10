@@ -135,6 +135,7 @@
     "zod": "^3.23.8"
   },
   "dependencies": {
-    "@date-fns/tz": "^1.2.0"
+    "@date-fns/tz": "^1.2.0",
+    "@verifiedinc/constants": "^1.10.0"
   }
 }

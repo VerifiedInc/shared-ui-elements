@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { v4 as uuid } from 'uuid';
 
-import { MandatoryEnum } from '../../../types/request';
+import { MandatoryEnum } from '@verifiedinc/constants';
 import { isCompositeBySchema } from '../../../utils/isCompositeBySchema';
 import { compareCredentialData } from '../../../utils/compareCredentialData';
 
