@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "5.21.0",
+  "version": "5.21.1-beta.0",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -136,6 +136,6 @@
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
-    "@verifiedinc/constants": "^1.10.0"
+    "@verifiedinc/constants": "^1.11.0"
   }
 }

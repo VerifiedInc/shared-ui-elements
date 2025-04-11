@@ -15,6 +15,7 @@ import {
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 
 import { SeriesChartLegend } from '../SeriesChartLegend';
+import { DEFAULT_TIMEZONE } from '@verifiedinc/constants';
 
 interface ChartDataPoint {
   date: number;
@@ -32,13 +33,16 @@ export interface SeriesChartData {
 interface SeriesChartProps {
   label: string;
   data: SeriesChartData[];
-  filter: { timezone: string };
+  filter: { timezone?: string };
   sx?: SxProps;
   showUuid?: boolean;
 }
 
 export function SeriesChart(props: SeriesChartProps): ReactElement {
   const theme = useTheme();
+
+  // Default to UTC if no timezone is provided
+  const { timezone = DEFAULT_TIMEZONE } = props.filter;
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...props.sx }}>
@@ -61,7 +65,7 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
             domain={['dataMin', 'dataMax']}
             tickFormatter={(value) =>
               formatDateMMYY(value, {
-                timeZone: props.filter.timezone,
+                timeZone: timezone,
                 hour12: false,
                 hour: 'numeric',
               })
@@ -93,7 +97,7 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
             formatter={(value) => Number(value).toLocaleString()}
             labelFormatter={(value) =>
               formatExtendedDate(value, {
-                timeZone: props.filter.timezone,
+                timeZone: timezone,
                 hour12: false,
               })
             }

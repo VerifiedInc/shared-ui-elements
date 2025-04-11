@@ -10,6 +10,7 @@ import {
 import React from 'react';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
+import { DEFAULT_TIMEZONE } from '@verifiedinc/constants';
 
 export type MonthlySignupsOverviewTableData = {
   month: string;
@@ -25,11 +26,17 @@ export type MonthlySignupsOverviewTableProps = {
   data: MonthlySignupsOverviewTableData[];
   isLoading: boolean;
   showTotalCost?: boolean;
+  timezone?: string;
 };
 
 export const MonthlySignupsOverviewTable: React.FC<
   MonthlySignupsOverviewTableProps
-> = ({ data, isLoading, showTotalCost = true }) => {
+> = ({
+  data,
+  isLoading,
+  showTotalCost = true,
+  timezone = DEFAULT_TIMEZONE,
+}) => {
   if (isLoading) {
     return <LoadingChartSection />;
   }
@@ -57,7 +64,7 @@ export const MonthlySignupsOverviewTable: React.FC<
                 {new Date(row.month).toLocaleDateString(undefined, {
                   month: 'short',
                   year: 'numeric',
-                  timeZone: 'UTC',
+                  timeZone: timezone,
                 })}
               </TableCell>
               <TableCell>{row.brand}</TableCell>
