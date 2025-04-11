@@ -136,6 +136,6 @@
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
-    "@verifiedinc/constants": "^1.10.0"
+    "@verifiedinc/constants": "^1.11.0"
   }
 }
