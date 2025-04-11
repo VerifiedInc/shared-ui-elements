@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -27,7 +33,7 @@ import {
   type CredentialRequestsEditorForm,
   type CredentialRequestsWithNew,
 } from '../types/form';
-import { MandatoryEnum } from '@verifiedinc/constants';
+import { MandatoryEnum, SDKIntegrationType } from '@verifiedinc/constants';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { DataFieldOptionType } from './DataFieldOptionType';
 import { DataFieldDescription } from './DataFieldDescription';
@@ -38,12 +44,14 @@ import { DataFieldMulti } from './DataFieldMulti';
 
 interface DataFieldAccordionProps {
   defaultExpanded?: boolean;
+  integrationType: SDKIntegrationType;
+  riskSignals: 'none' | 'basic' | 'advanced';
 }
 
 export function DataFieldAccordion(
   props: DataFieldAccordionProps,
 ): React.JSX.Element {
-  const { defaultExpanded } = props;
+  const { defaultExpanded, integrationType, riskSignals } = props;
   const credentialRequestField = useCredentialRequestField();
   const formContext = useFormContext<CredentialRequestsEditorForm>();
   const field = useController<CredentialRequestsEditorForm>({
@@ -62,6 +70,12 @@ export function DataFieldAccordion(
 
   const theme = useTheme();
   const chevronClassName = 'chevron';
+
+  const fieldName = useMemo(() => {
+    return (
+      field.field.value && (field.field.value as CredentialRequestsWithNew).type
+    );
+  }, [field.field.value]);
 
   const canDrop = useCallback(
     (item: typeof credentialRequestField) => {
@@ -199,6 +213,24 @@ export function DataFieldAccordion(
     );
   };
 
+  const renderDataFields = (): React.JSX.Element => {
+    return (
+      <Stack spacing={2}>
+        <DataFieldOptionType />
+        {integrationType !== SDKIntegrationType.NON_HOSTED && (
+          <>
+            <DataFieldDescription />
+            <DataFieldMandatory />
+            <DataFieldUserInput />
+          </>
+        )}
+        {fieldName === 'AddressCredential' && (
+          <DataFieldMulti riskSignals={riskSignals} />
+        )}
+      </Stack>
+    );
+  };
+
   useEffect(() => {
     if (!isNew) return;
     accordionRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -312,15 +344,7 @@ export function DataFieldAccordion(
               </Stack>
             </AccordionSummary>
             <AccordionDetails sx={{ pt: 3 }}>
-              {expanded && (
-                <Stack spacing={2}>
-                  <DataFieldOptionType />
-                  <DataFieldDescription />
-                  <DataFieldMandatory />
-                  <DataFieldUserInput />
-                  <DataFieldMulti />
-                </Stack>
-              )}
+              {expanded && renderDataFields()}
             </AccordionDetails>
           </Accordion>
         </Box>

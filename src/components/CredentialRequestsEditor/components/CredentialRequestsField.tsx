@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stack } from '@mui/material';
 import { Add } from '@mui/icons-material';
+import { MandatoryEnum } from '@verifiedinc/constants';
 import {
   useFieldArray,
   type UseFieldArrayReturn,
@@ -55,7 +56,10 @@ function CredentialRequestField({
               (parentFieldArray ?? fieldArray)?.remove(parentIndex);
             }}
           >
-            <DataFieldAccordion />
+            <DataFieldAccordion
+              riskSignals={customConfig.riskSignals}
+              integrationType={customConfig.integrationType}
+            />
             {Array.isArray(field.children) && (
               <CredentialRequestField
                 key={`${_path}.children`}
@@ -73,8 +77,18 @@ function CredentialRequestField({
           type='button'
           onClick={() => {
             if (!customConfig) return;
+            const baseValue = buildDataFieldValue('', customConfig.schemas);
             const newValue: CredentialRequestsWithNew = {
-              ...buildDataFieldValue('', customConfig.schemas),
+              type: baseValue.type,
+              issuers: baseValue.issuers,
+              required: baseValue.required,
+              mandatory: baseValue.mandatory as MandatoryEnum | undefined,
+              description: baseValue.description,
+              allowUserInput: baseValue.allowUserInput,
+              multi: baseValue.multi,
+              children: baseValue.children as
+                | CredentialRequestsWithNew[]
+                | undefined,
               isNew: true,
             };
             fieldArray.append(newValue);

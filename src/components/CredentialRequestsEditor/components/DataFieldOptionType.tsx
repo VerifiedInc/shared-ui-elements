@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { useController } from 'react-hook-form';
 import { Autocomplete, TextField } from '@mui/material';
+import { MandatoryEnum } from '@verifiedinc/constants';
 
 import { prettyField } from '../utils/prettyField';
 
 import {
   type CredentialRequests,
   type CredentialRequestsEditorForm,
+  type CredentialRequestsWithNew,
 } from '../types/form';
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
@@ -55,9 +57,22 @@ export function DataFieldOptionType(): React.JSX.Element {
         onChange={(_, value) => {
           if (!value) return;
 
+          const baseValue = buildDataFieldValue(value.id, schemas);
+          const newValue: CredentialRequestsWithNew = {
+            type: baseValue.type,
+            issuers: baseValue.issuers,
+            required: baseValue.required,
+            mandatory: baseValue.mandatory as MandatoryEnum | undefined,
+            description: baseValue.description,
+            allowUserInput: baseValue.allowUserInput,
+            multi: baseValue.multi,
+            children: baseValue.children as
+              | CredentialRequestsWithNew[]
+              | undefined,
+          };
           credentialRequestField?.fieldArray.update(
             credentialRequestField?.index,
-            buildDataFieldValue(value.id, schemas),
+            newValue,
           );
         }}
         options={schemaValues}

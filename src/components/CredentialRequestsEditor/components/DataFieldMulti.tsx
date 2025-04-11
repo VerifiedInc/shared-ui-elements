@@ -7,9 +7,14 @@ import { useCredentialRequestField } from '../contexts/CredentialRequestFieldCon
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
-export function DataFieldMulti(): React.JSX.Element | null {
+export function DataFieldMulti({
+  riskSignals,
+}: {
+  riskSignals: 'none' | 'basic' | 'advanced';
+}): React.JSX.Element | null {
   const { features } = useCredentialRequestsEditor();
-  const isFeatureDisabled = features?.multi?.disabled === true;
+  const isFeatureDisabled =
+    features?.multi?.disabled === true || riskSignals === 'none';
 
   const credentialRequestField = useCredentialRequestField();
   const multi = useController<CredentialRequestsEditorForm>({
@@ -21,7 +26,11 @@ export function DataFieldMulti(): React.JSX.Element | null {
   return (
     <DataFieldSection
       title='Multiple Values'
-      description='Whether multiple data values should be included if available'
+      description={
+        riskSignals === 'none'
+          ? 'This option is disabled when the Risk Signals brand setting is set to Off'
+          : 'Whether multiple data values should be included if available'
+      }
       tip={
         <>
           <pre>POST /1-click</pre>
