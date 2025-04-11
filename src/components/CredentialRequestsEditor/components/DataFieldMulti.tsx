@@ -28,7 +28,7 @@ export function DataFieldMulti({
       title='Multiple Values'
       description={
         riskSignals === 'none'
-          ? 'This option is disabled when the risk signals are off'
+          ? 'This option is disabled when the Risk Signals brand setting is set to Off'
           : 'Whether multiple data values should be included if available'
       }
       tip={
