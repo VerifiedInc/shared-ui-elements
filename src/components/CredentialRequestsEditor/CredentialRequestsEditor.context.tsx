@@ -9,7 +9,7 @@ import {
   type CredentialRequestsEditorForm,
   type CredentialRequestsWithNew,
 } from './types/form';
-import { SDKIntegrationType } from '@verifiedinc/constants';
+import { SdkIntegrationType } from './types/sdk';
 
 export interface CredentialRequestsEditorFeatures {
   allowUserInput?: {
@@ -31,7 +31,7 @@ export interface CredentialRequestsEditorProps {
   credentialRequests: CredentialRequestsWithNew[];
   schemas: Record<string, any>;
   children: ReactNode;
-  integrationType: SDKIntegrationType;
+  integrationType: SdkIntegrationType;
   riskSignals: 'none' | 'basic' | 'advanced';
   onChange: (credentialRequests: CredentialRequests[]) => void;
   features?: CredentialRequestsEditorFeatures;
@@ -42,7 +42,7 @@ export interface CredentialRequestsEditorContext {
   riskSignals: 'none' | 'basic' | 'advanced';
   schemas: Record<string, any>;
   features?: CredentialRequestsEditorFeatures;
-  integrationType: SDKIntegrationType;
+  integrationType: SdkIntegrationType;
 }
 
 const Context = createContext<CredentialRequestsEditorContext | null>(null);

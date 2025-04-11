@@ -1,4 +1,4 @@
-import { MandatoryEnum } from '@verifiedinc/constants';
+import { MandatoryEnum } from '@/components/CredentialRequestsEditor/types/mandatoryEnum';
 
 /**
  * Represents the information to display for a single credential.
