@@ -7,7 +7,7 @@ import {
   TextField,
 } from '@mui/material';
 
-import timezonesJSON from './timezones.json';
+import { timezones } from '@verifiedinc/constants';
 
 const PopperComponent = function PopperComponent(
   props: PopperProps,
@@ -44,9 +44,9 @@ export function TimezoneInput({
   onChange,
 }: TimezoneInputProps): ReactElement {
   const options = useMemo(() => {
-    return timezonesJSON.map((timezone) => ({
-      tzCode: timezone.tzCode,
-      label: timezone.label,
+    return timezones.map((timezone) => ({
+      tzCode: timezone.name,
+      label: `${timezone.name} (GMT${timezone.utc_offset.includes('-') ? '' : '+'}${timezone.utc_offset.replace(/(.*)(:00)$/, '$1')})`,
     }));
   }, []);
 

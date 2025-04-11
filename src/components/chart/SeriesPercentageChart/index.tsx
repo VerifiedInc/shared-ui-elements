@@ -14,6 +14,7 @@ import {
 
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
+import { DEFAULT_TIMEZONE } from '@verifiedinc/constants';
 
 interface KeyValue {
   key: string;
@@ -36,7 +37,7 @@ interface SeriesChartData {
 
 interface SeriesPercentageChartProps {
   data: SeriesChartData[];
-  filter: { timezone: string };
+  filter: { timezone?: string };
   keyValues: KeyValue[];
   sx?: SxProps;
 }
@@ -116,6 +117,7 @@ const formatChartData = (
 export function SeriesPercentageChart(
   props: SeriesPercentageChartProps,
 ): ReactElement {
+  const { timezone = DEFAULT_TIMEZONE } = props.filter;
   const theme = useTheme();
   const formattedData = useMemo(() => {
     if (!props.data) return [];
@@ -143,7 +145,7 @@ export function SeriesPercentageChart(
             domain={['dataMin', 'dataMax']}
             tickFormatter={(value) =>
               formatDateMMYY(value, {
-                timeZone: props.filter.timezone,
+                timeZone: timezone,
                 hour12: false,
                 hour: 'numeric',
               })
@@ -162,7 +164,7 @@ export function SeriesPercentageChart(
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
             labelFormatter={(value) =>
               formatExtendedDate(value, {
-                timeZone: props.filter.timezone,
+                timeZone: timezone,
                 hour12: false,
               })
             }
