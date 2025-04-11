@@ -66,18 +66,6 @@ export function DataFieldMandatory(): React.JSX.Element {
           }
           disabled={isFeatureDisabled}
         />
-        <RadioOption
-          value={MandatoryEnum.YES}
-          title='Required'
-          description="Required — flow fails if user doesn't have it"
-          tip={MandatoryEnum.YES}
-          inputProps={
-            {
-              'data-testid': 'custom-demo-dialog-mandatory-yes-radio',
-            } as any
-          }
-          disabled={isFeatureDisabled}
-        />
       </RadioGroup>
     </DataFieldSection>
   );
