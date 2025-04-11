@@ -7,7 +7,7 @@ import {
   TextField,
 } from '@mui/material';
 
-import { timezones } from '@verifiedinc/constants';
+import { timezones } from './timezones';
 
 const PopperComponent = function PopperComponent(
   props: PopperProps,
