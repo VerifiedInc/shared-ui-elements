@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { v4 as uuid } from 'uuid';
 
-import { MandatoryEnum } from '@/components/CredentialRequestsEditor/types/mandatoryEnum';
 import { isCompositeBySchema } from '../../../utils/isCompositeBySchema';
 import { compareCredentialData } from '../../../utils/compareCredentialData';
 
@@ -9,6 +8,7 @@ import {
   CredentialDisplayInfo,
   CredentialRequests,
   Credentials,
+  MandatoryEnum,
 } from '../types';
 import {
   filterRepeatedCredentials,

@@ -1,8 +1,13 @@
-import { MandatoryEnum } from '@/components/CredentialRequestsEditor/types/mandatoryEnum';
-
 /**
  * Represents the information to display for a single credential.
  */
+
+export enum MandatoryEnum {
+  YES = 'yes',
+  NO = 'no',
+  IF_AVAILABLE = 'if_available',
+}
+
 export interface CredentialDisplayInfo {
   id: string;
   label?: string | undefined;
