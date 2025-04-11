@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack } from '@mui/material';
 import { Add } from '@mui/icons-material';
-import { MandatoryEnum } from '@verifiedinc/constants';
+import { MandatoryEnum } from '../types/mandatoryEnum';
 import {
   useFieldArray,
   type UseFieldArrayReturn,

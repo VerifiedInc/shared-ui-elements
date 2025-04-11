@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useController } from 'react-hook-form';
 import { Autocomplete, TextField } from '@mui/material';
-import { MandatoryEnum } from '@verifiedinc/constants';
+import { MandatoryEnum } from '../types/mandatoryEnum';
 
 import { prettyField } from '../utils/prettyField';
 

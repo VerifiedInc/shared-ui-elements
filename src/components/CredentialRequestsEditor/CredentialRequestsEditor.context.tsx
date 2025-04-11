@@ -9,7 +9,7 @@ import {
   type CredentialRequestsEditorForm,
   type CredentialRequestsWithNew,
 } from './types/form';
-import { SDKIntegrationType } from '@verifiedinc/constants';
+import { SDKIntegrationType } from './types/sdk';
 
 export interface CredentialRequestsEditorFeatures {
   allowUserInput?: {

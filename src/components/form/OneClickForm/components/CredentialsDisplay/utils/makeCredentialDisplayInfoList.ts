@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { v4 as uuid } from 'uuid';
 
-import { MandatoryEnum } from '@verifiedinc/constants';
+import { MandatoryEnum } from '@/components/CredentialRequestsEditor/types/mandatoryEnum';
 import { isCompositeBySchema } from '../../../utils/isCompositeBySchema';
 import { compareCredentialData } from '../../../utils/compareCredentialData';
 
@@ -103,7 +103,7 @@ export const makeCredentialDisplayInfoList = (
             credential.data as any[],
             makeCredentialRequestsList(),
             schema,
-            options || {
+            options ?? {
               allowUserInput: credentialRequest.allowUserInput,
               mandatory: credentialRequest.mandatory,
             },

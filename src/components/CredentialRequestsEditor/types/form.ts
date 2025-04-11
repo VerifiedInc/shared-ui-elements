@@ -1,7 +1,15 @@
-import { type MandatoryEnum } from '@verifiedinc/constants';
-import { CredentialRequest as CredentialRequests } from '@verifiedinc/constants';
+import { type MandatoryEnum } from './mandatoryEnum';
 
-export type { CredentialRequests };
+export interface CredentialRequests {
+  type: string;
+  issuers?: string[];
+  required?: boolean;
+  mandatory?: MandatoryEnum;
+  description?: string;
+  allowUserInput?: boolean;
+  multi?: boolean;
+  children?: CredentialRequests[];
+}
 
 export interface CredentialRequestsWithNew {
   type: string;

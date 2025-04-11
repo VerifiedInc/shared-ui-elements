@@ -33,7 +33,8 @@ import {
   type CredentialRequestsEditorForm,
   type CredentialRequestsWithNew,
 } from '../types/form';
-import { MandatoryEnum, SDKIntegrationType } from '@verifiedinc/constants';
+import { MandatoryEnum } from '../types/mandatoryEnum';
+import { SDKIntegrationType } from '../types/sdk';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { DataFieldOptionType } from './DataFieldOptionType';
 import { DataFieldDescription } from './DataFieldDescription';
