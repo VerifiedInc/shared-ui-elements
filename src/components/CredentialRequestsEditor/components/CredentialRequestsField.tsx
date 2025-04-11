@@ -57,6 +57,7 @@ function CredentialRequestField({
             }}
           >
             <DataFieldAccordion
+              riskSignals={customConfig.riskSignals}
               integrationType={customConfig.integrationType}
             />
             {Array.isArray(field.children) && (

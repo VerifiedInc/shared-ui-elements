@@ -79,6 +79,7 @@ export const API: Story = {
     },
   ],
   args: {
+    riskSignals: 'basic',
     integrationType: SDKIntegrationType.NON_HOSTED,
     credentialRequests: [],
     schemas: {},
@@ -122,6 +123,51 @@ export const SDK: Story = {
     },
   ],
   args: {
+    riskSignals: 'basic',
+    integrationType: SDKIntegrationType.HOSTED,
+    credentialRequests: [],
+    schemas: {},
+    onChange: fn() as any,
+    features: {
+      allowUserInput: {
+        disabled: false,
+      },
+      description: {
+        disabled: false,
+      },
+      mandatory: {
+        disabled: false,
+      },
+      multi: {
+        disabled: false,
+      },
+    },
+  },
+};
+
+export const SDKWithNoRiskSignals: Story = {
+  loaders: [
+    async () => {
+      const schemas = await (
+        await fetch('http://localhost:6061/jsonSchema')
+      ).json();
+
+      const credentialRequests = [
+        buildDataFieldValue('FullNameCredential', schemas),
+        buildDataFieldValue('PhoneCredential', schemas),
+        buildDataFieldValue('AddressCredential', schemas),
+        buildDataFieldValue('BirthDateCredential', schemas),
+        buildDataFieldValue('SsnCredential', schemas),
+      ];
+
+      return {
+        credentialRequests,
+        schemas,
+      };
+    },
+  ],
+  args: {
+    riskSignals: 'none',
     integrationType: SDKIntegrationType.HOSTED,
     credentialRequests: [],
     schemas: {},

@@ -45,12 +45,13 @@ import { DataFieldMulti } from './DataFieldMulti';
 interface DataFieldAccordionProps {
   defaultExpanded?: boolean;
   integrationType: SDKIntegrationType;
+  riskSignals: 'none' | 'basic' | 'advanced';
 }
 
 export function DataFieldAccordion(
   props: DataFieldAccordionProps,
 ): React.JSX.Element {
-  const { defaultExpanded, integrationType } = props;
+  const { defaultExpanded, integrationType, riskSignals } = props;
   const credentialRequestField = useCredentialRequestField();
   const formContext = useFormContext<CredentialRequestsEditorForm>();
   const field = useController<CredentialRequestsEditorForm>({
@@ -223,7 +224,9 @@ export function DataFieldAccordion(
             <DataFieldUserInput />
           </>
         )}
-        {fieldName === 'AddressCredential' && <DataFieldMulti />}
+        {fieldName === 'AddressCredential' && (
+          <DataFieldMulti riskSignals={riskSignals} />
+        )}
       </Stack>
     );
   };
