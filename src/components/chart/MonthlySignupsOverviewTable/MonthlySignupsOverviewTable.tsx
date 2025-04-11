@@ -10,7 +10,7 @@ import {
 import React from 'react';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
-import { DEFAULT_TIMEZONE } from '@verifiedinc/constants';
+import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 
 export type MonthlySignupsOverviewTableData = {
   month: string;

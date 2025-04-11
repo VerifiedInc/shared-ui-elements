@@ -15,7 +15,7 @@ import {
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 
 import { SeriesChartLegend } from '../SeriesChartLegend';
-import { DEFAULT_TIMEZONE } from '@verifiedinc/constants';
+import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 
 interface ChartDataPoint {
   date: number;

@@ -14,7 +14,7 @@ import {
 
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
-import { DEFAULT_TIMEZONE } from '@verifiedinc/constants';
+import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 
 interface KeyValue {
   key: string;
