@@ -5,6 +5,7 @@ import { Box } from '@mui/material';
 
 import { buildDataFieldValue } from '../../components/CredentialRequestsEditor/utils/buildDataFieldValue';
 import { CredentialRequestsEditor } from '../../components/CredentialRequestsEditor';
+import { SDKIntegrationType } from '@verifiedinc/constants';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -56,7 +57,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Default: Story = {
+export const API: Story = {
   loaders: [
     async () => {
       const schemas = await (
@@ -78,6 +79,96 @@ export const Default: Story = {
     },
   ],
   args: {
+    riskSignals: 'basic',
+    integrationType: SDKIntegrationType.NON_HOSTED,
+    credentialRequests: [],
+    schemas: {},
+    onChange: fn() as any,
+    features: {
+      allowUserInput: {
+        disabled: false,
+      },
+      description: {
+        disabled: false,
+      },
+      mandatory: {
+        disabled: false,
+      },
+      multi: {
+        disabled: false,
+      },
+    },
+  },
+};
+
+export const SDK: Story = {
+  loaders: [
+    async () => {
+      const schemas = await (
+        await fetch('http://localhost:6061/jsonSchema')
+      ).json();
+
+      const credentialRequests = [
+        buildDataFieldValue('FullNameCredential', schemas),
+        buildDataFieldValue('PhoneCredential', schemas),
+        buildDataFieldValue('AddressCredential', schemas),
+        buildDataFieldValue('BirthDateCredential', schemas),
+        buildDataFieldValue('SsnCredential', schemas),
+      ];
+
+      return {
+        credentialRequests,
+        schemas,
+      };
+    },
+  ],
+  args: {
+    riskSignals: 'basic',
+    integrationType: SDKIntegrationType.HOSTED,
+    credentialRequests: [],
+    schemas: {},
+    onChange: fn() as any,
+    features: {
+      allowUserInput: {
+        disabled: false,
+      },
+      description: {
+        disabled: false,
+      },
+      mandatory: {
+        disabled: false,
+      },
+      multi: {
+        disabled: false,
+      },
+    },
+  },
+};
+
+export const SDKWithNoRiskSignals: Story = {
+  loaders: [
+    async () => {
+      const schemas = await (
+        await fetch('http://localhost:6061/jsonSchema')
+      ).json();
+
+      const credentialRequests = [
+        buildDataFieldValue('FullNameCredential', schemas),
+        buildDataFieldValue('PhoneCredential', schemas),
+        buildDataFieldValue('AddressCredential', schemas),
+        buildDataFieldValue('BirthDateCredential', schemas),
+        buildDataFieldValue('SsnCredential', schemas),
+      ];
+
+      return {
+        credentialRequests,
+        schemas,
+      };
+    },
+  ],
+  args: {
+    riskSignals: 'none',
+    integrationType: SDKIntegrationType.HOSTED,
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,
