@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 
 import { buildDataFieldValue } from '../../components/CredentialRequestsEditor/utils/buildDataFieldValue';
 import { CredentialRequestsEditor } from '../../components/CredentialRequestsEditor';
-import { SDKIntegrationType } from '../../components/CredentialRequestsEditor/types/sdk';
+import { SdkIntegrationType } from '../../components/CredentialRequestsEditor/types/sdk';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -80,7 +80,7 @@ export const API: Story = {
   ],
   args: {
     riskSignals: 'basic',
-    integrationType: SDKIntegrationType.NON_HOSTED,
+    integrationType: SdkIntegrationType.NON_HOSTED,
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,
@@ -124,7 +124,7 @@ export const SDK: Story = {
   ],
   args: {
     riskSignals: 'basic',
-    integrationType: SDKIntegrationType.HOSTED,
+    integrationType: SdkIntegrationType.HOSTED,
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,
@@ -168,7 +168,7 @@ export const SDKWithNoRiskSignals: Story = {
   ],
   args: {
     riskSignals: 'none',
-    integrationType: SDKIntegrationType.HOSTED,
+    integrationType: SdkIntegrationType.HOSTED,
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,

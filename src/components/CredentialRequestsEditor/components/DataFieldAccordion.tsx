@@ -34,7 +34,7 @@ import {
   type CredentialRequestsWithNew,
 } from '../types/form';
 import { MandatoryEnum } from '../types/mandatoryEnum';
-import { SDKIntegrationType } from '../types/sdk';
+import { SdkIntegrationType } from '../types/sdk';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { DataFieldOptionType } from './DataFieldOptionType';
 import { DataFieldDescription } from './DataFieldDescription';
@@ -45,7 +45,7 @@ import { DataFieldMulti } from './DataFieldMulti';
 
 interface DataFieldAccordionProps {
   defaultExpanded?: boolean;
-  integrationType: SDKIntegrationType;
+  integrationType: SdkIntegrationType;
   riskSignals: 'none' | 'basic' | 'advanced';
 }
 
@@ -218,7 +218,7 @@ export function DataFieldAccordion(
     return (
       <Stack spacing={2}>
         <DataFieldOptionType />
-        {integrationType !== SDKIntegrationType.NON_HOSTED && (
+        {integrationType !== SdkIntegrationType.NON_HOSTED && (
           <>
             <DataFieldDescription />
             <DataFieldMandatory />
