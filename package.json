@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "5.21.1-beta.0",
+  "version": "5.23.3",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -136,5 +136,8 @@
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }
