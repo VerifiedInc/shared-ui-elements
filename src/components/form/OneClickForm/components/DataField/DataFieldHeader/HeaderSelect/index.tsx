@@ -45,9 +45,13 @@ export function HeaderSelect(): ReactElement {
     variant: 'outlined',
     // When the credential is new, it should display with placeholder the select component.
     value: isNewCredential ? undefined : credentialDisplayInfo.id,
-    onChange: (e) => handleChangeCredentialInstance(e.target.value),
+    onChange: (e) => {
+      // Prevent the event to propagate to the parent.
+      e.stopPropagation();
+      handleChangeCredentialInstance(e.target.value);
+    },
     InputProps: {
-      readOnly: instances.length <= 1,
+      // readOnly: instances.length <= 1,
     },
     SelectProps: {
       size: 'small',
@@ -114,7 +118,7 @@ export function HeaderSelect(): ReactElement {
   return (
     <TextField
       {...textFieldProps}
-      disabled={!allowUserInput && instances.length <= 1}
+      // disabled={!allowUserInput && instances.length <= 1}
     >
       {instances.map(renderInstance(false))}
     </TextField>
