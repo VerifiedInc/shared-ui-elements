@@ -21,6 +21,16 @@ export const darken = (color: string, amount: number) => {
 };
 
 /**
+ * Sets the alpha channel of a color.
+ * @param color The color to modify.
+ * @param amount The amount to set the alpha channel to.
+ * @returns The color with the alpha channel set.
+ */
+export const alpha = (color: string, amount: number) => {
+  return tinycolor(color).setAlpha(amount).toHex8String();
+};
+
+/**
  * Get the color that has the highest contrast with the given color.
  * @param color The color to check.
  * @returns The best color to use for text on the given color.
