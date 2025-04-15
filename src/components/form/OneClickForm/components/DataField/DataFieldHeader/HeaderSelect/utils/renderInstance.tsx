@@ -140,6 +140,10 @@ export const renderInstance =
         key={credentialDisplayInfo.id}
         value={credentialDisplayInfo.id}
         sx={_styles.menuStyle}
+        onClick={(e) => {
+          // Prevent the event to propagate to the parent.
+          e.stopPropagation();
+        }}
       >
         {renderTextValues(credentialDisplayInfo)}
       </MenuItem>
