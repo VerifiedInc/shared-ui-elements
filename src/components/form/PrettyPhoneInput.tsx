@@ -2,10 +2,10 @@ import { Box, keyframes, useTheme } from '@mui/material';
 
 import { alpha, darken } from '../../utils/color';
 
-import { PhoneInput, PhoneInputProps } from './PhoneInput';
+import { BasePhoneInput, type BasePhoneInputProps } from './BasePhoneInput';
 
 export function PrettyPhoneInput(
-  props: Readonly<PhoneInputProps>,
+  props: Readonly<BasePhoneInputProps>,
 ): React.JSX.Element {
   const theme = useTheme();
   const primaryColor = props.error
@@ -140,7 +140,7 @@ export function PrettyPhoneInput(
           },
       }}
     >
-      <PhoneInput {...props} />
+      <BasePhoneInput {...props} />
     </Box>
   );
 }

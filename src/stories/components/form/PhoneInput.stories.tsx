@@ -35,6 +35,20 @@ export const Default: Story = {
 };
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const Pretty: Story = {
+  args: {
+    name: 'date',
+    label: 'Label',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Helper text',
+    onBlur: fn(),
+    pretty: true,
+  },
+};
+
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const USOnlyPhone: Story = {
   args: {
     name: 'date',
