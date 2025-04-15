@@ -19,7 +19,7 @@ export interface OneClickOverTimeChartProps {
   isSuccess: boolean;
   isFetching: boolean;
   filter: {
-    timezone: string;
+    timezone?: string;
     brands: BrandFilter[];
   };
 }
