@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+
 import {
   Paper,
   Table,
@@ -30,6 +32,8 @@ export type MonthlySignupsOverviewTableProps = {
   showRiskSignal?: boolean;
   timezone?: string;
 };
+
+const EMPTY_CHAR = '';
 
 export const MonthlySignupsOverviewTable: React.FC<
   MonthlySignupsOverviewTableProps
@@ -73,13 +77,18 @@ export const MonthlySignupsOverviewTable: React.FC<
               </TableCell>
               <TableCell>{row.brand}</TableCell>
               <TableCell>{row.integrationType}</TableCell>
-              <TableCell align='right'>{row.total}</TableCell>
-              <TableCell align='right'>{row.finished}</TableCell>
+              <TableCell align='right'>{row.total || EMPTY_CHAR}</TableCell>
+              <TableCell align='right'>{row.finished || EMPTY_CHAR}</TableCell>
               {showTotalCost && (
-                <TableCell align='right'>{row.totalCost ?? '-'}</TableCell>
+                <TableCell align='right'>
+                  {row.totalCost ?? EMPTY_CHAR}
+                </TableCell>
               )}
               {showRiskSignal && (
-                <TableCell align='right'>{row.riskSignal ?? '-'}</TableCell>
+                // Decision to use || instead of ?? because riskSignal is a number and if it is 0, we don't want to show it
+                <TableCell align='right'>
+                  {row.riskSignal || EMPTY_CHAR}
+                </TableCell>
               )}
             </TableRow>
           ))}
