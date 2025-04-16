@@ -22,8 +22,9 @@ export interface MapTimeSeriesDataOptions {
     interval?: Array<{
       oneClickCreated: number;
       oneClickSuccess: number;
-      date: number;
+      date: string;
       totalCost?: string;
+      riskSignal?: number;
       [key: string]: any;
     }>;
     brandUuid: string;
