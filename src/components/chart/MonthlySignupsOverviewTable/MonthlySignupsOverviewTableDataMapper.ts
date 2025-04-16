@@ -1,4 +1,6 @@
 import { kebabCaseToPretty } from '../../../utils/string/formatKebabToPretty';
+import { MonthlySignupsOverviewTableData } from './MonthlySignupsOverviewTable';
+
 type Brand = {
   brandUuid: string;
   brandName: string;
@@ -11,8 +13,9 @@ type ChartData = {
   interval?: Array<{
     oneClickCreated: number;
     oneClickSuccess: number;
-    date: number;
+    date: string;
     totalCost?: string;
+    riskSignal?: number;
   }>;
   overall: {
     oneClickCreated: number;
@@ -29,7 +32,7 @@ type MapMonthlySignupsOverviewTableDataParams = {
 export const mapMonthlySignupsOverviewTableData = ({
   data,
   brands,
-}: MapMonthlySignupsOverviewTableDataParams) => {
+}: MapMonthlySignupsOverviewTableDataParams): MonthlySignupsOverviewTableData[] => {
   return data.flatMap((brandData) => {
     const brand = brands.find((b) => b.brandUuid === brandData.brandUuid);
     if (!brand || !brandData.interval) return [];
@@ -42,6 +45,7 @@ export const mapMonthlySignupsOverviewTableData = ({
       total: interval.oneClickCreated,
       finished: interval.oneClickSuccess,
       totalCost: interval.totalCost,
+      riskSignal: interval.riskSignal,
     }));
   });
 };

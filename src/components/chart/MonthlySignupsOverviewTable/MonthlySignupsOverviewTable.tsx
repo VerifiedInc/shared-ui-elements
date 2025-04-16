@@ -20,12 +20,14 @@ export type MonthlySignupsOverviewTableData = {
   total: number;
   finished: number;
   totalCost?: string;
+  riskSignal?: number;
 };
 
 export type MonthlySignupsOverviewTableProps = {
   data: MonthlySignupsOverviewTableData[];
   isLoading: boolean;
   showTotalCost?: boolean;
+  showRiskSignal?: boolean;
   timezone?: string;
 };
 
@@ -35,6 +37,7 @@ export const MonthlySignupsOverviewTable: React.FC<
   data,
   isLoading,
   showTotalCost = true,
+  showRiskSignal = true,
   timezone = DEFAULT_TIMEZONE,
 }) => {
   if (isLoading) {
@@ -55,6 +58,7 @@ export const MonthlySignupsOverviewTable: React.FC<
             <TableCell align='right'>Started</TableCell>
             <TableCell align='right'>Finished</TableCell>
             {showTotalCost && <TableCell align='right'>Total Cost</TableCell>}
+            {showRiskSignal && <TableCell align='right'>Risk Signal</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -73,6 +77,9 @@ export const MonthlySignupsOverviewTable: React.FC<
               <TableCell align='right'>{row.finished}</TableCell>
               {showTotalCost && (
                 <TableCell align='right'>{row.totalCost ?? '-'}</TableCell>
+              )}
+              {showRiskSignal && (
+                <TableCell align='right'>{row.riskSignal ?? '-'}</TableCell>
               )}
             </TableRow>
           ))}
