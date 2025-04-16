@@ -18,7 +18,7 @@ export interface SignupBigNumbersChartData {
   interval?: Array<{
     oneClickCreated: number;
     oneClickSuccess: number;
-    date: number;
+    date: string;
     totalCost?: string;
   }>;
   brandUuid: string;
