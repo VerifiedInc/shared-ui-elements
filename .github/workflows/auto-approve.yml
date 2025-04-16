@@ -1,0 +1,19 @@
+name: Auto Approve PR with approve Label
+# The gitstream automations are not working on this repo thanks to Digger muscling them out... adding this here as a temporary workaround
+
+on:
+  pull_request_target:
+    types: [labeled, opened, reopened, synchronize]
+
+jobs:
+  auto-approve:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'approve')
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Auto approve PR
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          review-message: Automatically approved based on the approve label.
