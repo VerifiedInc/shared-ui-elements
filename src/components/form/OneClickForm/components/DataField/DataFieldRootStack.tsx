@@ -18,12 +18,11 @@ export function DataFieldRootStack(props: StackProps): ReactElement {
   const form = useFormContext<CredentialFieldSet>();
   const data = form.watch();
   const shouldShow = isSomeFieldInputAllowed(data);
-
   return (
     <DataFieldStack
       {...props}
       role='button'
-      onClick={() => {
+      onClick={(e) => {
         if (context.isEditMode || !shouldShow) return;
         context.setEditMode(true);
       }}

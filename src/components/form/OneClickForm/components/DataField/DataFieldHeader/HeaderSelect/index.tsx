@@ -17,9 +17,6 @@ export function HeaderSelect(): ReactElement {
 
   const isNewCredential = isNewCredentialValues(credentialDisplayInfo);
 
-  const allowUserInput =
-    credentialDisplayInfo.credentialRequest?.allowUserInput;
-
   const inputRef = useRef<HTMLDivElement | undefined>(undefined);
   const [inputWidth, setInputWidth] = useState<string | undefined>(undefined);
 
@@ -48,13 +45,19 @@ export function HeaderSelect(): ReactElement {
     onChange: (e) => {
       // Prevent the event to propagate to the parent.
       e.stopPropagation();
+      e.preventDefault();
       handleChangeCredentialInstance(e.target.value);
     },
     InputProps: {
-      readOnly: instances.length <= 1,
+      readOnly: instances.length <= 0,
     },
     SelectProps: {
       size: 'small',
+      onClose: (e) => {
+        // Prevent the event to propagate to the parent.
+        e.stopPropagation();
+        e.preventDefault();
+      },
       MenuProps: {
         slotProps: {
           paper: {
@@ -68,7 +71,7 @@ export function HeaderSelect(): ReactElement {
     sx: {
       width: '100%',
       ..._styles.fieldInputDisabledStyle,
-      ...(instances.length <= 1 && (_styles.fieldInputReadonlyStyle as any)),
+      ...(instances.length <= 0 && (_styles.fieldInputReadonlyStyle as any)),
       '& div[role="combobox"]': {
         width: '100%',
         height: 'auto',
@@ -116,10 +119,7 @@ export function HeaderSelect(): ReactElement {
   }, []);
 
   return (
-    <TextField
-      {...textFieldProps}
-      // disabled={!allowUserInput && instances.length <= 1}
-    >
+    <TextField {...textFieldProps}>
       {instances.map(renderInstance(false))}
     </TextField>
   );

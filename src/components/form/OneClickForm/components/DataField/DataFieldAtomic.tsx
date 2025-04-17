@@ -20,7 +20,11 @@ import {
   DataFieldSSNInput,
   DataFieldImageInput,
 } from './inputs';
-import { DataFieldInputModeHeader, DataFieldLeftSide } from './';
+import {
+  DataFieldHeader,
+  DataFieldInputModeHeader,
+  DataFieldLeftSide,
+} from './';
 
 /**
  * This component renders an atomic level credential, it displays the component by displayFormat.
@@ -31,9 +35,6 @@ export function DataFieldAtomic(): ReactElement | null {
   const { credentialDisplayInfo, objectController, parentFieldSet, isRoot } =
     useCredentialsDisplayItem();
   const hasMultipleInstances = credentialDisplayInfo.instances.length > 1;
-  const allowUserInput =
-    credentialDisplayInfo.credentialRequest?.allowUserInput;
-  const canEdit = allowUserInput;
   const isEditMode = credentialDisplayInfo.uiState.isEditMode;
   const fieldType = objectController.field.value.type;
 
@@ -61,6 +62,14 @@ export function DataFieldAtomic(): ReactElement | null {
   // Render data field as read only.
   const renderReadOnlyField = (): ReactElement | undefined => {
     const props = { hasMultipleInstances };
+
+    if (hasMultipleInstances) {
+      return (
+        <When value={isRoot && !isEditMode}>
+          <DataFieldHeader block />
+        </When>
+      );
+    }
 
     return when(credentialDisplayInfo?.displayFormat, {
       [DisplayFormatEnum.Image]: () => <DataFieldImage {...props} />,
@@ -107,10 +116,6 @@ export function DataFieldAtomic(): ReactElement | null {
     >
       <DataFieldLeftSide />
       <Stack direction='column' sx={stackStyle}>
-        {/* When is root data field, display the header. */}
-        <When value={isRoot && !isEditMode}>
-          <Box sx={{ mb: 0.5 }}>{/* <DataFieldHeader block /> */}</Box>
-        </When>
         {/* When is root and edit mode, display the input mode header. */}
         <When value={isRoot && isEditMode}>
           <DataFieldInputModeHeader sx={{ mb: 0.5 }} />

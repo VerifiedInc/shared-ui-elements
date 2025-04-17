@@ -342,6 +342,19 @@ const mockData = {
       },
     },
     {
+      id: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
+      uuid: '10a9e718-e20a-4179-8774-54a25f73eab6',
+      createdAt: '1738698702792',
+      updatedAt: '1738698702792',
+      type: 'SsnCredential',
+      issuanceDate: '1738698702792',
+      expirationDate: null,
+      issuerUuid: '2f842399-4220-434d-920d-8b41319cf5db',
+      data: {
+        ssn: '•••-••-6788',
+      },
+    },
+    {
       id: '3c145728-0df2-4207-94a2-7fad69b74f04',
       uuid: '27c6504c-25c2-46e2-90ff-bd5a8064b51c',
       createdAt: '1738698702792',
