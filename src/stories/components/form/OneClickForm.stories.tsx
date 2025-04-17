@@ -135,7 +135,7 @@ const mockData = {
   },
   credentialRequests: [
     {
-      allowUserInput: false,
+      allowUserInput: true,
       mandatory: 'if_available',
       multi: false,
       type: 'FullNameCredential',
@@ -143,13 +143,13 @@ const mockData = {
         {
           type: 'FirstNameCredential',
           mandatory: 'if_available',
-          allowUserInput: false,
+          // allowUserInput: false,
         },
         // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
         {
           type: 'LastNameCredential',
           mandatory: 'if_available',
-          allowUserInput: false,
+          // allowUserInput: false,
         },
       ],
     },

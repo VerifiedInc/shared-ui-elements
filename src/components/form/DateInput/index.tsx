@@ -46,8 +46,10 @@ const GhostInput = forwardRef(function RenderInput(
         edge='end'
         size='small'
         onClick={() => {
+          if (props.disabled) return;
           props.onFocus?.();
         }}
+        disabled={props.disabled}
       >
         <CalendarToday fontSize='small' />
       </IconButton>
@@ -61,12 +63,14 @@ const Picker = function RenderPicker({
   defaultSelectedDate,
   overflow = false,
   clickOutsideBoundaryElement,
+  disabled,
 }: {
   value: string;
   onChange: (event: { target: { value: string } }) => void;
   defaultSelectedDate?: Date;
   overflow?: boolean;
   clickOutsideBoundaryElement?: HTMLElement | null;
+  disabled?: boolean;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -174,7 +178,8 @@ const Picker = function RenderPicker({
             setOpen(false);
           }
         }}
-        customInput={<GhostInput />}
+        disabled={disabled}
+        customInput={<GhostInput disabled={disabled} />}
       />
     </Box>
   );
@@ -239,6 +244,7 @@ function DateInputComponent(
             overflow={pickerInputOverflow}
             clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
             defaultSelectedDate={pickerDefaultSelectedDate}
+            disabled={disabled}
           />
           {props.InputProps?.endAdornment}
         </>

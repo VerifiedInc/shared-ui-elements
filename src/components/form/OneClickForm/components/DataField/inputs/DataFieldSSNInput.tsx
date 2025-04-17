@@ -33,6 +33,7 @@ const DataFieldSSNInputMemoized = memo(
     const value = objectController.field.value.value;
 
     const handleChange = (event: { target: { value: string } }): void => {
+      if (credentialsDisplayItem.isDisabled) return;
       handleChangeValueCredential(event.target.value, {
         shouldValidate: event.target.value.length > 0,
       });
@@ -56,6 +57,7 @@ const DataFieldSSNInputMemoized = memo(
               />
             ),
           }}
+          disabled={credentialsDisplayItem.isDisabled}
         />
       </Box>
     );

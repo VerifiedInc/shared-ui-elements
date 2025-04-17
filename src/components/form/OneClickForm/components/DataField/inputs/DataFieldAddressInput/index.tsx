@@ -112,10 +112,11 @@ const DataFieldAddressInputMemoized = memo(
           value={value}
           inputValue={inputValue}
           loading={isPending || isFetchingPlace}
-          disabled={isFetchingPlace}
+          disabled={isFetchingPlace || credentialsDisplayItem.isDisabled}
           onChange={(event, newValue: string | Option | null) => {
             event.preventDefault();
             event.stopPropagation();
+            if (credentialsDisplayItem.isDisabled) return;
             if (!newValue || typeof newValue === 'string') return;
             handleOptionChange(newValue).catch(console.error);
           }}

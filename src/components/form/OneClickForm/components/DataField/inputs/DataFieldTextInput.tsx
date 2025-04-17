@@ -66,7 +66,10 @@ const DataFieldTextInputMemoized = memo(
       ),
       label: <DataFieldLabelText />,
       defaultValue: objectController.field.value.value || '',
-      onChange: (e) => handleChangeDebouncedValueCredential(e.target.value),
+      onChange: (e) => {
+        if (credentialsDisplayItem.isDisabled) return;
+        handleChangeDebouncedValueCredential(e.target.value);
+      },
       error: !itemValid.isValid,
       helperText:
         credentialsDisplayItem.credentialDisplayInfo.credentialRequest
@@ -92,6 +95,7 @@ const DataFieldTextInputMemoized = memo(
         autoCapitalize: 'off',
       },
       fullWidth: true,
+      disabled: credentialsDisplayItem.isDisabled,
     };
 
     return (

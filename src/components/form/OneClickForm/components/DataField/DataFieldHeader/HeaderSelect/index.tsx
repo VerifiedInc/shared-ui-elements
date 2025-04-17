@@ -51,7 +51,7 @@ export function HeaderSelect(): ReactElement {
       handleChangeCredentialInstance(e.target.value);
     },
     InputProps: {
-      // readOnly: instances.length <= 1,
+      readOnly: instances.length <= 1,
     },
     SelectProps: {
       size: 'small',

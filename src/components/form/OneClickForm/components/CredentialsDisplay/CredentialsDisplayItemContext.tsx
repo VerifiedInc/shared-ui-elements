@@ -27,6 +27,7 @@ export type CredentialsDisplayItemContext = {
   isChecked: boolean;
   isAllChecked: boolean;
   isSelectable: boolean;
+  isDisabled: boolean;
   isRoot: boolean;
   handleSelectCredential(checked: boolean, shouldCascade?: boolean): void;
   handleChangeValueCredential(
@@ -213,6 +214,12 @@ export default function CredentialsDisplayItemProvider(
     return cascadeCheck(field);
   }, [JSON.stringify(field)]);
 
+  // Disabled prop that will be passed to the input only,
+  // and not to the field controller as it may set the value to undefined, we do not want that.
+  const isDisabled = useMemo(() => {
+    return !restProps.credentialDisplayInfo?.credentialRequest?.allowUserInput;
+  }, [JSON.stringify(restProps.credentialDisplayInfo)]);
+
   return (
     <Context.Provider
       value={{
@@ -222,6 +229,7 @@ export default function CredentialsDisplayItemProvider(
         isRoot,
         isChecked,
         isAllChecked,
+        isDisabled,
         handleSelectCredential,
         handleChangeCredentialInstance,
         handleChangeValueCredential,

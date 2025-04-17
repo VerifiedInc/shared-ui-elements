@@ -63,8 +63,8 @@ export const makeCredentialDisplayInfoList = (
       ...credentialRequest,
       mandatory:
         credentialRequest.mandatory ?? options?.mandatory ?? MandatoryEnum.NO,
-      // The SDK currently will allow user input always
-      allowUserInput: true,
+      allowUserInput:
+        credentialRequest.allowUserInput ?? options?.allowUserInput ?? false,
       description,
     };
 
@@ -75,7 +75,8 @@ export const makeCredentialDisplayInfoList = (
     const mapCredentialRequests = (credentialDto: any) => ({
       type: credentialDto.type,
       mandatory: credentialRequest.mandatory,
-      allowUserInput: (options ?? credentialRequest)?.allowUserInput,
+      allowUserInput:
+        credentialRequest.allowUserInput ?? options?.allowUserInput ?? false,
     });
 
     // Make CredentialRequests list from children or from credentials.

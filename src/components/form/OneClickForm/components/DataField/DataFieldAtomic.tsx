@@ -70,7 +70,7 @@ export function DataFieldAtomic(): ReactElement | null {
 
   // Render the given credential, being input mode or display mode.
   const renderField = (): ReactElement | undefined => {
-    if (canEdit && isEditMode) {
+    if (isEditMode) {
       return renderInputField();
     }
 
