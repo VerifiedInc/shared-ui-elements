@@ -31,7 +31,7 @@ export function DataFieldSelectInput() {
     handleClearValueCredential,
   } = credentialsDisplayItem;
 
-  const { isValid, errorMessage } = useCredentialsDisplayItemValid();
+  const { isValid } = useCredentialsDisplayItemValid();
 
   const schemaProperty = findCorrectSchemaProperty(
     credentialDisplayInfo.schema,
@@ -160,8 +160,9 @@ export function DataFieldSelectInput() {
         isOptionEqualToValue={(option, value) => option?.id === value?.id}
         value={value}
         onChange={(_event, newInputValue) => {
-          // User clicked on clear button.
+          if (credentialsDisplayItem.isDisabled) return;
           if (!newInputValue) {
+            // User clicked on clear button.
             handleClearValueCredential();
             return;
           }
@@ -178,6 +179,7 @@ export function DataFieldSelectInput() {
             }}
           />
         )}
+        disabled={credentialsDisplayItem.isDisabled}
       />
     </Box>
   );
