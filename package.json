@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "5.25.4",
+  "version": "5.25.1-beta.1",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "keywords": [],
@@ -109,6 +109,7 @@
     "vitest": "^1.6.0"
   },
   "peerDependencies": {
+    "@date-fns/tz": "^1.2.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@fontsource/lato": "^5.0.21",
@@ -130,11 +131,10 @@
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
     "react-imask": "^7.6.1",
+    "react-to-pdf": "^2.0.0",
     "recharts": ">=2.15.0",
     "tinycolor2": ">=1.6.0",
-    "zod": "^3.23.8",
-    "@date-fns/tz": "^1.2.0",
-    "react-to-pdf": "^2.0.0"
+    "zod": "^3.23.8"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5"

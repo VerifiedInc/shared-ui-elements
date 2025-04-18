@@ -85,9 +85,7 @@ export const WithSeriesChart = {
           />
         </Box>
         <Stack direction='row' spacing={2} sx={{ justifyContent: 'center' }}>
-          <ExportToPdfButton targetId='chart-container' filename='chart'>
-            Export
-          </ExportToPdfButton>
+          <ExportToPdfButton targetId='chart-container' filename='chart' />
         </Stack>
       </>
     );
