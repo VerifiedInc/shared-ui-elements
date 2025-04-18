@@ -14,8 +14,8 @@ export function DataFieldStack(props: StackProps): ReactElement {
   return (
     <Stack
       direction='column'
-      sx={{ width: '100%' }}
       {...props}
+      sx={{ width: '100%', ...props.sx }}
       spacing={context.isEditMode ? 2.125 : 1.1875}
     />
   );
