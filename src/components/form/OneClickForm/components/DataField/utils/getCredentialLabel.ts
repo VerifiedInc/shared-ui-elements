@@ -12,6 +12,7 @@ export function getCredentialLabel(
 ): string | undefined {
   return when(type, {
     SsnCredential: () => 'SSN',
+    GovernmentIdDocumentImageCredential: () => 'Gov. Doc ID',
     else: () => label,
   });
 }

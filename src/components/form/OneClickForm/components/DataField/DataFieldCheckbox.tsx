@@ -36,10 +36,16 @@ export function DataFieldCheckbox(): ReactElement | null {
 
   return (
     <Checkbox
-      sx={{ mr: 1 }}
+      sx={{ mr: 1, alignSelf: 'flex-start' }}
       checked={isChecked}
       indeterminate={isChecked && !isAllChecked}
-      onChange={() => handleSelectCredential(!isChecked)}
+      onChange={(e) => {
+        e.stopPropagation();
+        handleSelectCredential(!isChecked);
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
       disabled={isRequired}
       inputProps={{
         tabIndex: -1,
