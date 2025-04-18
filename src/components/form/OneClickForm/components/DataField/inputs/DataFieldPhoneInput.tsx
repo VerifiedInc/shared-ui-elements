@@ -52,6 +52,7 @@ const DataFieldPhoneInputMemoized = memo(
     }, []);
 
     const handleChange = (newValue: string): void => {
+      if (credentialsDisplayItem.isDisabled) return;
       handleChangeValueCredential(newValue, {
         shouldValidate: newValue.length > 3,
       });
@@ -72,6 +73,7 @@ const DataFieldPhoneInputMemoized = memo(
           InputProps={{
             endAdornment: <DataFieldClearAdornment />,
           }}
+          disabled={credentialsDisplayItem.isDisabled}
         />
       </Box>
     );

@@ -81,6 +81,8 @@ const DataFieldDateInputMemoized = memo(
           helperText={credentialDisplayInfo.credentialRequest?.description}
           placeholder='__/__/____'
           onChange={(value) => {
+            if (credentialsDisplayItem.isDisabled) return;
+
             const valid = USDateSchema.safeParse(value);
             const valueParsed = value.replace(/[^0-9]/g, '');
 
@@ -110,7 +112,12 @@ const DataFieldDateInputMemoized = memo(
           }}
           InputProps={{
             endAdornment: (
-              <DataFieldClearAdornment onClick={() => setLocalValue('')} />
+              <DataFieldClearAdornment
+                onClick={() => {
+                  if (credentialsDisplayItem.isDisabled) return;
+                  setLocalValue('');
+                }}
+              />
             ),
           }}
           pickerInputOverflow
@@ -118,6 +125,7 @@ const DataFieldDateInputMemoized = memo(
           pickerClickOutsideBoundaryElement={
             features.datePickerClickOutsideBoundaryElement
           }
+          disabled={credentialsDisplayItem.isDisabled}
         />
       </Box>
     );

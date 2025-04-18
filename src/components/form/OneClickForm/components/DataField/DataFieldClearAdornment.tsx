@@ -16,7 +16,9 @@ type QueryInputReturn =
 export function DataFieldClearAdornment({
   onClick,
 }: DataFieldClearAdornmentProps) {
-  const { handleClearValueCredential } = useCredentialsDisplayItem();
+  const { isDisabled, handleClearValueCredential } =
+    useCredentialsDisplayItem();
+
   const queryInput = (button: HTMLButtonElement): QueryInputReturn => {
     return (
       button.parentElement?.parentElement?.querySelector('input') ??
@@ -32,10 +34,13 @@ export function DataFieldClearAdornment({
         edge='end'
         size='small'
         onClick={(e) => {
+          // Handling disabled state
+          if (isDisabled) return;
           queryInput(e.currentTarget)?.focus();
           handleClearValueCredential();
           onClick?.();
         }}
+        disabled={isDisabled}
       >
         <Close fontSize='small' />
       </IconButton>

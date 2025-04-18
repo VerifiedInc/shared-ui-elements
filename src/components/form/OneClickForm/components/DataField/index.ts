@@ -7,3 +7,4 @@ export * from './DataFieldLabel';
 export * from './DataFieldInputModeHeader';
 export * from './DataFieldLeftSide';
 export * from './DataFieldClearAdornment';
+export * from './DataFieldHeader';

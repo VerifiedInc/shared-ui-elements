@@ -78,18 +78,24 @@ const DataFieldImageInputMemoized = memo(
               accept='image/*'
               onChange={(event) => {
                 void (async () => {
+                  if (credentialsDisplayItem.isDisabled) return;
                   const base64 = await handleLoadImageToBase64FromFile(event);
                   if (!base64) return;
                   handleChangeValueCredential(base64);
                 })();
               }}
               sx={{ display: 'none', visibility: 'hidden' }}
+              disabled={credentialsDisplayItem.isDisabled}
             />
             <Button
               color='primary'
               type='button'
-              onClick={() => inputRef.current?.click()}
+              onClick={() => {
+                if (credentialsDisplayItem.isDisabled) return;
+                inputRef.current?.click();
+              }}
               tabIndex={0}
+              disabled={credentialsDisplayItem.isDisabled}
             >
               {credentialDisplayInfo.value ? 'Change Image' : 'Add Image'}
             </Button>

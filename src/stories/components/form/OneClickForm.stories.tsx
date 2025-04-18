@@ -135,7 +135,7 @@ const mockData = {
   },
   credentialRequests: [
     {
-      allowUserInput: false,
+      allowUserInput: true,
       mandatory: 'if_available',
       multi: false,
       type: 'FullNameCredential',
@@ -143,13 +143,13 @@ const mockData = {
         {
           type: 'FirstNameCredential',
           mandatory: 'if_available',
-          allowUserInput: false,
+          // allowUserInput: false,
         },
         // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
         {
           type: 'LastNameCredential',
           mandatory: 'if_available',
-          allowUserInput: false,
+          // allowUserInput: false,
         },
       ],
     },
@@ -339,6 +339,19 @@ const mockData = {
       issuerUuid: '2f842399-4220-434d-920d-8b41319cf5db',
       data: {
         ssn: '•••-••-6789',
+      },
+    },
+    {
+      id: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
+      uuid: '10a9e718-e20a-4179-8774-54a25f73eab6',
+      createdAt: '1738698702792',
+      updatedAt: '1738698702792',
+      type: 'SsnCredential',
+      issuanceDate: '1738698702792',
+      expirationDate: null,
+      issuerUuid: '2f842399-4220-434d-920d-8b41319cf5db',
+      data: {
+        ssn: '•••-••-6788',
       },
     },
     {

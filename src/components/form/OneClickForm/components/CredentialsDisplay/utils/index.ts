@@ -16,3 +16,4 @@ export * from './getParentPath';
 export * from './getLastPathName';
 export * from './extractChildrenFromCredentialFieldSet';
 export * from './hasMandatoryFieldEmpty';
+export * from './isSomeFieldInputAllowed';
