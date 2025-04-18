@@ -37,19 +37,12 @@ const DataFieldImageInputMemoized = memo(
       <Stack
         direction='column'
         width='100%'
-        sx={{ flex: 1 }}
-        {
-          ...{
-            // 'data-sentry-mask':
-            //   appContext.config.env.env === 'production' || undefined,
-          }
-        }
+        sx={{ position: 'relative', flex: 1 }}
       >
-        <DataFieldInputLabel label={<DataFieldLabelText />} />
+        <DataFieldInputLabel label={<DataFieldLabelText />} sx={{ mt: -1.5 }} />
         <Stack
           sx={{
             position: 'relative',
-            mt: 1,
             borderRadius: 1,
             overflow: 'hidden',
           }}
@@ -68,7 +61,9 @@ const DataFieldImageInputMemoized = memo(
               inset: 0,
               width: '100%',
               height: '100%',
-              backgroundColor: 'rgba(0,0,0,0.6)',
+              backgroundColor: credentialsDisplayItem.isDisabled
+                ? 'transparent'
+                : 'rgba(0,0,0,0.6)',
             }}
           >
             <Box
@@ -87,18 +82,20 @@ const DataFieldImageInputMemoized = memo(
               sx={{ display: 'none', visibility: 'hidden' }}
               disabled={credentialsDisplayItem.isDisabled}
             />
-            <Button
-              color='primary'
-              type='button'
-              onClick={() => {
-                if (credentialsDisplayItem.isDisabled) return;
-                inputRef.current?.click();
-              }}
-              tabIndex={0}
-              disabled={credentialsDisplayItem.isDisabled}
-            >
-              {credentialDisplayInfo.value ? 'Change Image' : 'Add Image'}
-            </Button>
+            {!credentialsDisplayItem.isDisabled && (
+              <Button
+                color='primary'
+                type='button'
+                onClick={() => {
+                  if (credentialsDisplayItem.isDisabled) return;
+                  inputRef.current?.click();
+                }}
+                tabIndex={0}
+                disabled={credentialsDisplayItem.isDisabled}
+              >
+                {credentialDisplayInfo.value ? 'Change Image' : 'Add Image'}
+              </Button>
+            )}
           </Stack>
         </Stack>
         <When value={isValid}>

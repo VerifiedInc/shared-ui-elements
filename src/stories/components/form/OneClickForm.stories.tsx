@@ -212,7 +212,7 @@ const mockData = {
       type: 'SsnCredential',
     },
     // {
-    //   allowUserInput: false,
+    //   allowUserInput: true,
     //   mandatory: 'no',
     //   multi: false,
     //   type: 'EmployerCredential',

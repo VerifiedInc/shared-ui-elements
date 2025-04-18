@@ -61,8 +61,6 @@ export function DataFieldAtomic(): ReactElement | null {
 
   // Render data field as read only.
   const renderReadOnlyField = (): ReactElement | undefined => {
-    const props = { hasMultipleInstances };
-
     if (hasMultipleInstances) {
       return (
         <When value={isRoot && !isEditMode}>
@@ -72,7 +70,7 @@ export function DataFieldAtomic(): ReactElement | null {
     }
 
     return when(credentialDisplayInfo?.displayFormat, {
-      [DisplayFormatEnum.Image]: () => <DataFieldImage {...props} />,
+      [DisplayFormatEnum.Image]: () => <DataFieldImage />,
       else: () => <DataFieldText />,
     });
   };
