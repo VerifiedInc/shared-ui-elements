@@ -60,8 +60,7 @@
     "prebuild": "rm -rf dist",
     "build": "tsc && vite build && find dist -name '*.mjs' -type f -exec esbuild {} --minify --outfile={} --allow-overwrite \\;",
     "prepublishOnly": "npm run build",
-    "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta",
-    "bundle": "npm run build && npm pack --pack-destination ./public"
+    "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^2.0.2",
