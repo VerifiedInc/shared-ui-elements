@@ -268,7 +268,6 @@ const timezones = [
   { name: 'Etc/GMT0', utc_offset: '00:00:00' },
   { name: 'Etc/UCT', utc_offset: '00:00:00' },
   { name: 'Etc/GMT+0', utc_offset: '00:00:00' },
-  { name: 'localtime', utc_offset: '00:00:00' },
   { name: 'GMT+0', utc_offset: '00:00:00' },
   { name: 'Atlantic/Azores', utc_offset: '00:00:00' },
   { name: 'Atlantic/St_Helena', utc_offset: '00:00:00' },
