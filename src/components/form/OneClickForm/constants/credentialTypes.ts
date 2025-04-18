@@ -6,4 +6,5 @@ export const credentialTypes = {
   AddressCredential: 'AddressCredential',
   Line2Credential: 'Line2Credential',
   PhoneCredential: 'PhoneCredential',
+  GovernmentIdDocumentImageCredential: 'GovernmentIdDocumentImageCredential',
 } as const;

@@ -39,6 +39,7 @@ export const styles = (): Record<string, SxProps> => ({
       p: 0,
       userSelect: 'auto',
       cursor: 'text',
+      lineHeight: 1.5,
     },
     '& fieldset.MuiOutlinedInput-notchedOutline': {
       border: 'none!important',

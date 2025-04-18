@@ -49,7 +49,7 @@ export function HeaderSelect(): ReactElement {
       handleChangeCredentialInstance(e.target.value);
     },
     InputProps: {
-      readOnly: instances.length <= 0,
+      readOnly: instances.length <= 1,
     },
     SelectProps: {
       size: 'small',
@@ -71,7 +71,7 @@ export function HeaderSelect(): ReactElement {
     sx: {
       width: '100%',
       ..._styles.fieldInputDisabledStyle,
-      ...(instances.length <= 0 && (_styles.fieldInputReadonlyStyle as any)),
+      ...(instances.length <= 1 && (_styles.fieldInputReadonlyStyle as any)),
       '& div[role="combobox"]': {
         width: '100%',
         height: 'auto',

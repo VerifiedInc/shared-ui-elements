@@ -1,41 +1,40 @@
 import { PropsWithChildren, ReactElement, ReactNode } from 'react';
-import { OverridableStringUnion } from '@mui/types';
-import { Variant } from '@mui/material/styles/createTypography';
 import { Typography, SxProps } from '@mui/material';
-import { TypographyPropsVariantOverrides } from '@mui/material/Typography/Typography';
+
+import { useCredentialsDisplayItemValid } from '../CredentialsDisplay/hooks';
 
 type DataFieldLabelInputProps = PropsWithChildren & {
   label?: ReactNode;
-  variant?: OverridableStringUnion<
-    'inherit' | Variant,
-    TypographyPropsVariantOverrides
-  >;
   sx?: SxProps;
 };
 
 /**
  * Component to display a credential label.
- * @param variant
  * @param label
  * @param sx
  * @constructor
  */
 export function DataFieldInputLabel({
-  variant,
   label,
   sx,
 }: DataFieldLabelInputProps): ReactElement {
+  const itemValid = useCredentialsDisplayItemValid();
   return (
     <Typography
       component='span'
-      variant={variant ?? 'subtitle2'}
-      textTransform='uppercase'
-      color='text.secondary'
+      color={itemValid.isValid ? 'primary' : 'error'}
       sx={{
         position: 'relative',
-        fontSize: 12,
-        letterSpacing: 1,
-        left: '2.4px',
+        transform: 'translateX(-14px) scale(0.75)',
+        fontSize: 16,
+        zIndex: 1,
+        cursor: 'default',
+        lineHeight: '23px',
+        textOverflow: 'ellipsis',
+        userSelect: 'none',
+        whiteSpace: 'collapse',
+        backgroundColor: 'background',
+        alignSelf: 'flex-start',
         ...sx,
       }}
     >
