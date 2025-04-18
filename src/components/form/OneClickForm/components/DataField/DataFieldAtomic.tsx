@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { Box, Stack, SxProps } from '@mui/material';
+import { Stack, SxProps } from '@mui/material';
 
 import { DisplayFormatEnum } from '../../types/display-format';
 import { credentialTypes } from '../../constants';
