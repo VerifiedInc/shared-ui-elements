@@ -5,9 +5,9 @@ import React, { useCallback } from 'react';
 /**
  * A button that exports the content of a target element to a PDF file.
  *
- * @param {string} targetId - The ID of the target element to export. Without the # symbol. Or a ref to the target element.
+ * @param {string} targetId - The ID of the target element to export. Without the # symbol.
  * @param {string} filename - The name of the file to export. Without the .pdf extension.
- * @param {ButtonProps} buttonProps - The props to pass to the button.
+ * @param {IconButtonProps} buttonProps - The props to pass to the button.
  */
 
 export interface ExportToPdfButtonProps extends IconButtonProps {
