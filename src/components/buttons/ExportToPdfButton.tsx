@@ -1,5 +1,5 @@
 import { PictureAsPdf } from '@mui/icons-material';
-import { Button, ButtonProps } from '@mui/material';
+import { IconButton, IconButtonProps } from '@mui/material';
 import React from 'react';
 import generatePDF, { Margin } from 'react-to-pdf';
 
@@ -11,7 +11,7 @@ import generatePDF, { Margin } from 'react-to-pdf';
  * @param {ButtonProps} buttonProps - The props to pass to the button.
  */
 
-export interface ExportToPdfButtonProps extends ButtonProps {
+export interface ExportToPdfButtonProps extends IconButtonProps {
   targetId: string;
   filename?: string;
   children: React.ReactNode;
@@ -25,17 +25,16 @@ export const ExportToPdfButton: React.FC<ExportToPdfButtonProps> = ({
   const getTargetElement = () => document.getElementById(targetId);
 
   return (
-    <Button
+    <IconButton
       onClick={() => {
         void generatePDF(getTargetElement, {
           filename: `${filename}.pdf`,
           page: { margin: Margin.MEDIUM },
         });
       }}
-      startIcon={<PictureAsPdf />}
       {...buttonProps}
     >
-      {buttonProps.children}
-    </Button>
+      {buttonProps.children ? buttonProps.children : <PictureAsPdf />}
+    </IconButton>
   );
 };
