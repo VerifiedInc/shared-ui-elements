@@ -22,7 +22,7 @@ export function DataFieldRootStack(props: StackProps): ReactElement {
     <DataFieldStack
       {...props}
       role='button'
-      onClick={(e) => {
+      onClick={() => {
         if (context.isEditMode || !shouldShow) return;
         context.setEditMode(true);
       }}
