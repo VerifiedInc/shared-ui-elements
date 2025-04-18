@@ -14,9 +14,10 @@ export function DataFieldLabel(): ReactElement {
   return (
     <Stack
       sx={{
-        alignItems: 'flex-start',
-        width: 100,
         flexShrink: 0,
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        width: 100,
         mt: 0.7,
       }}
     >
@@ -29,6 +30,8 @@ export function DataFieldLabel(): ReactElement {
           position: 'relative',
           fontSize: 12,
           fontWeight: 700,
+          textAlign: 'left',
+          alignSelf: 'flex-start',
           letterSpacing: 1,
         }}
       >

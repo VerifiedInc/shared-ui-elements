@@ -49,21 +49,19 @@ export function DataFieldComposite(
    * @returns
    */
   const shouldRender = (): boolean => {
-    if (
-      objectController.field.value.type === credentialTypes.FullNameCredential
-    ) {
-      return false;
-    }
-
-    return true;
+    return (
+      objectController.field.value.type === credentialTypes.AddressCredential
+    );
   };
+
+  const customDataInput = renderCustomDataFieldInput();
 
   return (
     <>
       <When value={!isEditMode && shouldRender()}>
         <Box
           width='100%'
-          data-testid='data-field-composite'
+          data-testid='data-field-composite2'
           data-credentialid={credentialDisplayInfo.id}
         >
           <Stack
@@ -80,13 +78,22 @@ export function DataFieldComposite(
           </Stack>
         </Box>
       </When>
-      <Box
-        width='100%'
-        data-testid='data-field-composite'
-        data-credentialid={credentialDisplayInfo.id}
-      >
-        {renderCustomDataFieldInput()}
-      </Box>
+      {customDataInput && (
+        <Stack
+          direction='row'
+          alignItems='center'
+          sx={{ flex: 1, flexShrink: 1, width: '100%' }}
+        >
+          <DataFieldLeftSide />
+          <Box
+            width='100%'
+            data-testid='data-field-composite'
+            data-credentialid={credentialDisplayInfo.id}
+          >
+            {customDataInput}
+          </Box>
+        </Stack>
+      )}
       {children}
     </>
   );
