@@ -40,3 +40,16 @@ export const contrastColor = (color: string, alpha: number = 1) => {
     .setAlpha(alpha)
     .toHex8String();
 };
+
+/**
+ * Get the color theme from a primary color. Used in the demo.
+ * @param primaryColor The primary color.
+ * @returns The color theme.
+ */
+export const getThemeFromPrimaryColor = (primaryColor: string) => {
+  return {
+    light: tinycolor(primaryColor).lighten(20).toString(),
+    main: primaryColor,
+    dark: tinycolor(primaryColor).darken(20).toString(),
+  };
+};
