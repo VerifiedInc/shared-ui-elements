@@ -22,12 +22,10 @@ const dialogStyle: SxProps = {
   },
 };
 
-const CustomDialog = (props: DialogProps) => {
+export const CustomDialog = (props: DialogProps) => {
   return (
     <MuiDialog sx={dialogStyle} {...props}>
       {props.children}
     </MuiDialog>
   );
 };
-
-export default CustomDialog;
