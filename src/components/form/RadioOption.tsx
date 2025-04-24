@@ -3,7 +3,7 @@ import {
   Radio,
   RadioProps,
   Stack,
-  SxProps,
+  type SxProps,
   Typography,
 } from '@mui/material';
 
@@ -23,7 +23,7 @@ export function RadioOption(props: RadioOptionProps) {
       direction='row'
       justifyContent='space-between'
       alignItems='center'
-      sx={{ mb: 1, ...sx }}
+      sx={{ mb: 1, ...(sx as SxProps) }}
     >
       <Stack sx={{ alignItems: 'flex-start' }}>
         <Stack direction='row' spacing={1}>
@@ -33,7 +33,6 @@ export function RadioOption(props: RadioOptionProps) {
               mt: '1px',
               width: 34,
               height: 34,
-              ...radioProps.sx,
               '&.Mui-checked': {
                 color: green,
               },

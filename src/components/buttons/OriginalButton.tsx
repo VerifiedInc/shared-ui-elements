@@ -9,7 +9,7 @@ export function OriginalButton({
   const theme = useTheme();
   const defaultProps = theme?.components?.MuiButton?.defaultProps ?? {};
   const sx: SxProps = useMemo(() => {
-    let style: SxProps = {
+    let style: any = {
       ...defaultProps.sx,
       alignSelf: 'center',
       display: 'flex',
@@ -95,11 +95,13 @@ export function OriginalButton({
     <Button
       {...defaultProps}
       {...rest}
-      sx={{
-        ...defaultProps.sx,
-        ...props.sx,
-        ...sx,
-      }}
+      sx={
+        {
+          ...defaultProps.sx,
+          ...props.sx,
+          ...sx,
+        } as any
+      }
     >
       {children}
     </Button>
