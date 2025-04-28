@@ -15,3 +15,4 @@ export * from './Backdrop';
 export * from './Button';
 export * from './BrandFilterInput';
 export * from './chart';
+export * from './dialog';

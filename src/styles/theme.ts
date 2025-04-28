@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material';
+import { createTheme, ThemeOptions } from '@mui/material';
 import { colors } from './colors';
 import { typography } from './typography';
 
@@ -46,11 +46,11 @@ declare module '@mui/material' {
   }
 }
 
-interface ThemeOptions {
+interface ThemeOptionsProps extends ThemeOptions {
   primaryFontFace: Record<string, any>;
 }
 
-export const theme = ({ primaryFontFace }: ThemeOptions) =>
+export const theme = ({ primaryFontFace, ...options }: ThemeOptionsProps) =>
   createTheme({
     breakpoints: {
       values: {
@@ -329,4 +329,5 @@ export const theme = ({ primaryFontFace }: ThemeOptions) =>
         },
       },
     },
+    ...options,
   });
