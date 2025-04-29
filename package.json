@@ -134,7 +134,8 @@
     "react-to-pdf": "^2.0.0",
     "recharts": ">=2.15.0",
     "tinycolor2": ">=1.6.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@dotlottie/react-player": "^1.6.19"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5"
