@@ -49,8 +49,8 @@ export const IconPlayer = ({
     if (!container) return;
 
     // Find the closest button parent if it exists
-    const buttonParent = buttonRef?.current || container.closest('button');
-    const targetElement = buttonParent || container;
+    const buttonParent = buttonRef?.current ?? container.closest('button');
+    const targetElement = buttonParent ?? container;
 
     targetElement.addEventListener('mouseenter', animate);
 
