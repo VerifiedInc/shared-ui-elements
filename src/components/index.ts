@@ -16,3 +16,4 @@ export * from './Button';
 export * from './BrandFilterInput';
 export * from './chart';
 export * from './dialog';
+export * from './RequiredLabel';
