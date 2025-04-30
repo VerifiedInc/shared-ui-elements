@@ -8,7 +8,7 @@ import { TextField, type TextFieldProps } from '../TextField';
  * @param {TextFieldProps} props DefaultInput takes the same props as the MUI TextField component.
  * It sets default values for variant ('outlined') and margin ('normal').
  */
-const DefaultInput = (
+const DefaultInputComponent = (
   { variant = 'outlined', margin = 'normal', ...props }: TextFieldProps,
   ref: any,
 ): React.JSX.Element => {
@@ -23,4 +23,5 @@ const DefaultInput = (
   );
 };
 
-export default forwardRef(DefaultInput);
+export const DefaultInput = forwardRef(DefaultInputComponent);
+export default DefaultInput;

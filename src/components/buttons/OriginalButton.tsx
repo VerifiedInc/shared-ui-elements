@@ -10,6 +10,7 @@ export function OriginalButton({
   const defaultProps = theme?.components?.MuiButton?.defaultProps ?? {};
   const sx: SxProps = useMemo(() => {
     let style: any = {
+      fontSize: '13px',
       ...defaultProps.sx,
       alignSelf: 'center',
       display: 'flex',
