@@ -2,6 +2,17 @@ import CloseIcon from '@mui/icons-material/Close';
 import { IconButton, Portal } from '@mui/material';
 import React, { useEffect } from 'react';
 
+/**
+ * A dialog that mounts regardless of the modal state.
+ * It handles escape key and phone back button presses.
+ *
+ * This component is useful for scenarios where you need to load in the background, e.g. rendering an iframe.
+ *
+ * @param isOpen - Whether the dialog is open.
+ * @param setIsOpen - Function to set the dialog state.
+ * @param children - The content of the dialog.
+ * @param hasCloseButton - Whether to show a close button.
+ */
 export default function PersistentDialog({
   isOpen,
   setIsOpen,
