@@ -1,6 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton, Portal } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
  * A dialog that mounts regardless of the modal state.
@@ -55,6 +55,15 @@ export const PersistentDialog = ({
     };
   }, [isOpen]);
 
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only close if the click is outside the content
+    if (contentRef.current && !contentRef.current.contains(e.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+
   return (
     <Portal>
       {/* Modal is always mounted, but is hidden when not open */}
@@ -77,6 +86,7 @@ export const PersistentDialog = ({
           transition: 'opacity 0.3s ease',
           zIndex: 1000,
         }}
+        onClick={handleBackdropClick}
         onKeyDown={(e) => {
           console.log(e);
           if (e.key === 'Escape') {
@@ -114,6 +124,7 @@ export const PersistentDialog = ({
             </IconButton>
           )}
           <div
+            ref={contentRef}
             style={{
               width: '100%',
               height: '100%',
