@@ -13,7 +13,7 @@ import React, { useEffect } from 'react';
  * @param children - The content of the dialog.
  * @param hasCloseButton - Whether to show a close button.
  */
-export default function PersistentDialog({
+export const PersistentDialog = ({
   isOpen,
   setIsOpen,
   children,
@@ -23,7 +23,7 @@ export default function PersistentDialog({
   setIsOpen: (isOpen: boolean) => void;
   children: React.ReactNode;
   hasCloseButton?: boolean;
-}) {
+}) => {
   // identify escape key or phone back button press and close modal
   useEffect(() => {
     // Handle keyboard Escape key
@@ -128,4 +128,4 @@ export default function PersistentDialog({
       </div>
     </Portal>
   );
-}
+};
