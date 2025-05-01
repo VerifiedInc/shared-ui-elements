@@ -57,6 +57,16 @@ export const PersistentDialog = ({
 
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Necessary styles to prevent scrolling when modal is open
+  const dialogStyles = `
+    body{
+      overflow-y: hidden;
+    }
+    .dialog-content-persistent{
+      overflow-y: auto;
+    }
+  `;
+
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only close if the click is outside the content
     if (contentRef.current && !contentRef.current.contains(e.target as Node)) {
@@ -67,6 +77,8 @@ export const PersistentDialog = ({
   return (
     <Portal>
       {/* Modal is always mounted, but is hidden when not open */}
+
+      {isOpen && <style>{dialogStyles}</style>}
       <div
         style={{
           position: 'fixed',
@@ -124,7 +136,7 @@ export const PersistentDialog = ({
             </IconButton>
           )}
           <div
-            ref={contentRef}
+            className='dialog-content-persistent'
             style={{
               width: '100%',
               height: '100%',
@@ -133,7 +145,7 @@ export const PersistentDialog = ({
               justifyContent: 'center',
             }}
           >
-            {children}
+            <div ref={contentRef}>{children}</div>
           </div>
         </div>
       </div>
