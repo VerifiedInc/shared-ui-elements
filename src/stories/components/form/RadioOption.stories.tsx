@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { Stack } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 
 import { RadioOption } from '../../../components/form/RadioOption';
 
@@ -44,12 +44,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Create a wrapper component that handles state
+const RadioOptionWithState = (args: any) => {
+  const [isChecked, setIsChecked] = React.useState(args.checked || false);
+
+  const handleChange = () => {
+    setIsChecked(!isChecked);
+  };
+
+  return <RadioOption {...args} checked={isChecked} onChange={handleChange} />;
+};
+
 // Basic radio option with just a title
 export const Basic: Story = {
   args: {
     title: 'Basic Radio Option',
     checked: false,
   },
+  render: (args) => <RadioOptionWithState {...args} />,
 };
 
 // Radio option with description
@@ -60,6 +72,7 @@ export const WithDescription: Story = {
       'This is a detailed description that explains what this option does when selected.',
     checked: false,
   },
+  render: (args) => <RadioOptionWithState {...args} />,
 };
 
 // Default radio option
@@ -70,6 +83,7 @@ export const Default: Story = {
     isDefault: true,
     checked: true,
   },
+  render: (args) => <RadioOptionWithState {...args} />,
 };
 
 // Disabled radio option
@@ -78,13 +92,16 @@ export const Disabled: Story = {
     title: 'Disabled Option',
     description: 'This option cannot be selected',
     disabled: true,
+    checked: false,
   },
+  render: (args) => <RadioOptionWithState {...args} />,
 };
 
 // Interactive example with multiple options
 export const RadioGroup: Story = {
-  render: function Render() {
-    const [selectedValue, setSelectedValue] = useState('option1');
+  render: () => {
+    // This is a story function, so it's safe to use hooks here
+    const [selectedValue, setSelectedValue] = React.useState('option1');
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSelectedValue(event.target.value);
@@ -121,41 +138,65 @@ export const RadioGroup: Story = {
 
 // Example showing all states together
 export const AllStates: Story = {
-  render: function Render() {
+  render: () => {
+    // This is a story function, so it's safe to use hooks here
+    const [states, setStates] = React.useState({
+      option1: false,
+      option2: true,
+      option3: false,
+      option4: true,
+      option5: false,
+      option6: true,
+    });
+
+    const handleChange = (option: keyof typeof states) => {
+      setStates((prev) => ({
+        ...prev,
+        [option]: !prev[option],
+      }));
+    };
+
     return (
       <Stack spacing={2} sx={{ width: '400px' }}>
         <RadioOption
           title='Unchecked Option'
           description='This option is not selected'
-          checked={false}
+          checked={states.option1}
+          onChange={() => handleChange('option1')}
         />
         <RadioOption
           title='Checked Option'
           description='This option is selected'
-          checked={true}
+          checked={states.option2}
+          onChange={() => handleChange('option2')}
         />
         <RadioOption
           title='Default Option'
           description='This is the default option'
           isDefault={true}
-          checked={false}
+          checked={states.option3}
+          onChange={() => handleChange('option3')}
         />
         <RadioOption
           title='Checked Default Option'
           description='This is the selected default option'
           isDefault={true}
-          checked={true}
+          checked={states.option4}
+          onChange={() => handleChange('option4')}
         />
         <RadioOption
           title='Disabled Option'
           description='This option cannot be selected'
           disabled={true}
+          checked={states.option5}
+          onChange={() => handleChange('option5')}
         />
         <RadioOption
           title='Disabled Checked Option'
           description='This option is selected but cannot be changed'
           disabled={true}
-          checked={true}
+          checked={states.option6}
+          onChange={() => handleChange('option6')}
         />
       </Stack>
     );

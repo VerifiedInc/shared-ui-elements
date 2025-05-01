@@ -5,9 +5,10 @@ import {
   Stack,
   type SxProps,
   Typography,
+  Box,
 } from '@mui/material';
 
-import { Box } from '@mui/system';
+import { useCallback } from 'react';
 import { green } from '../../styles';
 
 type RadioOptionProps = RadioProps & {
@@ -17,7 +18,28 @@ type RadioOptionProps = RadioProps & {
   sx?: SxProps;
 };
 export function RadioOption(props: RadioOptionProps) {
-  const { isDefault, title, description, sx, ...radioProps } = props;
+  const {
+    isDefault,
+    title,
+    description,
+    sx,
+    onChange,
+    checked,
+    disabled,
+    ...radioProps
+  } = props;
+
+  const handleCheck = useCallback(() => {
+    if (disabled) return;
+    if (onChange && !checked) {
+      // Create a synthetic event object similar to what Radio would produce
+      const syntheticEvent: React.ChangeEvent<HTMLInputElement> = {
+        target: { checked: true },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      onChange(syntheticEvent, true);
+    }
+  }, [onChange, checked]);
+
   return (
     <Stack
       direction='row'
@@ -28,6 +50,8 @@ export function RadioOption(props: RadioOptionProps) {
       <Stack sx={{ alignItems: 'flex-start' }}>
         <Stack direction='row' spacing={1}>
           <Radio
+            checked={checked}
+            onChange={handleCheck}
             {...radioProps}
             sx={{
               mt: '1px',
@@ -38,7 +62,7 @@ export function RadioOption(props: RadioOptionProps) {
               },
             }}
           />
-          <Stack>
+          <Stack onClick={handleCheck} sx={{ cursor: 'pointer' }}>
             <Stack direction='row' alignItems='center' spacing={1}>
               <Typography
                 variant='body1'
