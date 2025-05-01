@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { useTheme } from '@mui/material';
 
 import { MotionBox } from '../animation/motions';
 import { AdaptativeBox } from './AdaptativeBox';
