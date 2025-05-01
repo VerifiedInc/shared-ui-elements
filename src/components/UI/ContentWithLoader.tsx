@@ -16,7 +16,6 @@ export function ContentWithLoader({
   loadingContent,
   children,
 }: ContentWithLoaderProps) {
-  const theme = useTheme();
   return (
     <AnimatePresence initial={false}>
       <AdaptativeBox>

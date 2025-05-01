@@ -25,7 +25,7 @@ export const InvisibleWhen = ({
     const childElement = child as StyleableElement;
     if (childElement.props && 'style' in childElement.props) {
       return React.cloneElement(childElement, {
-        style: { ...(childElement.props.style || {}), ...style },
+        style: { ...(childElement.props.style ?? {}), ...style },
       });
     }
 

@@ -33,9 +33,9 @@ export function RadioOption(props: RadioOptionProps) {
     if (disabled) return;
     if (onChange && !checked) {
       // Create a synthetic event object similar to what Radio would produce
-      const syntheticEvent = {
+      const syntheticEvent: React.ChangeEvent<HTMLInputElement> = {
         target: { checked: true },
-      } as React.ChangeEvent<HTMLInputElement>;
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
       onChange(syntheticEvent, true);
     }
   }, [onChange, checked]);
