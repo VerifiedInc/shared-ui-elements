@@ -16,7 +16,7 @@ export * from './Button';
 export * from './BrandFilterInput';
 export * from './chart';
 export * from './dialog';
-export * from './InvisibleWhen';
+export * from './WhenStyled';
 export * from './RequiredLabel';
 export * from './icons';
 export * from './UI';
