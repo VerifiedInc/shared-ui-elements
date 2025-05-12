@@ -194,6 +194,11 @@ export const theme = ({ primaryFontFace, ...options }: ThemeOptionsProps) =>
         styleOverrides: {
           root: {
             fontWeight: 800,
+            '&.Mui-focused, &:focus': {
+              // Add slight shadow on focus
+              boxShadow:
+                '0px 3px 5px -1px rgba(0,0,0,0.25),0px 6px 7px 0px rgba(0,0,0,0.18),0px 1px 12px 0px rgba(0,0,0,0.16)',
+            },
           },
         },
       },
