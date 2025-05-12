@@ -218,7 +218,7 @@ export function DataFieldAccordion(
     return (
       <Stack spacing={2}>
         <DataFieldOptionType />
-        {integrationType !== SdkIntegrationType.NON_HOSTED && (
+        {integrationType !== SdkIntegrationType.NonHosted && (
           <>
             <DataFieldDescription />
             <DataFieldMandatory />
