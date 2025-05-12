@@ -110,6 +110,7 @@
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
+    "@dotlottie/react-player": "^1.6.19",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@fontsource/lato": "^5.0.21",
@@ -134,10 +135,12 @@
     "react-to-pdf": "^2.0.0",
     "recharts": ">=2.15.0",
     "tinycolor2": ">=1.6.0",
-    "zod": "^3.23.8",
-    "@dotlottie/react-player": "^1.6.19"
+    "zod": "^3.23.8"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5"
+  },
+  "dependencies": {
+    "@verifiedinc/core-service-v2": "^3.17.2"
   }
 }

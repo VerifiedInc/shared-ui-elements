@@ -80,7 +80,7 @@ export const API: Story = {
   ],
   args: {
     riskSignals: 'basic',
-    integrationType: SdkIntegrationType.NON_HOSTED,
+    integrationType: SdkIntegrationType.NonHosted,
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,
@@ -124,7 +124,7 @@ export const SDK: Story = {
   ],
   args: {
     riskSignals: 'basic',
-    integrationType: SdkIntegrationType.HOSTED,
+    integrationType: SdkIntegrationType.Hosted,
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,
@@ -168,7 +168,7 @@ export const SDKWithNoRiskSignals: Story = {
   ],
   args: {
     riskSignals: 'none',
-    integrationType: SdkIntegrationType.HOSTED,
+    integrationType: SdkIntegrationType.Hosted,
     credentialRequests: [],
     schemas: {},
     onChange: fn() as any,
