@@ -1,6 +1,6 @@
 import { type ReactElement, useCallback, useMemo } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
+import Grid2 from '@mui/material/Grid2';
 import { type LegendProps } from 'recharts';
 import { Decimal } from 'decimal.js';
 import { AnimatePresence } from 'framer-motion';
