@@ -1,2 +1,5 @@
-import { SdkIntegrationType } from '@verifiedinc/core-service-v2';
-export { SdkIntegrationType };
+export declare enum SdkIntegrationType {
+  Hosted = 'hosted',
+  SemiHosted = 'semi-hosted',
+  NonHosted = 'non-hosted',
+}

@@ -139,8 +139,5 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.9.5"
-  },
-  "dependencies": {
-    "@verifiedinc/core-service-v2": "^3.17.2"
   }
 }
