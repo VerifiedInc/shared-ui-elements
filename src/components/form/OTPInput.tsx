@@ -30,6 +30,10 @@ interface OTPInputProps {
   disabled?: boolean;
   sx?: SxProps;
   autoComplete?: string;
+  /**
+   * ID of the element that labels this component (for accessibility)
+   */
+  ariaLabelledBy?: string;
 }
 
 export type OTPInputInstance = Readonly<{
@@ -331,6 +335,14 @@ function OTPInputComponent(
               tabIndex={index + startIndex + 1}
               {...inputProps}
               data-testid={`otp-input-${index + startIndex}`}
+              inputProps={{
+                ...inputProps.inputProps,
+                'aria-labelledby':
+                  props.ariaLabelledBy ?? props.name ?? 'otp-input',
+                'aria-required': 'true',
+                'aria-invalid': props.error ? 'true' : 'false',
+                'aria-label': `Digit ${index + startIndex + 1} of 6`,
+              }}
             />
           </FormControl>
         );
