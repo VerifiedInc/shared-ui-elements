@@ -54,6 +54,7 @@ function OTPInputComponent(
   const [values, setValues] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+  const blurTimer = useRef<NodeJS.Timeout | null>(null);
 
   const [isFocused, setIsFocused] = useState(false);
 
@@ -284,8 +285,13 @@ function OTPInputComponent(
   }, []);
 
   const handleBlur = useCallback(() => {
+    // Clear any pending blur timer
+    if (blurTimer.current) {
+      clearTimeout(blurTimer.current);
+    }
+
     // Use setTimeout to avoid state updates during render phase
-    setTimeout(() => {
+    blurTimer.current = setTimeout(() => {
       // Check if any of the inputs is still focused
       const anyInputFocused = inputsRef.current.some(
         (input) => input === document.activeElement,
@@ -328,9 +334,12 @@ function OTPInputComponent(
       handleChange,
       handleFocus,
       handleKeyUp,
-      inputProps,
-      props.disabled,
+      handleKeyDown,
+      handleBlur,
       values,
+      inputProps,
+      props.autoComplete,
+      props.disabled,
     ],
   );
 
