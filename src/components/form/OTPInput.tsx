@@ -4,7 +4,6 @@ import {
   forwardRef,
   type KeyboardEvent,
   useCallback,
-  useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -23,7 +22,6 @@ import {
   FormControl,
 } from '@mui/material';
 import { v4 as uuid } from 'uuid';
-import { theme } from '@/styles/theme';
 
 interface OTPInputProps {
   name?: string;
@@ -156,33 +154,76 @@ function OTPInputComponent(
     [],
   );
 
-  const focusFirstEmptyInput = useCallback(() => {
-    const valuesString = values.join('');
-    const firstEmptyInput = inputsRef.current[valuesString.length];
-
-    firstEmptyInput?.focus();
-    firstEmptyInput?.select();
-  }, [values]);
-
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
 
-      // Allow up to 6 digits only.
-      if (!value.length || !/^[0-9]{1,6}$/.test(value)) return;
+      // Handle autofill (particularly from iOS/Android)
+      if (value.length === 6 && /^\d{6}$/.test(value)) {
+        // This is likely an autofill or paste of the entire code
+        const newValue = value.split('');
+
+        // Update the hidden input value
+        if (inputRef.current) {
+          inputRef.current.value = value;
+        }
+
+        // Call onChange with the complete value
+        props.onChange?.({ target: { value } });
+
+        // Update UI and blur all inputs
+        inputsRef.current.forEach((input) => input?.blur());
+
+        // Update state
+        setValues(newValue);
+        return;
+      }
+
+      // For manual input (single digit)
+      // Get the index of the currently focused input
+      const currentInputIndex = inputsRef.current.findIndex(
+        (input) => input === document.activeElement,
+      );
+
+      // Extract the last digit from input
+      const lastChar = value.charAt(value.length - 1);
+      // Only proceed if it's a digit
+      if (!lastChar || !/^[0-9]$/.test(lastChar)) return;
 
       setValues((prev) => {
-        const newValue = value.length === 6 ? [...value] : [...prev, ...value];
+        // Create a copy of the current values
+        const newValue = [...prev];
+
+        // Insert the digit at the currently focused input position
+        if (currentInputIndex !== -1) {
+          newValue[currentInputIndex] = lastChar;
+        } else {
+          // Fallback: Add to the end if no input is focused
+          const firstEmptyIndex = newValue.findIndex((v) => !v);
+          if (firstEmptyIndex !== -1) {
+            newValue[firstEmptyIndex] = lastChar;
+          } else if (newValue.length < 6) {
+            newValue.push(lastChar);
+          }
+        }
+
         const newValueString = newValue.join('');
 
         if (inputRef.current) {
-          inputRef.current.value = newValue.join('');
+          inputRef.current.value = newValueString;
         }
 
-        // Calls onChange when all OTP fields are filled.
+        // Calls onChange when all OTP fields are filled
         if (newValueString.length === 6) {
           inputsRef.current.forEach((input) => input?.blur());
           props.onChange?.({ target: { value: newValueString } });
+        } else {
+          // Focus the next input
+          const nextInputIndex =
+            currentInputIndex !== -1 ? currentInputIndex + 1 : 0;
+          if (nextInputIndex < 6) {
+            inputsRef.current[nextInputIndex]?.focus();
+          }
         }
 
         return newValue;
@@ -198,15 +239,63 @@ function OTPInputComponent(
         if (inputRef.current) {
           inputRef.current.value = newValue.join('');
         }
+        // Focus the previous input after deleting a value
+        const prevInputIndex = newValue.length;
+        if (prevInputIndex >= 0 && prevInputIndex < 6) {
+          inputsRef.current[prevInputIndex]?.focus();
+        }
         return newValue;
       });
     }
   }, []);
 
+  // Handle arrow key navigation between inputs
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      const currentInputIndex = inputsRef.current.findIndex(
+        (input) => input === document.activeElement,
+      );
+
+      if (currentInputIndex === -1) return;
+
+      let nextInputIndex = currentInputIndex;
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          nextInputIndex = Math.max(0, currentInputIndex - 1);
+          break;
+        case 'ArrowRight':
+          nextInputIndex = Math.min(5, currentInputIndex + 1);
+          break;
+        default:
+          return; // Only handle arrow keys
+      }
+
+      if (nextInputIndex !== currentInputIndex) {
+        event.preventDefault();
+        inputsRef.current[nextInputIndex]?.focus();
+        inputsRef.current[nextInputIndex]?.select();
+      }
+    },
+    [],
+  );
   const handleFocus = useCallback(() => {
-    focusFirstEmptyInput();
     setIsFocused(true);
-  }, [focusFirstEmptyInput]);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    // Use setTimeout to avoid state updates during render phase
+    setTimeout(() => {
+      // Check if any of the inputs is still focused
+      const anyInputFocused = inputsRef.current.some(
+        (input) => input === document.activeElement,
+      );
+
+      if (!anyInputFocused) {
+        setIsFocused(false);
+      }
+    }, 0);
+  }, []);
 
   const renderInputGroup = useCallback(
     (startIndex: number) => {
@@ -224,8 +313,10 @@ function OTPInputComponent(
               disabled={props.disabled}
               onChange={handleChange}
               onKeyUp={handleKeyUp}
+              onKeyDown={handleKeyDown}
               onFocus={handleFocus}
-              onBlur={() => setIsFocused(false)}
+              onBlur={handleBlur}
+              tabIndex={index + startIndex + 1}
               {...inputProps}
               data-testid={`otp-input-${index + startIndex}`}
             />
@@ -243,11 +334,6 @@ function OTPInputComponent(
     ],
   );
 
-  // Focus the first empty input when the value changes.
-  useEffect(() => {
-    focusFirstEmptyInput();
-  }, [focusFirstEmptyInput]);
-
   return (
     <Box width='100%' sx={props.sx}>
       {/* Use input facade to update the value and listen to changes */}
@@ -261,11 +347,7 @@ function OTPInputComponent(
           inputProps={{ hidden: true }}
         />
       </div>
-      <Stack
-        data-testid='otp-input-container'
-        {...inputContainerProps}
-        onClick={focusFirstEmptyInput}
-      >
+      <Stack data-testid='otp-input-container' {...inputContainerProps}>
         {renderInputGroup(0)}
         <Typography sx={{ fontWeight: '700', fontSize: 32 }}>-</Typography>
         {renderInputGroup(3)}
