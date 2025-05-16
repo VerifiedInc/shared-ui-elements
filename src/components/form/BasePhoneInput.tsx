@@ -1,5 +1,10 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { Box, InputAdornment, type InputProps } from '@mui/material';
+import {
+  Box,
+  InputAdornment,
+  InputLabelProps,
+  type InputProps,
+} from '@mui/material';
 
 import { getPhoneDataByFieldName } from '../../utils/phone';
 import { phoneSchema } from '../../validations/phone.schema';
@@ -29,6 +34,7 @@ export interface BasePhoneInputProps {
   autoFocus?: boolean;
   disabled?: boolean;
   InputProps?: InputProps;
+  InputLabelProps?: InputLabelProps;
   placeholder?: string;
   lazy?: boolean;
 }
@@ -48,6 +54,7 @@ export interface BasePhoneInputProps {
  * @param value - The value of the phone input. If passed, it will be used instead of the value from component state.
  * @param autoFocus - Whether the phone input should be focused on mount. Defaults to false.
  * @param InputProps - Additional props to be passed to the input component.
+ * @param InputLabelProps - Additional props to be passed to the input label component.
  * @param shouldHaveSelectCountryButton - Whether to show the country selector button. Defaults to true.
  * @param shouldHaveClearButton - Whether to show the clear button. Defaults to false.
  * @param disabled - Whether the phone input is disabled. Defaults to false.
@@ -69,6 +76,7 @@ export function BasePhoneInput({
   value: valueProp,
   autoFocus = false,
   InputProps,
+  InputLabelProps,
   shouldHaveSelectCountryButton = true,
   shouldHaveClearButton = false,
   disabled = false,
@@ -154,6 +162,10 @@ export function BasePhoneInput({
       // Tab index for each block.
       tabIndex: 0,
       type: 'tel',
+    },
+    InputLabelProps: {
+      shrink: true,
+      ...InputLabelProps,
     },
     InputProps: {
       inputComponent: TextMaskCustom as any,
