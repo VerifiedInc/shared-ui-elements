@@ -30,6 +30,10 @@ interface OTPInputProps {
   disabled?: boolean;
   sx?: SxProps;
   autoComplete?: string;
+  /**
+   * ID of the element that labels this component (for accessibility)
+   */
+  ariaLabelledBy?: string;
 }
 
 export type OTPInputInstance = Readonly<{
@@ -182,8 +186,10 @@ function OTPInputComponent(
 
       // For manual input (single digit)
       // Get the index of the currently focused input
+      // Get the correct document object (works in both iframe and non-iframe contexts)
+      const ownerDocument = event.currentTarget.ownerDocument;
       const currentInputIndex = inputsRef.current.findIndex(
-        (input) => input === document.activeElement,
+        (input) => input === ownerDocument.activeElement,
       );
 
       // Extract the last digit from input
@@ -253,8 +259,10 @@ function OTPInputComponent(
   // Handle arrow key navigation between inputs
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
+      // Get the correct document object (works in both iframe and non-iframe contexts)
+      const ownerDocument = event.currentTarget.ownerDocument;
       const currentInputIndex = inputsRef.current.findIndex(
-        (input) => input === document.activeElement,
+        (input) => input === ownerDocument.activeElement,
       );
 
       if (currentInputIndex === -1) return;
@@ -293,8 +301,10 @@ function OTPInputComponent(
     // Use setTimeout to avoid state updates during render phase
     blurTimer.current = setTimeout(() => {
       // Check if any of the inputs is still focused
+      // Get the correct document object (works in both iframe and non-iframe contexts)
+      const ownerDocument = inputsRef.current[0]?.ownerDocument;
       const anyInputFocused = inputsRef.current.some(
-        (input) => input === document.activeElement,
+        (input) => input && input === ownerDocument?.activeElement,
       );
 
       if (!anyInputFocused) {
@@ -325,6 +335,14 @@ function OTPInputComponent(
               tabIndex={index + startIndex + 1}
               {...inputProps}
               data-testid={`otp-input-${index + startIndex}`}
+              inputProps={{
+                ...inputProps.inputProps,
+                'aria-labelledby':
+                  props.ariaLabelledBy ?? props.name ?? 'otp-input',
+                'aria-required': 'true',
+                'aria-invalid': props.error ? 'true' : 'false',
+                'aria-label': `Digit ${index + startIndex + 1} of 6`,
+              }}
             />
           </FormControl>
         );

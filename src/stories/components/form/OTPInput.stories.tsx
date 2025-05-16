@@ -1,13 +1,16 @@
+import React, { useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-
-import { Box } from '@mui/material';
 import { fn } from '@storybook/test';
+import { Box, ThemeProvider } from '@mui/material';
+
+import { theme } from '../../../styles';
+
+import { Iframe, IframeContent } from '../../../components/__for-stories';
+import { Button } from '../../../components';
 import {
   OTPInput,
   type OTPInputInstance,
 } from '../../../components/form/OTPInput';
-import { useRef } from 'react';
-import { Button } from '../../../components';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 
@@ -96,5 +99,57 @@ export function OTPWithControls(
         Clear
       </Button>
     </Box>
+  );
+}
+
+export function OTPWithinIframe(
+  OTPWithControlsProps: OTPWithControlsProps,
+): React.JSX.Element {
+  const oneClickSignupSubmitInputRef = useRef<OTPInputInstance | null>(null);
+
+  return (
+    <Iframe
+      style={{
+        width: '100%',
+        height: 100,
+      }}
+    >
+      <IframeContent>
+        <ThemeProvider
+          theme={theme({ primaryFontFace: { style: { fontFamily: 'Lato' } } })}
+        >
+          <Box sx={{ width: '100%' }}>
+            <OTPInput
+              {...OTPWithControlsProps}
+              ref={oneClickSignupSubmitInputRef}
+            />
+            <Button
+              onClick={() => {
+                oneClickSignupSubmitInputRef.current?.focus();
+              }}
+            >
+              Focus
+            </Button>
+
+            <Button
+              color='secondary'
+              onClick={() => {
+                oneClickSignupSubmitInputRef.current?.blur();
+              }}
+            >
+              Blur
+            </Button>
+            <Button
+              color='error'
+              onClick={() => {
+                oneClickSignupSubmitInputRef.current?.clear();
+              }}
+            >
+              Clear
+            </Button>
+          </Box>
+        </ThemeProvider>
+      </IframeContent>
+    </Iframe>
   );
 }
