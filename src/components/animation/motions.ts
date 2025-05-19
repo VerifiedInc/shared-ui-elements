@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 
-export const MotionBox = motion.create(Box as any, {
+export const MotionBox = motion.create(Box as React.ComponentType<any>, {
   forwardMotionProps: false,
 });
 
