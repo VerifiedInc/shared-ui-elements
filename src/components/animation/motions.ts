@@ -9,30 +9,30 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 
-export const MotionBox = motion.create(Box as React.ComponentType<any>, {
+export const MotionBox = motion(Box as any, {
   forwardMotionProps: false,
 });
 
-export const MotionStack = motion.create(Stack as any, {
+export const MotionStack = motion(Stack as any, {
   forwardMotionProps: false,
 });
 
-export const MotionTbody = motion.create(TableBody as any, {
+export const MotionTbody = motion(TableBody as any, {
   forwardMotionProps: false,
 });
 
-export const MotionTableRow = motion.create(TableRow as any, {
+export const MotionTableRow = motion(TableRow as any, {
   forwardMotionProps: false,
 });
 
-export const MotionTableCell = motion.create(TableCell as any, {
+export const MotionTableCell = motion(TableCell as any, {
   forwardMotionProps: false,
 });
 
-export const MotionTypography = motion.create(Typography as any, {
+export const MotionTypography = motion(Typography as any, {
   forwardMotionProps: false,
 });
 
-export const MotionButton = motion.create(Button as any, {
+export const MotionButton = motion(Button as any, {
   forwardMotionProps: false,
 });
