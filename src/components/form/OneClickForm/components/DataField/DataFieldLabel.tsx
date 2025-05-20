@@ -26,7 +26,7 @@ export function DataFieldLabel({ id }: DataFieldLabelProps): ReactElement {
       }}
     >
       <Typography
-        component='label'
+        component='span'
         variant={'subtitle2'}
         textTransform='uppercase'
         color='text.primary'
