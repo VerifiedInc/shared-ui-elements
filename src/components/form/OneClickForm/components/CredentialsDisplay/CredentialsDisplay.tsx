@@ -60,6 +60,7 @@ export default function CredentialsDisplay(): ReactElement {
 
   return (
     <Box
+      id='credentials-region'
       role='region'
       aria-label={
         context.isEditMode ? 'Edit your information' : 'Review your information'

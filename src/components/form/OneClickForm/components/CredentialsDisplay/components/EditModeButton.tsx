@@ -17,6 +17,7 @@ export function EditModeButton(): ReactElement | null {
 
   return (
     <Button
+      aria-controls='credentials-region'
       variant='text'
       size='small'
       color='neutral'
