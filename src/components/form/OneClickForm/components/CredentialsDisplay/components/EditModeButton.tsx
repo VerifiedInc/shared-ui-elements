@@ -17,10 +17,11 @@ export function EditModeButton(): ReactElement | null {
 
   return (
     <Button
+      aria-controls='credentials-region'
       variant='text'
       size='small'
       color='neutral'
-      startIcon={<Edit />}
+      startIcon={<Edit aria-hidden='true' />}
       sx={{
         position: 'absolute',
         top: 4,

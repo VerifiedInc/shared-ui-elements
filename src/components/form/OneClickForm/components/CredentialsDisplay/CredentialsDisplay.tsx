@@ -10,8 +10,10 @@ import { CredentialFieldSet } from './types';
 import { extractChildrenFromCredentialFieldSet } from './utils';
 import { EditModeButton } from './components';
 import { CredentialsDisplayItem } from './CredentialsDisplayItem';
+import { useCredentialsDisplay } from './CredentialsDisplayContext';
 
 export default function CredentialsDisplay(): ReactElement {
+  const context = useCredentialsDisplay();
   const form = useFormContext<CredentialFieldSet>();
   const data = form.watch();
 
@@ -58,6 +60,11 @@ export default function CredentialsDisplay(): ReactElement {
 
   return (
     <Box
+      id='credentials-region'
+      role='region'
+      aria-label={
+        context.isEditMode ? 'Edit your information' : 'Review your information'
+      }
       display='flex'
       sx={{
         alignSelf: 'flex-start',
@@ -78,12 +85,12 @@ export default function CredentialsDisplay(): ReactElement {
         alignItems='center'
         sx={{ flex: 1, width: '100%' }}
       >
-        <EditModeButton />
         <DataFieldRootStack sx={{ mt: 0.75 }}>
           {Object.entries(data).map((entry) =>
             renderCredentialDisplayInfo(entry),
           )}
         </DataFieldRootStack>
+        <EditModeButton />
       </Box>
     </Box>
   );

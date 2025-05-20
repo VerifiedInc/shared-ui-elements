@@ -5,7 +5,11 @@ import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisp
 
 import { getCredentialLabel } from './utils';
 
-export function DataFieldLabel(): ReactElement {
+interface DataFieldLabelProps {
+  id?: string;
+}
+
+export function DataFieldLabel({ id }: DataFieldLabelProps): ReactElement {
   const { credentialDisplayInfo } = useCredentialsDisplayItem();
   const label = getCredentialLabel(
     credentialDisplayInfo.label,
@@ -26,6 +30,7 @@ export function DataFieldLabel(): ReactElement {
         variant={'subtitle2'}
         textTransform='uppercase'
         color='text.primary'
+        id={id}
         sx={{
           position: 'relative',
           fontSize: 12,
