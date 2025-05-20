@@ -40,6 +40,10 @@ export function HeaderSelect(): ReactElement {
     },
     select: true,
     variant: 'outlined',
+    'aria-label':
+      instances.length <= 1
+        ? `Current ${credentialDisplayInfo.label}`
+        : `Select ${credentialDisplayInfo.label}`,
     // When the credential is new, it should display with placeholder the select component.
     value: isNewCredential ? undefined : credentialDisplayInfo.id,
     onChange: (e) => {
@@ -49,6 +53,7 @@ export function HeaderSelect(): ReactElement {
       handleChangeCredentialInstance(e.target.value);
     },
     InputProps: {
+      tabIndex: instances.length <= 1 ? -1 : 0,
       readOnly: instances.length <= 1,
     },
     SelectProps: {

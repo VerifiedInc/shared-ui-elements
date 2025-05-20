@@ -21,7 +21,6 @@ export function DataFieldRootStack(props: StackProps): ReactElement {
   return (
     <DataFieldStack
       {...props}
-      role='button'
       onClick={() => {
         if (context.isEditMode || !shouldShow) return;
         context.setEditMode(true);

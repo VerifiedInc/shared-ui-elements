@@ -19,9 +19,11 @@ export function DataFieldText(): ReactElement {
   );
 
   return (
-    <Stack direction='row' width='100%'>
-      <DataFieldLabel />
-      <DataFieldValue>{formattedValue}</DataFieldValue>
-    </Stack>
+    <div style={{ width: '100%' }}>
+      <Stack direction='row' width='100%'>
+        <DataFieldLabel />
+        <DataFieldValue>{formattedValue}</DataFieldValue>
+      </Stack>
+    </div>
   );
 }

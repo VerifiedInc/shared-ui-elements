@@ -100,11 +100,18 @@ export function DataFieldAtomic(): ReactElement | null {
 
   return (
     <Stack
-      direction='row'
-      alignItems='center'
+      component='section'
+      role='region'
+      aria-label={
+        typeof credentialDisplayInfo.label === 'string'
+          ? credentialDisplayInfo.label
+          : 'Credential field'
+      }
       data-testid='data-field-atomic'
       data-credentialid={credentialDisplayInfo.id}
-      sx={{ width: '100%' }}
+      sx={{ width: '100%', outline: 'none' }}
+      direction='row'
+      alignItems='center'
     >
       <DataFieldLeftSide />
       <Stack direction='column' sx={stackStyle}>

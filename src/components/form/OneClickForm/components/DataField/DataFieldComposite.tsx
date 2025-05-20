@@ -60,6 +60,13 @@ export function DataFieldComposite(
     <>
       <When value={!isEditMode && shouldRender()}>
         <Box
+          component='section'
+          role='region'
+          aria-label={
+            typeof credentialDisplayInfo.label === 'string'
+              ? credentialDisplayInfo.label
+              : 'Credential field'
+          }
           width='100%'
           data-testid='data-field-composite2'
           data-credentialid={credentialDisplayInfo.id}
@@ -80,6 +87,13 @@ export function DataFieldComposite(
       </When>
       {customDataInput && (
         <Stack
+          role='region'
+          aria-label={
+            typeof credentialDisplayInfo.label === 'string'
+              ? credentialDisplayInfo.label
+              : 'Credential field'
+          }
+          component='section'
           direction='row'
           alignItems='center'
           sx={{ flex: 1, flexShrink: 1, width: '100%' }}
