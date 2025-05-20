@@ -126,7 +126,7 @@
     "react-dnd": ">=16.0.1",
     "react-dnd-html5-backend": ">=16.0.1",
     "react-dom": ">=18",
-    "react-hook-form": ">=7.52.1",
+    "react-hook-form": ">=7.52.1 <=7.53.2",
     "react-imask": ">=7.6.1",
     "react-to-pdf": ">=2.0.0",
     "recharts": ">=2.15.0",
