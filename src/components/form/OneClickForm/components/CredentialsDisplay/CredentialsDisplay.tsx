@@ -78,12 +78,12 @@ export default function CredentialsDisplay(): ReactElement {
         alignItems='center'
         sx={{ flex: 1, width: '100%' }}
       >
-        <EditModeButton />
         <DataFieldRootStack sx={{ mt: 0.75 }}>
           {Object.entries(data).map((entry) =>
             renderCredentialDisplayInfo(entry),
           )}
         </DataFieldRootStack>
+        <EditModeButton />
       </Box>
     </Box>
   );

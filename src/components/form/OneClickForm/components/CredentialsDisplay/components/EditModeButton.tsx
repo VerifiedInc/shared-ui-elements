@@ -20,7 +20,7 @@ export function EditModeButton(): ReactElement | null {
       variant='text'
       size='small'
       color='neutral'
-      startIcon={<Edit />}
+      startIcon={<Edit aria-hidden='true' />}
       sx={{
         position: 'absolute',
         top: 4,
