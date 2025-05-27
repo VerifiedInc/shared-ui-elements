@@ -82,6 +82,7 @@ const DataFieldAddressInputMemoized = memo(
       error,
       handleInputChange,
       handleOptionChange,
+      handleClear,
     } = useDataFieldAddressInput({ credentialsDisplayItem });
 
     return (
@@ -147,12 +148,13 @@ const DataFieldAddressInputMemoized = memo(
               }}
               InputProps={{
                 ...params.InputProps,
+                // Disabling injected global styles to preserve the performance rendering
+                // Ref: https://github.com/mui/material-ui/issues/38314#issuecomment-1667854679
+                disableInjectingGlobalStyles: true,
                 endAdornment: (
                   <DataFieldClearAdornment
                     onClick={() => {
-                      handleInputChange('', {
-                        shouldValidate: false,
-                      });
+                      handleClear();
                     }}
                   />
                 ),
