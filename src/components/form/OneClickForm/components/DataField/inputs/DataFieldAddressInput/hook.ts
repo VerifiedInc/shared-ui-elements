@@ -12,11 +12,7 @@ import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/Credentia
 import { Address, Option, PlaceSuggestion } from './types';
 import { useAutoFill } from './autofill.hook';
 
-export function useDataFieldAddressInput({
-  credentialsDisplayItem,
-}: {
-  credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
-}): {
+type DataFieldAddressInputReturn = {
   value: Option;
   inputValue: string;
   suggestions: PlaceSuggestion[];
@@ -28,7 +24,14 @@ export function useDataFieldAddressInput({
     changeOptions?: { shouldValidate?: boolean },
   ) => void;
   handleOptionChange: (option: Option) => Promise<void>;
-} {
+  handleClear: () => void;
+};
+
+export function useDataFieldAddressInput({
+  credentialsDisplayItem,
+}: {
+  credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
+}): DataFieldAddressInputReturn {
   const form = useFormContext();
   const { objectController } = credentialsDisplayItem;
   const fieldName = objectController.field.name;
@@ -115,14 +118,15 @@ export function useDataFieldAddressInput({
     setFetchingPlace(false);
   };
 
-  const handleInputChange = (
-    newInputValue: string,
-    changeOptions?: { shouldValidate?: boolean },
-  ): void => {
+  const handleInputChange = (newInputValue: string): void => {
     setInputValue(newInputValue);
-    // Prevent changes while fetching place to avoid race conditions.
-    if (isFetchingPlace) return;
-    handleChange(newInputValue, changeOptions);
+  };
+
+  const handleClear = (): void => {
+    setInputValue('');
+    handleChange('', {
+      shouldValidate: false,
+    });
   };
 
   /**
@@ -138,6 +142,10 @@ export function useDataFieldAddressInput({
       ) {
         return;
       }
+
+      // Handle value change without validation
+      handleChange(debouncedInputValue, undefined);
+      // Trigger autocomplete request
       handleAutoComplete(debouncedInputValue).catch(console.error);
     };
     handle();
@@ -152,5 +160,6 @@ export function useDataFieldAddressInput({
     error,
     handleInputChange,
     handleOptionChange,
+    handleClear,
   };
 }
