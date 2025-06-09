@@ -52,6 +52,7 @@ export function RadioOption(props: RadioOptionProps) {
           <Radio
             checked={checked}
             onChange={handleCheck}
+            disabled={disabled}
             {...radioProps}
             sx={{
               mt: '1px',
@@ -62,7 +63,14 @@ export function RadioOption(props: RadioOptionProps) {
               },
             }}
           />
-          <Stack onClick={handleCheck} sx={{ cursor: 'pointer' }}>
+          <Stack
+            onClick={disabled ? undefined : handleCheck}
+            sx={{
+              cursor: disabled ? 'default' : 'pointer',
+              opacity: disabled ? 0.4 : 1,
+              pointerEvents: disabled ? 'none' : 'auto',
+            }}
+          >
             <Stack direction='row' alignItems='center' spacing={1}>
               <Typography
                 variant='body1'
