@@ -64,9 +64,9 @@ export function RadioOption(props: RadioOptionProps) {
             }}
           />
           <Stack
-            onClick={handleCheck}
+            onClick={disabled ? undefined : handleCheck}
             sx={{
-              cursor: 'pointer',
+              cursor: disabled ? 'default' : 'pointer',
               opacity: disabled ? 0.4 : 1,
               pointerEvents: disabled ? 'none' : 'auto',
             }}
