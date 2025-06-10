@@ -9,7 +9,18 @@ import pkg from './package.json';
 const resolvePath = (path: string) => resolve(__dirname, path);
 
 export default defineConfig({
-  plugins: [react({ jsxRuntime: 'automatic' }), dts({ include: ['src'] })],
+  plugins: [
+    react({
+      jsxRuntime: 'automatic',
+      babel: {
+        plugins: [
+          // This helps with fragments and key requirements
+          ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }],
+        ],
+      },
+    }),
+    dts({ include: ['src'] }),
+  ],
   test: {
     environment: 'jsdom',
     exclude: [...configDefaults.exclude, '.trunk', '.storybook'],
@@ -48,6 +59,10 @@ export default defineConfig({
       external: Object.keys(pkg.peerDependencies),
       output: {
         chunkFileNames: 'shared/[name]-[hash].mjs',
+        // Preserve module structure and ensure proper React key handling
+        preserveModules: false,
+        // Ensure components aren't unnecessarily duplicated
+        manualChunks: undefined,
       },
     },
   },

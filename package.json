@@ -62,7 +62,11 @@
     "prepublishOnly": "npm run build",
     "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
+  "dependencies": {
+    "react-datepicker": "^7.6.0"
+  },
   "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.27.1",
     "@chromatic-com/storybook": "^2.0.2",
     "@storybook/addon-essentials": "^8.3.1",
     "@storybook/addon-interactions": "^8.3.1",
@@ -122,7 +126,6 @@
     "notistack": ">=3.0.1",
     "qrcode": ">=1.5.4",
     "react": ">=18",
-    "react-datepicker": ">=7.6.0",
     "react-dnd": ">=16.0.1",
     "react-dnd-html5-backend": ">=16.0.1",
     "react-dom": ">=18",
