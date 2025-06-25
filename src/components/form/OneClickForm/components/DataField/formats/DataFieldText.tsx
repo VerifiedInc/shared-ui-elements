@@ -7,6 +7,8 @@ import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsD
 
 import { DataFieldLabel, DataFieldValue } from '../';
 
+import { DataFieldDescription } from '../DataFieldDescription';
+
 /**
  * This component renders and manages the input value for display format Text or to strings.
  * @constructor
@@ -22,7 +24,10 @@ export function DataFieldText(): ReactElement {
     <div style={{ width: '100%' }}>
       <Stack direction='row' width='100%'>
         <DataFieldLabel />
-        <DataFieldValue>{formattedValue}</DataFieldValue>
+        <Stack direction='column'>
+          <DataFieldValue>{formattedValue}</DataFieldValue>
+          <DataFieldDescription />
+        </Stack>
       </Stack>
     </div>
   );
