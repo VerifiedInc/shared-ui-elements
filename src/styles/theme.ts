@@ -333,6 +333,13 @@ export const theme = ({ primaryFontFace, ...options }: ThemeOptionsProps) =>
           size: 'medium',
         },
       },
+      MuiFormHelperText: {
+        styleOverrides: {
+          root: {
+            wordBreak: 'break-word',
+          },
+        },
+      },
     },
     ...options,
   });

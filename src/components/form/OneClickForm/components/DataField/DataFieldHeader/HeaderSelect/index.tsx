@@ -46,6 +46,7 @@ export function HeaderSelect(): ReactElement {
         : `Select ${credentialDisplayInfo.label}`,
     // When the credential is new, it should display with placeholder the select component.
     value: isNewCredential ? undefined : credentialDisplayInfo.id,
+    helperText: credentialDisplayInfo.credentialRequest.description,
     onChange: (e) => {
       // Prevent the event to propagate to the parent.
       e.stopPropagation();
@@ -97,6 +98,9 @@ export function HeaderSelect(): ReactElement {
       '& .Mui-disabled': {
         color: (theme) => `${theme.palette.text.primary}`,
         WebkitTextFillColor: (theme) => `${theme.palette.text.primary}`,
+      },
+      '& .MuiFormHelperText-root': {
+        ml: instances.length <= 1 ? 0 : undefined,
       },
     },
   };

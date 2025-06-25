@@ -143,12 +143,14 @@ const mockData = {
         {
           type: 'FirstNameCredential',
           mandatory: 'if_available',
+          description: 'Your first name',
           // allowUserInput: false,
         },
         // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
         {
           type: 'LastNameCredential',
           mandatory: 'if_available',
+          description: 'Your last name',
           // allowUserInput: false,
         },
       ],
@@ -164,6 +166,7 @@ const mockData = {
       mandatory: 'if_available',
       multi: true,
       type: 'AddressCredential',
+      description: 'Shipping address',
       children: [
         {
           type: 'Line1Credential',
@@ -210,6 +213,7 @@ const mockData = {
       mandatory: 'if_available',
       multi: false,
       type: 'SsnCredential',
+      description: 'Last 4 digits',
     },
     // {
     //   allowUserInput: true,
