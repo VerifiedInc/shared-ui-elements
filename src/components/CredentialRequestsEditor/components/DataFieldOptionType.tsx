@@ -30,6 +30,7 @@ export function DataFieldOptionType(): React.JSX.Element {
         id: schema.$id as string,
       }))
       .filter((schema) => {
+        // Allow only supported credentials. Ref: https://docs.verified.inc/data/outputs/credentials#core-kyc
         const whitelist = [
           'AddressCredential',
           'Line1Credential',
