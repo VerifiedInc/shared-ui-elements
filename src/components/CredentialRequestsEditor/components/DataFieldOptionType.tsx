@@ -30,8 +30,24 @@ export function DataFieldOptionType(): React.JSX.Element {
         id: schema.$id as string,
       }))
       .filter((schema) => {
-        const blacklist = ['IdentityCredential'];
-        return !blacklist.includes(schema.id);
+        const whitelist = [
+          'AddressCredential',
+          'Line1Credential',
+          'Line2Credential',
+          'CityCredential',
+          'StateCredential',
+          'CountryCredential',
+          'ZipCodeCredential',
+          'FullNameCredential',
+          'FirstNameCredential',
+          'MiddleNameCredential',
+          'LastNameCredential',
+          'PhoneCredential',
+          'BirthDateCredential',
+          'SsnCredential',
+          'GenderCredential',
+        ];
+        return whitelist.includes(schema.id);
       })
       .sort((a, b) => (a.label < b.label ? -1 : 1));
   }, [schemas]);
