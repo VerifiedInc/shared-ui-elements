@@ -17,3 +17,4 @@ export * from './usePrevious';
 export * from './useResizeObserver';
 export * from './useNavigatorOnline';
 export * from './useDebounceCallback';
+export * from './useStyledQRCode';
