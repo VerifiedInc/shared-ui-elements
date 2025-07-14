@@ -14,6 +14,7 @@ export function DataFieldDescription() {
         wordBreak: 'break-word',
         mt: 0.5,
         mr: 1.75,
+        textAlign: 'left',
       }}
     >
       {credentialDisplayInfo.credentialRequest?.description}
