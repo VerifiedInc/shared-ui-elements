@@ -20,10 +20,11 @@ export function DataFieldValue({
       variant='body1'
       sx={
         {
+          ...sx,
           fontSize: 20,
           fontWeight: 300,
           wordBreak: 'break-word',
-          ...sx,
+          textAlign: 'left',
         } as any
       }
     >
