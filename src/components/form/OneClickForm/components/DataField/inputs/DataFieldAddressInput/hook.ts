@@ -135,6 +135,11 @@ export function useDataFieldAddressInput({
    */
   useEffect(() => {
     const handle = (): void => {
+      // Handle change when input is cleared
+      if (!debouncedInputValue.length) {
+        handleChange('', undefined);
+      }
+
       if (
         !debouncedInputValue ||
         debouncedInputValue.length <= 3 ||
