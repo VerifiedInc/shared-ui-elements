@@ -11,3 +11,4 @@ export * from './TimezoneInput';
 export * from './OneClickForm';
 export * from './RadioOption';
 export * from './DefaultInput';
+export * from './AddressInput';

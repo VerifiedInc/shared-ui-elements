@@ -1,12 +1,10 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { wrapPromise } from '../../../../../../../utils';
-import { useDebounceValue, usePrevious } from '../../../../../../../hooks';
-import { fromUSAddress, toUSaddress } from '../../../../../../../utils/address';
+import { toSentenceCase, wrapPromise } from '../../../utils';
+import { useDebounceValue, usePrevious } from '../../../hooks';
 
-import { extractChildrenFromCredentialFieldSet } from '../../../CredentialsDisplay/utils';
-import { useCredentialsDisplayItem } from '../../../CredentialsDisplay/CredentialsDisplayItemContext';
+import { fromUSAddress, toUSaddress } from '../../../utils/address';
 
 import { Address, Option, PlaceSuggestion } from './types';
 import { useAutoFill } from './autofill.hook';
@@ -27,14 +25,18 @@ type DataFieldAddressInputReturn = {
 };
 
 export function useDataFieldAddressInput({
-  credentialsDisplayItem,
+  name,
+  defaultValue: _defaultValue,
+  onChange,
 }: {
-  credentialsDisplayItem: ReturnType<typeof useCredentialsDisplayItem>;
+  name: string;
+  defaultValue: Address | null;
+  onChange: (
+    value: string | Address | null,
+    changeOptions?: { shouldValidate?: boolean },
+  ) => void;
 }): DataFieldAddressInputReturn {
   const form = useFormContext();
-  const { objectController } = credentialsDisplayItem;
-  const fieldName = objectController.field.name;
-  const fieldValue = objectController.field.value;
 
   const [isFetchingPlace, setFetchingPlace] = useState(false);
   const {
@@ -45,28 +47,27 @@ export function useDataFieldAddressInput({
     isPending,
   } = useAutoFill();
 
+  // React to form errors
   const error = useMemo(() => {
-    for (const [key] of Object.entries(
-      extractChildrenFromCredentialFieldSet(fieldValue),
-    )) {
-      // Composite address data field does not changes line 2
+    for (const key of ['line1', 'city', 'state', 'zipCode']) {
+      // Address field does not contemplate line2
       if (key === 'line2') continue;
-      const childFieldState = form.getFieldState(`${fieldName}.${key}`);
-      if (childFieldState.error?.message) {
-        return `${fieldValue.credentialDisplayInfo.label} is invalid`;
+      const childFieldState = form.getFieldState(`${name}.${key}`);
+      if (childFieldState?.error?.message) {
+        return `${toSentenceCase(key)} is invalid`;
       }
     }
     return undefined;
-  }, [form]);
+  }, [form, name, form.formState.errors]);
 
   const defaultValue = useMemo(() => {
     return toUSaddress({
-      line1: fieldValue.line1.value,
-      city: fieldValue.city.value,
-      state: fieldValue.state.value,
-      zipCode: fieldValue.zipCode.value,
+      line1: _defaultValue?.line1 ?? '',
+      city: _defaultValue?.city ?? '',
+      state: _defaultValue?.state ?? '',
+      zipCode: _defaultValue?.zipCode ?? '',
     });
-  }, []);
+  }, [_defaultValue]);
 
   const [value, setValue] = useState<Option>({
     title: defaultValue ?? '',
@@ -91,19 +92,8 @@ export function useDataFieldAddressInput({
       setInputValue(toUSaddress({ ...value, country: undefined }) ?? '');
     }
 
-    // Update all existing child values in the form context.
-    for (const [key] of Object.entries(
-      extractChildrenFromCredentialFieldSet(fieldValue),
-    )) {
-      // Composite address data field does not changes line 2
-      if (key === 'line2') continue;
-
-      credentialsDisplayItem.handleChangeChildValueCredential(
-        key,
-        addressParts?.[key as keyof typeof addressParts] ?? '',
-        changeOptions,
-      );
-    }
+    // Call on change with the address parts so the implementation can update the form values.
+    onChange(addressParts, changeOptions);
   };
 
   const handleOptionChange = async (option: Option): Promise<void> => {
