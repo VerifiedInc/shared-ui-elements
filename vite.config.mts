@@ -41,6 +41,7 @@ export default defineConfig({
         styles: resolvePath('src/styles/index.ts'),
         validations: resolvePath('src/validations/index.ts'),
         utils: resolvePath('src/utils/index.ts'),
+        'utils/address': resolvePath('src/utils/address/index.ts'),
         'utils/color': resolvePath('src/utils/color/index.ts'),
         'utils/masks': resolvePath('src/utils/masks/index.ts'),
         'utils/string': resolvePath('src/utils/string/index.ts'),
