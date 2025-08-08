@@ -1,6 +1,13 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Box, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Stack,
+  Typography,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
+import { Close } from '@mui/icons-material';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +15,20 @@ import { action } from '@storybook/addon-actions';
 
 import { AddressInput } from '../../../components/form/AddressInput';
 import { Address } from '../../../components/form/AddressInput/types';
+
+// Simple clear adornment component for stories
+const ClearAdornment = ({ onClick }: { onClick: () => void }) => (
+  <InputAdornment position='end'>
+    <IconButton
+      aria-label='clear address'
+      edge='end'
+      size='small'
+      onClick={onClick}
+    >
+      <Close fontSize='small' />
+    </IconButton>
+  </InputAdornment>
+);
 
 // Schema for AddressInput based on Address type structure
 const addressSchema = z.object({
@@ -121,6 +142,7 @@ const meta = {
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
   argTypes: {
+    label: { control: 'text' },
     size: { control: 'select', options: ['small', 'medium'] },
     variant: { control: 'select', options: ['standard', 'filled', 'outlined'] },
     disabled: { control: 'boolean' },
@@ -135,6 +157,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     name: 'addressField',
+    label: 'Address',
     onChange: (
       value: string | Address | null,
       changeOptions?: { shouldValidate?: boolean },
@@ -158,6 +181,7 @@ export const Default: Story = {
 export const WithPrefilled: Story = {
   args: {
     name: 'addressField',
+    label: 'Address',
     onChange: (
       value: string | Address | null,
       changeOptions?: { shouldValidate?: boolean },
@@ -187,6 +211,7 @@ export const WithPrefilled: Story = {
 export const Disabled: Story = {
   args: {
     name: 'addressField',
+    label: 'Address',
     onChange: (
       value: string | Address | null,
       changeOptions?: { shouldValidate?: boolean },
@@ -204,6 +229,37 @@ export const Disabled: Story = {
     variant: 'outlined',
     size: 'small',
     helperText: 'This field is disabled',
+    service: {
+      googlePlacesAutocompletePlaces:
+        'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
+      googlePlacesGetPlace:
+        'http://localhost:3070/api/googleapis/places/GetPlace',
+    },
+  },
+};
+
+export const WithClearAdornment: Story = {
+  args: {
+    name: 'addressField',
+    label: 'Address',
+    onChange: (
+      value: string | Address | null,
+      changeOptions?: { shouldValidate?: boolean },
+    ) => {
+      action('onChange')(value, changeOptions);
+    },
+    defaultValue: {
+      line1: '1600 Amphitheatre Parkway',
+      city: 'Mountain View',
+      state: 'CA',
+      zipCode: '94043',
+      country: 'US',
+    },
+    disabled: false,
+    variant: 'outlined',
+    size: 'small',
+    helperText: 'Address with clear button',
+    ClearAdornment: ClearAdornment,
     service: {
       googlePlacesAutocompletePlaces:
         'http://localhost:3070/api/googleapis/places/AutocompletePlaces',

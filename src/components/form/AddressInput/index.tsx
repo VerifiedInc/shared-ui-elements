@@ -27,6 +27,7 @@ type AddressInputProps = {
     value: string | Address | null,
     changeOptions?: { shouldValidate?: boolean },
   ) => void;
+  label?: string;
   disabled?: boolean;
   variant?: TextFieldProps['variant'];
   size?: TextFieldProps['size'];
@@ -79,6 +80,7 @@ function AddressInputContent({
   name,
   defaultValue,
   onChange,
+  label,
   disabled,
   variant,
   size,
@@ -142,6 +144,7 @@ function AddressInputContent({
           <TextField
             id={params.id}
             disabled={params.disabled}
+            label={label}
             variant={variant}
             size={size}
             error={!!error}
@@ -204,6 +207,7 @@ export function AddressInput({
   name,
   defaultValue,
   onChange,
+  label,
   disabled,
   variant,
   size,
@@ -222,6 +226,7 @@ export function AddressInput({
         name={name}
         defaultValue={defaultValue}
         onChange={onChange}
+        label={label}
         disabled={disabled}
         variant={variant}
         size={size}
