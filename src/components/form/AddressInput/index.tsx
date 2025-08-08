@@ -203,38 +203,14 @@ function AddressInputContent({
  * This component composes the fields of address except line 2.
  * @constructor
  */
-export function AddressInput({
-  name,
-  defaultValue,
-  onChange,
-  label,
-  disabled,
-  variant,
-  size,
-  helperText,
-  inputProps,
-  InputProps,
-  ClearAdornment,
-  service,
-}: AddressInputProps): ReactElement {
+export function AddressInput(props: AddressInputProps): ReactElement {
+  const { service, ...rest } = props;
   return (
     <AddressInputProvider
       googlePlacesAutocompletePlaces={service.googlePlacesAutocompletePlaces}
       googlePlacesGetPlace={service.googlePlacesGetPlace}
     >
-      <AddressInputContent
-        name={name}
-        defaultValue={defaultValue}
-        onChange={onChange}
-        label={label}
-        disabled={disabled}
-        variant={variant}
-        size={size}
-        helperText={helperText}
-        inputProps={inputProps}
-        InputProps={InputProps}
-        ClearAdornment={ClearAdornment}
-      />
+      <AddressInputContent {...rest} />
     </AddressInputProvider>
   );
 }
