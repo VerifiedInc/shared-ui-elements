@@ -36,8 +36,14 @@ export type AddressInputProps = {
   InputProps?: TextFieldProps['InputProps'];
   ClearAdornment?: ComponentType<{ onClick: () => void }>;
   service: {
-    googlePlacesAutocompletePlaces?: string;
-    googlePlacesGetPlace?: string;
+    googlePlacesAutocompletePlaces?: (
+      input: string,
+      signal?: AbortSignal,
+    ) => Promise<Response>;
+    googlePlacesGetPlace?: (
+      placeId: string,
+      signal?: AbortSignal,
+    ) => Promise<Response>;
   };
 };
 

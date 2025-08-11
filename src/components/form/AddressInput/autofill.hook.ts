@@ -8,7 +8,10 @@ import { Address, PlaceAddressComponent, PlaceSuggestion } from './types';
 
 type AutoFillHookReturn = {
   handleAutoComplete: (value: string) => Promise<void>;
-  fetchPlace: (placeId: string) => Promise<PlaceAddressComponent[] | null>;
+  fetchPlace: (
+    placeId: string,
+    signal?: AbortSignal,
+  ) => Promise<PlaceAddressComponent[] | null>;
   buildAddress: (placeComponents: PlaceAddressComponent[]) => Address;
   suggestions: PlaceSuggestion[];
   isPending: boolean;
@@ -109,14 +112,15 @@ export function useAutoFill(): AutoFillHookReturn {
     setIsPending(true);
 
     try {
-      const response = await fetch(googlePlacesAutocompletePlaces, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ input: value }),
-        signal: abortController.signal,
-      });
+      if (!googlePlacesAutocompletePlaces) {
+        setIsPending(false);
+        return;
+      }
+
+      const response = await googlePlacesAutocompletePlaces(
+        value,
+        abortController.signal,
+      );
 
       // If the request was aborted, don't proceed
       if (abortController.signal.aborted) {
@@ -157,16 +161,11 @@ export function useAutoFill(): AutoFillHookReturn {
 
   const fetchPlace = async (
     placeId: string,
+    signal?: AbortSignal,
   ): Promise<PlaceAddressComponent[] | null> => {
     if (!googlePlacesGetPlace) return null;
 
-    const response = await fetch(googlePlacesGetPlace, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: placeId }),
-    });
+    const response = await googlePlacesGetPlace(placeId, signal);
 
     if (!response.ok) {
       return null;
