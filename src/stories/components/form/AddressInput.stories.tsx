@@ -38,7 +38,7 @@ const googlePlacesAutocompletePlaces = async (
   );
 
   if (!response.ok) {
-throw new Error(`AutocompletePlaces API error! status: ${response.status}`);
+    throw new Error(`AutocompletePlaces API error! status: ${response.status}`);
   }
 
   return response.json();

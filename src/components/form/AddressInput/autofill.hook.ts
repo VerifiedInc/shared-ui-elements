@@ -131,16 +131,11 @@ export function useAutoFill(): AutoFillHookReturn {
         return;
       }
 
-      if (!result || autoCompleteError) {
-        setIsPending(false);
-        return;
-      }
-
       // Add type validation before casting
       if (Array.isArray(result)) {
         setSuggestions(result as PlaceSuggestion[]);
       } else {
-        console.error('Unexpected response format from Google Places API');
+        // Bad implementation, return empty array
         setSuggestions([]);
       }
     } catch (error) {
@@ -148,8 +143,6 @@ export function useAutoFill(): AutoFillHookReturn {
       if (error instanceof DOMException && error.name === 'AbortError') {
         return;
       }
-      // Otherwise, handle other errors
-      console.error('Failed to fetch address suggestions:', error);
     } finally {
       // Only clear isPending if this is still the most recent request
       if (abortControllerRef.current === abortController) {
@@ -172,7 +165,12 @@ export function useAutoFill(): AutoFillHookReturn {
       return null;
     }
 
-    return result as PlaceAddressComponent[];
+    // Add type validation before casting
+    if (result && Array.isArray(result)) {
+      return result as PlaceAddressComponent[];
+    }
+
+    return null;
   };
 
   return {
