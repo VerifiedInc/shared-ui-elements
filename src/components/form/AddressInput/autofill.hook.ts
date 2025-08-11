@@ -117,9 +117,8 @@ export function useAutoFill(): AutoFillHookReturn {
         return;
       }
 
-      const response = await googlePlacesAutocompletePlaces(
-        value,
-        abortController.signal,
+      const [result, autoCompleteError] = await wrapPromise(
+        googlePlacesAutocompletePlaces(value, abortController.signal),
       );
 
       // If the request was aborted, don't proceed
@@ -127,30 +126,23 @@ export function useAutoFill(): AutoFillHookReturn {
         return;
       }
 
-      if (!response.ok) {
+      if (!result || autoCompleteError) {
         setIsPending(false);
         return;
       }
 
-      const [result, error] = await wrapPromise<PlaceSuggestion[]>(
-        response.json(),
-      );
-
-      // Check again if aborted after the json parsing
-      if (abortController.signal.aborted) {
-        return;
-      }
-
-      if (!error) {
-        setSuggestions(result);
+      // Add type validation before casting
+      if (Array.isArray(result)) {
+        setSuggestions(result as PlaceSuggestion[]);
+      } else {
+        // Bad implementation, return empty array
+        setSuggestions([]);
       }
     } catch (error) {
       // If the error is due to abortion, we can silently ignore it
       if (error instanceof DOMException && error.name === 'AbortError') {
         return;
       }
-      // Otherwise, handle other errors
-      console.error('Failed to fetch address suggestions:', error);
     } finally {
       // Only clear isPending if this is still the most recent request
       if (abortControllerRef.current === abortController) {
@@ -165,16 +157,17 @@ export function useAutoFill(): AutoFillHookReturn {
   ): Promise<PlaceAddressComponent[] | null> => {
     if (!googlePlacesGetPlace) return null;
 
-    const response = await googlePlacesGetPlace(placeId, signal);
+    const [result, getPlaceError] = await wrapPromise(
+      googlePlacesGetPlace(placeId, signal),
+    );
 
-    if (!response.ok) {
+    if (getPlaceError) {
       return null;
     }
 
-    const [result, error] = await wrapPromise(response.json());
-
-    if (!error) {
-      return result;
+    // Add type validation before casting
+    if (result && Array.isArray(result)) {
+      return result as PlaceAddressComponent[];
     }
 
     return null;

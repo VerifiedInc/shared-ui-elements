@@ -4,11 +4,11 @@ interface AddressInputContextType {
   googlePlacesAutocompletePlaces?: (
     input: string,
     signal?: AbortSignal,
-  ) => Promise<Response>;
+  ) => Promise<unknown>;
   googlePlacesGetPlace?: (
     placeId: string,
     signal?: AbortSignal,
-  ) => Promise<Response>;
+  ) => Promise<unknown>;
 }
 
 const defaultContextValue: AddressInputContextType = {
@@ -24,11 +24,11 @@ interface AddressInputProviderProps {
   googlePlacesAutocompletePlaces?: (
     input: string,
     signal?: AbortSignal,
-  ) => Promise<Response>;
+  ) => Promise<unknown>;
   googlePlacesGetPlace?: (
     placeId: string,
     signal?: AbortSignal,
-  ) => Promise<Response>;
+  ) => Promise<unknown>;
 }
 
 export function AddressInputProvider({
