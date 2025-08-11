@@ -131,7 +131,18 @@ export function useAutoFill(): AutoFillHookReturn {
         return;
       }
 
-      setSuggestions(result as PlaceSuggestion[]);
+      if (!result || autoCompleteError) {
+        setIsPending(false);
+        return;
+      }
+
+      // Add type validation before casting
+      if (Array.isArray(result)) {
+        setSuggestions(result as PlaceSuggestion[]);
+      } else {
+        console.error('Unexpected response format from Google Places API');
+        setSuggestions([]);
+      }
     } catch (error) {
       // If the error is due to abortion, we can silently ignore it
       if (error instanceof DOMException && error.name === 'AbortError') {
