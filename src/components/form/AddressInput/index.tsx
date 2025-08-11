@@ -39,11 +39,11 @@ export type AddressInputProps = {
     googlePlacesAutocompletePlaces?: (
       input: string,
       signal?: AbortSignal,
-    ) => Promise<Response>;
+    ) => Promise<unknown>;
     googlePlacesGetPlace?: (
       placeId: string,
       signal?: AbortSignal,
-    ) => Promise<Response>;
+    ) => Promise<unknown>;
   };
 };
 

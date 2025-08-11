@@ -14,14 +14,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { action } from '@storybook/addon-actions';
 
 import { AddressInput } from '../../../components/form/AddressInput';
-import { Address } from '../../../components/form/AddressInput/types';
+import {
+  Address,
+  PlaceSuggestion,
+  PlaceAddressComponent,
+} from '../../../components/form/AddressInput/types';
 
 // Fetcher functions for Storybook using real API endpoints
 const googlePlacesAutocompletePlaces = async (
   input: string,
   signal?: AbortSignal,
-): Promise<Response> => {
-  return fetch(
+): Promise<PlaceSuggestion[]> => {
+  const response = await fetch(
     'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
     {
       method: 'POST',
@@ -32,20 +36,35 @@ const googlePlacesAutocompletePlaces = async (
       signal,
     },
   );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
 };
 
 const googlePlacesGetPlace = async (
   placeId: string,
   signal?: AbortSignal,
-): Promise<Response> => {
-  return fetch('http://localhost:3070/api/googleapis/places/GetPlace', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+): Promise<PlaceAddressComponent[]> => {
+  const response = await fetch(
+    'http://localhost:3070/api/googleapis/places/GetPlace',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: placeId }),
+      signal,
     },
-    body: JSON.stringify({ name: placeId }),
-    signal,
-  });
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
 };
 
 // Simple clear adornment component for stories
