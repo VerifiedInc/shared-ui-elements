@@ -20,18 +20,18 @@ type Option = {
   value: string;
 };
 
-type AddressInputProps = {
+export type AddressInputProps = {
   name: string;
   defaultValue: Address | null;
   onChange: (
     value: string | Address | null,
     changeOptions?: { shouldValidate?: boolean },
   ) => void;
-  label?: string;
+  label?: TextFieldProps['label'];
   disabled?: boolean;
   variant?: TextFieldProps['variant'];
   size?: TextFieldProps['size'];
-  helperText?: string;
+  helperText?: TextFieldProps['helperText'];
   inputProps?: TextFieldProps['inputProps'];
   InputProps?: TextFieldProps['InputProps'];
   ClearAdornment?: ComponentType<{ onClick: () => void }>;
