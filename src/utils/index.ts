@@ -7,4 +7,5 @@ export * from './ssn';
 export * from './uuidColor';
 export * from './string';
 export * from './color';
+export * from './address';
 export * from './makeGoogleFont';

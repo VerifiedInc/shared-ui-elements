@@ -1,4 +1,4 @@
-import { toUSaddressPretty } from '../../../../../utils/addressFormatter';
+import { toUSaddressPretty } from '../../../../../../../../utils/address';
 import { CredentialDisplayInfo } from '../../../../CredentialsDisplay/types';
 import { transformToFormObject } from '../../../../CredentialsDisplay/utils';
 

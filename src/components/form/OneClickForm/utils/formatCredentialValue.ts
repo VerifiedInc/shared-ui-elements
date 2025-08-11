@@ -1,6 +1,6 @@
 import { DisplayFormatEnum } from '../types/display-format';
 
-import { addressFormatter } from './addressFormatter';
+import { addressFormatter } from '../../../../utils/address';
 import { calendarDateFormatter } from './calendarDateFormatter';
 import { currencyRangeFormatter } from './currencyRangeFormatter';
 import phoneNumberFormatter from './phoneNumberFormatter';
