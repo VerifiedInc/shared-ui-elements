@@ -1,8 +1,14 @@
 import { createContext, useContext, ReactNode } from 'react';
 
 interface AddressInputContextType {
-  googlePlacesAutocompletePlaces?: string;
-  googlePlacesGetPlace?: string;
+  googlePlacesAutocompletePlaces?: (
+    input: string,
+    signal?: AbortSignal,
+  ) => Promise<Response>;
+  googlePlacesGetPlace?: (
+    placeId: string,
+    signal?: AbortSignal,
+  ) => Promise<Response>;
 }
 
 const defaultContextValue: AddressInputContextType = {
@@ -15,8 +21,14 @@ export const AddressInputContext =
 
 interface AddressInputProviderProps {
   children: ReactNode;
-  googlePlacesAutocompletePlaces?: string;
-  googlePlacesGetPlace?: string;
+  googlePlacesAutocompletePlaces?: (
+    input: string,
+    signal?: AbortSignal,
+  ) => Promise<Response>;
+  googlePlacesGetPlace?: (
+    placeId: string,
+    signal?: AbortSignal,
+  ) => Promise<Response>;
 }
 
 export function AddressInputProvider({

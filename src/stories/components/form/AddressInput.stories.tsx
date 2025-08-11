@@ -16,6 +16,38 @@ import { action } from '@storybook/addon-actions';
 import { AddressInput } from '../../../components/form/AddressInput';
 import { Address } from '../../../components/form/AddressInput/types';
 
+// Fetcher functions for Storybook using real API endpoints
+const googlePlacesAutocompletePlaces = async (
+  input: string,
+  signal?: AbortSignal,
+): Promise<Response> => {
+  return fetch(
+    'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ input }),
+      signal,
+    },
+  );
+};
+
+const googlePlacesGetPlace = async (
+  placeId: string,
+  signal?: AbortSignal,
+): Promise<Response> => {
+  return fetch('http://localhost:3070/api/googleapis/places/GetPlace', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name: placeId }),
+    signal,
+  });
+};
+
 // Simple clear adornment component for stories
 const ClearAdornment = ({ onClick }: { onClick: () => void }) => (
   <InputAdornment position='end'>
@@ -170,10 +202,8 @@ export const Default: Story = {
     size: 'small',
     helperText: 'Enter your address',
     service: {
-      googlePlacesAutocompletePlaces:
-        'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
-      googlePlacesGetPlace:
-        'http://localhost:3070/api/googleapis/places/GetPlace',
+      googlePlacesAutocompletePlaces,
+      googlePlacesGetPlace,
     },
   },
 };
@@ -200,10 +230,8 @@ export const WithPrefilled: Story = {
     size: 'small',
     helperText: 'Pre-filled address',
     service: {
-      googlePlacesAutocompletePlaces:
-        'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
-      googlePlacesGetPlace:
-        'http://localhost:3070/api/googleapis/places/GetPlace',
+      googlePlacesAutocompletePlaces,
+      googlePlacesGetPlace,
     },
   },
 };
@@ -230,10 +258,8 @@ export const Disabled: Story = {
     size: 'small',
     helperText: 'This field is disabled',
     service: {
-      googlePlacesAutocompletePlaces:
-        'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
-      googlePlacesGetPlace:
-        'http://localhost:3070/api/googleapis/places/GetPlace',
+      googlePlacesAutocompletePlaces,
+      googlePlacesGetPlace,
     },
   },
 };
@@ -261,10 +287,8 @@ export const WithClearAdornment: Story = {
     helperText: 'Address with clear button',
     ClearAdornment: ClearAdornment,
     service: {
-      googlePlacesAutocompletePlaces:
-        'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
-      googlePlacesGetPlace:
-        'http://localhost:3070/api/googleapis/places/GetPlace',
+      googlePlacesAutocompletePlaces,
+      googlePlacesGetPlace,
     },
   },
 };
