@@ -18,6 +18,7 @@ type DataFieldAddressInputReturn = {
   isPending: boolean;
   isFetchingPlace: boolean;
   error: string | undefined;
+  disabled: boolean;
   handleInputChange: (
     newInputValue: string,
     changeOptions?: { shouldValidate?: boolean },
