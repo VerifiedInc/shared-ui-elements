@@ -80,6 +80,7 @@ const DataFieldAddressInputMemoized = memo(
       isPending,
       isFetchingPlace,
       error,
+      disabled,
       handleInputChange,
       handleOptionChange,
       handleClear,
@@ -113,11 +114,11 @@ const DataFieldAddressInputMemoized = memo(
           value={value}
           inputValue={inputValue}
           loading={isPending || isFetchingPlace}
-          disabled={isFetchingPlace || credentialsDisplayItem.isDisabled}
+          disabled={isFetchingPlace || disabled}
           onChange={(event, newValue: string | Option | null) => {
             event.preventDefault();
             event.stopPropagation();
-            if (credentialsDisplayItem.isDisabled) return;
+            if (disabled) return;
             if (!newValue || typeof newValue === 'string') return;
             handleOptionChange(newValue).catch(console.error);
           }}
@@ -156,6 +157,7 @@ const DataFieldAddressInputMemoized = memo(
                     onClick={() => {
                       handleClear();
                     }}
+                    disabled={disabled}
                   />
                 ),
               }}

@@ -45,6 +45,27 @@ export function useDataFieldAddressInput({
     isPending,
   } = useAutoFill();
 
+  const disabled = useMemo(() => {
+    if (credentialsDisplayItem.isDisabled) {
+      return true;
+    }
+    for (const [key] of Object.entries(
+      extractChildrenFromCredentialFieldSet(fieldValue),
+    )) {
+      if (key === 'line2') continue;
+
+      const childFieldValue = form.getValues(`${fieldName}.${key}`);
+
+      // If any of the child field used in this component is not allowed to be edited, the address field should be disabled
+      if (
+        !childFieldValue.credentialDisplayInfo.credentialRequest.allowUserInput
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }, [form, credentialsDisplayItem]);
+
   const error = useMemo(() => {
     for (const [key] of Object.entries(
       extractChildrenFromCredentialFieldSet(fieldValue),
@@ -162,6 +183,7 @@ export function useDataFieldAddressInput({
     isPending,
     isFetchingPlace,
     error,
+    disabled,
     handleInputChange,
     handleOptionChange,
     handleClear,
