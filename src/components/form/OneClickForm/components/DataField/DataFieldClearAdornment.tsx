@@ -4,6 +4,7 @@ import { Close } from '@mui/icons-material';
 import { useCredentialsDisplayItem } from '../CredentialsDisplay/CredentialsDisplayItemContext';
 
 type DataFieldClearAdornmentProps = Readonly<{
+  disabled?: boolean;
   onClick?: () => void;
 }>;
 
@@ -15,6 +16,7 @@ type QueryInputReturn =
 
 export function DataFieldClearAdornment({
   onClick,
+  disabled,
 }: DataFieldClearAdornmentProps) {
   const { isDisabled, handleClearValueCredential } =
     useCredentialsDisplayItem();
@@ -35,12 +37,12 @@ export function DataFieldClearAdornment({
         size='small'
         onClick={(e) => {
           // Handling disabled state
-          if (isDisabled) return;
+          if (disabled ?? isDisabled) return;
           queryInput(e.currentTarget)?.focus();
           handleClearValueCredential();
           onClick?.();
         }}
-        disabled={isDisabled}
+        disabled={disabled ?? isDisabled}
       >
         <Close fontSize='small' />
       </IconButton>

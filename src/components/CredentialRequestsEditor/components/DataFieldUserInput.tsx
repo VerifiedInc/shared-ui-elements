@@ -1,9 +1,10 @@
 import { RadioGroup } from '@mui/material';
-import { useController } from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
+import { propagateToChildren } from '../utils/propagateToChildren';
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
@@ -12,6 +13,7 @@ export function DataFieldUserInput(): React.JSX.Element {
   const isFeatureDisabled = features?.description?.disabled === true;
 
   const credentialRequestField = useCredentialRequestField();
+  const form = useFormContext<CredentialRequestsEditorForm>();
   const allowUserInput = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.allowUserInput` as any,
   });
@@ -34,17 +36,25 @@ export function DataFieldUserInput(): React.JSX.Element {
         value={allowUserInput.field.value}
         onChange={(_, value) => {
           if (isFeatureDisabled) return;
+          const boolValue = value === 'true';
+
           // Update form state
           allowUserInput.field.onChange({
-            target: { value: value === 'true' },
+            target: { value: boolValue },
           });
+
+          // Propagate to children if this field has children
+          const currentPath = credentialRequestField?.path;
+          if (currentPath) {
+            propagateToChildren(form, boolValue, currentPath, 'allowUserInput');
+          }
         }}
       >
         <RadioOption
           isDefault
           value={true}
           title='Yes'
-          description='The user can add or edit data for the user to share'
+          description='The user can add or edit data'
           tip='true'
           inputProps={
             {
