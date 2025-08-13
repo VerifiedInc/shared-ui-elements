@@ -1,10 +1,11 @@
-import { useController } from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 import { RadioGroup } from '@mui/material';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
+import { propagateToChildren } from '../utils/propagateToChildren';
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
@@ -13,6 +14,7 @@ export function DataFieldMandatory(): React.JSX.Element {
   const isFeatureDisabled = features?.mandatory?.disabled === true;
 
   const credentialRequestField = useCredentialRequestField();
+  const form = useFormContext<CredentialRequestsEditorForm>();
   const mandatory = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}.mandatory` as any,
   });
@@ -39,6 +41,12 @@ export function DataFieldMandatory(): React.JSX.Element {
 
           // Update form state
           mandatory.field.onChange({ target: { value } });
+
+          // Propagate to children if this field has children
+          const currentPath = credentialRequestField?.path;
+          if (currentPath) {
+            propagateToChildren(form, value, currentPath, 'mandatory');
+          }
         }}
       >
         <RadioOption
