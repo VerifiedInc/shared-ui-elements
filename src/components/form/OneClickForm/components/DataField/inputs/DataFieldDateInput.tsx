@@ -99,14 +99,14 @@ const DataFieldDateInputMemoized = memo(
               return handleChangeValueCredential('NaN');
             }
 
-            const date = new Date(value);
+            // Parse the date string (MM/DD/YYYY) and create a UTC date
+            const [month, day, year] = value.split('/').map(Number);
+            const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+
             if (date < minDateInstance || date > maxDateInstance) {
               // A way to make sure the data field state is invalid is to add an invalid date value.
               return handleChangeValueCredential('NaN');
             }
-
-            // Ensures the date is in UTC at noon.
-            date.setUTCHours(12);
 
             handleChangeValueCredential(String(+date));
           }}
