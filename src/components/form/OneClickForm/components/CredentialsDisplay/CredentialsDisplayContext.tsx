@@ -27,7 +27,7 @@ import {
   transformToFormObject,
   transformToFormSchema,
   extractChildrenFromCredentialFieldSet,
-  hasInvalidFieldEmpty,
+  hasMandatoryFieldEmpty,
 } from './utils';
 
 export type CredentialsDisplayContext = {
@@ -422,7 +422,7 @@ export default function CredentialsDisplayProvider({
   // Initial validation and edit mode setup
   useEffect(() => {
     if (isEditMode) return;
-    setEditMode(hasFormErrors || hasInvalidFieldEmpty(defaultValues));
+    setEditMode(hasFormErrors || hasMandatoryFieldEmpty(defaultValues));
   }, [defaultValues, isEditMode, hasFormErrors]);
 
   return (

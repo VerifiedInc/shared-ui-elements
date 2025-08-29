@@ -12,7 +12,7 @@ import {
  * @param path The path to the current field in the form.
  * @returns True if there is a invalid field, false otherwise.
  */
-export function hasInvalidFieldEmpty(
+export function hasMandatoryFieldEmpty(
   fieldSet: CredentialFieldSet,
   path?: string,
 ): boolean {
@@ -32,6 +32,6 @@ export function hasInvalidFieldEmpty(
 
   return childEntries.some(([key, childFieldSet]) => {
     const childPath = path ? `${path}.${key}` : key;
-    return hasInvalidFieldEmpty(childFieldSet, childPath);
+    return hasMandatoryFieldEmpty(childFieldSet, childPath);
   });
 }
