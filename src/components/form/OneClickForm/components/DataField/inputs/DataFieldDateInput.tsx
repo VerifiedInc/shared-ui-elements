@@ -6,7 +6,7 @@ import { DateInput } from '../../../../../form';
 
 import { credentialTypes } from '../../../constants';
 import { inputStyle } from '../../../styles/input';
-import { formatDateDDMMYYYY } from '../../../utils/date';
+import { formatDateMMDDYYYY } from '../../../utils/date';
 import { useOneClickFormOptions } from '../../../contexts/one-click-form-options.context';
 
 import { USDateSchema } from '../../validations/schemas/date.schema';
@@ -45,7 +45,7 @@ const DataFieldDateInputMemoized = memo(
     // Arbitrary value to format the timestamp into human-readable date.
     const [localValue, setLocalValue] = useState<string>(
       objectController.field.value.value
-        ? formatDateDDMMYYYY(objectController.field.value.value)
+        ? formatDateMMDDYYYY(objectController.field.value.value)
         : '',
     );
 
