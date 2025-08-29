@@ -92,15 +92,16 @@ const validateAge18Plus = (timestampString: string): boolean => {
 
   const nowDate = new Date();
 
-  // Calculate 18 years ago from today in UTC
+  // Calculate 18 years ago from today in UTC, has to be end of the day as we enforce the value to be UTC 12h
   const eighteenYearsAgo = new Date(
     Date.UTC(
       nowDate.getUTCFullYear() - 18,
       nowDate.getUTCMonth(),
       nowDate.getUTCDate(),
-      0,
-      0,
-      0,
+      23,
+      59,
+      59,
+      999,
     ),
   );
 
