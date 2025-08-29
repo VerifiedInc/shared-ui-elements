@@ -1,4 +1,3 @@
-import { UseFormReturn } from 'react-hook-form';
 import { CredentialFieldSet } from '../types';
 
 import {
@@ -9,13 +8,11 @@ import {
 /**
  * Checks if there is a invalid field.
  *
- * @param form The form instance to check field states.
  * @param fieldSet The field set to check.
  * @param path The path to the current field in the form.
  * @returns True if there is a invalid field, false otherwise.
  */
-export function hasInvalidFieldEmpty(
-  form: UseFormReturn,
+export function hasMandatoryFieldEmpty(
   fieldSet: CredentialFieldSet,
   path?: string,
 ): boolean {
@@ -27,15 +24,14 @@ export function hasInvalidFieldEmpty(
       fieldSet.credentialDisplayInfo.credentialRequest,
     );
 
-    // Check if field is mandatory and empty, OR if field has validation errors
+    // Check if field is mandatory and empty
     const isEmpty = isMandatory && !fieldSet.value;
-    const hasError = path ? form.getFieldState(path).error : false;
 
-    return isEmpty || !!hasError;
+    return isEmpty;
   }
 
   return childEntries.some(([key, childFieldSet]) => {
     const childPath = path ? `${path}.${key}` : key;
-    return hasInvalidFieldEmpty(form, childFieldSet, childPath);
+    return hasMandatoryFieldEmpty(childFieldSet, childPath);
   });
 }

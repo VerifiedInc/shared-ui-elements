@@ -368,8 +368,8 @@ const mockData = {
       expirationDate: null,
       issuerUuid: '4af49021-7264-4f3d-80ee-901c32405422',
       data: {
-        birthDate: '617976000000',
-        // birthDate: '1756382400000', under 18 years
+        // birthDate: '617976000000',
+        birthDate: '1217592000000', // under 18 years
       },
     },
     {
@@ -415,6 +415,8 @@ const mockData = {
 
 function Footer() {
   const form = useFormContext();
+  const { isSubmitting, isValid } = form.formState;
+
   return (
     <form
       onSubmit={form.handleSubmit((data) => {
@@ -422,7 +424,13 @@ function Footer() {
       })}
     >
       <FormProvider {...form}>
-        <Button type='submit' variant='contained' fullWidth sx={{ mt: 2 }}>
+        <Button
+          type='submit'
+          variant='contained'
+          fullWidth
+          sx={{ mt: 2 }}
+          disabled={!isValid || isSubmitting}
+        >
           Submit
         </Button>
       </FormProvider>

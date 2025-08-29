@@ -4,7 +4,6 @@ import {
   ReactNode,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
@@ -28,9 +27,8 @@ import {
   transformToFormObject,
   transformToFormSchema,
   extractChildrenFromCredentialFieldSet,
-  hasInvalidFieldEmpty,
+  hasMandatoryFieldEmpty,
 } from './utils';
-import { CredentialDisplayContextSkeleton } from './CredentialDisplayContextSkeleton';
 
 export type CredentialsDisplayContext = {
   credentialRequests: any[];
@@ -158,9 +156,14 @@ export default function CredentialsDisplayProvider({
   });
   const formRef = useRef(form);
   formRef.current = form;
+  const { errors: formErrors } = form.formState;
+  const formErrorsKeys = Object.keys(formErrors);
+  const hasFormErrors = useMemo(
+    () => formErrorsKeys.length > 0,
+    [formErrorsKeys],
+  );
 
   const [isEditMode, setEditModeState] = useState(false);
-  const [ready, setReady] = useState(false);
 
   /**
    * Changes the credential in displayInfoList by id.
@@ -414,30 +417,13 @@ export default function CredentialsDisplayProvider({
     return () => {
       subscription.unsubscribe();
     };
-  }, [form]);
-
-  // Initial validation and edit mode setup
-  useLayoutEffect(() => {
-    const triggerValidationAndSetEditMode = async () => {
-      try {
-        await form.trigger();
-      } catch (error) {
-        console.error(error);
-      }
-
-      if (!isEditMode) {
-        setEditMode(hasInvalidFieldEmpty(form, defaultValues));
-      }
-
-      setReady(true);
-    };
-
-    void triggerValidationAndSetEditMode();
   }, [form, defaultValues]);
 
-  if (!ready) {
-    return <CredentialDisplayContextSkeleton />;
-  }
+  // Initial validation and edit mode setup
+  useEffect(() => {
+    if (isEditMode) return;
+    setEditMode(hasFormErrors || hasMandatoryFieldEmpty(defaultValues));
+  }, [defaultValues, isEditMode, hasFormErrors]);
 
   return (
     <FormProvider {...form}>
