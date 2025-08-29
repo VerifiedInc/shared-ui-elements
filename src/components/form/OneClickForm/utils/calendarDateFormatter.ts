@@ -4,7 +4,7 @@
  * @returns {string} formatted date
  */
 export const calendarDateFormatter = (epoch: string): string => {
-  return new Date(Number(epoch)).toLocaleDateString(undefined, {
+  return new Date(Number(epoch)).toLocaleDateString('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

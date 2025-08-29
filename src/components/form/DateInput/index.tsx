@@ -34,6 +34,8 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   pickerClickOutsideBoundaryElement?: HTMLElement | null;
   pickerInputOverflow?: boolean;
   inputMaskProps?: Readonly<Partial<InputMaskProps>>;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 const GhostInput = forwardRef(function RenderInput(
@@ -63,6 +65,8 @@ const Picker = function RenderPicker({
   defaultSelectedDate,
   overflow = false,
   clickOutsideBoundaryElement,
+  minDate: _minDate,
+  maxDate: _maxDate,
   disabled,
 }: {
   value: string;
@@ -70,14 +74,16 @@ const Picker = function RenderPicker({
   defaultSelectedDate?: Date;
   overflow?: boolean;
   clickOutsideBoundaryElement?: HTMLElement | null;
+  minDate?: Date;
+  maxDate?: Date;
   disabled?: boolean;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
   const defaultDate = new Date('08/01/1989');
-  const minDate = new Date(1900, 0, 1);
-  const maxDate = new Date();
+  const minDate = _minDate ?? new Date(1900, 0, 1);
+  const maxDate = _maxDate ?? new Date();
 
   const formatDate = (date: Date | null): string => {
     if (!date) return '';
@@ -88,9 +94,9 @@ const Picker = function RenderPicker({
     }
 
     try {
-      const day = date.getUTCDate().toString().padStart(2, '0');
-      const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-      const year = date.getUTCFullYear();
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
 
       // Validate ranges
       if (
@@ -99,7 +105,7 @@ const Picker = function RenderPicker({
         day === '00' ||
         day > '31' ||
         year < 1900 ||
-        year > new Date().getFullYear()
+        year > maxDate.getFullYear()
       ) {
         return '';
       }
@@ -198,6 +204,8 @@ function DateInputComponent(
     pickerClickOutsideBoundaryElement,
     pickerInputOverflow = false,
     inputMaskProps,
+    minDate,
+    maxDate,
     ...props
   }: Readonly<DateInputProps>,
   ref: any,
@@ -244,6 +252,8 @@ function DateInputComponent(
             overflow={pickerInputOverflow}
             clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
             defaultSelectedDate={pickerDefaultSelectedDate}
+            minDate={minDate}
+            maxDate={maxDate}
             disabled={disabled}
           />
           {props.InputProps?.endAdornment}

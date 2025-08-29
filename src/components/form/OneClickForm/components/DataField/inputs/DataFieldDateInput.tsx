@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual';
 
 import { DateInput } from '../../../../../form';
 
+import { credentialTypes } from '../../../constants';
 import { inputStyle } from '../../../styles/input';
 import { formatDateDDMMYYYY } from '../../../utils/date';
 import { useOneClickFormOptions } from '../../../contexts/one-click-form-options.context';
@@ -33,7 +34,13 @@ const DataFieldDateInputMemoized = memo(
       credentialDisplayInfo,
       handleChangeValueCredential,
     } = credentialsDisplayItem;
+    const { description } = credentialDisplayInfo.credentialRequest ?? {};
     const { isValid } = itemValid;
+    const errorMessageRaw = objectController.fieldState.error?.message;
+    const errorMessage =
+      errorMessageRaw && errorMessageRaw.length > 0
+        ? errorMessageRaw
+        : description;
 
     // Arbitrary value to format the timestamp into human-readable date.
     const [localValue, setLocalValue] = useState<string>(
@@ -42,32 +49,27 @@ const DataFieldDateInputMemoized = memo(
         : '',
     );
 
-    const nowDate = new Date();
-    const minDate = 1;
-    const minMonth = 1;
-    const minYear = 1900;
-    const minDateInstance = new Date(
-      minYear,
-      minMonth - 1,
-      minDate,
-      0,
-      0,
-      0,
-      0,
-    );
+    const isDob =
+      objectController.field.value.type === credentialTypes.BirthDateCredential;
 
-    const maxDate = nowDate.getDate();
-    const maxMonth = nowDate.getMonth() + 1;
-    const maxYear = nowDate.getFullYear();
-    const maxDateInstance = new Date(
-      maxYear,
-      maxMonth - 1,
-      maxDate,
-      23,
-      59,
-      59,
-      999,
-    );
+    const nowDate = new Date();
+
+    // Min date boundaries (always 1900)
+    const minYear = 1900;
+    const minMonth = 1;
+    const minDay = 1;
+
+    // Max date boundaries (today for regular dates, 18 years ago for birth dates)
+    const maxYear = isDob
+      ? nowDate.getUTCFullYear() - 18
+      : nowDate.getUTCFullYear();
+    const maxMonth = nowDate.getUTCMonth() + 1;
+    const maxDay = nowDate.getUTCDate();
+
+    // For the picker, we need to create local timezone dates that represent the same calendar dates
+    // as our UTC boundaries, so the picker displays the correct selectable range
+    const minDateForPicker = new Date(minYear, minMonth - 1, minDay);
+    const maxDateForPicker = new Date(maxYear, maxMonth - 1, maxDay);
 
     return (
       <Box width='100%'>
@@ -78,7 +80,7 @@ const DataFieldDateInputMemoized = memo(
           label={<DataFieldLabelText />}
           value={localValue}
           error={!isValid}
-          helperText={credentialDisplayInfo.credentialRequest?.description}
+          helperText={isValid ? description : errorMessage}
           placeholder='__/__/____'
           onChange={(value) => {
             if (credentialsDisplayItem.isDisabled) return;
@@ -101,14 +103,9 @@ const DataFieldDateInputMemoized = memo(
 
             // Parse the date string (MM/DD/YYYY) and create a UTC date
             const [month, day, year] = value.split('/').map(Number);
-            const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0, 0));
+            const dateTimestamp = Date.UTC(year, month - 1, day, 12, 0, 0, 0);
 
-            if (date < minDateInstance || date > maxDateInstance) {
-              // A way to make sure the data field state is invalid is to add an invalid date value.
-              return handleChangeValueCredential('NaN');
-            }
-
-            handleChangeValueCredential(String(+date));
+            handleChangeValueCredential(String(dateTimestamp));
           }}
           InputProps={{
             endAdornment: (
@@ -125,6 +122,8 @@ const DataFieldDateInputMemoized = memo(
           pickerClickOutsideBoundaryElement={
             features.datePickerClickOutsideBoundaryElement
           }
+          minDate={minDateForPicker}
+          maxDate={maxDateForPicker}
           disabled={credentialsDisplayItem.isDisabled}
         />
       </Box>

@@ -142,7 +142,7 @@ const mockData = {
       children: [
         {
           type: 'FirstNameCredential',
-          mandatory: 'no',
+          mandatory: 'yes',
           description: 'Your first name',
           // allowUserInput: false,
         },
@@ -203,7 +203,7 @@ const mockData = {
     },
     {
       allowUserInput: true,
-      mandatory: 'no',
+      mandatory: 'yes',
       multi: false,
       type: 'BirthDateCredential',
       description: 'MM/DD/YYYY',
@@ -369,6 +369,7 @@ const mockData = {
       issuerUuid: '4af49021-7264-4f3d-80ee-901c32405422',
       data: {
         birthDate: '617976000000',
+        // birthDate: '1756382400000', under 18 years
       },
     },
     {
