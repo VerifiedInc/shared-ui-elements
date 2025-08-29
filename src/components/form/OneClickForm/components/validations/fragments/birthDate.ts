@@ -98,10 +98,9 @@ const validateAge18Plus = (timestampString: string): boolean => {
       nowDate.getUTCFullYear() - 18,
       nowDate.getUTCMonth(),
       nowDate.getUTCDate(),
-      23,
-      59,
-      59,
-      999,
+      0,
+      0,
+      0,
     ),
   );
 
