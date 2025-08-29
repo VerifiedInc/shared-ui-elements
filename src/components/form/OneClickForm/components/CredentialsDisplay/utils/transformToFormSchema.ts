@@ -1,5 +1,6 @@
 import * as zod from 'zod';
 
+import { credentialTypes } from '../../../constants';
 import { OneClickFormOptions } from '../../../contexts/one-click-form-options.context';
 
 import { CredentialFieldSet } from '../types';
@@ -69,9 +70,15 @@ export function transformToFormSchema(
         .superRefine((data, ctx) => {
           if (data.credentialDisplayInfo.uiState?.isChecked) {
             if (data.value === '') {
+              const credentialType =
+                data.credentialDisplayInfo.credentialRequest?.type;
+              const shouldEmptyString =
+                credentialType === credentialTypes.BirthDateCredential;
               ctx.addIssue({
                 code: zod.ZodIssueCode.custom,
-                message: `${data.credentialDisplayInfo.label} is empty`,
+                message: shouldEmptyString
+                  ? ''
+                  : `${data.credentialDisplayInfo.label} is empty`,
               });
             } else {
               // Check validation against the credential value and the pattern.
@@ -93,10 +100,23 @@ export function transformToFormSchema(
                 },
               );
 
-              if (!isValid) {
+              if (
+                !isValid?.success ||
+                (typeof isValid === 'object' &&
+                  typeof isValid.error === 'string')
+              ) {
+                const isInvalidErrorMessage =
+                  typeof isValid === 'object' &&
+                  typeof isValid.error === 'string';
+                const invalidErrorMessage =
+                  isInvalidErrorMessage && isValid.error;
+                const defaultErrorMessage = `${data.credentialDisplayInfo.label} is invalid`;
                 ctx.addIssue({
                   code: zod.ZodIssueCode.custom,
-                  message: `${data.credentialDisplayInfo.label} is invalid`,
+                  message:
+                    typeof invalidErrorMessage === 'string'
+                      ? invalidErrorMessage
+                      : defaultErrorMessage,
                 });
               }
             }

@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from 'react';
 import { Draft, produce } from 'immer';
@@ -27,8 +28,9 @@ import {
   transformToFormObject,
   transformToFormSchema,
   extractChildrenFromCredentialFieldSet,
-  hasMandatoryFieldEmpty,
+  hasInvalidFieldEmpty,
 } from './utils';
+import { CredentialDisplayContextSkeleton } from './CredentialDisplayContextSkeleton';
 
 export type CredentialsDisplayContext = {
   credentialRequests: any[];
@@ -150,34 +152,15 @@ export default function CredentialsDisplayProvider({
   );
 
   const form = useForm({
-    mode: 'onChange',
+    mode: 'all',
     defaultValues,
     resolver: zodResolver(formSchema),
   });
-
-  useEffect(() => {
-    const subscription = form.watch((value, field) => {
-      // Refresh form schema is needed to be able to compare the updated values of sibling fields and their schemas.
-      setFormSchema(() => {
-        return transformToFormSchema(
-          value,
-          {
-            schema: generalSchema,
-          },
-          oneClickFormOptions.options,
-        );
-      });
-
-      // Because the form schema is updating it state, we have to trigger the field validation.
-      void form.trigger(field.name);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [form]);
+  const formRef = useRef(form);
+  formRef.current = form;
 
   const [isEditMode, setEditModeState] = useState(false);
+  const [ready, setReady] = useState(false);
 
   /**
    * Changes the credential in displayInfoList by id.
@@ -411,10 +394,50 @@ export default function CredentialsDisplayProvider({
     process();
   };
 
-  // Set initial edit mode based on the presence of mandatory credential requests.
+  useEffect(() => {
+    const subscription = form.watch((value, field) => {
+      // Refresh form schema is needed to be able to compare the updated values of sibling fields and their schemas.
+      setFormSchema(() => {
+        return transformToFormSchema(
+          value,
+          {
+            schema: generalSchema,
+          },
+          oneClickFormOptions.options,
+        );
+      });
+
+      // Because the form schema is updating it state, we have to trigger the field validation.
+      void form.trigger(field.name);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [form]);
+
+  // Initial validation and edit mode setup
   useLayoutEffect(() => {
-    setEditMode(hasMandatoryFieldEmpty(defaultValues));
-  }, [defaultValues]);
+    const triggerValidationAndSetEditMode = async () => {
+      try {
+        await form.trigger();
+      } catch (error) {
+        console.error(error);
+      }
+
+      if (!isEditMode) {
+        setEditMode(hasInvalidFieldEmpty(form, defaultValues));
+      }
+
+      setReady(true);
+    };
+
+    void triggerValidationAndSetEditMode();
+  }, [form, defaultValues]);
+
+  if (!ready) {
+    return <CredentialDisplayContextSkeleton />;
+  }
 
   return (
     <FormProvider {...form}>

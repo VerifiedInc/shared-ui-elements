@@ -98,6 +98,7 @@ export function useDataFieldAddressInput({
   const [inputValue, setInputValue] = useState('');
   const previousInputValue = usePrevious(inputValue);
   const debouncedInputValue = useDebounceValue(inputValue);
+  const [mounted, setMounted] = useState(false);
 
   const handleChange = (
     value: string | Address,
@@ -157,7 +158,7 @@ export function useDataFieldAddressInput({
   useEffect(() => {
     const handle = (): void => {
       // Handle change when input is cleared
-      if (!debouncedInputValue.length) {
+      if (!debouncedInputValue.length && mounted) {
         handleChange('', undefined);
       }
 
@@ -176,6 +177,11 @@ export function useDataFieldAddressInput({
     };
     handle();
   }, [debouncedInputValue]);
+
+  // Effect to set mounted to true, used for ignoring the first debouncedInputValue change
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return {
     value,
