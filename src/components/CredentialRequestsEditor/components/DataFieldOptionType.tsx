@@ -46,7 +46,11 @@ export function DataFieldOptionType(): React.JSX.Element {
           'PhoneCredential',
           'BirthDateCredential',
           'SsnCredential',
-          'GenderCredential',
+          'SexCredential',
+          'DriversLicenseCredential',
+          'DocumentNumberCredential',
+          'DocumentTypeCredential',
+          'IssuanceDateCredential',
         ];
         return whitelist.includes(schema.id);
       })
