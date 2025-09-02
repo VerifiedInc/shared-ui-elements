@@ -221,6 +221,13 @@ const mockData = {
     //   multi: false,
     //   type: 'EmployerCredential',
     // },
+    {
+      allowUserInput: true,
+      mandatory: 'no',
+      multi: false,
+      type: 'SexCredential',
+      description: 'Your birth sex',
+    },
   ],
   status: 'WAITING_SHARED_CREDENTIALS',
   uuid: 'fb7c6fe2-152c-4579-a4cc-c7472d0e2c45',
@@ -368,8 +375,8 @@ const mockData = {
       expirationDate: null,
       issuerUuid: '4af49021-7264-4f3d-80ee-901c32405422',
       data: {
-        // birthDate: '617976000000',
-        birthDate: '1217592000000', // under 18 years
+        birthDate: '617976000000',
+        // birthDate: '1217592000000', // under 18 years
       },
     },
     {

@@ -8,6 +8,7 @@ import { useCredentialsDisplayItem } from '../../CredentialsDisplay/CredentialsD
 import { DataFieldLabel, DataFieldValue } from '../';
 
 import { DataFieldDescription } from '../DataFieldDescription';
+import { MandatoryEnum } from '../../CredentialsDisplay/types';
 
 /**
  * This component renders and manages the input value for display format Text or to strings.
@@ -19,13 +20,17 @@ export function DataFieldText(): ReactElement {
     credentialDisplayInfo.value,
     credentialDisplayInfo.displayFormat,
   );
+  const isOptional =
+    credentialDisplayInfo.credentialRequest.mandatory === MandatoryEnum.NO;
 
   return (
     <div style={{ width: '100%' }}>
       <Stack direction='row' width='100%'>
         <DataFieldLabel />
         <Stack direction='column'>
-          <DataFieldValue>{formattedValue}</DataFieldValue>
+          <DataFieldValue>
+            {formattedValue || isOptional ? '-' : undefined}
+          </DataFieldValue>
           <DataFieldDescription />
         </Stack>
       </Stack>
