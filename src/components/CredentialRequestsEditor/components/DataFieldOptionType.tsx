@@ -25,7 +25,7 @@ export function DataFieldOptionType(): React.JSX.Element {
   const schemaValues = useMemo(() => {
     if (!schemas) return [];
 
-    const orderedSchemas = {
+    const orderedSchemas: Record<string, number> = {
       PhoneCredential: 0,
       FullNameCredential: 1,
       AddressCredential: 2,
@@ -42,11 +42,7 @@ export function DataFieldOptionType(): React.JSX.Element {
       .filter((schema) => {
         return Object.keys(orderedSchemas).includes(schema.id);
       })
-      .sort(
-        (a, b) =>
-          orderedSchemas[a.id as keyof typeof orderedSchemas] -
-          orderedSchemas[b.id as keyof typeof orderedSchemas],
-      );
+      .sort((a, b) => orderedSchemas[a.id] - orderedSchemas[b.id]);
   }, [schemas]);
   const selectedValue = useMemo(() => {
     const type = (field.field?.value as CredentialRequests)?.type;
