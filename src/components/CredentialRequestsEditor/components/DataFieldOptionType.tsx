@@ -24,33 +24,29 @@ export function DataFieldOptionType(): React.JSX.Element {
   const { schemas } = useCredentialRequestsEditor();
   const schemaValues = useMemo(() => {
     if (!schemas) return [];
+
+    const orderedSchemas = {
+      PhoneCredential: 0,
+      FullNameCredential: 1,
+      AddressCredential: 2,
+      BirthDateCredential: 3,
+      SsnCredential: 4,
+      SexCredential: 5,
+    };
+
     return Object.values(schemas)
       .map((schema) => ({
         label: prettyField(schema.$id),
         id: schema.$id as string,
       }))
       .filter((schema) => {
-        // Allow only supported credentials. Ref: https://docs.verified.inc/data/outputs/credentials#core-kyc
-        const whitelist = [
-          'AddressCredential',
-          'Line1Credential',
-          'Line2Credential',
-          'CityCredential',
-          'StateCredential',
-          'CountryCredential',
-          'ZipCodeCredential',
-          'FullNameCredential',
-          'FirstNameCredential',
-          'MiddleNameCredential',
-          'LastNameCredential',
-          'PhoneCredential',
-          'BirthDateCredential',
-          'SsnCredential',
-          'SexCredential',
-        ];
-        return whitelist.includes(schema.id);
+        return Object.keys(orderedSchemas).includes(schema.id);
       })
-      .sort((a, b) => (a.label < b.label ? -1 : 1));
+      .sort(
+        (a, b) =>
+          orderedSchemas[a.id as keyof typeof orderedSchemas] -
+          orderedSchemas[b.id as keyof typeof orderedSchemas],
+      );
   }, [schemas]);
   const selectedValue = useMemo(() => {
     const type = (field.field?.value as CredentialRequests)?.type;
