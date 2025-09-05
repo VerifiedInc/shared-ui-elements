@@ -23,14 +23,14 @@ type CredentialRequest = {
 };
 
 export class Form {
-  fields: FormField[];
+  fields: Record<string, FormField>;
 
-  constructor(fields: FormField[]) {
+  constructor(fields: Record<string, FormField>) {
     this.fields = fields;
   }
 
   get isValid() {
-    return this.fields.every((field) => field.isValid);
+    return Object.values(this.fields).every((field) => field.isValid);
   }
 }
 
@@ -41,7 +41,7 @@ export class FormBuilder {
     credentials: Credential[],
     credentialRequests: CredentialRequest[],
   ): Form {
-    const fields: FormField[] = [];
+    const fields: Record<string, FormField> = {};
 
     for (const request of credentialRequests) {
       // Find matching credential for this request
@@ -103,7 +103,15 @@ export class FormBuilder {
           matchingCredential,
           childFields,
         );
-        fields.push(field);
+
+        // Use the field schema key as the object key for top-level fields
+        const fieldSchema =
+          fieldsFromCredentialTypes[
+            matchingCredential.type as keyof typeof fieldsFromCredentialTypes
+          ];
+        if (fieldSchema) {
+          fields[fieldSchema.key] = field;
+        }
       }
     }
 

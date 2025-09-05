@@ -84,7 +84,8 @@ const CredentialFormContent: React.FC = () => {
 
   const isFormValid = validateForm();
   const isFormDirty =
-    state.form?.fields.some((field) => field.isDirty) ?? false;
+    Object.values(state.form?.fields ?? {}).some((field) => field.isDirty) ??
+    false;
 
   console.log(state.form?.fields);
   return (
@@ -92,14 +93,14 @@ const CredentialFormContent: React.FC = () => {
       <h2 style={{ marginBottom: '2rem' }}>Credential Form</h2>
 
       <form onSubmit={handleSubmit}>
-        {state.form?.fields.map((field) => {
+        {Object.entries(state.form?.fields ?? {}).map(([fieldKey, field]) => {
           // Handle composite fields with children
           if (
             field.schema.characteristics.inputType === 'composite' &&
             field.children
           ) {
             return (
-              <div key={field.id} style={{ marginBottom: '1.5rem' }}>
+              <div key={fieldKey} style={{ marginBottom: '1.5rem' }}>
                 <h3
                   style={{
                     marginBottom: '1rem',
@@ -118,8 +119,8 @@ const CredentialFormContent: React.FC = () => {
                   {Object.entries(field.children).map(
                     ([childKey, childField]) => (
                       <FormField
-                        key={childField.id}
-                        id={childField.id}
+                        key={childKey}
+                        id={`${fieldKey}.${childKey}`}
                         label={childField.schema.characteristics.label}
                         placeholder={`Enter your ${childField.schema.characteristics.label.toLowerCase()}`}
                         required={true}
@@ -134,8 +135,8 @@ const CredentialFormContent: React.FC = () => {
           // Handle regular fields
           return (
             <FormField
-              key={field.id}
-              id={field.id}
+              key={fieldKey}
+              id={fieldKey}
               label={field.schema.characteristics.label}
               placeholder={`Enter your ${field.schema.characteristics.label.toLowerCase()}`}
               required={true}
@@ -190,7 +191,7 @@ const CredentialFormContent: React.FC = () => {
         <h3>Form State</h3>
         <p>Valid: {isFormValid ? '✓' : '✗'}</p>
         <p>Dirty: {isFormDirty ? '✓' : '✗'}</p>
-        <p>Field Count: {state.form?.fields.length ?? 0}</p>
+        <p>Field Count: {Object.keys(state.form?.fields ?? {}).length}</p>
         <p>Submitting: {state.isSubmitting ? '✓' : '✗'}</p>
 
         <details style={{ marginTop: '1rem' }}>
@@ -205,9 +206,9 @@ const CredentialFormContent: React.FC = () => {
             }}
           >
             {JSON.stringify(
-              state.form?.fields.reduce(
-                (acc, field) => {
-                  acc[field.id] = {
+              Object.entries(state.form?.fields ?? {}).reduce(
+                (acc, [fieldKey, field]) => {
+                  acc[fieldKey] = {
                     value: field.value,
                     isValid: field.isValid,
                     isDirty: field.isDirty,
@@ -216,7 +217,7 @@ const CredentialFormContent: React.FC = () => {
                   return acc;
                 },
                 {} as Record<string, any>,
-              ) ?? {},
+              ),
               null,
               2,
             )}

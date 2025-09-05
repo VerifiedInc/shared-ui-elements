@@ -16,9 +16,9 @@ export interface FormState {
 export interface FormContextValue {
   state: FormState;
   setForm: (form: Form) => void;
-  updateFieldValue: (id: string, value: any) => void;
-  setFieldTouched: (id: string, touched: boolean) => void;
-  getField: (id: string) => FormField | undefined;
+  updateFieldValue: (path: string, value: any) => void;
+  setFieldTouched: (path: string, touched: boolean) => void;
+  getField: (path: string) => FormField | undefined;
   validateForm: () => boolean;
   resetForm: () => void;
   submitForm: () => Promise<void>;
@@ -52,25 +52,49 @@ export const FormProvider: React.FC<FormProviderProps> = ({
   });
 
   const getField = useCallback(
-    (id: string): FormField | undefined => {
+    (path: string): FormField | undefined => {
       if (!state.form) return undefined;
 
-      // Search in top-level fields
-      const topLevelField = state.form.fields.find((field) => field.id === id);
-      if (topLevelField) return topLevelField;
+      // Handle dot notation paths (e.g., 'fullName.firstName')
+      const pathParts = path.split('.');
 
-      // Search in children of composite fields
-      for (const field of state.form.fields) {
-        if (field.children) {
-          for (const childField of Object.values(field.children)) {
-            if (childField.id === id) {
-              return childField;
+      if (pathParts.length === 1) {
+        // Simple field lookup - check top-level fields first
+        const id = pathParts[0];
+        const topLevelField = state.form.fields[id];
+        if (topLevelField) return topLevelField;
+
+        // If not found, search in children of composite fields
+        for (const field of Object.values(state.form.fields)) {
+          if (field.children) {
+            for (const childField of Object.values(field.children)) {
+              if (childField.id === id) {
+                return childField;
+              }
             }
           }
         }
+        return undefined;
       }
 
-      return undefined;
+      // Handle nested path (e.g., 'fullName.firstName')
+      const [parentKey, ...childPath] = pathParts;
+      const parentField = state.form.fields[parentKey];
+
+      if (!parentField?.children) {
+        return undefined;
+      }
+
+      // Navigate through the nested structure
+      let currentField: FormField | undefined = parentField;
+      for (const segment of childPath) {
+        if (!currentField?.children?.[segment]) {
+          return undefined;
+        }
+        currentField = currentField.children[segment];
+      }
+
+      return currentField;
     },
     [state.form],
   );
@@ -87,106 +111,82 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     }));
   }, []);
 
-  const updateFieldValue = useCallback((id: string, value: any) => {
-    setState((prev) => {
-      if (!prev.form) {
-        console.warn('No form instance available');
-        return prev;
-      }
-
-      // Search in top-level fields first
-      let field = prev.form.fields.find((f) => f.id === id);
-
-      // If not found, search in children of composite fields
-      if (!field) {
-        for (const topLevelField of prev.form.fields) {
-          if (topLevelField.children) {
-            for (const childField of Object.values(topLevelField.children)) {
-              if (childField.id === id) {
-                field = childField;
-                break;
-              }
-            }
-            if (field) break;
-          }
+  const updateFieldValue = useCallback(
+    (path: string, value: any) => {
+      setState((prev) => {
+        if (!prev.form) {
+          console.warn('No form instance available');
+          return prev;
         }
-      }
 
-      if (!field) {
-        console.warn(`Attempted to update non-existent field: ${id}`);
-        return prev;
-      }
+        // Use the enhanced getField function to find the field by path
+        const field = getField(path);
 
-      // Check if value actually changed to avoid unnecessary updates
-      if (field.value === value) {
-        return prev;
-      }
-
-      // Update the field value directly on the core FormField instance
-      field.value = value;
-
-      // Force re-render by creating new state object
-      return {
-        ...prev,
-        form: prev.form, // This will trigger re-render due to field mutation
-      };
-    });
-  }, []);
-
-  const setFieldTouched = useCallback((id: string, touched: boolean) => {
-    setState((prev) => {
-      if (!prev.form) {
-        console.warn('No form instance available');
-        return prev;
-      }
-
-      // Search in top-level fields first
-      let field = prev.form.fields.find((f) => f.id === id);
-
-      // If not found, search in children of composite fields
-      if (!field) {
-        for (const topLevelField of prev.form.fields) {
-          if (topLevelField.children) {
-            for (const childField of Object.values(topLevelField.children)) {
-              if (childField.id === id) {
-                field = childField;
-                break;
-              }
-            }
-            if (field) break;
-          }
+        if (!field) {
+          console.warn(`Attempted to update non-existent field: ${path}`);
+          return prev;
         }
-      }
 
-      if (!field) {
-        console.warn(
-          `Attempted to set touched state for non-existent field: ${id}`,
-        );
-        return prev;
-      }
+        // Check if value actually changed to avoid unnecessary updates
+        if (field.value === value) {
+          return prev;
+        }
 
-      // Avoid unnecessary updates if touched state hasn't changed
-      if (field.touched === touched) {
-        return prev;
-      }
+        // Update the field value directly on the core FormField instance
+        field.value = value;
 
-      // Update the field touched state directly on the core FormField instance
-      field.touched = touched;
+        // Force re-render by creating new state object
+        return {
+          ...prev,
+          form: prev.form, // This will trigger re-render due to field mutation
+        };
+      });
+    },
+    [getField],
+  );
 
-      // Force re-render by creating new state object
-      return {
-        ...prev,
-        form: prev.form, // This will trigger re-render due to field mutation
-      };
-    });
-  }, []);
+  const setFieldTouched = useCallback(
+    (path: string, touched: boolean) => {
+      setState((prev) => {
+        if (!prev.form) {
+          console.warn('No form instance available');
+          return prev;
+        }
+
+        // Use the enhanced getField function to find the field by path
+        const field = getField(path);
+
+        if (!field) {
+          console.warn(
+            `Attempted to set touched state for non-existent field: ${path}`,
+          );
+          return prev;
+        }
+
+        // Avoid unnecessary updates if touched state hasn't changed
+        if (field.touched === touched) {
+          return prev;
+        }
+
+        // Update the field touched state directly on the core FormField instance
+        field.touched = touched;
+
+        // Force re-render by creating new state object
+        return {
+          ...prev,
+          form: prev.form, // This will trigger re-render due to field mutation
+        };
+      });
+    },
+    [getField],
+  );
 
   const resetForm = useCallback(() => {
     setState((prev) => {
       if (!prev.form) return prev;
 
       // Reset all top-level fields
-      prev.form.fields.forEach((field) => {
+      Object.values(prev.form.fields).forEach((field) => {
         field.value = field.defaultValue;
         field.touched = false;
 
