@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { TextFieldDefinition } from './types';
 
 const ssnSchema = z.string().refine((value) => {
+  if (/^•••-••-\d{4}$/.test(value)) return true;
   return /[0-9]{3}-[0-9]{2}-[0-9]{4}/.test(value);
 });
 
