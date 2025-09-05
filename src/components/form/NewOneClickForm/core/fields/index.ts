@@ -1,4 +1,13 @@
 import { fullName, firstName, lastName, middleName } from './fullName';
+import {
+  address,
+  line1,
+  line2,
+  city,
+  state,
+  country,
+  zipCode,
+} from './address';
 import { ssn } from './ssn';
 import { phone } from './phone';
 import { sex } from './sex';
@@ -10,6 +19,13 @@ export const fields: FieldSchemaDefinitions = {
   firstName,
   lastName,
   middleName,
+  address,
+  line1,
+  line2,
+  city,
+  state,
+  country,
+  zipCode,
   ssn,
   phone,
   sex,
@@ -20,6 +36,13 @@ export const fieldsFromCredentialTypes = {
   FirstNameCredential: firstName,
   LastNameCredential: lastName,
   MiddleNameCredential: middleName,
+  AddressCredential: address,
+  Line1Credential: line1,
+  Line2Credential: line2,
+  CityCredential: city,
+  StateCredential: state,
+  CountryCredential: country,
+  ZipCodeCredential: zipCode,
   SsnCredential: ssn,
   PhoneCredential: phone,
   SexCredential: sex,
