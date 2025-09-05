@@ -62,6 +62,7 @@ export class FormBuilder {
               const matchingChildCredential = matchingCredential.data.find(
                 (childCred: any) => childCred.type === childRequest.type,
               );
+
               if (matchingChildCredential) {
                 const childField = this.fieldBuilder.createFromCredential(
                   matchingChildCredential,
@@ -73,6 +74,17 @@ export class FormBuilder {
                   ];
                 if (fieldSchema) {
                   childFields[fieldSchema.key] = childField;
+                }
+              } else {
+                // Create empty field for missing optional credentials
+                const fieldSchema =
+                  fieldsFromCredentialTypes[
+                    childRequest.type as keyof typeof fieldsFromCredentialTypes
+                  ];
+                if (fieldSchema) {
+                  const emptyField =
+                    this.fieldBuilder.createFromSchema(fieldSchema);
+                  childFields[fieldSchema.key] = emptyField;
                 }
               }
             }

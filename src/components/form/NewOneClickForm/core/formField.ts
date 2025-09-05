@@ -120,4 +120,16 @@ export class FormFieldBuilder {
       children,
     );
   }
+
+  createFromSchema(
+    schema: BaseFieldDefinition<string, string>,
+    children?: Record<string, FormField>,
+  ): FormField {
+    // Generate a UUID for fields without existing credentials
+    const uuid = crypto.randomUUID();
+    const defaultValue =
+      schema.characteristics.inputType === 'composite' ? undefined : '';
+
+    return new FormField(uuid, defaultValue, defaultValue, schema, children);
+  }
 }
