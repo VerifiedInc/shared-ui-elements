@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 
-import { Form, FormField } from '../core/form';
+import { Form, FormField } from '../../core/form';
 
 export interface FormState {
   form: Form | null;

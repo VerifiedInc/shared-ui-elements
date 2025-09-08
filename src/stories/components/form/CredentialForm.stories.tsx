@@ -11,7 +11,7 @@ import {
   FormProvider,
   useForm,
   useFieldInput,
-} from '../../../components/form/NewOneClickForm/react';
+} from '../../../components/form/NewOneClickForm/react/core';
 
 interface FormFieldProps {
   id: string;
@@ -92,99 +92,111 @@ const CredentialFormContent: React.FC = () => {
 
   console.log(state.form?.fields);
   return (
-    <div style={{ maxWidth: '500px', margin: '0 auto', padding: '2rem' }}>
-      <h2 style={{ marginBottom: '2rem' }}>Credential Form</h2>
+    <div
+      style={{
+        width: '100%',
+        maxWidth: '900px',
+        margin: '0 auto',
+        padding: '2rem',
+        display: 'flex',
+        gap: '2rem',
+      }}
+    >
+      <div style={{ width: 396 }}>
+        <h2 style={{ marginBottom: '2rem' }}>Credential Form</h2>
 
-      <form onSubmit={handleSubmit}>
-        {Object.entries(state.form?.fields ?? {}).map(([fieldKey, field]) => {
-          // Handle composite fields with children
-          if (
-            field.schema.characteristics.inputType === 'composite' &&
-            field.children
-          ) {
-            return (
-              <div key={fieldKey} style={{ marginBottom: '1.5rem' }}>
-                <h3
-                  style={{
-                    marginBottom: '1rem',
-                    fontSize: '1.1rem',
-                    fontWeight: '600',
-                  }}
-                >
-                  {field.schema.characteristics.label}
-                </h3>
-                <div
-                  style={{
-                    paddingLeft: '1rem',
-                    borderLeft: '2px solid #e9ecef',
-                  }}
-                >
-                  {Object.entries(field.children).map(
-                    ([childKey, childField]) => (
-                      <FormField
-                        key={childKey}
-                        id={`${fieldKey}.${childKey}`}
-                        label={childField.schema.characteristics.label}
-                        placeholder={`Enter your ${childField.schema.characteristics.label.toLowerCase()}`}
-                        required={true}
-                      />
-                    ),
-                  )}
+        <form onSubmit={handleSubmit}>
+          {Object.entries(state.form?.fields ?? {}).map(([fieldKey, field]) => {
+            // Handle composite fields with children
+            if (
+              field.schema.characteristics.inputType === 'composite' &&
+              field.children
+            ) {
+              return (
+                <div key={fieldKey} style={{ marginBottom: '1.5rem' }}>
+                  <h3
+                    style={{
+                      marginBottom: '1rem',
+                      fontSize: '1.1rem',
+                      fontWeight: '600',
+                    }}
+                  >
+                    {field.schema.characteristics.label}
+                  </h3>
+                  <div
+                    style={{
+                      paddingLeft: '1rem',
+                      borderLeft: '2px solid #e9ecef',
+                    }}
+                  >
+                    {Object.entries(field.children).map(
+                      ([childKey, childField]) => (
+                        <FormField
+                          key={childKey}
+                          id={`${fieldKey}.${childKey}`}
+                          label={childField.schema.characteristics.label}
+                          placeholder={`Enter your ${childField.schema.characteristics.label.toLowerCase()}`}
+                          required={true}
+                        />
+                      ),
+                    )}
+                  </div>
                 </div>
-              </div>
+              );
+            }
+
+            // Handle regular fields
+            return (
+              <FormField
+                key={fieldKey}
+                id={fieldKey}
+                label={field.schema.characteristics.label}
+                placeholder={`Enter your ${field.schema.characteristics.label.toLowerCase()}`}
+                required={true}
+              />
             );
-          }
+          })}
 
-          // Handle regular fields
-          return (
-            <FormField
-              key={fieldKey}
-              id={fieldKey}
-              label={field.schema.characteristics.label}
-              placeholder={`Enter your ${field.schema.characteristics.label.toLowerCase()}`}
-              required={true}
-            />
-          );
-        })}
+          <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+            <button
+              type='submit'
+              disabled={!isFormValid || state.isSubmitting}
+              style={{
+                backgroundColor: isFormValid ? '#007bff' : '#6c757d',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '4px',
+                fontSize: '1rem',
+                cursor: isFormValid ? 'pointer' : 'not-allowed',
+                marginRight: '1rem',
+              }}
+            >
+              {state.isSubmitting ? 'Submitting...' : 'Submit'}
+            </button>
 
-        <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-          <button
-            type='submit'
-            disabled={!isFormValid || state.isSubmitting}
-            style={{
-              backgroundColor: isFormValid ? '#007bff' : '#6c757d',
-              color: 'white',
-              border: 'none',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              cursor: isFormValid ? 'pointer' : 'not-allowed',
-              marginRight: '1rem',
-            }}
-          >
-            {state.isSubmitting ? 'Submitting...' : 'Submit'}
-          </button>
-
-          <button
-            type='button'
-            onClick={handleReset}
-            style={{
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              cursor: 'pointer',
-            }}
-          >
-            Reset
-          </button>
-        </div>
-      </form>
+            <button
+              type='button'
+              onClick={handleReset}
+              style={{
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '4px',
+                fontSize: '1rem',
+                cursor: 'pointer',
+              }}
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
 
       <div
         style={{
+          width: 300,
           marginTop: '2rem',
           padding: '1rem',
           backgroundColor: '#f8f9fa',
@@ -211,12 +223,30 @@ const CredentialFormContent: React.FC = () => {
             {JSON.stringify(
               Object.entries(state.form?.fields ?? {}).reduce(
                 (acc, [fieldKey, field]) => {
-                  acc[fieldKey] = {
-                    value: field.value,
-                    isValid: field.isValid,
-                    isDirty: field.isDirty,
-                    errors: field.errors,
+                  // Recursive function to extract field data including children
+                  const extractFieldData = (f: any): any => {
+                    const fieldData: any = {
+                      value: f.value,
+                      isValid: f.isValid,
+                      isDirty: f.isDirty,
+                      errors: f.errors,
+                    };
+
+                    // If field has children, recursively extract their data
+                    if (f.children && Object.keys(f.children).length > 0) {
+                      fieldData.children = Object.entries(f.children).reduce(
+                        (childAcc, [childKey, childField]) => {
+                          childAcc[childKey] = extractFieldData(childField);
+                          return childAcc;
+                        },
+                        {} as Record<string, any>,
+                      );
+                    }
+
+                    return fieldData;
                   };
+
+                  acc[fieldKey] = extractFieldData(field);
                   return acc;
                 },
                 {} as Record<string, any>,
@@ -380,7 +410,7 @@ const mockCredentials = [
         expirationDate: null,
         issuerUuid: 'issuer-country-uuid',
         data: {
-          country: 'United States',
+          country: 'US',
         },
       },
       {

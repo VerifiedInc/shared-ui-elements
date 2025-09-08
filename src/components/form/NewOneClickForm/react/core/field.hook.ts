@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { FormField } from '../core/form';
+import { FormField } from '../../core/form';
 
 import { useForm } from './form.context';
 
