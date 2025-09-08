@@ -1,5 +1,14 @@
 import { type BaseFieldDefinition } from '../fields';
 
+export interface FormFieldOptions {
+  children?: Record<string, FormField>;
+  allowUserInput?: boolean;
+  mandatory?: 'yes' | 'no' | 'if_available';
+  multi?: boolean;
+  variants?: FormField[];
+  description?: string;
+}
+
 export class FormField {
   id: string;
   defaultValue: any;
@@ -7,23 +16,43 @@ export class FormField {
   schema: BaseFieldDefinition<string, string>;
   children?: Record<string, FormField>;
   touched: boolean;
+  allowUserInput: boolean;
+  mandatory: 'yes' | 'no' | 'if_available';
+  multi: boolean;
+  variants?: FormField[];
+  description?: string;
 
   constructor(
     id: string,
     defaultValue: any,
     value: any,
     schema: BaseFieldDefinition<string, string>,
-    children?: Record<string, FormField>,
+    options: FormFieldOptions = {},
   ) {
     this.id = id;
     this.defaultValue = defaultValue;
     this.value = value;
     this.schema = schema;
-    this.children = children;
+    this.children = options.children;
     this.touched = false;
+    this.allowUserInput = options.allowUserInput ?? true;
+    this.mandatory = options.mandatory ?? 'no';
+    this.multi = options.multi ?? false;
+    this.variants = options.variants;
+    this.description = options.description;
   }
 
   get isValid(): boolean {
+    // Check if field is required and empty
+    if (this.isRequired && this.isEmpty) {
+      return false;
+    }
+
+    // Skip validation if field is empty and not required
+    if (this.isEmpty && !this.isRequired) {
+      return true;
+    }
+
     // Validate current field's value against its Zod schema
     const result = this.schema.zodSchema.safeParse(this.value);
 
@@ -37,6 +66,18 @@ export class FormField {
     }
 
     return true;
+  }
+
+  get isRequired(): boolean {
+    return this.mandatory === 'yes' || this.mandatory === 'if_available';
+  }
+
+  get isDisabled(): boolean {
+    return !this.allowUserInput;
+  }
+
+  get isEmpty(): boolean {
+    return this.value === undefined || this.value === null || this.value === '';
   }
 
   get isDirty(): boolean {

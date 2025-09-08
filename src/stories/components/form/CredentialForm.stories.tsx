@@ -52,6 +52,17 @@ const FormField: React.FC<FormFieldProps> = ({
           fontSize: '1rem',
         }}
       />
+      {!field.error && field.field?.description && (
+        <div
+          style={{
+            color: '#666',
+            fontSize: '0.875rem',
+            marginTop: '0.25rem',
+          }}
+        >
+          {field.field?.description}
+        </div>
+      )}
       {field.error && field.isTouched && (
         <div
           style={{
@@ -286,6 +297,31 @@ const CredentialForm: React.FC = () => {
 // Mock credentials and requests data
 const mockCredentials = [
   {
+    id: '174714b4-b2d3-4369-a44d-b5f940d935ed',
+    uuid: 'b59becd7-5269-4d6d-a234-179613923331',
+    createdAt: '1738698702792',
+    updatedAt: '1738698702792',
+    type: 'FullNameCredential',
+    issuanceDate: '1738698702792',
+    expirationDate: null,
+    issuerUuid: 'e68875fa-1e38-4ffe-8e21-e72d1b16685c',
+    data: [
+      {
+        id: '9da2dad4-714a-4381-bd1f-f6294b1301dd',
+        uuid: 'e26d3a0d-7f0c-49fb-a9b4-a9c9e98db169',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'FirstNameCredential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'cd4f73f3-b110-4d68-9ba6-4f9e114c8933',
+        data: {
+          firstName: 'Richard',
+        },
+      },
+    ],
+  },
+  {
     id: '174714b4-b2d3-4369-a44d-b5f940d935eb',
     uuid: 'b59becd7-5269-4d6d-a234-179613923339',
     createdAt: '1738698702792',
@@ -429,28 +465,28 @@ const mockCredentials = [
 ];
 
 const mockCredentialRequests = [
-  'FullNameCredential',
-  // {
-  //   allowUserInput: true,
-  //   mandatory: 'if_available',
-  //   multi: false,
-  //   type: 'FullNameCredential',
-  //   children: [
-  //     {
-  //       type: 'FirstNameCredential',
-  //       mandatory: 'yes',
-  //       description: 'Your first name',
-  //       // allowUserInput: false,
-  //     },
-  //     // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
-  //     {
-  //       type: 'LastNameCredential',
-  //       mandatory: 'no',
-  //       description: 'Your last name',
-  //       // allowUserInput: false,
-  //     },
-  //   ],
-  // },
+  // 'FullNameCredential',
+  {
+    allowUserInput: true,
+    mandatory: 'if_available',
+    multi: false,
+    type: 'FullNameCredential',
+    children: [
+      {
+        type: 'LastNameCredential',
+        mandatory: 'yes',
+        description: 'Your last name',
+        // allowUserInput: false,
+      },
+      {
+        type: 'FirstNameCredential',
+        mandatory: 'yes',
+        description: 'Your first name',
+        // allowUserInput: false,
+      },
+      // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
+    ],
+  },
   {
     allowUserInput: true,
     mandatory: 'no',

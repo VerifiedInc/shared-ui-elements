@@ -10,9 +10,11 @@ const sexOptions = [
 const sexValues = sexOptions.map((option) => option.value);
 const sexSchema = z.enum(sexValues as [string, ...string[]]);
 
-export const sex: SelectFieldDefinition<'sex', 'SexCredential'> = {
+const sexKey = 'sex';
+
+export const sex: SelectFieldDefinition<typeof sexKey, 'SexCredential'> = {
   type: 'SexCredential',
-  key: 'sex',
+  key: sexKey,
   characteristics: {
     inputType: 'select',
     label: 'Sex',
@@ -23,6 +25,6 @@ export const sex: SelectFieldDefinition<'sex', 'SexCredential'> = {
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    sex: SelectFieldDefinition<'sex', 'SexCredential'>;
+    sex: SelectFieldDefinition<typeof sexKey, 'SexCredential'>;
   }
 }

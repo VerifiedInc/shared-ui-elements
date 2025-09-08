@@ -10,13 +10,13 @@ export type Credential = {
   data: Record<string, any> | Credential[];
 };
 
-export type CredentialRequest =
-  | {
-      allowUserInput?: boolean;
-      mandatory?: 'yes' | 'no' | 'if_available';
-      multi?: boolean;
-      type: string;
-      description?: string;
-      children?: CredentialRequest[];
-    }
-  | string;
+export type CredentialRequestObject = {
+  allowUserInput?: boolean;
+  mandatory?: 'yes' | 'no' | 'if_available';
+  multi?: boolean;
+  type: string;
+  description?: string;
+  children?: CredentialRequestObject[];
+};
+
+export type CredentialRequest = CredentialRequestObject | string;

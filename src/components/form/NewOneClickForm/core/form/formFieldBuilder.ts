@@ -2,10 +2,19 @@ import { fieldsFromCredentialTypes, type BaseFieldDefinition } from '../fields';
 import { type Credential } from './types';
 import { FormField } from './formField';
 
+export interface CredentialRequestOptions {
+  allowUserInput?: boolean;
+  mandatory?: 'yes' | 'no' | 'if_available';
+  multi?: boolean;
+  description?: string;
+}
+
 export class FormFieldBuilder {
   createFromCredential(
     credential: Credential,
     children?: Record<string, FormField>,
+    options?: CredentialRequestOptions,
+    variants?: FormField[],
   ): FormField {
     const fieldSchema =
       fieldsFromCredentialTypes[
@@ -36,19 +45,35 @@ export class FormFieldBuilder {
       defaultValue,
       defaultValue,
       fieldSchema,
-      children,
+      {
+        children,
+        allowUserInput: options?.allowUserInput ?? true,
+        mandatory: options?.mandatory ?? 'no',
+        multi: options?.multi ?? false,
+        variants,
+        description: options?.description,
+      },
     );
   }
 
   createFromSchema(
     schema: BaseFieldDefinition<string, string>,
     children?: Record<string, FormField>,
+    options?: CredentialRequestOptions,
+    variants?: FormField[],
   ): FormField {
     // Generate a UUID for fields without existing credentials
     const uuid = crypto.randomUUID();
     const defaultValue =
       schema.characteristics.inputType === 'composite' ? undefined : '';
 
-    return new FormField(uuid, defaultValue, defaultValue, schema, children);
+    return new FormField(uuid, defaultValue, defaultValue, schema, {
+      children,
+      allowUserInput: options?.allowUserInput ?? true,
+      mandatory: options?.mandatory ?? 'no',
+      multi: options?.multi ?? false,
+      variants,
+      description: options?.description,
+    });
   }
 }

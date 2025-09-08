@@ -84,8 +84,11 @@ declare module '../declarations' {
       typeof fullNameKey,
       'FullNameCredential'
     >;
-    firstName: TextFieldDefinition<'firstName', 'FirstNameCredential'>;
-    lastName: TextFieldDefinition<'lastName', 'LastNameCredential'>;
-    middleName: TextFieldDefinition<'middleName', 'MiddleNameCredential'>;
+    firstName: TextFieldDefinition<typeof firstNameKey, 'FirstNameCredential'>;
+    lastName: TextFieldDefinition<typeof lastNameKey, 'LastNameCredential'>;
+    middleName: TextFieldDefinition<
+      typeof middleNameKey,
+      'MiddleNameCredential'
+    >;
   }
 }

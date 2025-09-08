@@ -6,9 +6,11 @@ const ssnSchema = z.string().refine((value) => {
   return /[0-9]{3}-[0-9]{2}-[0-9]{4}/.test(value);
 });
 
-export const ssn: TextFieldDefinition<'ssn', 'SsnCredential'> = {
+const ssnKey = 'ssn';
+
+export const ssn: TextFieldDefinition<typeof ssnKey, 'SsnCredential'> = {
   type: 'SsnCredential',
-  key: 'ssn' as const,
+  key: ssnKey,
   characteristics: {
     inputType: 'text' as const,
     label: 'Social Security Number',
@@ -19,6 +21,6 @@ export const ssn: TextFieldDefinition<'ssn', 'SsnCredential'> = {
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    ssn: TextFieldDefinition<'ssn', 'SsnCredential'>;
+    ssn: TextFieldDefinition<typeof ssnKey, 'SsnCredential'>;
   }
 }

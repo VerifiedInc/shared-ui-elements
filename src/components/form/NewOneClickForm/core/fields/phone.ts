@@ -3,9 +3,11 @@ import type { TextFieldDefinition } from './types';
 
 const phoneSchema = z.string().min(1, 'Phone number is required');
 
-export const phone: TextFieldDefinition<'phone', 'PhoneCredential'> = {
+const phoneKey = 'phone';
+
+export const phone: TextFieldDefinition<typeof phoneKey, 'PhoneCredential'> = {
   type: 'PhoneCredential',
-  key: 'phone',
+  key: phoneKey,
   characteristics: {
     inputType: 'text',
     label: 'Phone Number',
@@ -16,6 +18,6 @@ export const phone: TextFieldDefinition<'phone', 'PhoneCredential'> = {
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    phone: TextFieldDefinition<'phone', 'PhoneCredential'>;
+    phone: TextFieldDefinition<typeof phoneKey, 'PhoneCredential'>;
   }
 }

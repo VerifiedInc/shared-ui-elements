@@ -135,6 +135,6 @@ declare module '../declarations' {
     city: TextFieldDefinition<typeof cityKey, 'CityCredential'>;
     state: TextFieldDefinition<typeof stateKey, 'StateCredential'>;
     country: TextFieldDefinition<typeof countryKey, 'CountryCredential'>;
-    zipCode: TextFieldDefinition<'zipCode', 'ZipCodeCredential'>;
+    zipCode: TextFieldDefinition<typeof zipCodeKey, 'ZipCodeCredential'>;
   }
 }
