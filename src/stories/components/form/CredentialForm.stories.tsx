@@ -2,10 +2,8 @@ import React, { useMemo } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { type CredentialRequest } from '../../../components/form/NewOneClickForm/core/form/types';
-import {
-  FormBuilder,
-  type Form,
-} from '../../../components/form/NewOneClickForm/core/form/form';
+import { FormBuilder } from '../../../components/form/NewOneClickForm/core/form/formBuilder';
+import { type Form } from '../../../components/form/NewOneClickForm/core/form/form';
 
 import {
   FormProvider,
@@ -431,27 +429,28 @@ const mockCredentials = [
 ];
 
 const mockCredentialRequests = [
-  {
-    allowUserInput: true,
-    mandatory: 'if_available',
-    multi: false,
-    type: 'FullNameCredential',
-    children: [
-      {
-        type: 'FirstNameCredential',
-        mandatory: 'yes',
-        description: 'Your first name',
-        // allowUserInput: false,
-      },
-      // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
-      {
-        type: 'LastNameCredential',
-        mandatory: 'no',
-        description: 'Your last name',
-        // allowUserInput: false,
-      },
-    ],
-  },
+  'FullNameCredential',
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'if_available',
+  //   multi: false,
+  //   type: 'FullNameCredential',
+  //   children: [
+  //     {
+  //       type: 'FirstNameCredential',
+  //       mandatory: 'yes',
+  //       description: 'Your first name',
+  //       // allowUserInput: false,
+  //     },
+  //     // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
+  //     {
+  //       type: 'LastNameCredential',
+  //       mandatory: 'no',
+  //       description: 'Your last name',
+  //       // allowUserInput: false,
+  //     },
+  //   ],
+  // },
   {
     allowUserInput: true,
     mandatory: 'no',

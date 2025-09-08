@@ -1,0 +1,54 @@
+import { fieldsFromCredentialTypes, type BaseFieldDefinition } from '../fields';
+import { type Credential } from './types';
+import { FormField } from './formField';
+
+export class FormFieldBuilder {
+  createFromCredential(
+    credential: Credential,
+    children?: Record<string, FormField>,
+  ): FormField {
+    const fieldSchema =
+      fieldsFromCredentialTypes[
+        credential.type as keyof typeof fieldsFromCredentialTypes
+      ];
+
+    if (!fieldSchema) {
+      throw new Error(`Invalid credential type: ${credential.type}`);
+    }
+
+    const fieldKey = fieldSchema.key;
+    let defaultValue: any;
+
+    // Handle different credential data structures
+    if (fieldSchema.characteristics.inputType === 'composite') {
+      // For composite fields, value should be undefined as data lives in children
+      defaultValue = undefined;
+    } else if (Array.isArray(credential.data)) {
+      // For non-composite credentials with array data (shouldn't happen normally)
+      defaultValue = undefined;
+    } else {
+      // For regular credentials with object data
+      defaultValue = credential.data[fieldKey];
+    }
+
+    return new FormField(
+      credential.id,
+      defaultValue,
+      defaultValue,
+      fieldSchema,
+      children,
+    );
+  }
+
+  createFromSchema(
+    schema: BaseFieldDefinition<string, string>,
+    children?: Record<string, FormField>,
+  ): FormField {
+    // Generate a UUID for fields without existing credentials
+    const uuid = crypto.randomUUID();
+    const defaultValue =
+      schema.characteristics.inputType === 'composite' ? undefined : '';
+
+    return new FormField(uuid, defaultValue, defaultValue, schema, children);
+  }
+}

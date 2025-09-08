@@ -1,16 +1,22 @@
 import { z } from 'zod';
+
 import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
 
 const firstNameSchema = z.string();
 const lastNameSchema = z.string();
 const middleNameSchema = z.string();
 
+const fullNameKey = 'fullName';
+const firstNameKey = 'firstName';
+const lastNameKey = 'lastName';
+const middleNameKey = 'middleName';
+
 export const firstName: TextFieldDefinition<
-  'firstName',
+  typeof firstNameKey,
   'FirstNameCredential'
 > = {
   type: 'FirstNameCredential',
-  key: 'firstName',
+  key: firstNameKey,
   characteristics: {
     inputType: 'text',
     label: 'First Name',
@@ -19,9 +25,12 @@ export const firstName: TextFieldDefinition<
   zodSchema: firstNameSchema,
 };
 
-export const lastName: TextFieldDefinition<'lastName', 'LastNameCredential'> = {
+export const lastName: TextFieldDefinition<
+  typeof lastNameKey,
+  'LastNameCredential'
+> = {
   type: 'LastNameCredential',
-  key: 'lastName',
+  key: lastNameKey,
   characteristics: {
     inputType: 'text',
     label: 'Last Name',
@@ -31,11 +40,11 @@ export const lastName: TextFieldDefinition<'lastName', 'LastNameCredential'> = {
 };
 
 export const middleName: TextFieldDefinition<
-  'middleName',
+  typeof middleNameKey,
   'MiddleNameCredential'
 > = {
   type: 'MiddleNameCredential',
-  key: 'middleName',
+  key: middleNameKey,
   characteristics: {
     inputType: 'text',
     label: 'Middle Name',
@@ -45,14 +54,15 @@ export const middleName: TextFieldDefinition<
 };
 
 export const fullName: CompositeFieldDefinition<
-  'fullName',
+  typeof fullNameKey,
   'FullNameCredential'
 > = {
   type: 'FullNameCredential',
-  key: 'fullName',
+  key: fullNameKey,
   characteristics: {
     inputType: 'composite',
     label: 'Full Name',
+    defaultOrder: [firstNameKey, middleNameKey, lastNameKey],
   },
   children: {
     firstName,
@@ -70,7 +80,10 @@ export const fullName: CompositeFieldDefinition<
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    fullName: CompositeFieldDefinition<'fullName', 'FullNameCredential'>;
+    fullName: CompositeFieldDefinition<
+      typeof fullNameKey,
+      'FullNameCredential'
+    >;
     firstName: TextFieldDefinition<'firstName', 'FirstNameCredential'>;
     lastName: TextFieldDefinition<'lastName', 'LastNameCredential'>;
     middleName: TextFieldDefinition<'middleName', 'MiddleNameCredential'>;

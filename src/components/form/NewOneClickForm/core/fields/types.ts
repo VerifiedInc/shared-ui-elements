@@ -17,6 +17,7 @@ export interface SelectFieldCharacteristics {
 export interface CompositeFieldCharacteristics {
   inputType: 'composite';
   label: string;
+  defaultOrder: string[];
 }
 
 // Union of all field characteristics

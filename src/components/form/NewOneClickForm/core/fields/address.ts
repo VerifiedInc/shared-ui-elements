@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
 
 const line1Schema = z.string().min(1, 'Address line 1 is required');
@@ -8,9 +9,17 @@ const stateSchema = z.string().min(1, 'State is required');
 const countrySchema = z.string().min(1, 'Country is required');
 const zipCodeSchema = z.string().min(1, 'Zip code is required');
 
-export const line1: TextFieldDefinition<'line1', 'Line1Credential'> = {
+const addressKey = 'address';
+const line1Key = 'line1';
+const line2Key = 'line2';
+const cityKey = 'city';
+const stateKey = 'state';
+const countryKey = 'country';
+const zipCodeKey = 'zipCode';
+
+export const line1: TextFieldDefinition<typeof line1Key, 'Line1Credential'> = {
   type: 'Line1Credential',
-  key: 'line1',
+  key: line1Key,
   characteristics: {
     inputType: 'text',
     label: 'Address Line 1',
@@ -19,9 +28,9 @@ export const line1: TextFieldDefinition<'line1', 'Line1Credential'> = {
   zodSchema: line1Schema,
 };
 
-export const line2: TextFieldDefinition<'line2', 'Line2Credential'> = {
+export const line2: TextFieldDefinition<typeof line2Key, 'Line2Credential'> = {
   type: 'Line2Credential',
-  key: 'line2',
+  key: line2Key,
   characteristics: {
     inputType: 'text',
     label: 'Address Line 2',
@@ -30,9 +39,9 @@ export const line2: TextFieldDefinition<'line2', 'Line2Credential'> = {
   zodSchema: line2Schema,
 };
 
-export const city: TextFieldDefinition<'city', 'CityCredential'> = {
+export const city: TextFieldDefinition<typeof cityKey, 'CityCredential'> = {
   type: 'CityCredential',
-  key: 'city',
+  key: cityKey,
   characteristics: {
     inputType: 'text',
     label: 'City',
@@ -41,9 +50,9 @@ export const city: TextFieldDefinition<'city', 'CityCredential'> = {
   zodSchema: citySchema,
 };
 
-export const state: TextFieldDefinition<'state', 'StateCredential'> = {
+export const state: TextFieldDefinition<typeof stateKey, 'StateCredential'> = {
   type: 'StateCredential',
-  key: 'state',
+  key: stateKey,
   characteristics: {
     inputType: 'text',
     label: 'State',
@@ -52,9 +61,12 @@ export const state: TextFieldDefinition<'state', 'StateCredential'> = {
   zodSchema: stateSchema,
 };
 
-export const country: TextFieldDefinition<'country', 'CountryCredential'> = {
+export const country: TextFieldDefinition<
+  typeof countryKey,
+  'CountryCredential'
+> = {
   type: 'CountryCredential',
-  key: 'country',
+  key: countryKey,
   characteristics: {
     inputType: 'text',
     label: 'Country',
@@ -63,9 +75,12 @@ export const country: TextFieldDefinition<'country', 'CountryCredential'> = {
   zodSchema: countrySchema,
 };
 
-export const zipCode: TextFieldDefinition<'zipCode', 'ZipCodeCredential'> = {
+export const zipCode: TextFieldDefinition<
+  typeof zipCodeKey,
+  'ZipCodeCredential'
+> = {
   type: 'ZipCodeCredential',
-  key: 'zipCode',
+  key: zipCodeKey,
   characteristics: {
     inputType: 'text',
     label: 'Zip Code',
@@ -74,42 +89,52 @@ export const zipCode: TextFieldDefinition<'zipCode', 'ZipCodeCredential'> = {
   zodSchema: zipCodeSchema,
 };
 
-export const address: CompositeFieldDefinition<'address', 'AddressCredential'> =
-  {
-    type: 'AddressCredential',
-    key: 'address',
-    characteristics: {
-      inputType: 'composite',
-      label: 'Address',
-    },
-    children: {
-      line1,
-      line2,
-      city,
-      state,
-      country,
-      zipCode,
-    },
-    zodSchema: z
-      .object({
-        line1: line1Schema.optional(),
-        line2: line2Schema.optional(),
-        city: citySchema.optional(),
-        state: stateSchema.optional(),
-        country: countrySchema.optional(),
-        zipCode: zipCodeSchema.optional(),
-      })
-      .optional(),
-  };
+export const address: CompositeFieldDefinition<
+  typeof addressKey,
+  'AddressCredential'
+> = {
+  type: 'AddressCredential',
+  key: addressKey,
+  characteristics: {
+    inputType: 'composite',
+    label: 'Address',
+    defaultOrder: [
+      line1Key,
+      line2Key,
+      cityKey,
+      stateKey,
+      countryKey,
+      zipCodeKey,
+    ],
+  },
+  children: {
+    line1,
+    line2,
+    city,
+    state,
+    country,
+    zipCode,
+  },
+  zodSchema: z
+    .object({
+      line1: line1Schema.optional(),
+      line2: line2Schema.optional(),
+      city: citySchema.optional(),
+      state: stateSchema.optional(),
+      country: countrySchema.optional(),
+      zipCode: zipCodeSchema.optional(),
+    })
+    .optional(),
+};
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    address: CompositeFieldDefinition<'address', 'AddressCredential'>;
-    line1: TextFieldDefinition<'line1', 'Line1Credential'>;
-    line2: TextFieldDefinition<'line2', 'Line2Credential'>;
-    city: TextFieldDefinition<'city', 'CityCredential'>;
-    state: TextFieldDefinition<'state', 'StateCredential'>;
-    country: TextFieldDefinition<'country', 'CountryCredential'>;
+    address: CompositeFieldDefinition<typeof addressKey, 'AddressCredential'>;
+    line1: TextFieldDefinition<typeof line1Key, 'Line1Credential'>;
+    line2: TextFieldDefinition<typeof line2Key, 'Line2Credential'>;
+    city: TextFieldDefinition<typeof cityKey, 'CityCredential'>;
+    state: TextFieldDefinition<typeof stateKey, 'StateCredential'>;
+    country: TextFieldDefinition<typeof countryKey, 'CountryCredential'>;
     zipCode: TextFieldDefinition<'zipCode', 'ZipCodeCredential'>;
   }
 }
