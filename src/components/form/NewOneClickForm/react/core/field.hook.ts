@@ -5,7 +5,7 @@ import { FormField } from '../../core/form';
 import { useForm } from './form.context';
 
 export interface UseFieldOptions {
-  id: string;
+  key: string;
   validateOnChange?: boolean;
   validateOnBlur?: boolean;
 }
@@ -24,33 +24,33 @@ export interface UseFieldReturn {
 }
 
 export const useField = ({
-  id,
+  key,
   validateOnChange = true,
   validateOnBlur = true,
 }: UseFieldOptions): UseFieldReturn => {
   const { updateFieldValue, setFieldTouched, getField, validateForm } =
     useForm();
 
-  const field = getField(id);
+  const field = getField(key);
 
   const setValue = useCallback(
     (value: any) => {
-      updateFieldValue(id, value);
+      updateFieldValue(key, value);
       if (validateOnChange) {
         validateForm();
       }
     },
-    [id, updateFieldValue, validateForm, validateOnChange],
+    [key, updateFieldValue, validateForm, validateOnChange],
   );
 
   const setTouched = useCallback(
     (touched: boolean) => {
-      setFieldTouched(id, touched);
+      setFieldTouched(key, touched);
       if (touched && validateOnBlur) {
         validateForm();
       }
     },
-    [id, setFieldTouched, validateForm, validateOnBlur],
+    [key, setFieldTouched, validateForm, validateOnBlur],
   );
 
   const validate = useCallback(() => {
@@ -59,10 +59,10 @@ export const useField = ({
 
   const reset = useCallback(() => {
     if (field) {
-      updateFieldValue(id, field.defaultValue);
-      setFieldTouched(id, false);
+      updateFieldValue(key, field.defaultValue);
+      setFieldTouched(key, false);
     }
-  }, [id, field, updateFieldValue, setFieldTouched]);
+  }, [key, field, updateFieldValue, setFieldTouched]);
 
   // Get error message from FormField errors
   const error = field?.errors?.error?.errors?.[0]?.message ?? null;
@@ -89,7 +89,7 @@ export const useFieldInput = (fieldOptions: UseFieldOptions) => {
   return {
     ...field,
     inputProps: {
-      id: fieldOptions.id,
+      id: fieldOptions.key,
       value: field.value || '',
       onChange: (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -100,7 +100,7 @@ export const useFieldInput = (fieldOptions: UseFieldOptions) => {
         field.setTouched(true);
       },
       'aria-invalid': !field.isValid,
-      'aria-describedby': field.error ? `${fieldOptions.id}-error` : undefined,
+      'aria-describedby': field.error ? `${fieldOptions.key}-error` : undefined,
     },
   };
 };

@@ -12,38 +12,33 @@ import {
 } from '../../../components/form/NewOneClickForm/react/core';
 
 interface FormFieldProps {
-  id: string;
-  label: string;
-  placeholder?: string;
-  required?: boolean;
+  fieldKey: string;
 }
 
-const FormField: React.FC<FormFieldProps> = ({
-  id,
-  label,
-  placeholder,
-  required,
-}) => {
-  const field = useFieldInput({
-    id,
-  });
+const FormField: React.FC<FormFieldProps> = ({ fieldKey }) => {
+  const field = useFieldInput({ key: fieldKey });
 
   return (
     <div style={{ marginBottom: '1rem' }}>
       <label
-        htmlFor={id}
+        htmlFor={fieldKey}
         style={{
           display: 'block',
           marginBottom: '0.5rem',
           fontWeight: 'bold',
         }}
       >
-        {label}
+        {field.field?.schema.characteristics.label}
         {field.field?.isRequired && <span style={{ color: 'red' }}> *</span>}
       </label>
       <input
         {...field.inputProps}
-        placeholder={placeholder}
+        placeholder={
+          field.field?.schema?.characteristics &&
+          'placeholder' in field.field.schema.characteristics
+            ? field.field.schema.characteristics.placeholder
+            : ''
+        }
         style={{
           width: '100%',
           padding: '0.5rem',
@@ -142,32 +137,19 @@ const CredentialFormContent: React.FC = () => {
                       borderLeft: '2px solid #e9ecef',
                     }}
                   >
-                    {Object.entries(field.children).map(
-                      ([childKey, childField]) => (
-                        <FormField
-                          key={childKey}
-                          id={`${fieldKey}.${childKey}`}
-                          label={childField.schema.characteristics.label}
-                          placeholder={`Enter your ${childField.schema.characteristics.label.toLowerCase()}`}
-                          required={true}
-                        />
-                      ),
-                    )}
+                    {Object.entries(field.children).map(([childKey]) => (
+                      <FormField
+                        key={childKey}
+                        fieldKey={`${fieldKey}.${childKey}`}
+                      />
+                    ))}
                   </div>
                 </div>
               );
             }
 
             // Handle regular fields
-            return (
-              <FormField
-                key={fieldKey}
-                id={fieldKey}
-                label={field.schema.characteristics.label}
-                placeholder={`Enter your ${field.schema.characteristics.label.toLowerCase()}`}
-                required={true}
-              />
-            );
+            return <FormField key={fieldKey} fieldKey={fieldKey} />;
           })}
 
           <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
@@ -487,7 +469,7 @@ const mockCredentialRequests = [
         type: 'FirstNameCredential',
         mandatory: 'no',
         description: 'Your first name',
-        allowUserInput: false,
+        // allowUserInput: false,
       },
       // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
     ],

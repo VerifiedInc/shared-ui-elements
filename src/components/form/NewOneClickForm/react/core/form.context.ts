@@ -129,7 +129,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
         !parentField ||
         parentField.schema.characteristics.inputType !== 'composite'
       ) {
-        return null;
+        throw new Error(`Parent field not found: ${parentPath}`);
       }
 
       return { parentField, childKey };

@@ -70,7 +70,7 @@ export const country: TextFieldDefinition<
   characteristics: {
     inputType: 'text',
     label: 'Country',
-    placeholder: 'United States',
+    placeholder: 'US',
   },
   zodSchema: countrySchema,
 };
