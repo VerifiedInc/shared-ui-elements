@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { type BaseFieldDefinition } from '../fields';
 
 export interface FormFieldOptions {
@@ -32,7 +33,6 @@ export class FormField {
     this.id = id;
     this.defaultValue = defaultValue;
     this.value = value;
-    this.schema = schema;
     this.children = options.children;
     this.touched = false;
     this.allowUserInput = options.allowUserInput ?? true;
@@ -40,32 +40,76 @@ export class FormField {
     this.multi = options.multi ?? false;
     this.variants = options.variants;
     this.description = options.description;
+
+    // For composite fields, modify schema to make non-mandatory children optional
+    if (schema.characteristics.inputType === 'composite' && options.children) {
+      // Handle both ZodObject and ZodEffects<ZodObject> (when .refine() is used)
+      let baseSchema: z.ZodObject<z.ZodRawShape>;
+      if ('shape' in schema.zodSchema) {
+        // Direct ZodObject
+        baseSchema = schema.zodSchema;
+      } else if (
+        '_def' in schema.zodSchema &&
+        'schema' in schema.zodSchema._def
+      ) {
+        // ZodEffects wrapping ZodObject
+        baseSchema = (schema.zodSchema as any)._def
+          .schema as z.ZodObject<z.ZodRawShape>;
+      } else {
+        throw new Error('Composite field could not be modified.');
+      }
+
+      const schemaShape = baseSchema.shape;
+      const modifiedShape: Record<string, z.ZodSchema> = {};
+
+      Object.entries(options.children).forEach(([key, child]) => {
+        if (schemaShape[key]) {
+          const originalSchema = schemaShape[key] as z.ZodSchema;
+
+          if (!child.isRequired) {
+            // Make the field optional for non-mandatory children
+            modifiedShape[key] = originalSchema.optional();
+          } else {
+            // For mandatory fields, ensure string fields have minimum length
+            if (originalSchema instanceof z.ZodString) {
+              modifiedShape[key] = originalSchema.refine((value: any) => {
+                // If field is not required, and it is empty, return true
+                if (!child.isRequired && child.isEmpty) {
+                  return true;
+                }
+                // If field is required, check for non-empty value
+                return value !== '' && value !== null && value !== undefined;
+              }, `${child.schema.characteristics.label} is required`);
+            } else {
+              modifiedShape[key] = originalSchema;
+            }
+          }
+        }
+      });
+
+      // Create new schema with modified shape
+      this.schema = {
+        ...schema,
+        zodSchema: z.object(modifiedShape),
+      };
+    } else {
+      // For non-composite fields, add refine validation that checks requirement status
+      this.schema = {
+        ...schema,
+        zodSchema: (schema.zodSchema as any).refine((value: any) => {
+          // If field is not required, and it is empty, return true
+          if (!this.isRequired && this.isEmpty) {
+            return true;
+          }
+          // If field is required, check for non-empty value
+          return value !== '' && value !== null && value !== undefined;
+        }, `${schema.characteristics.label} is required`),
+      };
+    }
   }
 
   get isValid(): boolean {
-    // Check if field is required and empty
-    if (this.isRequired && this.isEmpty) {
-      return false;
-    }
-
-    // Skip validation if field is empty and not required
-    if (this.isEmpty && !this.isRequired) {
-      return true;
-    }
-
-    // Validate current field's value against its Zod schema
-    const result = this.schema.zodSchema.safeParse(this.value);
-
-    if (!result.success) {
-      return false;
-    }
-
-    // If this field has children, validate all children recursively
-    if (this.children && Object.keys(this.children).length > 0) {
-      return Object.values(this.children).every((child) => child.isValid);
-    }
-
-    return true;
+    return this.errors === null;
   }
 
   get isRequired(): boolean {
@@ -81,22 +125,53 @@ export class FormField {
   }
 
   get isDirty(): boolean {
+    if (
+      this.schema.characteristics.inputType === 'composite' &&
+      this.children
+    ) {
+      return Object.values(this.children).some((child) => child.isDirty);
+    }
     return this.value !== this.defaultValue;
   }
 
   get errors(): { error: any; childrenErrors: Record<string, any> } | null {
-    const result = this.schema.zodSchema.safeParse(this.value);
-    const error = result.success ? null : result.error;
-
+    let error: any = null;
     const childrenErrors: Record<string, any> = {};
 
-    if (this.children && Object.keys(this.children).length > 0) {
+    // For composite fields, construct composite value from children for validation
+    if (
+      this.schema.characteristics.inputType === 'composite' &&
+      this.children
+    ) {
+      const compositeValue: Record<string, any> = {};
+      Object.entries(this.children).forEach(([key, child]) => {
+        // Always include all child values for validation, even empty ones
+        if (child.isEmpty && !child.isRequired) {
+          compositeValue[key] = undefined;
+        } else {
+          compositeValue[key] = child.value;
+        }
+      });
+
+      const result = this.schema.zodSchema.safeParse(compositeValue);
+      error = result.success ? null : result.error;
+
+      // Collect children errors for composite fields
       Object.entries(this.children).forEach(([key, child]) => {
         const childError = child.errors;
         if (childError) {
           childrenErrors[key] = childError;
         }
       });
+    } else {
+      // For non-composite fields, validate the field's value
+      // For optional empty fields, return null (no errors) immediately
+      if (!this.isRequired && this.isEmpty) {
+        error = null;
+      } else {
+        const result = this.schema.zodSchema.safeParse(this.value);
+        error = result.success ? null : result.error;
+      }
     }
 
     // Return null if no errors exist

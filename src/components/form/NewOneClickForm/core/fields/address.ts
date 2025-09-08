@@ -2,12 +2,12 @@ import { z } from 'zod';
 
 import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
 
-const line1Schema = z.string().min(1, 'Address line 1 is required');
-const line2Schema = z.string().optional();
-const citySchema = z.string().min(1, 'City is required');
-const stateSchema = z.string().min(1, 'State is required');
-const countrySchema = z.string().min(1, 'Country is required');
-const zipCodeSchema = z.string().min(1, 'Zip code is required');
+const line1Schema = z.string();
+const line2Schema = z.string();
+const citySchema = z.string();
+const stateSchema = z.string();
+const countrySchema = z.string();
+const zipCodeSchema = z.string();
 
 const addressKey = 'address';
 const line1Key = 'line1';
@@ -115,16 +115,14 @@ export const address: CompositeFieldDefinition<
     country,
     zipCode,
   },
-  zodSchema: z
-    .object({
-      line1: line1Schema.optional(),
-      line2: line2Schema.optional(),
-      city: citySchema.optional(),
-      state: stateSchema.optional(),
-      country: countrySchema.optional(),
-      zipCode: zipCodeSchema.optional(),
-    })
-    .optional(),
+  zodSchema: z.object({
+    line1: line1Schema,
+    line2: line2Schema,
+    city: citySchema,
+    state: stateSchema,
+    country: countrySchema,
+    zipCode: zipCodeSchema,
+  }),
 };
 
 declare module '../declarations' {

@@ -20,7 +20,7 @@ export const sex: SelectFieldDefinition<typeof sexKey, 'SexCredential'> = {
     label: 'Sex',
     options: sexOptions,
   },
-  zodSchema: sexSchema.optional(),
+  zodSchema: sexSchema,
 };
 
 declare module '../declarations' {

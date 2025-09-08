@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { TextFieldDefinition } from './types';
 
-const phoneSchema = z.string().min(1, 'Phone number is required');
+const phoneSchema = z.string();
 
 const phoneKey = 'phone';
 
@@ -13,7 +13,7 @@ export const phone: TextFieldDefinition<typeof phoneKey, 'PhoneCredential'> = {
     label: 'Phone Number',
     placeholder: '(555) 123-4567',
   },
-  zodSchema: phoneSchema.optional(),
+  zodSchema: phoneSchema,
 };
 
 declare module '../declarations' {

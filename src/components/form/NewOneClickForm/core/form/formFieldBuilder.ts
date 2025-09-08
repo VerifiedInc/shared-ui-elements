@@ -30,8 +30,27 @@ export class FormFieldBuilder {
 
     // Handle different credential data structures
     if (fieldSchema.characteristics.inputType === 'composite') {
-      // For composite fields, value should be undefined as data lives in children
-      defaultValue = undefined;
+      // For composite fields, construct value from children if they have values
+      if (children && Object.keys(children).length > 0) {
+        const compositeValue: Record<string, any> = {};
+        let hasValues = false;
+
+        Object.entries(children).forEach(([key, child]) => {
+          // Always include all child values in composite value
+          compositeValue[key] = child.value;
+          if (
+            child.value !== undefined &&
+            child.value !== null &&
+            child.value !== ''
+          ) {
+            hasValues = true;
+          }
+        });
+
+        defaultValue = hasValues ? compositeValue : undefined;
+      } else {
+        defaultValue = undefined;
+      }
     } else if (Array.isArray(credential.data)) {
       // For non-composite credentials with array data (shouldn't happen normally)
       defaultValue = undefined;

@@ -35,7 +35,16 @@ export interface BaseFieldDefinition<
   type: TType;
   key: TKey;
   characteristics: TCharacteristics;
-  zodSchema: z.ZodSchema;
+  zodSchema:
+    | z.ZodString
+    | z.ZodEnum<[string, ...string[]]>
+    | z.ZodEffects<z.ZodString>
+    | z.ZodObject<z.ZodRawShape>
+    | z.ZodEffects<z.ZodObject<z.ZodRawShape>>
+    | z.ZodOptional<z.ZodObject<z.ZodRawShape>>
+    | z.ZodOptional<z.ZodString>
+    | z.ZodOptional<z.ZodEffects<z.ZodString>>
+    | z.ZodOptional<z.ZodEffects<z.ZodObject<z.ZodRawShape>>>;
   children?: Record<string, BaseFieldDefinition<string, string>>;
 }
 

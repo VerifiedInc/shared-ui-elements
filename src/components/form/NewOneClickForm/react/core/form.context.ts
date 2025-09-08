@@ -9,7 +9,7 @@ import React, {
 import { Form, FormField } from '../../core/form';
 
 export interface FormState {
-  form: Form | null;
+  form: Form;
   isSubmitting: boolean;
 }
 
@@ -37,7 +37,7 @@ export const useForm = (): FormContextValue => {
 
 interface FormProviderProps {
   children: ReactNode;
-  form?: Form;
+  form: Form;
   onSubmit?: (form: Form) => Promise<void> | void;
 }
 
@@ -47,7 +47,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
   onSubmit,
 }) => {
   const [state, setState] = useState<FormState>({
-    form: initialForm ?? null,
+    form: initialForm,
     isSubmitting: false,
   });
 
@@ -111,6 +111,47 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     }));
   }, []);
 
+  // Helper function to find parent field from a child path
+  const findParentField = useCallback(
+    (
+      childPath: string,
+    ): { parentField: FormField; childKey: string } | null => {
+      if (!state.form) return null;
+
+      const pathParts = childPath.split('.');
+      if (pathParts.length < 2) return null; // No parent for top-level fields
+
+      const parentPath = pathParts.slice(0, -1).join('.');
+      const childKey = pathParts[pathParts.length - 1];
+      const parentField = getField(parentPath);
+
+      if (
+        !parentField ||
+        parentField.schema.characteristics.inputType !== 'composite'
+      ) {
+        return null;
+      }
+
+      return { parentField, childKey };
+    },
+    [state.form, getField],
+  );
+
+  // Helper function to construct composite value from children
+  const constructCompositeValue = useCallback(
+    (parentField: FormField): Record<string, any> => {
+      if (!parentField.children) return {};
+
+      const compositeValue: Record<string, any> = {};
+      Object.entries(parentField.children).forEach(([key, child]) => {
+        // Always include all child values, even empty ones
+        compositeValue[key] = child.value;
+      });
+      return compositeValue;
+    },
+    [],
+  );
+
   const updateFieldValue = useCallback(
     (path: string, value: any) => {
       setState((prev) => {
@@ -135,6 +176,17 @@ export const FormProvider: React.FC<FormProviderProps> = ({
         // Update the field value directly on the core FormField instance
         field.value = value;
 
+        // Update parent composite field value if this is a child field
+        const parentInfo = findParentField(path);
+        if (parentInfo) {
+          const { parentField } = parentInfo;
+          const compositeValue = constructCompositeValue(parentField);
+
+          // Only update parent value if it has any non-empty children
+          parentField.value =
+            Object.keys(compositeValue).length > 0 ? compositeValue : undefined;
+        }
+
         // Force re-render by creating new state object
         return {
           ...prev,
@@ -142,7 +194,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
         };
       });
     },
-    [getField],
+    [getField, findParentField, constructCompositeValue],
   );
 
   const setFieldTouched = useCallback(

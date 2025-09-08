@@ -4,7 +4,7 @@ import type { TextFieldDefinition } from './types';
 const ssnSchema = z.string().refine((value) => {
   if (/^•••-••-\d{4}$/.test(value)) return true;
   return /[0-9]{3}-[0-9]{2}-[0-9]{4}/.test(value);
-});
+}, 'Invalid SSN');
 
 const ssnKey = 'ssn';
 
@@ -16,7 +16,7 @@ export const ssn: TextFieldDefinition<typeof ssnKey, 'SsnCredential'> = {
     label: 'Social Security Number',
     placeholder: '123-45-6789',
   },
-  zodSchema: ssnSchema.optional(),
+  zodSchema: ssnSchema,
 };
 
 declare module '../declarations' {

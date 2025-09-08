@@ -69,13 +69,11 @@ export const fullName: CompositeFieldDefinition<
     lastName,
     middleName,
   },
-  zodSchema: z
-    .object({
-      firstName: firstNameSchema.optional(),
-      lastName: lastNameSchema.optional(),
-      middleName: middleNameSchema.optional(),
-    })
-    .optional(),
+  zodSchema: z.object({
+    firstName: firstNameSchema,
+    lastName: lastNameSchema,
+    middleName: middleNameSchema,
+  }),
 };
 
 declare module '../declarations' {

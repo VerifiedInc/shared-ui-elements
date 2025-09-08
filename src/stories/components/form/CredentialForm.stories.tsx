@@ -39,7 +39,7 @@ const FormField: React.FC<FormFieldProps> = ({
         }}
       >
         {label}
-        {required && <span style={{ color: 'red' }}> *</span>}
+        {field.field?.isRequired && <span style={{ color: 'red' }}> *</span>}
       </label>
       <input
         {...field.inputProps}
@@ -51,6 +51,8 @@ const FormField: React.FC<FormFieldProps> = ({
           borderRadius: '4px',
           fontSize: '1rem',
         }}
+        disabled={!field.field?.allowUserInput}
+        readOnly={!field.field?.allowUserInput}
       />
       {!field.error && field.field?.description && (
         <div
@@ -85,6 +87,9 @@ const FormField: React.FC<FormFieldProps> = ({
 const CredentialFormContent: React.FC = () => {
   const { state, submitForm, resetForm, validateForm } = useForm();
 
+  // Logging for debug purposes
+  console.log(state.form.fields);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     submitForm();
@@ -99,7 +104,6 @@ const CredentialFormContent: React.FC = () => {
     Object.values(state.form?.fields ?? {}).some((field) => field.isDirty) ??
     false;
 
-  console.log(state.form?.fields);
   return (
     <div
       style={{
@@ -226,7 +230,8 @@ const CredentialFormContent: React.FC = () => {
             style={{
               fontSize: '0.75rem',
               marginTop: '0.5rem',
-              overflow: 'auto',
+              overflow: 'hidden',
+              whiteSpace: 'pre-wrap',
             }}
           >
             {JSON.stringify(
@@ -480,9 +485,9 @@ const mockCredentialRequests = [
       },
       {
         type: 'FirstNameCredential',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Your first name',
-        // allowUserInput: false,
+        allowUserInput: false,
       },
       // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
     ],
