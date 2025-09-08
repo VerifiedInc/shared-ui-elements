@@ -1,26 +1,6 @@
+import { fieldsFromCredentialTypes } from '../fields';
 import { FormField, FormFieldBuilder } from './formField';
-import { fieldsFromCredentialTypes } from './fields';
-
-type Credential = {
-  id: string;
-  uuid: string;
-  createdAt: string;
-  updatedAt: string;
-  type: string;
-  issuanceDate: string;
-  expirationDate: string | null;
-  issuerUuid: string;
-  data: Record<string, any> | Credential[];
-};
-
-type CredentialRequest = {
-  allowUserInput?: boolean;
-  mandatory?: 'yes' | 'no' | 'if_available';
-  multi?: boolean;
-  type: string;
-  description?: string;
-  children?: CredentialRequest[];
-};
+import type { CredentialRequest, Credential } from './types';
 
 export class Form {
   fields: Record<string, FormField>;

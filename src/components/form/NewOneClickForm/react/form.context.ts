@@ -5,8 +5,8 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { Form } from '../core/form';
-import { FormField } from '../core/formField';
+
+import { Form, FormField } from '../core/form';
 
 export interface FormState {
   form: Form | null;
@@ -185,19 +185,19 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setState((prev) => {
       if (!prev.form) return prev;
 
-      // Reset all top-level fields
-      Object.values(prev.form.fields).forEach((field) => {
+      // Recursive function to reset field and all its nested children
+      const resetFieldRecursively = (field: FormField) => {
         field.value = field.defaultValue;
         field.touched = false;
 
-        // Reset children of composite fields
+        // Recursively reset children if they exist
         if (field.children) {
-          Object.values(field.children).forEach((childField) => {
-            childField.value = childField.defaultValue;
-            childField.touched = false;
-          });
+          Object.values(field.children).forEach(resetFieldRecursively);
         }
-      });
+      };
+
+      // Reset all top-level fields recursively
+      Object.values(prev.form.fields).forEach(resetFieldRecursively);
 
       return {
         ...prev,

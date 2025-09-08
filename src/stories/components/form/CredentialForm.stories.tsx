@@ -1,14 +1,17 @@
 import React, { useMemo } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+
+import { type CredentialRequest } from '../../../components/form/NewOneClickForm/core/form/types';
+import {
+  FormBuilder,
+  type Form,
+} from '../../../components/form/NewOneClickForm/core/form/form';
+
 import {
   FormProvider,
   useForm,
-} from '../../../components/form/NewOneClickForm/react/form.context';
-import { useFieldInput } from '../../../components/form/NewOneClickForm/react/field.hook';
-import {
-  FormBuilder,
-  Form,
-} from '../../../components/form/NewOneClickForm/core/form';
+  useFieldInput,
+} from '../../../components/form/NewOneClickForm/react';
 
 interface FormFieldProps {
   id: string;
@@ -233,7 +236,7 @@ const CredentialForm: React.FC = () => {
     const formBuilder = new FormBuilder();
     return formBuilder.createFromCredentialAndRequests(
       mockCredentials,
-      mockCredentialRequests,
+      mockCredentialRequests as CredentialRequest[],
     );
   }, []);
 

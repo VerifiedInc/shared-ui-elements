@@ -14,6 +14,8 @@ import { sex } from './sex';
 
 import type { FieldSchemaDefinitions } from '../declarations';
 
+export type * from './types';
+
 export const fields: FieldSchemaDefinitions = {
   fullName,
   firstName,

@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
+
+import { FormField } from '../core/form';
+
 import { useForm } from './form.context';
-import { FormField } from '../core/formField';
 
 export interface UseFieldOptions {
   id: string;
