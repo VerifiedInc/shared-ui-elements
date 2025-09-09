@@ -1,10 +1,8 @@
 import { z } from 'zod';
 
-import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
+import { firstSchema, lastSchema, middleSchema } from '../validations';
 
-const firstNameSchema = z.string();
-const lastNameSchema = z.string();
-const middleNameSchema = z.string();
+import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
 
 const fullNameKey = 'fullName';
 const firstNameKey = 'firstName';
@@ -22,7 +20,7 @@ export const firstName: TextFieldDefinition<
     label: 'First Name',
     placeholder: 'John',
   },
-  zodSchema: firstNameSchema,
+  zodSchema: firstSchema,
 };
 
 export const lastName: TextFieldDefinition<
@@ -36,7 +34,7 @@ export const lastName: TextFieldDefinition<
     label: 'Last Name',
     placeholder: 'Doe',
   },
-  zodSchema: lastNameSchema,
+  zodSchema: lastSchema,
 };
 
 export const middleName: TextFieldDefinition<
@@ -50,7 +48,7 @@ export const middleName: TextFieldDefinition<
     label: 'Middle Name',
     placeholder: 'William',
   },
-  zodSchema: middleNameSchema,
+  zodSchema: middleSchema,
 };
 
 export const fullName: CompositeFieldDefinition<
@@ -70,9 +68,9 @@ export const fullName: CompositeFieldDefinition<
     middleName,
   },
   zodSchema: z.object({
-    firstName: firstNameSchema,
-    lastName: lastNameSchema,
-    middleName: middleNameSchema,
+    firstName: firstSchema,
+    lastName: lastSchema,
+    middleName: middleSchema,
   }),
 };
 

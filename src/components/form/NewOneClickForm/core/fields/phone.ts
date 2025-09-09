@@ -1,7 +1,5 @@
-import { z } from 'zod';
+import { phoneSchema } from '../validations';
 import type { TextFieldDefinition } from './types';
-
-const phoneSchema = z.string();
 
 const phoneKey = 'phone';
 

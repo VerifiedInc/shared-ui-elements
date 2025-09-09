@@ -1,14 +1,5 @@
-import { z } from 'zod';
+import { sexOptions, sexSchema } from '../validations';
 import type { SelectFieldDefinition } from './types';
-
-const sexOptions = [
-  { label: 'Male', value: 'male' },
-  { label: 'Female', value: 'female' },
-  { label: 'Other', value: 'other' },
-] as const;
-
-const sexValues = sexOptions.map((option) => option.value);
-const sexSchema = z.enum(sexValues as [string, ...string[]]);
 
 const sexKey = 'sex';
 

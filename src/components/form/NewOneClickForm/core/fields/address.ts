@@ -1,13 +1,15 @@
 import { z } from 'zod';
 
-import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
+import {
+  line1Schema,
+  line2Schema,
+  citySchema,
+  stateSchema,
+  countrySchema,
+  zipCodeSchema,
+} from '../validations';
 
-const line1Schema = z.string();
-const line2Schema = z.string();
-const citySchema = z.string();
-const stateSchema = z.string();
-const countrySchema = z.string();
-const zipCodeSchema = z.string();
+import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
 
 const addressKey = 'address';
 const line1Key = 'line1';
