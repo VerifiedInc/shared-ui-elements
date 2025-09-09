@@ -11,7 +11,7 @@ export function AddressField({ fieldKey }: { fieldKey: string }) {
       <TextField
         {...inputStyle}
         {...readOnlyInputStyle}
-        value={'TODO HERE ADD THE VALUE '}
+        value={field?.displayValue}
         multiline
         rows={2}
         helperText={field?.description}

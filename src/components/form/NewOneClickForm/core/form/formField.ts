@@ -184,4 +184,31 @@ export class FormField {
       childrenErrors,
     };
   }
+
+  get displayValue(): string | any {
+    // Check if there's a format method available
+    if (typeof this.schema.format === 'function') {
+      // For composite fields, construct composite value from children
+      if (
+        this.schema.characteristics.inputType === 'composite' &&
+        this.children
+      ) {
+        const compositeValue: Record<string, any> = {};
+        Object.entries(this.children).forEach(([key, child]) => {
+          compositeValue[key] = child.value;
+        });
+
+        // Try to format the composite value
+        const formattedValue = this.schema.format(compositeValue);
+        return formattedValue ?? compositeValue;
+      } else {
+        // For non-composite fields, format the field's value
+        const formattedValue = this.schema.format(this.value);
+        return formattedValue ?? this.value;
+      }
+    }
+
+    // For fields without format method, return the raw value
+    return this.value;
+  }
 }

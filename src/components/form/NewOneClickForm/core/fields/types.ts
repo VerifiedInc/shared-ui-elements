@@ -46,6 +46,7 @@ export interface BaseFieldDefinition<
     | z.ZodOptional<z.ZodEffects<z.ZodString>>
     | z.ZodOptional<z.ZodEffects<z.ZodObject<z.ZodRawShape>>>;
   children?: Record<string, BaseFieldDefinition<string, string>>;
+  format?: (value: any) => string | null;
 }
 
 // Specific field contracts
