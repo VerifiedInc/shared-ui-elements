@@ -4,7 +4,7 @@ import type {
   CredentialRequest,
   Credential,
   CredentialRequestObject,
-} from './types';
+} from '../../types';
 import {
   FormFieldBuilder,
   type CredentialRequestOptions,

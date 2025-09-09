@@ -1,5 +1,5 @@
 import { fieldsFromCredentialTypes, type BaseFieldDefinition } from '../fields';
-import { type Credential } from './types';
+import { type Credential } from '../../types';
 import { FormField } from './formField';
 
 export interface CredentialRequestOptions {

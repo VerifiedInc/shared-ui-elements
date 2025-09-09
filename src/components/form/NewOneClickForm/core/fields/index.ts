@@ -11,6 +11,7 @@ import {
 import { ssn } from './ssn';
 import { phone } from './phone';
 import { sex } from './sex';
+import { birthDate } from './birthDate';
 
 import type { FieldSchemaDefinitions } from '../declarations';
 
@@ -31,6 +32,7 @@ export const fields: FieldSchemaDefinitions = {
   ssn,
   phone,
   sex,
+  birthDate,
 };
 
 export const fieldsFromCredentialTypes = {
@@ -48,4 +50,5 @@ export const fieldsFromCredentialTypes = {
   SsnCredential: ssn,
   PhoneCredential: phone,
   SexCredential: sex,
+  BirthDateCredential: birthDate,
 };

@@ -105,24 +105,23 @@ export const useFieldInput = (fieldOptions: UseFieldOptions) => {
   };
 };
 
-// Hook for creating form field components
-export interface UseFormFieldOptions extends UseFieldOptions {
-  label: string;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-}
-
-export const useFormField = (options: UseFormFieldOptions) => {
+export const useFormField = (options: UseFieldOptions) => {
   const field = useFieldInput(options);
-
+  const {
+    state: { isSubmitting, isSubmitSuccess },
+  } = useForm();
   return {
     ...field,
     fieldProps: {
-      label: options.label,
-      placeholder: options.placeholder,
-      required: options.required,
-      disabled: options.disabled,
+      label: field.field?.schema.characteristics.label,
+      placeholder: field.field
+        ? 'placeholder' in field.field?.schema.characteristics
+          ? field.field?.schema.characteristics.placeholder
+          : undefined
+        : undefined,
+      required: field.field?.isRequired,
+      disabled: field.field?.isDisabled ?? (isSubmitting || isSubmitSuccess),
+      description: field.field?.description,
       error: field.error,
       isDirty: field.isDirty,
       isValid: field.isValid,

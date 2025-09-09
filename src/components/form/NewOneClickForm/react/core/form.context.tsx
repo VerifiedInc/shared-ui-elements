@@ -11,6 +11,7 @@ import { Form, FormField } from '../../core/form';
 export interface FormState {
   form: Form;
   isSubmitting: boolean;
+  isSubmitSuccess: boolean;
 }
 
 export interface FormContextValue {
@@ -22,7 +23,6 @@ export interface FormContextValue {
   validateForm: () => boolean;
   resetForm: () => void;
   submitForm: () => Promise<void>;
-  setSubmitting: (submitting: boolean) => void;
 }
 
 const FormContext = createContext<FormContextValue | null>(null);
@@ -35,7 +35,7 @@ export const useForm = (): FormContextValue => {
   return context;
 };
 
-interface FormProviderProps {
+export interface FormProviderProps {
   children: ReactNode;
   form: Form;
   onSubmit?: (form: Form) => Promise<void> | void;
@@ -49,6 +49,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
   const [state, setState] = useState<FormState>({
     form: initialForm,
     isSubmitting: false,
+    isSubmitSuccess: false,
   });
 
   const getField = useCallback(
@@ -254,6 +255,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
       return {
         ...prev,
         isSubmitting: false,
+        isSubmitSuccess: false,
       };
     });
   }, []);
@@ -265,23 +267,35 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     }));
   }, []);
 
+  const setSubmitSuccess = useCallback((success: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      isSubmitSuccess: success,
+    }));
+  }, []);
+
   const submitForm = useCallback(async () => {
     if (!validateForm() || !state.form) {
       return;
     }
 
     setSubmitting(true);
+    setSubmitSuccess(false);
 
     try {
       console.log(state);
 
       if (onSubmit) {
         await onSubmit(state.form);
+        setSubmitSuccess(true);
       }
+    } catch (error) {
+      console.error('Form submission failed:', error);
+      setSubmitSuccess(false);
     } finally {
       setSubmitting(false);
     }
-  }, [state.form, onSubmit, validateForm]);
+  }, [state.form, onSubmit, validateForm, setSubmitting, setSubmitSuccess]);
 
   const contextValue: FormContextValue = {
     state,
@@ -292,12 +306,9 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     validateForm,
     resetForm,
     submitForm,
-    setSubmitting,
   };
 
-  return React.createElement(
-    FormContext.Provider,
-    { value: contextValue },
-    children,
+  return (
+    <FormContext.Provider value={contextValue}>{children}</FormContext.Provider>
   );
 };

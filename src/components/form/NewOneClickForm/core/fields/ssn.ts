@@ -8,7 +8,7 @@ export const ssn: TextFieldDefinition<typeof ssnKey, 'SsnCredential'> = {
   key: ssnKey,
   characteristics: {
     inputType: 'text' as const,
-    label: 'Social Security Number',
+    label: 'SSN',
     placeholder: '123-45-6789',
   },
   zodSchema: ssnSchema,

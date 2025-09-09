@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { Button, Stack } from '@mui/material';
 
-import { type CredentialRequest } from '../../../components/form/NewOneClickForm/core/form/types';
-import { FormBuilder } from '../../../components/form/NewOneClickForm/core/form/formBuilder';
+import { type CredentialRequest } from '../../../components/form/NewOneClickForm/types';
 import { type Form } from '../../../components/form/NewOneClickForm/core/form/form';
-
 import {
-  FormProvider,
+  FormContextValue,
+  NewOneClickForm,
   useForm,
   useFieldInput,
-} from '../../../components/form/NewOneClickForm/react/core';
+} from '../../../components/form/NewOneClickForm/react';
 
 interface FormFieldProps {
   fieldKey: string;
@@ -96,8 +96,9 @@ const CredentialFormContent: React.FC = () => {
 
   const isFormValid = validateForm();
   const isFormDirty =
-    Object.values(state.form?.fields ?? {}).some((field) => field.isDirty) ??
-    false;
+    Object.values(state.form?.fields ?? {}).some(
+      (field: any) => field.isDirty,
+    ) ?? false;
 
   return (
     <div
@@ -114,43 +115,45 @@ const CredentialFormContent: React.FC = () => {
         <h2 style={{ marginBottom: '2rem' }}>Credential Form</h2>
 
         <form onSubmit={handleSubmit}>
-          {Object.entries(state.form?.fields ?? {}).map(([fieldKey, field]) => {
-            // Handle composite fields with children
-            if (
-              field.schema.characteristics.inputType === 'composite' &&
-              field.children
-            ) {
-              return (
-                <div key={fieldKey} style={{ marginBottom: '1.5rem' }}>
-                  <h3
-                    style={{
-                      marginBottom: '1rem',
-                      fontSize: '1.1rem',
-                      fontWeight: '600',
-                    }}
-                  >
-                    {field.schema.characteristics.label}
-                  </h3>
-                  <div
-                    style={{
-                      paddingLeft: '1rem',
-                      borderLeft: '2px solid #e9ecef',
-                    }}
-                  >
-                    {Object.entries(field.children).map(([childKey]) => (
-                      <FormField
-                        key={childKey}
-                        fieldKey={`${fieldKey}.${childKey}`}
-                      />
-                    ))}
+          {Object.entries(state.form?.fields ?? {}).map(
+            ([fieldKey, field]: [string, any]) => {
+              // Handle composite fields with children
+              if (
+                field.schema.characteristics.inputType === 'composite' &&
+                field.children
+              ) {
+                return (
+                  <div key={fieldKey} style={{ marginBottom: '1.5rem' }}>
+                    <h3
+                      style={{
+                        marginBottom: '1rem',
+                        fontSize: '1.1rem',
+                        fontWeight: '600',
+                      }}
+                    >
+                      {field.schema.characteristics.label}
+                    </h3>
+                    <div
+                      style={{
+                        paddingLeft: '1rem',
+                        borderLeft: '2px solid #e9ecef',
+                      }}
+                    >
+                      {Object.entries(field.children).map(([childKey]) => (
+                        <FormField
+                          key={childKey}
+                          fieldKey={`${fieldKey}.${childKey}`}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            }
+                );
+              }
 
-            // Handle regular fields
-            return <FormField key={fieldKey} fieldKey={fieldKey} />;
-          })}
+              // Handle regular fields
+              return <FormField key={fieldKey} fieldKey={fieldKey} />;
+            },
+          )}
 
           <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
             <button
@@ -203,6 +206,7 @@ const CredentialFormContent: React.FC = () => {
         <p>Dirty: {isFormDirty ? '✓' : '✗'}</p>
         <p>Field Count: {Object.keys(state.form?.fields ?? {}).length}</p>
         <p>Submitting: {state.isSubmitting ? '✓' : '✗'}</p>
+        <p>Submit Success: {state.isSubmitSuccess ? '✓' : '✗'}</p>
 
         <details style={{ marginTop: '1rem' }}>
           <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
@@ -257,15 +261,30 @@ const CredentialFormContent: React.FC = () => {
   );
 };
 
-const CredentialForm: React.FC = () => {
-  const form = useMemo(() => {
-    const formBuilder = new FormBuilder();
-    return formBuilder.createFromCredentialAndRequests(
-      mockCredentials,
-      mockCredentialRequests as CredentialRequest[],
-    );
-  }, []);
+const FormFooter = ({ form }: { form: FormContextValue }) => {
+  return (
+    <Button
+      type='submit'
+      variant='contained'
+      fullWidth
+      sx={{ mt: 2 }}
+      disabled={
+        !form.state.form.isValid ||
+        form.state.isSubmitting ||
+        form.state.isSubmitSuccess
+      }
+      color={form.state.isSubmitSuccess ? 'success' : 'primary'}
+    >
+      {form.state.isSubmitting
+        ? 'Submitting...'
+        : form.state.isSubmitSuccess
+          ? 'Success!'
+          : 'Submit'}
+    </Button>
+  );
+};
 
+const CredentialForm: React.FC = () => {
   const handleSubmit = async (form: Form) => {
     console.log('Form submitted with form instance:', form);
     console.log('Form validation state:', form.isValid);
@@ -275,9 +294,25 @@ const CredentialForm: React.FC = () => {
   };
 
   return (
-    <FormProvider form={form} onSubmit={handleSubmit}>
-      <CredentialFormContent />
-    </FormProvider>
+    <Stack width={362} flex={1}>
+      <NewOneClickForm
+        credentialRequests={mockCredentialRequests as CredentialRequest[]}
+        credentials={mockCredentials}
+        options={{
+          features: {
+            datePickerClickOutsideBoundaryElement: document.body,
+          },
+          servicePaths: {
+            googlePlacesAutocompletePlaces:
+              'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
+            googlePlacesGetPlace:
+              'http://localhost:3070/api/googleapis/places/GetPlace',
+          },
+        }}
+        onSubmit={handleSubmit}
+        FooterComponent={FormFooter}
+      />
+    </Stack>
   );
 };
 
@@ -471,15 +506,14 @@ const mockCredentialRequests = [
         description: 'Your first name',
         // allowUserInput: false,
       },
-      // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
+      { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
     ],
   },
   {
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'SsnCredential',
-    description: 'Last 4 digits',
+    type: 'PhoneCredential',
   },
   {
     allowUserInput: true,
@@ -519,6 +553,20 @@ const mockCredentialRequests = [
         description: 'Zip code',
       },
     ],
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'no', // TODO - having this as yes is breaking somehow the form fields creation
+    multi: false,
+    type: 'BirthDateCredential',
+    description: 'MM/DD/YYYY',
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'no',
+    multi: false,
+    type: 'SsnCredential',
+    description: 'Last 4 digits',
   },
 ];
 
