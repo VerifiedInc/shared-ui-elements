@@ -1,8 +1,8 @@
-import { Stack, TextFieldProps, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 
 import { useFormField } from '../../../core/field.hook';
 
-export function DataFieldLabel({ fieldKey }: { fieldKey: string }) {
+export function FieldLabel({ fieldKey }: { fieldKey: string }) {
   const { fieldProps } = useFormField({ key: fieldKey });
   return (
     <Stack
@@ -34,7 +34,7 @@ export function DataFieldLabel({ fieldKey }: { fieldKey: string }) {
   );
 }
 
-export function DataFieldValue({ fieldKey }: { fieldKey: string }) {
+export function FieldValue({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
   return (
     <Typography
@@ -53,7 +53,7 @@ export function DataFieldValue({ fieldKey }: { fieldKey: string }) {
   );
 }
 
-export function DataFieldDescription({ fieldKey }: { fieldKey: string }) {
+export function FieldDescription({ fieldKey }: { fieldKey: string }) {
   const { fieldProps } = useFormField({ key: fieldKey });
 
   if (!fieldProps.description) return null;

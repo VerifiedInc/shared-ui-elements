@@ -7,17 +7,18 @@ import { useFormField } from '../../../core/field.hook';
 
 import { useOneClickForm } from '../../form.context';
 
-import { DataFieldLabel, DataFieldValue, DataFieldDescription } from './style';
-import { AddressField } from './address.field';
+import { FieldLabel } from './style';
+import { MultiField } from './multi.field';
+import { SingleField } from './single.field';
 
 const makeAttributes = (field: FormField | undefined) => ({
   role: 'region',
-  ariaLabel: field?.schema.characteristics.label,
-  dataTestId:
+  'aria-label': field?.schema.characteristics.label,
+  'data-testid':
     field?.schema.characteristics.inputType === fieldInputTypes.composite
       ? `data-field-composite-${field?.schema.key}`
       : `data-field-atomic-${field?.schema.key}`,
-  credentialId: field?.id,
+  'credential-id': field?.id,
 });
 
 function FieldRow({
@@ -33,7 +34,7 @@ function FieldRow({
   return (
     <Box component='section' {...attributes} style={{ width: '100%' }}>
       <Stack direction='row' width='100%'>
-        <DataFieldLabel fieldKey={fieldKey} />
+        <FieldLabel fieldKey={fieldKey} />
         <Stack direction='column'>{children}</Stack>
       </Stack>
     </Box>
@@ -53,7 +54,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
     if (field.schema.type === credentialTypes.AddressCredential) {
       return (
         <FieldRow fieldKey={fieldKey}>
-          <AddressField fieldKey={fieldKey} />
+          <MultiField fieldKey={fieldKey} />
         </FieldRow>
       );
     }
@@ -76,8 +77,11 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
   // Render individual field
   return (
     <FieldRow fieldKey={fieldKey}>
-      <DataFieldValue fieldKey={fieldKey} />
-      <DataFieldDescription fieldKey={fieldKey} />
+      {field?.hasVariants ? (
+        <MultiField fieldKey={fieldKey} />
+      ) : (
+        <SingleField fieldKey={fieldKey} />
+      )}
     </FieldRow>
   );
 }
@@ -89,7 +93,7 @@ export function ReadonlyFields() {
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
       {Object.entries(fields).map(([fieldKey]) => {
-        return <FieldContainer fieldKey={fieldKey} />;
+        return <FieldContainer key={fieldKey} fieldKey={fieldKey} />;
       })}
     </Stack>
   );

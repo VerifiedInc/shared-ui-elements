@@ -484,6 +484,96 @@ const mockCredentials = [
       },
     ],
   },
+  {
+    id: 'a1b2c3d4-e5f6-7890-1234-567890abcdej',
+    uuid: '12345678-90ab-cdef-1234-567890abcdej',
+    createdAt: '1738698702792',
+    updatedAt: '1738698702792',
+    type: 'AddressCredential',
+    issuanceDate: '1738698702792',
+    expirationDate: null,
+    issuerUuid: 'f1e2d3c4-b5a6-9788-1234-567890abcdef',
+    data: [
+      {
+        id: 'line1-id-1234',
+        uuid: 'line1-uuid-5678',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'Line1Credential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'issuer-line1-uuid',
+        data: {
+          line1: '123 Main Street',
+        },
+      },
+      // {
+      //   id: 'line2-id-1234',
+      //   uuid: 'line2-uuid-5678',
+      //   createdAt: '1738698702792',
+      //   updatedAt: '1738698702792',
+      //   type: 'Line2Credential',
+      //   issuanceDate: '1738698702792',
+      //   expirationDate: null,
+      //   issuerUuid: 'issuer-line2-uuid',
+      //   data: {
+      //     line2: 'Apt 4B',
+      //   },
+      // },
+      {
+        id: 'city-id-1234',
+        uuid: 'city-uuid-5678',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'CityCredential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'issuer-city-uuid',
+        data: {
+          city: 'California',
+        },
+      },
+      {
+        id: 'state-id-1234',
+        uuid: 'state-uuid-5678',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'StateCredential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'issuer-state-uuid',
+        data: {
+          state: 'CA',
+        },
+      },
+      {
+        id: 'country-id-1234',
+        uuid: 'country-uuid-5678',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'CountryCredential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'issuer-country-uuid',
+        data: {
+          country: 'US',
+        },
+      },
+      {
+        id: 'zipcode-id-1234',
+        uuid: 'zipcode-uuid-5678',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'ZipCodeCredential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'issuer-zipcode-uuid',
+        data: {
+          zipCode: '10001',
+        },
+      },
+    ],
+  },
 ];
 
 const mockCredentialRequests = [
@@ -556,7 +646,7 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'no', // TODO - having this as yes is breaking somehow the form fields creation
+    mandatory: 'no', // TODO - having this as yes is breaking somehow the form fields
     multi: false,
     type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',

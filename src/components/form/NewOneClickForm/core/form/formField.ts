@@ -108,6 +108,13 @@ export class FormField {
     }
   }
 
+  get hasVariants(): boolean {
+    if (!this.variants) {
+      return false;
+    }
+    return this.variants.length > 1;
+  }
+
   get isValid(): boolean {
     return this.errors === null;
   }
