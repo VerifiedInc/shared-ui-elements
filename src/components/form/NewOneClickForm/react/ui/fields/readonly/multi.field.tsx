@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 
 import { useFormField } from '../../../core/field.hook';
+import { useForm } from '../../../core/form.context';
 
 import { inputStyle, readOnlyInputStyle } from '../../styles/input';
 
@@ -62,12 +63,14 @@ const styles = (): Record<string, SxProps> => ({
 });
 
 export function MultiField({ fieldKey }: { fieldKey: string }) {
-  const { field } = useFormField({ key: fieldKey });
+  const { field, fieldProps } = useFormField({ key: fieldKey });
+  const { replaceFieldWithVariant } = useForm();
   const _styles = styles();
 
   const variants =
     field?.variants ?? [field].filter((field) => field !== undefined);
   const hasVariants = variants.length > 1;
+  console.log(hasVariants);
 
   const inputRef = useRef<HTMLDivElement | undefined>(undefined);
   const [inputWidth, setInputWidth] = useState<string | undefined>(undefined);
@@ -89,10 +92,16 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
       // Prevent the event to propagate to the parent.
       e.stopPropagation();
       e.preventDefault();
+
+      // Handle variant selection
+      const selectedVariantId = e.target.value;
+      if (selectedVariantId && selectedVariantId !== field?.id) {
+        replaceFieldWithVariant(fieldKey, selectedVariantId);
+      }
     },
     InputProps: {
       tabIndex: !hasVariants ? -1 : 0,
-      readOnly: !hasVariants,
+      readOnly: !hasVariants || fieldProps.disabled,
     },
     SelectProps: {
       size: 'small',

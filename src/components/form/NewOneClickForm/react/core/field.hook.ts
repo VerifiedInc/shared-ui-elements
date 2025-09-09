@@ -120,7 +120,7 @@ export const useFormField = (options: UseFieldOptions) => {
           : undefined
         : undefined,
       required: field.field?.isRequired,
-      disabled: field.field?.isDisabled ?? (isSubmitting || isSubmitSuccess),
+      disabled: isSubmitting || isSubmitSuccess || field.field?.isDisabled,
       description: field.field?.description,
       error: field.error,
       isDirty: field.isDirty,

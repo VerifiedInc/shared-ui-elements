@@ -23,6 +23,7 @@ export interface FormContextValue {
   validateForm: () => boolean;
   resetForm: () => void;
   submitForm: () => Promise<void>;
+  replaceFieldWithVariant: (fieldPath: string, variantId: string) => void;
 }
 
 const FormContext = createContext<FormContextValue | null>(null);
@@ -297,6 +298,33 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     }
   }, [state.form, onSubmit, validateForm, setSubmitting, setSubmitSuccess]);
 
+  const replaceFieldWithVariant = useCallback(
+    (fieldPath: string, variantId: string) => {
+      setState((prev) => {
+        if (!prev.form) {
+          console.warn('No form instance available');
+          return prev;
+        }
+
+        const currentField = getField(fieldPath);
+        if (!currentField) {
+          console.warn(`Field ${fieldPath} not found`);
+          return prev;
+        }
+
+        // Use the FormField's replaceWithVariant method
+        currentField.replaceWithVariant(variantId);
+
+        // Force re-render by creating new state object
+        return {
+          ...prev,
+          form: prev.form, // This will trigger re-render due to field mutation
+        };
+      });
+    },
+    [getField],
+  );
+
   const contextValue: FormContextValue = {
     state,
     setForm,
@@ -306,6 +334,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     validateForm,
     resetForm,
     submitForm,
+    replaceFieldWithVariant,
   };
 
   return (
