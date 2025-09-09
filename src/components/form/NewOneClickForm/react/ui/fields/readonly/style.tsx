@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Stack, TextFieldProps, Typography } from '@mui/material';
 
 import { useFormField } from '../../../core/field.hook';
 

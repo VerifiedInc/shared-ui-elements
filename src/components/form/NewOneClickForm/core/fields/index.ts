@@ -15,6 +15,7 @@ import { birthDate } from './birthDate';
 
 import type { FieldSchemaDefinitions } from '../declarations';
 
+export * from './constants';
 export type * from './types';
 
 export const fields: FieldSchemaDefinitions = {
@@ -51,4 +52,10 @@ export const fieldsFromCredentialTypes = {
   PhoneCredential: phone,
   SexCredential: sex,
   BirthDateCredential: birthDate,
+};
+
+export const credentialTypes = Object.fromEntries(
+  Object.keys(fieldsFromCredentialTypes).map((key) => [key, key]),
+) as {
+  [K in keyof typeof fieldsFromCredentialTypes]: K;
 };
