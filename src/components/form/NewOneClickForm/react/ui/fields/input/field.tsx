@@ -10,6 +10,7 @@ import { makeAttributes } from '../shared';
 
 import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
+import { SSNInputField } from './ssn.field';
 
 function FieldRow({
   fieldKey,
@@ -31,6 +32,25 @@ function FieldRow({
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
   const attributes = makeAttributes(field);
+
+  const renderField = () => {
+    if (
+      field?.schema.characteristics.inputType === fieldInputTypes.text &&
+      field?.schema.type === credentialTypes.SsnCredential
+    ) {
+      return <SSNInputField fieldKey={fieldKey} />;
+    }
+
+    if (field?.schema.characteristics.inputType === fieldInputTypes.select) {
+      return <SelectInputField fieldKey={fieldKey} />;
+    }
+
+    if (field?.schema.characteristics.inputType === fieldInputTypes.text) {
+      return <TextInputField fieldKey={fieldKey} />;
+    }
+
+    return null;
+  };
 
   // If it's a composite field, render its children as individual fields
   if (field?.schema.characteristics.inputType === fieldInputTypes.composite) {
@@ -60,16 +80,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
     );
   }
 
-  return (
-    <FieldRow fieldKey={fieldKey}>
-      {field?.schema.characteristics.inputType === fieldInputTypes.select && (
-        <SelectInputField fieldKey={fieldKey} />
-      )}
-      {field?.schema.characteristics.inputType === fieldInputTypes.text && (
-        <TextInputField fieldKey={fieldKey} />
-      )}
-    </FieldRow>
-  );
+  return <FieldRow fieldKey={fieldKey}>{renderField()}</FieldRow>;
 }
 
 export function EditFields() {
