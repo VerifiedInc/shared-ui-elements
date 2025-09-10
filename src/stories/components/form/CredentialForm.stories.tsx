@@ -574,6 +574,19 @@ const mockCredentials = [
       },
     ],
   },
+  {
+    id: 'sex-id-1234',
+    uuid: 'sex-uuid-5678',
+    createdAt: '1738698702792',
+    updatedAt: '1738698702792',
+    type: 'SexCredential',
+    issuanceDate: '1738698702792',
+    expirationDate: null,
+    issuerUuid: 'issuer-sex-uuid',
+    data: {
+      sex: 'Male',
+    },
+  },
 ];
 
 const mockCredentialRequests = [
@@ -646,7 +659,7 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'no', // TODO - having this as yes is breaking somehow the form fields
+    mandatory: 'yes', // TODO - having this as yes is breaking somehow the form fields
     multi: false,
     type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',
@@ -657,6 +670,13 @@ const mockCredentialRequests = [
     multi: false,
     type: 'SsnCredential',
     description: 'Last 4 digits',
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'yes',
+    multi: false,
+    type: 'SexCredential',
+    description: 'Your birth sex',
   },
 ];
 

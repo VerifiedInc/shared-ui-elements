@@ -1,4 +1,4 @@
-import { Box, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 
 import { credentialTypes, fieldInputTypes } from '../../../../core/fields';
 
@@ -8,9 +8,8 @@ import { useOneClickForm } from '../../form.context';
 
 import { makeAttributes } from '../shared';
 
-import { FieldLabel } from './style';
-import { MultiField } from './multi.field';
-import { SingleField } from './single.field';
+import { TextInputField } from './text.field';
+import { SelectInputField } from './select.field';
 
 function FieldRow({
   fieldKey,
@@ -23,12 +22,9 @@ function FieldRow({
   const attributes = makeAttributes(field);
 
   return (
-    <Box component='section' {...attributes} style={{ width: '100%' }}>
-      <Stack direction='row' width='100%'>
-        <FieldLabel fieldKey={fieldKey} />
-        <Stack direction='column'>{children}</Stack>
-      </Stack>
-    </Box>
+    <Stack component='section' {...attributes} style={{ width: '100%' }}>
+      {children}
+    </Stack>
   );
 }
 
@@ -37,15 +33,14 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const attributes = makeAttributes(field);
 
   // If it's a composite field, render its children as individual fields
-  if (
-    field?.schema.characteristics.inputType === fieldInputTypes.composite &&
-    field.children
-  ) {
-    // Custom render for the address field
+  if (field?.schema.characteristics.inputType === fieldInputTypes.composite) {
+    if (!field?.children) return null;
+
     if (field.schema.type === credentialTypes.AddressCredential) {
+      // Custom render for the address field
       return (
         <FieldRow fieldKey={fieldKey}>
-          <MultiField fieldKey={fieldKey} />
+          <p>ADDRESS</p>
         </FieldRow>
       );
     }
@@ -65,25 +60,27 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
     );
   }
 
-  // Render individual field
   return (
     <FieldRow fieldKey={fieldKey}>
-      {field?.hasVariants ? (
-        <MultiField fieldKey={fieldKey} />
-      ) : (
-        <SingleField fieldKey={fieldKey} />
+      {field?.schema.characteristics.inputType === fieldInputTypes.select && (
+        <SelectInputField fieldKey={fieldKey} />
+      )}
+      {field?.schema.characteristics.inputType === fieldInputTypes.text && (
+        <TextInputField fieldKey={fieldKey} />
       )}
     </FieldRow>
   );
 }
 
-export function ReadonlyFields() {
+export function EditFields() {
   const context = useOneClickForm();
   const { fields } = context.formContext.state.form;
 
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
-      {Object.entries(fields).map(([fieldKey]) => {
+      {Object.entries(fields).map(([fieldKey, field]) => {
+        // We don't want to render the phone field in edit mode
+        if (field.schema.type === credentialTypes.PhoneCredential) return null;
         return <FieldContainer key={fieldKey} fieldKey={fieldKey} />;
       })}
     </Stack>

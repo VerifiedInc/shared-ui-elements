@@ -10,8 +10,6 @@ import {
 import { useFormField } from '../../../core/field.hook';
 import { useForm } from '../../../core/form.context';
 
-import { inputStyle, readOnlyInputStyle } from '../../styles/input';
-
 const styles = (): Record<string, SxProps> => ({
   menuStyle: {
     maxWidth: '100%',
@@ -76,13 +74,12 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
   const [inputWidth, setInputWidth] = useState<string | undefined>(undefined);
 
   const textFieldProps: TextFieldProps = {
-    ...inputStyle,
-    ...readOnlyInputStyle,
     ref: (ref) => {
       ref && (inputRef.current = ref);
     },
     select: true,
     variant: 'outlined',
+    size: 'small',
     'aria-label': !hasVariants
       ? `Current ${field?.schema?.characteristics?.label}`
       : `Select ${field?.schema?.characteristics?.label}`,

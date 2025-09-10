@@ -6,6 +6,7 @@ import { FormContextValue } from '../core/form.context';
 
 import { useOneClickForm } from './form.context';
 import { ReadonlyFields } from './fields/readonly/field';
+import { EditFields } from './fields/inputs/field';
 
 type OneClickFormContentProps = {
   FooterComponent?: ComponentType<{ form: FormContextValue }>;
@@ -39,13 +40,15 @@ function RenderReadonlyMode() {
 }
 
 function RenderEditMode() {
-  return null;
+  return <EditFields />;
 }
 
 export function OneClickFormContent({
   FooterComponent,
 }: OneClickFormContentProps) {
   const context = useOneClickForm();
+
+  console.log(context.formContext.state.form.fields);
 
   return (
     <Stack
