@@ -20,11 +20,18 @@ export interface CompositeFieldCharacteristics {
   defaultOrder: string[];
 }
 
+export interface DateFieldCharacteristics {
+  inputType: 'date';
+  label: string;
+  placeholder?: string;
+}
+
 // Union of all field characteristics
 export type FieldCharacteristics =
   | TextFieldCharacteristics
   | SelectFieldCharacteristics
-  | CompositeFieldCharacteristics;
+  | CompositeFieldCharacteristics
+  | DateFieldCharacteristics;
 
 // Base field definition contract
 export interface BaseFieldDefinition<
@@ -35,16 +42,7 @@ export interface BaseFieldDefinition<
   type: TType;
   key: TKey;
   characteristics: TCharacteristics;
-  zodSchema:
-    | z.ZodString
-    | z.ZodEnum<[string, ...string[]]>
-    | z.ZodEffects<z.ZodString>
-    | z.ZodObject<z.ZodRawShape>
-    | z.ZodEffects<z.ZodObject<z.ZodRawShape>>
-    | z.ZodOptional<z.ZodObject<z.ZodRawShape>>
-    | z.ZodOptional<z.ZodString>
-    | z.ZodOptional<z.ZodEffects<z.ZodString>>
-    | z.ZodOptional<z.ZodEffects<z.ZodObject<z.ZodRawShape>>>;
+  zodSchema: z.ZodTypeAny;
   children?: Record<string, BaseFieldDefinition<string, string>>;
   format?: (value: any) => string | null;
 }
@@ -62,6 +60,9 @@ export interface CompositeFieldDefinition<
   TKey extends string,
   TType extends string,
 > extends BaseFieldDefinition<TKey, TType, CompositeFieldCharacteristics> {}
+
+export interface DateFieldDefinition<TKey extends string, TType extends string>
+  extends BaseFieldDefinition<TKey, TType, DateFieldCharacteristics> {}
 
 // Extract field keys for type safety
 export type FieldKey = keyof FieldSchemaDefinitions;

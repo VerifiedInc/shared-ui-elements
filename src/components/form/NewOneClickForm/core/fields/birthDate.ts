@@ -1,25 +1,25 @@
-import { minimumAge18Schema } from '../validations';
+import { birthDateSchema } from '../validations';
 
-import type { TextFieldDefinition } from './types';
+import type { DateFieldDefinition } from './types';
 
 const birthDateKey = 'birthDate';
 
-export const birthDate: TextFieldDefinition<
+export const birthDate: DateFieldDefinition<
   typeof birthDateKey,
   'BirthDateCredential'
 > = {
   type: 'BirthDateCredential',
   key: birthDateKey,
   characteristics: {
-    inputType: 'text',
+    inputType: 'date',
     label: 'Birthday',
-    placeholder: '(212) 555-0010',
+    placeholder: '__/__/____',
   },
-  zodSchema: minimumAge18Schema,
+  zodSchema: birthDateSchema,
 };
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    birthDate: TextFieldDefinition<typeof birthDateKey, 'BirthDateCredential'>;
+    birthDate: DateFieldDefinition<typeof birthDateKey, 'BirthDateCredential'>;
   }
 }

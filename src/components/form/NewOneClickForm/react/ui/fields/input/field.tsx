@@ -11,6 +11,7 @@ import { makeAttributes } from '../shared';
 import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
+import { DateInputField } from './date.field';
 
 function FieldRow({
   fieldKey,
@@ -39,6 +40,10 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       field?.schema.type === credentialTypes.SsnCredential
     ) {
       return <SSNInputField fieldKey={fieldKey} />;
+    }
+
+    if (field?.schema.characteristics.inputType === fieldInputTypes.date) {
+      return <DateInputField fieldKey={fieldKey} />;
     }
 
     if (field?.schema.characteristics.inputType === fieldInputTypes.select) {

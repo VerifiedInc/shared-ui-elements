@@ -68,7 +68,6 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
   const variants =
     field?.variants ?? [field].filter((field) => field !== undefined);
   const hasVariants = variants.length > 1;
-  console.log(hasVariants);
 
   const inputRef = useRef<HTMLDivElement | undefined>(undefined);
   const [inputWidth, setInputWidth] = useState<string | undefined>(undefined);

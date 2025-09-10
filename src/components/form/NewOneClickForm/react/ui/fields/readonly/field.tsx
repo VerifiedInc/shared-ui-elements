@@ -83,7 +83,9 @@ export function ReadonlyFields() {
 
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
-      {Object.entries(fields).map(([fieldKey]) => {
+      {Object.entries(fields).map(([fieldKey, field]) => {
+        // Phone credential should not be rendered
+        if (field.schema.type === credentialTypes.PhoneCredential) return null;
         return <FieldContainer key={fieldKey} fieldKey={fieldKey} />;
       })}
     </Stack>

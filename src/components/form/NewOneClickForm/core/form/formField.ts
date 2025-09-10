@@ -48,7 +48,7 @@ export class FormField {
       let baseSchema: z.ZodObject<z.ZodRawShape>;
       if ('shape' in schema.zodSchema) {
         // Direct ZodObject
-        baseSchema = schema.zodSchema;
+        baseSchema = schema.zodSchema as z.ZodObject<z.ZodRawShape>;
       } else if (
         '_def' in schema.zodSchema &&
         'schema' in schema.zodSchema._def
@@ -191,6 +191,13 @@ export class FormField {
       error,
       childrenErrors,
     };
+  }
+
+  get errorMessage(): string | null {
+    const message = this.errors?.error?.issues?.find(
+      (error: any) => typeof error.message === 'string',
+    )?.message;
+    return message ?? null;
   }
 
   get displayValue(): string | any {

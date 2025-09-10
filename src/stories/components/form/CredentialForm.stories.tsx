@@ -609,7 +609,7 @@ const mockCredentialRequests = [
         description: 'Your first name',
         // allowUserInput: false,
       },
-      { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
+      // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
     ],
   },
   {
@@ -659,7 +659,7 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'yes', // TODO - having this as yes is breaking somehow the form fields
+    mandatory: 'no',
     multi: false,
     type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',
