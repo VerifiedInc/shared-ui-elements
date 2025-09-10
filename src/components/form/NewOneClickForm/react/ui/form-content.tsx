@@ -6,7 +6,7 @@ import { FormContextValue } from '../core/form.context';
 
 import { useOneClickForm } from './form.context';
 import { ReadonlyFields } from './fields/readonly/field';
-import { EditFields } from './fields/inputs/field';
+import { EditFields } from './fields/input/field';
 
 type OneClickFormContentProps = {
   FooterComponent?: ComponentType<{ form: FormContextValue }>;
