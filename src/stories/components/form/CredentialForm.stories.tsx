@@ -357,10 +357,52 @@ const CredentialForm: React.FC = () => {
               datePickerClickOutsideBoundaryElement: document.body,
             },
             servicePaths: {
-              googlePlacesAutocompletePlaces:
-                'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
-              googlePlacesGetPlace:
-                'http://localhost:3070/api/googleapis/places/GetPlace',
+              googlePlacesAutocompletePlaces: async (
+                input: string,
+                signal?: AbortSignal,
+              ) => {
+                const response = await fetch(
+                  'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ input }),
+                    signal,
+                  },
+                );
+
+                if (!response.ok) {
+                  throw new Error(
+                    `AutocompletePlaces API error! status: ${response.status}`,
+                  );
+                }
+
+                return response.json();
+              },
+              googlePlacesGetPlace: async (
+                placeId: string,
+                signal?: AbortSignal,
+              ) => {
+                const response = await fetch(
+                  'http://localhost:3070/api/googleapis/places/GetPlace',
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: placeId }),
+                    signal,
+                  },
+                );
+
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return response.json();
+              },
             },
           }}
           onSubmit={handleSubmit}

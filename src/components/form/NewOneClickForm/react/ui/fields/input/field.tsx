@@ -8,6 +8,7 @@ import { useOneClickForm } from '../../form.context';
 
 import { makeAttributes } from '../shared';
 
+import { AddressInputField } from './address.field';
 import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
@@ -65,7 +66,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       // Custom render for the address field
       return (
         <FieldRow fieldKey={fieldKey}>
-          <p>ADDRESS</p>
+          <AddressInputField fieldKey={fieldKey} />
         </FieldRow>
       );
     }

@@ -9,8 +9,14 @@ type OneClickOptionFeatures = {
 };
 
 type OneClickOptionServicePaths = {
-  googlePlacesAutocompletePlaces?: string;
-  googlePlacesGetPlace?: string;
+  googlePlacesAutocompletePlaces?: (
+    input: string,
+    signal?: AbortSignal,
+  ) => Promise<unknown>;
+  googlePlacesGetPlace?: (
+    placeId: string,
+    signal?: AbortSignal,
+  ) => Promise<unknown>;
 };
 
 export type OneClickFormOptions = {

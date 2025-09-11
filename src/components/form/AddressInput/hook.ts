@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
 
-import { toSentenceCase, wrapPromise } from '../../../utils';
+import { wrapPromise } from '../../../utils';
 import { useDebounceValue, usePrevious } from '../../../hooks';
 
 import { fromUSAddress, toUSaddress } from '../../../utils/address';
@@ -15,7 +14,6 @@ type DataFieldAddressInputReturn = {
   suggestions: PlaceSuggestion[];
   isPending: boolean;
   isFetchingPlace: boolean;
-  error: string | undefined;
   handleInputChange: (
     newInputValue: string,
     changeOptions?: { shouldValidate?: boolean },
@@ -25,19 +23,15 @@ type DataFieldAddressInputReturn = {
 };
 
 export function useDataFieldAddressInput({
-  name,
   defaultValue: _defaultValue,
   onChange,
 }: {
-  name: string;
   defaultValue: Address | null;
   onChange: (
     value: string | Address | null,
     changeOptions?: { shouldValidate?: boolean },
   ) => void;
 }): DataFieldAddressInputReturn {
-  const form = useFormContext();
-
   const [isFetchingPlace, setFetchingPlace] = useState(false);
   const {
     handleAutoComplete,
@@ -46,19 +40,6 @@ export function useDataFieldAddressInput({
     suggestions,
     isPending,
   } = useAutoFill();
-
-  // React to form errors
-  const error = useMemo(() => {
-    for (const key of ['line1', 'city', 'state', 'zipCode']) {
-      // Address field does not contemplate line2
-      if (key === 'line2') continue;
-      const childFieldState = form.getFieldState(`${name}.${key}`);
-      if (childFieldState?.error?.message) {
-        return `${toSentenceCase(key)} is invalid`;
-      }
-    }
-    return undefined;
-  }, [form, name, form.formState.errors]);
 
   const defaultValue = useMemo(() => {
     return toUSaddress({
@@ -77,6 +58,7 @@ export function useDataFieldAddressInput({
   const [inputValue, setInputValue] = useState('');
   const previousInputValue = usePrevious(inputValue);
   const debouncedInputValue = useDebounceValue(inputValue);
+  const [mounted, setMounted] = useState(false);
 
   const handleChange = (
     value: string | Address,
@@ -125,7 +107,7 @@ export function useDataFieldAddressInput({
   useEffect(() => {
     const handle = (): void => {
       // Handle change when input is cleared
-      if (!debouncedInputValue.length) {
+      if (!debouncedInputValue.length && mounted) {
         handleChange('', undefined);
       }
 
@@ -145,13 +127,17 @@ export function useDataFieldAddressInput({
     handle();
   }, [debouncedInputValue]);
 
+  // Effect to set mounted to true, used for ignoring the first debouncedInputValue change
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return {
     value,
     inputValue,
     suggestions,
     isPending,
     isFetchingPlace,
-    error,
     handleInputChange,
     handleOptionChange,
     handleClear,

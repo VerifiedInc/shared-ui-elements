@@ -14,6 +14,7 @@ export interface UseFieldReturn {
   field: FormField | undefined;
   value: any;
   setValue: (value: any) => void;
+  setChildValue: (childKey: string, value: any) => void;
   error: string | null;
   isDirty: boolean;
   isValid: boolean;
@@ -36,6 +37,16 @@ export const useField = ({
   const setValue = useCallback(
     (value: any) => {
       updateFieldValue(key, value);
+      if (validateOnChange) {
+        validateForm();
+      }
+    },
+    [key, updateFieldValue, validateForm, validateOnChange],
+  );
+
+  const setChildValue = useCallback(
+    (childKey: string, value: any) => {
+      updateFieldValue(`${key}.${childKey}`, value);
       if (validateOnChange) {
         validateForm();
       }
@@ -72,6 +83,7 @@ export const useField = ({
     field,
     value: field?.value ?? '',
     setValue,
+    setChildValue,
     error,
     isDirty: field?.isDirty ?? false,
     isValid: field?.isValid ?? true,
