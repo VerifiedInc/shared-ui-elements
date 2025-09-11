@@ -76,7 +76,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       );
     }
 
-    // Render the children of the composite field
+    // Render the children of the composite field if not custom render
     return (
       <Stack
         component='section'
