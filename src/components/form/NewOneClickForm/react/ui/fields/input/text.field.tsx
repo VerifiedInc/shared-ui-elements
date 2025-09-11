@@ -20,10 +20,9 @@ export function TextInputField({ fieldKey }: { fieldKey: string }) {
     size: 'small',
     autoComplete: getAutoCompleteAttributeValue(field.schema.type),
     label: <FieldLabel fieldKey={fieldKey} />,
-    defaultValue: field.value || '',
+    value: field.value || '',
     onChange: (e) => {
       if (field.isDisabled) return;
-      // handleChangeDebouncedValueCredential(e.target.value);
       setValue(e.target.value);
     },
     error: !field?.isValid,

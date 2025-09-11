@@ -129,7 +129,15 @@ export class FormField {
   }
 
   get isEmpty(): boolean {
-    return this.value === undefined || this.value === null || this.value === '';
+    const _isEmpty = (value: any) => {
+      return value === undefined || value === null || value === '';
+    };
+
+    if (typeof this.value === 'object') {
+      return Object.values(this.value).every(_isEmpty);
+    }
+
+    return _isEmpty(this.value);
   }
 
   get isDirty(): boolean {
@@ -151,26 +159,38 @@ export class FormField {
       this.schema.characteristics.inputType === 'composite' &&
       this.children
     ) {
-      const compositeValue: Record<string, any> = {};
-      Object.entries(this.children).forEach(([key, child]) => {
-        // Always include all child values for validation, even empty ones
-        if (child.isEmpty && !child.isRequired) {
-          compositeValue[key] = undefined;
-        } else {
-          compositeValue[key] = child.value;
-        }
-      });
+      /**
+       * When the composite field is not required and not empty,
+       * we have to validate the entire object value to ensure the field is complete
+       */
+      if (!this.isRequired && !this.isEmpty) {
+        // When the field is not required and not empty, validate the field's value
+        const result = this.schema.zodSchema.safeParse(this.value);
+        error = result.success ? null : result.error;
+      } else {
+        // Otherwise, validate the field's value as children separately
+        const compositeValue: Record<string, any> = {};
+        Object.entries(this.children).forEach(([key, child]) => {
+          // Always include all child values for validation, even empty ones
+          if (child.isEmpty && !child.isRequired) {
+            // Mutate the composite value to be undefined as is a optional field
+            compositeValue[key] = undefined;
+          } else {
+            compositeValue[key] = child.value;
+          }
+        });
 
-      const result = this.schema.zodSchema.safeParse(compositeValue);
-      error = result.success ? null : result.error;
+        const result = this.schema.zodSchema.safeParse(compositeValue);
+        error = result.success ? null : result.error;
 
-      // Collect children errors for composite fields
-      Object.entries(this.children).forEach(([key, child]) => {
-        const childError = child.errors;
-        if (childError) {
-          childrenErrors[key] = childError;
-        }
-      });
+        // Collect children errors for composite fields
+        Object.entries(this.children).forEach(([key, child]) => {
+          const childError = child.errors;
+          if (childError) {
+            childrenErrors[key] = childError;
+          }
+        });
+      }
     } else {
       // For non-composite fields, validate the field's value
       // For optional empty fields, return null (no errors) immediately

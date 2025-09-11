@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { FormField } from '../../core/form';
 
 import { useForm } from './form.context';
+import { fieldInputTypes } from '../../core/fields';
 
 export interface UseFieldOptions {
   key: string;
@@ -22,6 +23,7 @@ export interface UseFieldReturn {
   setTouched: (touched: boolean) => void;
   validate: () => boolean;
   reset: () => void;
+  clear: (options?: { ignoreKeys?: string[] }) => void;
 }
 
 export const useField = ({
@@ -68,6 +70,26 @@ export const useField = ({
     return validateForm();
   }, [validateForm]);
 
+  const clear = useCallback(
+    (options?: { ignoreKeys?: string[] }) => {
+      // When the field is a composite field, we need to clear all the children
+      if (
+        field?.schema.characteristics.inputType === fieldInputTypes.composite
+      ) {
+        Object.keys(field?.children ?? {}).forEach((childKey) => {
+          if (options?.ignoreKeys?.includes(childKey)) return;
+          updateFieldValue(`${key}.${childKey}`, '');
+          setFieldTouched(`${key}.${childKey}`, true);
+        });
+      } else {
+        // When the field is not a composite field, we need to clear the field itself
+        updateFieldValue(key, '');
+        setFieldTouched(key, true);
+      }
+    },
+    [key, field, updateFieldValue, setFieldTouched],
+  );
+
   const reset = useCallback(() => {
     if (field) {
       updateFieldValue(key, field.defaultValue);
@@ -91,6 +113,7 @@ export const useField = ({
     setTouched,
     validate,
     reset,
+    clear,
   };
 };
 

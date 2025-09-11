@@ -17,11 +17,20 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
     return null;
   }
 
+  // We don't want to show the line 2 error message in this field as it renders as a separate field
+  const shouldIgnoreError = field.errorMessage
+    ?.toLowerCase()
+    .startsWith('line 2');
+
   return (
     <AddressInput
       label={<FieldLabel fieldKey={fieldKey} />}
-      helperText={field.errorMessage ?? field?.description}
-      error={!!field.errors}
+      helperText={
+        shouldIgnoreError
+          ? field?.description
+          : (field.errorMessage ?? field?.description)
+      }
+      error={!!field.errors && !shouldIgnoreError}
       defaultValue={{
         line1: field?.value?.line1,
         city: field?.value?.city,
@@ -66,7 +75,14 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
       }: {
         onClick: () => void;
       }) {
-        return <ClearFieldAdornment fieldKey={fieldKey} onClick={onClick} />;
+        return (
+          <ClearFieldAdornment
+            fieldKey={fieldKey}
+            onClick={onClick}
+            // Because line 2 is a separate field, we don't want to clear it when the address is cleared
+            ignoreKeys={['line2']}
+          />
+        );
       }}
       service={{
         googlePlacesAutocompletePlaces:

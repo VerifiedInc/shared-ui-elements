@@ -1,6 +1,6 @@
-import { z } from 'zod';
-
+import { addressFormat } from '../formats';
 import {
+  addressSchema,
   line1Schema,
   line2Schema,
   citySchema,
@@ -8,8 +8,6 @@ import {
   countrySchema,
   zipCodeSchema,
 } from '../validations';
-
-import { toUSaddressPretty } from '../../../../../utils/address';
 
 import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
 
@@ -119,42 +117,8 @@ export const address: CompositeFieldDefinition<
     country,
     zipCode,
   },
-  zodSchema: z.object({
-    line1: line1Schema,
-    line2: line2Schema,
-    city: citySchema,
-    state: stateSchema,
-    country: countrySchema,
-    zipCode: zipCodeSchema,
-  }),
-  format: (value: {
-    line1?: string;
-    line2?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    zipCode?: string;
-  }): string | null => {
-    // Validate required fields
-    if (
-      !value?.line1?.trim() ||
-      !value?.city?.trim() ||
-      !value?.state?.trim() ||
-      !value?.zipCode?.trim()
-    ) {
-      return null;
-    }
-
-    // Use toUSaddressPretty for consistent formatting
-    return toUSaddressPretty({
-      line1: value.line1.trim(),
-      line2: value.line2?.trim(),
-      city: value.city.trim(),
-      state: value.state.trim(),
-      zipCode: value.zipCode.trim(),
-      country: value.country?.trim() ?? 'US',
-    });
-  },
+  zodSchema: addressSchema,
+  format: addressFormat,
 };
 
 declare module '../declarations' {

@@ -619,7 +619,7 @@ const mockCredentials = [
         expirationDate: null,
         issuerUuid: 'issuer-line2-uuid',
         data: {
-          line2: 'Apt 4B',
+          line2: 'Apt 1A',
         },
       },
       {
@@ -720,11 +720,11 @@ const mockCredentialRequests = [
       },
       {
         type: 'FirstNameCredential',
-        mandatory: 'no',
+        mandatory: 'yes',
         description: 'Your first name',
         // allowUserInput: false,
       },
-      // { type: 'MiddleNameCredential', mandatory: 'no', allowUserInput: false },
+      // { type: 'MiddleNameCredential', mandatory: 'yes', allowUserInput: false },
     ],
   },
   {
@@ -733,49 +733,49 @@ const mockCredentialRequests = [
     multi: false,
     type: 'PhoneCredential',
   },
-  'AddressCredential',
-  // {
-  //   allowUserInput: true,
-  //   mandatory: 'yes',
-  //   multi: false,
-  //   type: 'AddressCredential',
-  //   description: 'Your address information',
-  //   children: [
-  //     {
-  //       type: 'Line1Credential',
-  //       mandatory: 'yes',
-  //       description: 'Street',
-  //     },
-  //     {
-  //       type: 'Line2Credential',
-  //       mandatory: 'no',
-  //       description: 'Apt, Unit, etc.',
-  //     },
-  //     {
-  //       type: 'CityCredential',
-  //       mandatory: 'yes',
-  //       description: 'City',
-  //     },
-  //     {
-  //       type: 'StateCredential',
-  //       mandatory: 'yes',
-  //       description: 'State',
-  //     },
-  //     {
-  //       type: 'CountryCredential',
-  //       mandatory: 'yes',
-  //       description: 'Country',
-  //     },
-  //     {
-  //       type: 'ZipCodeCredential',
-  //       mandatory: 'yes',
-  //       description: 'Zip code',
-  //     },
-  //   ],
-  // },
+  // 'AddressCredential',
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
+    multi: false,
+    type: 'AddressCredential',
+    description: 'Your address information',
+    children: [
+      {
+        type: 'Line1Credential',
+        mandatory: 'yes',
+        description: 'Street',
+      },
+      {
+        type: 'Line2Credential',
+        mandatory: 'yes',
+        description: 'Apt, Unit, etc.',
+      },
+      {
+        type: 'CityCredential',
+        mandatory: 'yes',
+        description: 'City',
+      },
+      {
+        type: 'StateCredential',
+        mandatory: 'yes',
+        description: 'State',
+      },
+      {
+        type: 'CountryCredential',
+        mandatory: 'yes',
+        description: 'Country',
+      },
+      {
+        type: 'ZipCodeCredential',
+        mandatory: 'yes',
+        description: 'Zip code',
+      },
+    ],
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'yes',
     multi: false,
     type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',

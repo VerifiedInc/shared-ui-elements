@@ -5,6 +5,7 @@ import { useFormField } from '../../../core/field.hook';
 
 type ClearFieldAdornmentProps = Readonly<{
   fieldKey: string;
+  ignoreKeys?: string[];
   disabled?: boolean;
   onClick?: () => void;
 }>;
@@ -17,10 +18,11 @@ type QueryInputReturn =
 
 export function ClearFieldAdornment({
   fieldKey,
+  ignoreKeys,
   onClick,
   disabled,
 }: ClearFieldAdornmentProps) {
-  const { field } = useFormField({ key: fieldKey });
+  const { field, clear } = useFormField({ key: fieldKey });
 
   const queryInput = (button: HTMLButtonElement): QueryInputReturn => {
     return (
@@ -40,7 +42,7 @@ export function ClearFieldAdornment({
           // Handling disabled state
           if (disabled ?? field?.isDisabled) return;
           queryInput(e.currentTarget)?.focus();
-          //   handleClearValueCredential();
+          clear({ ignoreKeys });
           onClick?.();
         }}
         disabled={disabled ?? field?.isDisabled}
