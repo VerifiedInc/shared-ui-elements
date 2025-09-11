@@ -35,6 +35,7 @@ const Debugger = ({ form }: { form: FormContextValue }) => {
         <p>Field Count: {Object.keys(form.state.form?.fields ?? {}).length}</p>
         <p>Valid: {form.state.form.isValid ? '✅' : '❌'}</p>
         <p>Dirty: {form.state.form.isDirty ? '✅' : '❌'}</p>
+        <p>Disabled: {form.state.form.isDisabled ? '✅' : '❌'}</p>
         <p>Submitting: {form.state.isSubmitting ? '✅' : '❌'}</p>
         <p>Submit Success: {form.state.isSubmitSuccess ? '✅' : '❌'}</p>
 
@@ -83,6 +84,10 @@ const Debugger = ({ form }: { form: FormContextValue }) => {
                       <div>
                         <strong>isRequired:</strong>{' '}
                         {field.isRequired ? '✅' : '❌'}
+                      </div>
+                      <div>
+                        <strong>isDisabled:</strong>{' '}
+                        {field.isDisabled ? '✅' : '❌'}
                       </div>
                       {field.errors && field.errors.length > 0 && (
                         <div>
