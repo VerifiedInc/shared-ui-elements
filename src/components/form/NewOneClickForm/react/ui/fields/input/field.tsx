@@ -65,9 +65,14 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
     if (field.schema.type === credentialTypes.AddressCredential) {
       // Custom render for the address field
       return (
-        <FieldRow fieldKey={fieldKey}>
-          <AddressInputField fieldKey={fieldKey} />
-        </FieldRow>
+        <>
+          <FieldRow fieldKey={fieldKey}>
+            <AddressInputField fieldKey={fieldKey} />
+          </FieldRow>
+          <FieldRow fieldKey={fieldKey}>
+            <TextInputField fieldKey={`${fieldKey}.line2`} />
+          </FieldRow>
+        </>
       );
     }
 

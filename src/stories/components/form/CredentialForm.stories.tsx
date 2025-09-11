@@ -739,12 +739,12 @@ const mockCredentialRequests = [
       {
         type: 'Line1Credential',
         mandatory: 'yes',
-        description: 'Address line 1',
+        description: 'Street',
       },
       {
         type: 'Line2Credential',
-        mandatory: 'no',
-        description: 'Address line 2 (optional)',
+        mandatory: 'yes',
+        description: 'Apt, Unit, etc.',
       },
       {
         type: 'CityCredential',

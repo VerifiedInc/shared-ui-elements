@@ -26,7 +26,7 @@ export const line1: TextFieldDefinition<typeof line1Key, 'Line1Credential'> = {
   key: line1Key,
   characteristics: {
     inputType: 'text',
-    label: 'Address Line 1',
+    label: 'Line 1',
     placeholder: '123 Main Street',
   },
   zodSchema: line1Schema,
@@ -37,7 +37,7 @@ export const line2: TextFieldDefinition<typeof line2Key, 'Line2Credential'> = {
   key: line2Key,
   characteristics: {
     inputType: 'text',
-    label: 'Address Line 2',
+    label: 'Line 2',
     placeholder: 'Apt 4B, Suite 100',
   },
   zodSchema: line2Schema,
