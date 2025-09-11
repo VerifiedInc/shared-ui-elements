@@ -6,6 +6,7 @@ import { useFormField } from '../../../core/field.hook';
 
 import { useOneClickForm } from '../../form.context';
 
+import { FieldLabel } from './label';
 import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function AddressInputField({ fieldKey }: { fieldKey: string }) {
@@ -18,7 +19,7 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
 
   return (
     <AddressInput
-      label={field.schema.characteristics.label}
+      label={<FieldLabel fieldKey={fieldKey} />}
       helperText={field.errorMessage ?? field?.description}
       error={!!field.errors}
       defaultValue={{
@@ -39,6 +40,7 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
           });
         }
 
+        // Below we update the address parts if they are present in the field form
         if (typeof field?.value?.line1 === 'string') {
           setChildValue('line1', value?.line1 ?? '');
         }

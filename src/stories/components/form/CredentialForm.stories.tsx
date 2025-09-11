@@ -80,6 +80,10 @@ const Debugger = ({ form }: { form: FormContextValue }) => {
                       <div>
                         <strong>isDirty:</strong> {field.isDirty ? '✅' : '❌'}
                       </div>
+                      <div>
+                        <strong>isRequired:</strong>{' '}
+                        {field.isRequired ? '✅' : '❌'}
+                      </div>
                       {field.errors && field.errors.length > 0 && (
                         <div>
                           <strong>errors:</strong>{' '}
@@ -515,19 +519,19 @@ const mockCredentials = [
           line1: '123 Main Street',
         },
       },
-      // {
-      //   id: 'line2-id-1234',
-      //   uuid: 'line2-uuid-5678',
-      //   createdAt: '1738698702792',
-      //   updatedAt: '1738698702792',
-      //   type: 'Line2Credential',
-      //   issuanceDate: '1738698702792',
-      //   expirationDate: null,
-      //   issuerUuid: 'issuer-line2-uuid',
-      //   data: {
-      //     line2: 'Apt 4B',
-      //   },
-      // },
+      {
+        id: 'line2-id-1234',
+        uuid: 'line2-uuid-5678',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'Line2Credential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'issuer-line2-uuid',
+        data: {
+          line2: 'Apt 4B',
+        },
+      },
       {
         id: 'city-id-1234',
         uuid: 'city-uuid-5678',
@@ -605,19 +609,19 @@ const mockCredentials = [
           line1: '123 Main Street',
         },
       },
-      // {
-      //   id: 'line2-id-1234',
-      //   uuid: 'line2-uuid-5678',
-      //   createdAt: '1738698702792',
-      //   updatedAt: '1738698702792',
-      //   type: 'Line2Credential',
-      //   issuanceDate: '1738698702792',
-      //   expirationDate: null,
-      //   issuerUuid: 'issuer-line2-uuid',
-      //   data: {
-      //     line2: 'Apt 4B',
-      //   },
-      // },
+      {
+        id: 'line2-id-1234',
+        uuid: 'line2-uuid-5678',
+        createdAt: '1738698702792',
+        updatedAt: '1738698702792',
+        type: 'Line2Credential',
+        issuanceDate: '1738698702792',
+        expirationDate: null,
+        issuerUuid: 'issuer-line2-uuid',
+        data: {
+          line2: 'Apt 4B',
+        },
+      },
       {
         id: 'city-id-1234',
         uuid: 'city-uuid-5678',
@@ -729,45 +733,46 @@ const mockCredentialRequests = [
     multi: false,
     type: 'PhoneCredential',
   },
-  {
-    allowUserInput: true,
-    mandatory: 'if_available',
-    multi: false,
-    type: 'AddressCredential',
-    description: 'Your address information',
-    children: [
-      {
-        type: 'Line1Credential',
-        mandatory: 'yes',
-        description: 'Street',
-      },
-      {
-        type: 'Line2Credential',
-        mandatory: 'yes',
-        description: 'Apt, Unit, etc.',
-      },
-      {
-        type: 'CityCredential',
-        mandatory: 'yes',
-        description: 'City',
-      },
-      {
-        type: 'StateCredential',
-        mandatory: 'yes',
-        description: 'State',
-      },
-      {
-        type: 'CountryCredential',
-        mandatory: 'yes',
-        description: 'Country',
-      },
-      {
-        type: 'ZipCodeCredential',
-        mandatory: 'yes',
-        description: 'Zip code',
-      },
-    ],
-  },
+  'AddressCredential',
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'yes',
+  //   multi: false,
+  //   type: 'AddressCredential',
+  //   description: 'Your address information',
+  //   children: [
+  //     {
+  //       type: 'Line1Credential',
+  //       mandatory: 'yes',
+  //       description: 'Street',
+  //     },
+  //     {
+  //       type: 'Line2Credential',
+  //       mandatory: 'no',
+  //       description: 'Apt, Unit, etc.',
+  //     },
+  //     {
+  //       type: 'CityCredential',
+  //       mandatory: 'yes',
+  //       description: 'City',
+  //     },
+  //     {
+  //       type: 'StateCredential',
+  //       mandatory: 'yes',
+  //       description: 'State',
+  //     },
+  //     {
+  //       type: 'CountryCredential',
+  //       mandatory: 'yes',
+  //       description: 'Country',
+  //     },
+  //     {
+  //       type: 'ZipCodeCredential',
+  //       mandatory: 'yes',
+  //       description: 'Zip code',
+  //     },
+  //   ],
+  // },
   {
     allowUserInput: true,
     mandatory: 'no',
@@ -777,10 +782,10 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
     multi: false,
     type: 'SsnCredential',
-    description: 'Last 4 digits',
+    description: 'Your legal SSN',
   },
   {
     allowUserInput: true,

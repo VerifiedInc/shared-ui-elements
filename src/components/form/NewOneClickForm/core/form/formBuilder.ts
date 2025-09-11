@@ -56,6 +56,126 @@ export class FormBuilder {
     return new Form(fields);
   }
 
+  // Method to create a form field from valid credentials or empty field
+  private createField(
+    requestObj: CredentialRequestObject,
+    validCredentials: Credential[],
+    requestType: keyof typeof fieldsFromCredentialTypes,
+  ): FormField {
+    const fieldSchema = fieldsFromCredentialTypes[requestType];
+    if (!fieldSchema) {
+      throw new Error(`Unknown credential type: ${requestType}`);
+    }
+
+    // Extract credential request options
+    const options = this.extractRequestOptions(requestObj);
+
+    // If no valid credentials found, create empty form field
+    if (validCredentials.length === 0) {
+      return this.fieldBuilder.createFromSchema(requestObj, fieldSchema);
+    }
+
+    // Use first valid credential as primary
+    const primaryCredential = validCredentials[0];
+
+    // Handle children requests for composite fields
+    const childFields = this.createChildFields(requestObj, primaryCredential);
+
+    // Create variants from all valid credentials (including the first for UI selection)
+    let variants: FormField[] | undefined;
+    if (validCredentials.length > 1) {
+      variants = validCredentials.map((credential) => {
+        const variantChildFields = this.createChildFields(
+          requestObj,
+          credential,
+        );
+        return this.fieldBuilder.createFromCredential(
+          credential,
+          variantChildFields,
+          options,
+        );
+      });
+    }
+
+    return this.fieldBuilder.createFromCredential(
+      primaryCredential,
+      childFields,
+      options,
+      variants,
+    );
+  }
+
+  // Helper method to create child fields for composite credentials
+  private createChildFields(
+    requestObj: CredentialRequestObject,
+    credential: Credential,
+  ): Record<string, FormField> | undefined {
+    if (!requestObj.children) {
+      return undefined;
+    }
+
+    const childFields: Record<string, FormField> = {};
+
+    // For composite credentials, check if data is an array of child credentials
+    if (Array.isArray(credential.data)) {
+      for (const childRequest of requestObj.children) {
+        const childRequestType = childRequest.type;
+        const matchingChildCredential = credential.data.find(
+          (childCred: any) => childCred.type === childRequestType,
+        );
+
+        if (matchingChildCredential) {
+          // Extract child request options including description
+          const chilRequestdOptions = this.extractRequestOptions(
+            childRequest,
+            requestObj,
+          );
+
+          const childField = this.fieldBuilder.createFromCredential(
+            matchingChildCredential,
+            undefined,
+            chilRequestdOptions,
+          );
+          // Use the field schema key as the object key
+          const fieldSchema =
+            fieldsFromCredentialTypes[
+              matchingChildCredential.type as keyof typeof fieldsFromCredentialTypes
+            ];
+          if (fieldSchema) {
+            childFields[fieldSchema.key] = childField;
+          }
+        } else {
+          // Extract child request options including description
+          const chilRequestdOptions = this.extractRequestOptions(
+            childRequest,
+            requestObj,
+          );
+
+          const enhancedRequestObj = {
+            ...childRequest,
+            ...chilRequestdOptions,
+          };
+
+          // Create empty field for missing optional credentials
+          const fieldSchema =
+            fieldsFromCredentialTypes[
+              childRequestType as keyof typeof fieldsFromCredentialTypes
+            ];
+
+          if (fieldSchema) {
+            const emptyField = this.fieldBuilder.createFromSchema(
+              enhancedRequestObj,
+              fieldSchema,
+            );
+            childFields[fieldSchema.key] = emptyField;
+          }
+        }
+      }
+    }
+
+    return Object.keys(childFields).length > 0 ? childFields : undefined;
+  }
+
   // Method to expand a credential type into a full request object
   private expandCredentialType(
     credentialType: string,
@@ -146,131 +266,17 @@ export class FormBuilder {
     return true;
   }
 
-  // Method to create a form field from valid credentials or empty field
-  private createField(
+  // Helper method to extract request options
+  private extractRequestOptions(
     requestObj: CredentialRequestObject,
-    validCredentials: Credential[],
-    requestType: keyof typeof fieldsFromCredentialTypes,
-  ): FormField {
-    const fieldSchema = fieldsFromCredentialTypes[requestType];
-    if (!fieldSchema) {
-      throw new Error(`Unknown credential type: ${requestType}`);
-    }
-
-    // Extract credential request options
-    const options: CredentialRequestOptions = {
-      allowUserInput: requestObj.allowUserInput ?? true,
-      mandatory: requestObj.mandatory ?? 'no',
+    parentRequestObj?: CredentialRequestObject,
+  ): CredentialRequestOptions {
+    return {
+      allowUserInput:
+        requestObj.allowUserInput ?? parentRequestObj?.allowUserInput ?? true,
+      mandatory: requestObj.mandatory ?? parentRequestObj?.mandatory ?? 'no',
       multi: requestObj.multi ?? false,
       description: requestObj.description,
     };
-
-    // If no valid credentials found, create empty form field
-    if (validCredentials.length === 0) {
-      return this.fieldBuilder.createFromSchema(
-        fieldSchema,
-        undefined,
-        options,
-      );
-    }
-
-    // Use first valid credential as primary
-    const primaryCredential = validCredentials[0];
-
-    // Handle children requests for composite fields
-    const childFields = this.createChildFields(requestObj, primaryCredential);
-
-    // Create variants from all valid credentials (including the first for UI selection)
-    let variants: FormField[] | undefined;
-    if (validCredentials.length > 1) {
-      variants = validCredentials.map((credential) => {
-        const variantChildFields = this.createChildFields(
-          requestObj,
-          credential,
-        );
-        return this.fieldBuilder.createFromCredential(
-          credential,
-          variantChildFields,
-          options,
-        );
-      });
-    }
-
-    return this.fieldBuilder.createFromCredential(
-      primaryCredential,
-      childFields,
-      options,
-      variants,
-    );
-  }
-
-  // Helper method to create child fields for composite credentials
-  private createChildFields(
-    requestObj: CredentialRequestObject,
-    credential: Credential,
-  ): Record<string, FormField> | undefined {
-    if (!requestObj.children) {
-      return undefined;
-    }
-
-    const childFields: Record<string, FormField> = {};
-
-    // For composite credentials, check if data is an array of child credentials
-    if (Array.isArray(credential.data)) {
-      for (const childRequest of requestObj.children) {
-        const childRequestType = childRequest.type;
-        const matchingChildCredential = credential.data.find(
-          (childCred: any) => childCred.type === childRequestType,
-        );
-
-        if (matchingChildCredential) {
-          // Extract child request options including description
-          const childOptions: CredentialRequestOptions = {
-            allowUserInput: childRequest.allowUserInput ?? true,
-            mandatory: childRequest.mandatory ?? 'no',
-            multi: childRequest.multi ?? false,
-            description: childRequest.description,
-          };
-
-          const childField = this.fieldBuilder.createFromCredential(
-            matchingChildCredential,
-            undefined,
-            childOptions,
-          );
-          // Use the field schema key as the object key
-          const fieldSchema =
-            fieldsFromCredentialTypes[
-              matchingChildCredential.type as keyof typeof fieldsFromCredentialTypes
-            ];
-          if (fieldSchema) {
-            childFields[fieldSchema.key] = childField;
-          }
-        } else {
-          // Create empty field for missing optional credentials
-          const fieldSchema =
-            fieldsFromCredentialTypes[
-              childRequestType as keyof typeof fieldsFromCredentialTypes
-            ];
-          if (fieldSchema) {
-            // Extract child request options including description
-            const childOptions: CredentialRequestOptions = {
-              allowUserInput: childRequest.allowUserInput ?? true,
-              mandatory: childRequest.mandatory ?? 'no',
-              multi: childRequest.multi ?? false,
-              description: childRequest.description,
-            };
-
-            const emptyField = this.fieldBuilder.createFromSchema(
-              fieldSchema,
-              undefined,
-              childOptions,
-            );
-            childFields[fieldSchema.key] = emptyField;
-          }
-        }
-      }
-    }
-
-    return Object.keys(childFields).length > 0 ? childFields : undefined;
   }
 }
