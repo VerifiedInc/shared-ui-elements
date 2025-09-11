@@ -48,7 +48,7 @@ export function FieldValue({ fieldKey }: { fieldKey: string }) {
         } as any
       }
     >
-      {field?.value || (!field?.isRequired ? '-' : null)}
+      {field?.displayValue || (!field?.isRequired ? '-' : null)}
     </Typography>
   );
 }

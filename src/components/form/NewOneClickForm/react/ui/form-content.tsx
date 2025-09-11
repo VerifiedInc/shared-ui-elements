@@ -69,7 +69,6 @@ export function OneClickFormContent({
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
         width: '100%',
-        maxWidth: 600,
         // Traverse the card image elements to apply flex to them.
         '& > div, & > div > div': {
           display: 'flex',

@@ -391,7 +391,7 @@ const mockCredentials = [
     expirationDate: null,
     issuerUuid: '2f842399-4220-434d-920d-8b41319cf5db',
     data: {
-      ssn: '•••-••-6788',
+      ssn: '000456789',
     },
   },
   {
@@ -585,6 +585,19 @@ const mockCredentials = [
     issuerUuid: 'issuer-sex-uuid',
     data: {
       sex: 'Male',
+    },
+  },
+  {
+    id: 'dob-id-1234',
+    uuid: 'dob-uuid-5678',
+    createdAt: '1738698702792',
+    updatedAt: '1738698702792',
+    type: 'BirthDateCredential',
+    issuanceDate: '1738698702792',
+    expirationDate: null,
+    issuerUuid: 'issuer-dob-uuid',
+    data: {
+      birthDate: '617976000000',
     },
   },
 ];
