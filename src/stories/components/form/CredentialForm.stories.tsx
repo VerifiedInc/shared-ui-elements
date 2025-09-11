@@ -1,290 +1,258 @@
-import React from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button, Stack } from '@mui/material';
+import { Button, Portal, Stack } from '@mui/material';
 
 import { type CredentialRequest } from '../../../components/form/NewOneClickForm/types';
 import { type Form } from '../../../components/form/NewOneClickForm/core/form/form';
 import {
   FormContextValue,
   NewOneClickForm,
-  useForm,
-  useFieldInput,
 } from '../../../components/form/NewOneClickForm/react';
 
-interface FormFieldProps {
-  fieldKey: string;
-}
+const Debugger = ({ form }: { form: FormContextValue }) => {
+  const [key, setKey] = useState(0);
 
-const FormField: React.FC<FormFieldProps> = ({ fieldKey }) => {
-  const field = useFieldInput({ key: fieldKey });
-
-  return (
-    <div style={{ marginBottom: '1rem' }}>
-      <label
-        htmlFor={fieldKey}
-        style={{
-          display: 'block',
-          marginBottom: '0.5rem',
-          fontWeight: 'bold',
-        }}
-      >
-        {field.field?.schema.characteristics.label}
-        {field.field?.isRequired && <span style={{ color: 'red' }}> *</span>}
-      </label>
-      <input
-        {...field.inputProps}
-        placeholder={
-          field.field?.schema?.characteristics &&
-          'placeholder' in field.field.schema.characteristics
-            ? field.field.schema.characteristics.placeholder
-            : ''
-        }
-        style={{
-          width: '100%',
-          padding: '0.5rem',
-          border: `1px solid ${field.isValid ? '#ccc' : '#ff0000'}`,
-          borderRadius: '4px',
-          fontSize: '1rem',
-        }}
-        disabled={!field.field?.allowUserInput}
-        readOnly={!field.field?.allowUserInput}
-      />
-      {!field.error && field.field?.description && (
-        <div
-          style={{
-            color: '#666',
-            fontSize: '0.875rem',
-            marginTop: '0.25rem',
-          }}
-        >
-          {field.field?.description}
-        </div>
-      )}
-      {field.error && field.isTouched && (
-        <div
-          style={{
-            color: '#ff0000',
-            fontSize: '0.875rem',
-            marginTop: '0.25rem',
-          }}
-        >
-          {field.error}
-        </div>
-      )}
-      <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
-        Valid: {field.isValid ? '✓' : '✗'} | Dirty: {field.isDirty ? '✓' : '✗'}{' '}
-        | Touched: {field.isTouched ? '✓' : '✗'}
-      </div>
-    </div>
-  );
-};
-
-const CredentialFormContent: React.FC = () => {
-  const { state, submitForm, resetForm, validateForm } = useForm();
-
-  // Logging for debug purposes
-  console.log(state.form.fields);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitForm();
-  };
-
-  const handleReset = () => {
-    resetForm();
-  };
-
-  const isFormValid = validateForm();
-  const isFormDirty =
-    Object.values(state.form?.fields ?? {}).some(
-      (field: any) => field.isDirty,
-    ) ?? false;
+  useEffect(() => {
+    setKey((prev) => prev + 1);
+  }, [form]);
 
   return (
-    <div
-      style={{
-        width: '100%',
-        maxWidth: '900px',
-        margin: '0 auto',
-        padding: '2rem',
-        display: 'flex',
-        gap: '2rem',
-      }}
+    <Portal
+      container={document.querySelector(
+        'div[data-testid="one-click-form-state-details"]',
+      )}
     >
-      <div style={{ width: 396 }}>
-        <h2 style={{ marginBottom: '2rem' }}>Credential Form</h2>
-
-        <form onSubmit={handleSubmit}>
-          {Object.entries(state.form?.fields ?? {}).map(
-            ([fieldKey, field]: [string, any]) => {
-              // Handle composite fields with children
-              if (
-                field.schema.characteristics.inputType === 'composite' &&
-                field.children
-              ) {
-                return (
-                  <div key={fieldKey} style={{ marginBottom: '1.5rem' }}>
-                    <h3
-                      style={{
-                        marginBottom: '1rem',
-                        fontSize: '1.1rem',
-                        fontWeight: '600',
-                      }}
-                    >
-                      {field.schema.characteristics.label}
-                    </h3>
-                    <div
-                      style={{
-                        paddingLeft: '1rem',
-                        borderLeft: '2px solid #e9ecef',
-                      }}
-                    >
-                      {Object.entries(field.children).map(([childKey]) => (
-                        <FormField
-                          key={childKey}
-                          fieldKey={`${fieldKey}.${childKey}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
-
-              // Handle regular fields
-              return <FormField key={fieldKey} fieldKey={fieldKey} />;
-            },
-          )}
-
-          <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-            <button
-              type='submit'
-              disabled={!isFormValid || state.isSubmitting}
-              style={{
-                backgroundColor: isFormValid ? '#007bff' : '#6c757d',
-                color: 'white',
-                border: 'none',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                cursor: isFormValid ? 'pointer' : 'not-allowed',
-                marginRight: '1rem',
-              }}
-            >
-              {state.isSubmitting ? 'Submitting...' : 'Submit'}
-            </button>
-
-            <button
-              type='button'
-              onClick={handleReset}
-              style={{
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                cursor: 'pointer',
-              }}
-            >
-              Reset
-            </button>
-          </div>
-        </form>
-      </div>
-
       <div
         style={{
           width: 300,
-          marginTop: '2rem',
           padding: '1rem',
           backgroundColor: '#f8f9fa',
           borderRadius: '4px',
         }}
       >
+        <h2>Form Debugger</h2>
         <h3>Form State</h3>
-        <p>Valid: {isFormValid ? '✓' : '✗'}</p>
-        <p>Dirty: {isFormDirty ? '✓' : '✗'}</p>
-        <p>Field Count: {Object.keys(state.form?.fields ?? {}).length}</p>
-        <p>Submitting: {state.isSubmitting ? '✓' : '✗'}</p>
-        <p>Submit Success: {state.isSubmitSuccess ? '✓' : '✗'}</p>
+        <p>Field Count: {Object.keys(form.state.form?.fields ?? {}).length}</p>
+        <p>Valid: {form.state.form.isValid ? '✅' : '❌'}</p>
+        <p>Dirty: {form.state.form.isDirty ? '✅' : '❌'}</p>
+        <p>Submitting: {form.state.isSubmitting ? '✅' : '❌'}</p>
+        <p>Submit Success: {form.state.isSubmitSuccess ? '✅' : '❌'}</p>
 
-        <details style={{ marginTop: '1rem' }}>
-          <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
-            Field Details
-          </summary>
-          <pre
-            style={{
-              fontSize: '0.75rem',
-              marginTop: '0.5rem',
-              overflow: 'hidden',
+        <h3>Field State</h3>
+        <Stack
+          sx={{
+            mt: 1,
+            '& *': {
               whiteSpace: 'pre-wrap',
-            }}
-          >
-            {JSON.stringify(
-              Object.entries(state.form?.fields ?? {}).reduce(
-                (acc, [fieldKey, field]) => {
-                  // Recursive function to extract field data including children
-                  const extractFieldData = (f: any): any => {
-                    const fieldData: any = {
-                      value: f.value,
-                      isValid: f.isValid,
-                      isDirty: f.isDirty,
-                      errors: f.errors,
-                    };
+              wordBreak: 'break-word',
+            },
+          }}
+        >
+          {Object.entries(form.state.form?.fields ?? {}).map(
+            ([fieldKey, field]) => {
+              // Recursive function to render field data including children
+              const renderFieldData = (
+                field: any,
+                depth = 0,
+              ): React.ReactNode => {
+                const indent = '  '.repeat(depth);
+                const hasChildren =
+                  field.children && Object.keys(field.children).length > 0;
 
-                    // If field has children, recursively extract their data
-                    if (f.children && Object.keys(f.children).length > 0) {
-                      fieldData.children = Object.entries(f.children).reduce(
-                        (childAcc, [childKey, childField]) => {
-                          childAcc[childKey] = extractFieldData(childField);
-                          return childAcc;
-                        },
-                        {} as Record<string, any>,
-                      );
-                    }
+                return (
+                  <div
+                    key={`field-${depth}`}
+                    style={{ marginLeft: `${depth * 1}rem` }}
+                  >
+                    <div
+                      style={{ fontSize: '0.75rem', fontFamily: 'monospace' }}
+                    >
+                      <div>
+                        <strong>defaultValue:</strong>{' '}
+                        {JSON.stringify(field.defaultValue)}
+                      </div>
+                      <div>
+                        <strong>value:</strong> {JSON.stringify(field.value)}
+                      </div>
+                      <div>
+                        <strong>isValid:</strong> {field.isValid ? '✅' : '❌'}
+                      </div>
+                      <div>
+                        <strong>isDirty:</strong> {field.isDirty ? '✅' : '❌'}
+                      </div>
+                      {field.errors && field.errors.length > 0 && (
+                        <div>
+                          <strong>errors:</strong>{' '}
+                          {JSON.stringify(field.errors)}
+                        </div>
+                      )}
+                      {field.type && (
+                        <div>
+                          <strong>type:</strong> {field.type}
+                        </div>
+                      )}
+                      {field.required !== undefined && (
+                        <div>
+                          <strong>required:</strong>{' '}
+                          {field.required ? '✅' : '❌'}
+                        </div>
+                      )}
+                      {field.disabled !== undefined && (
+                        <div>
+                          <strong>disabled:</strong>{' '}
+                          {field.disabled ? '✅' : '❌'}
+                        </div>
+                      )}
+                    </div>
 
-                    return fieldData;
-                  };
+                    {field.variants && (
+                      <details style={{ marginTop: '0.5rem' }}>
+                        <summary
+                          style={{
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                          Variants ({Object.keys(field.variants).length})
+                        </summary>
+                        <div style={{ marginTop: '0.5rem' }}>
+                          {Object.entries(field.variants).map(
+                            ([variantKey, variantField]) => (
+                              <details
+                                key={variantKey}
+                                style={{ marginBottom: '0.5rem' }}
+                              >
+                                <summary
+                                  style={{
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.75rem',
+                                  }}
+                                >
+                                  {variantKey}
+                                </summary>
+                                <div style={{ marginTop: '0.5rem' }}>
+                                  {renderFieldData(variantField, depth + 1)}
+                                </div>
+                              </details>
+                            ),
+                          )}
+                        </div>
+                      </details>
+                    )}
 
-                  acc[fieldKey] = extractFieldData(field);
-                  return acc;
-                },
-                {} as Record<string, any>,
-              ),
-              null,
-              2,
-            )}
-          </pre>
-        </details>
+                    {hasChildren && (
+                      <details style={{ marginTop: '0.5rem' }}>
+                        <summary
+                          style={{
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                          Children ({Object.keys(field.children).length})
+                        </summary>
+                        <div style={{ marginTop: '0.5rem' }}>
+                          {Object.entries(field.children).map(
+                            ([childKey, childField]) => (
+                              <details
+                                key={childKey}
+                                style={{ marginBottom: '0.5rem' }}
+                              >
+                                <summary
+                                  style={{
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.75rem',
+                                  }}
+                                >
+                                  {childKey}
+                                </summary>
+                                <div style={{ marginTop: '0.5rem' }}>
+                                  {renderFieldData(childField, depth + 1)}
+                                </div>
+                              </details>
+                            ),
+                          )}
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                );
+              };
+
+              const hasChildren =
+                field.children && Object.keys(field.children).length > 0;
+
+              return (
+                <details key={fieldKey} style={{ marginBottom: '0.5rem' }}>
+                  <summary
+                    style={{
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    {fieldKey}{' '}
+                    {hasChildren &&
+                      `(${Object.keys(field.children ?? {}).length} children)`}
+                  </summary>
+                  <div
+                    style={{
+                      fontSize: '0.75rem',
+                      marginTop: '0.5rem',
+                      backgroundColor: '#f5f5f5',
+                      padding: '0.5rem',
+                      borderRadius: '4px',
+                      fontFamily: 'monospace',
+                    }}
+                  >
+                    {renderFieldData(field)}
+                  </div>
+                </details>
+              );
+            },
+          )}
+        </Stack>
       </div>
-    </div>
+    </Portal>
   );
 };
 
 const FormFooter = ({ form }: { form: FormContextValue }) => {
   return (
-    <Button
-      type='submit'
-      variant='contained'
-      fullWidth
-      sx={{ mt: 2 }}
-      disabled={
-        !form.state.form.isValid ||
-        form.state.isSubmitting ||
-        form.state.isSubmitSuccess
-      }
-      color={form.state.isSubmitSuccess ? 'success' : 'primary'}
-    >
-      {form.state.isSubmitting
-        ? 'Submitting...'
-        : form.state.isSubmitSuccess
-          ? 'Success!'
-          : 'Submit'}
-    </Button>
+    <>
+      <Button
+        data-testid='one-click-form-submit-button'
+        type='submit'
+        variant='contained'
+        fullWidth
+        sx={{ mt: 2 }}
+        disabled={
+          !form.state.form.isValid ||
+          form.state.isSubmitting ||
+          form.state.isSubmitSuccess
+        }
+        color={form.state.isSubmitSuccess ? 'success' : 'primary'}
+      >
+        {form.state.isSubmitting
+          ? 'Submitting...'
+          : form.state.isSubmitSuccess
+            ? 'Success!'
+            : 'Submit'}
+      </Button>
+      <Debugger form={form} />
+    </>
   );
 };
 
 const CredentialForm: React.FC = () => {
+  const [stickyTop, setStickyTop] = useState(0);
+  const formRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initialTopRef = useRef<number>(0);
+
   const handleSubmit = async (form: Form) => {
     console.log('Form submitted with form instance:', form);
     console.log('Form validation state:', form.isValid);
@@ -293,25 +261,113 @@ const CredentialForm: React.FC = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
+  // Effect to make the form sticky for better readability in Storybook
+  useEffect(() => {
+    // Add scroll listener to multiple possible containers
+    const addScrollListeners = () => {
+      const containers = [
+        document.querySelector('#storybook-root'),
+        document.querySelector('body'),
+        document.documentElement,
+        window,
+      ];
+
+      containers.forEach((container, index) => {
+        if (container) {
+          container.addEventListener('scroll', handleScrollEvent, {
+            passive: true,
+          });
+        }
+      });
+    };
+
+    const removeScrollListeners = () => {
+      const containers = [
+        document.querySelector('#storybook-root'),
+        document.querySelector('body'),
+        document.documentElement,
+        window,
+      ];
+
+      containers.forEach((container) => {
+        if (container) {
+          container.removeEventListener('scroll', handleScrollEvent);
+        }
+      });
+    };
+
+    const handleScrollEvent = () => {
+      if (!formRef.current || !containerRef.current) return;
+
+      const scrollTop =
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0;
+
+      // Store initial position on first render
+      if (initialTopRef.current === 0) {
+        const formRect = formRef.current.getBoundingClientRect();
+        initialTopRef.current = formRect.top + scrollTop;
+      }
+
+      // Calculate how much we've scrolled past the initial form position
+      const scrollPastInitial = scrollTop - initialTopRef.current;
+
+      // When we've scrolled past the initial form position, make it sticky
+      if (scrollPastInitial >= 0) {
+        // The form should stick at the top of the viewport
+        setStickyTop(scrollPastInitial);
+      } else {
+        // Reset to normal position
+        setStickyTop(0);
+      }
+    };
+
+    addScrollListeners();
+    window.addEventListener('resize', handleScrollEvent, { passive: true });
+
+    handleScrollEvent();
+
+    return () => {
+      removeScrollListeners();
+      window.removeEventListener('resize', handleScrollEvent);
+    };
+  }, []);
+
   return (
-    <Stack width={362} flex={1}>
-      <NewOneClickForm
-        credentialRequests={mockCredentialRequests as CredentialRequest[]}
-        credentials={mockCredentials}
-        options={{
-          features: {
-            datePickerClickOutsideBoundaryElement: document.body,
-          },
-          servicePaths: {
-            googlePlacesAutocompletePlaces:
-              'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
-            googlePlacesGetPlace:
-              'http://localhost:3070/api/googleapis/places/GetPlace',
-          },
+    <Stack direction='row' width={680} flex={1} spacing={2} ref={containerRef}>
+      <Stack
+        ref={formRef}
+        width={362}
+        flex={1}
+        pt={1}
+        sx={{
+          alignSelf: 'flex-start',
+          position: 'relative',
+          top: stickyTop,
+          transition: 'top 0.1s ease-out',
         }}
-        onSubmit={handleSubmit}
-        FooterComponent={FormFooter}
-      />
+      >
+        <NewOneClickForm
+          credentialRequests={mockCredentialRequests as CredentialRequest[]}
+          credentials={mockCredentials}
+          options={{
+            features: {
+              datePickerClickOutsideBoundaryElement: document.body,
+            },
+            servicePaths: {
+              googlePlacesAutocompletePlaces:
+                'http://localhost:3070/api/googleapis/places/AutocompletePlaces',
+              googlePlacesGetPlace:
+                'http://localhost:3070/api/googleapis/places/GetPlace',
+            },
+          }}
+          onSubmit={handleSubmit}
+          FooterComponent={FormFooter}
+        />
+      </Stack>
+      <Stack width={300} data-testid='one-click-form-state-details' />
     </Stack>
   );
 };
@@ -702,7 +758,8 @@ const meta: Meta<typeof CredentialForm> = {
   tags: ['autodocs'],
 };
 
-export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export default meta;

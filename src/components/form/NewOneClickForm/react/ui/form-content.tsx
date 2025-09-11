@@ -48,10 +48,9 @@ export function OneClickFormContent({
 }: OneClickFormContentProps) {
   const context = useOneClickForm();
 
-  console.log(context.formContext.state.form.fields);
-
   return (
     <Stack
+      data-testid='one-click-form-wrapper'
       component='form'
       id='credentials-region'
       role='region'
@@ -77,6 +76,7 @@ export function OneClickFormContent({
       }}
     >
       <Box
+        data-testid='one-click-form-content'
         position='relative'
         display='flex'
         flexDirection='column'
