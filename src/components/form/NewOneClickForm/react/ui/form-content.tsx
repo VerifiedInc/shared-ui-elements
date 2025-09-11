@@ -48,8 +48,6 @@ export function OneClickFormContent({
 }: OneClickFormContentProps) {
   const context = useOneClickForm();
 
-  console.log(context.formContext.state.form.fields.address);
-
   return (
     <Stack
       data-testid='one-click-form-wrapper'
