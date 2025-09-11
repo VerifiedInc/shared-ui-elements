@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
 import { USDateSchema } from '../../../../../../../validations/date.schema';
+import { formatDateMMDDYYYY } from '../../../../../../../utils/date';
 
 import { DateInput } from '../../../../../../form';
 
@@ -17,7 +18,9 @@ import { ClearFieldAdornment } from './clear-field-adornment';
 export function DateInputField({ fieldKey }: { fieldKey: string }) {
   const { field, setValue } = useFormField({ key: fieldKey });
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [localValue, setLocalValue] = useState<string>(field?.value || '');
+  const [localValue, setLocalValue] = useState<string>(
+    field?.value ? formatDateMMDDYYYY(field?.value) : '',
+  );
 
   if (
     !field ||

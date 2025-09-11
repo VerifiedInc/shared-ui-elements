@@ -82,7 +82,11 @@ export function ReadonlyFields() {
   const { fields } = context.formContext.state.form;
 
   return (
-    <Stack spacing={2} sx={{ width: '100%' }}>
+    <Stack
+      spacing={2}
+      sx={{ width: '100%' }}
+      onClick={() => context.setEditMode(true)}
+    >
       {Object.entries(fields).map(([fieldKey, field]) => {
         // Phone credential should not be rendered
         if (field.schema.type === credentialTypes.PhoneCredential) return null;

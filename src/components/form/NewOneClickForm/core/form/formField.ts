@@ -217,6 +217,8 @@ export class FormField {
         const formattedValue = this.schema.format(compositeValue);
         return formattedValue ?? compositeValue;
       } else {
+        if (this.isEmpty) return null;
+
         // For non-composite fields, format the field's value
         const formattedValue = this.schema.format(this.value);
         return formattedValue ?? this.value;
