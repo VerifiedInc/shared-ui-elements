@@ -85,6 +85,8 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
     value: field?.id,
     helperText: field?.description,
     onChange: (e) => {
+      if (field?.isDisabled) return;
+
       // Prevent the event to propagate to the parent.
       e.stopPropagation();
       e.preventDefault();

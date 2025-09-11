@@ -8,6 +8,7 @@ import { useFormField } from '../../../core/field.hook';
 import { getAutoCompleteAttributeValue } from '../shared';
 
 import { FieldLabel } from './label';
+import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function SSNInputField({ fieldKey }: { fieldKey: string }) {
   const { field, setValue } = useFormField({ key: fieldKey });
@@ -32,8 +33,11 @@ export function SSNInputField({ fieldKey }: { fieldKey: string }) {
         onChange={handleChange}
         error={!field?.isValid}
         helperText={field?.description}
-        shouldHaveCloseAdornment={true}
+        shouldHaveCloseAdornment={false}
         disabled={field.isDisabled}
+        InputProps={{
+          endAdornment: <ClearFieldAdornment fieldKey={fieldKey} />,
+        }}
       />
     </Box>
   );

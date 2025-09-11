@@ -14,4 +14,8 @@ export class Form {
   get isDirty() {
     return Object.values(this.fields).some((field) => field.isDirty);
   }
+
+  get isDisabled() {
+    return Object.values(this.fields).every((field) => field.isDisabled);
+  }
 }

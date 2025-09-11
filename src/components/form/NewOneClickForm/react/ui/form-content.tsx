@@ -17,24 +17,26 @@ function RenderReadonlyMode() {
   return (
     <>
       <ReadonlyFields />
-      <Button
-        aria-controls='credentials-region'
-        variant='text'
-        size='small'
-        color='neutral'
-        startIcon={<Edit aria-hidden='true' />}
-        sx={{
-          position: 'absolute',
-          top: 4,
-          right: 0,
-          zIndex: 1,
-        }}
-        onClick={() => {
-          context.setEditMode(true);
-        }}
-      >
-        Edit
-      </Button>
+      {!context.formContext.state.form?.isDisabled && (
+        <Button
+          aria-controls='credentials-region'
+          variant='text'
+          size='small'
+          color='neutral'
+          startIcon={<Edit aria-hidden='true' />}
+          sx={{
+            position: 'absolute',
+            top: 4,
+            right: 0,
+            zIndex: 1,
+          }}
+          onClick={() => {
+            context.setEditMode(true);
+          }}
+        >
+          Edit
+        </Button>
+      )}
     </>
   );
 }

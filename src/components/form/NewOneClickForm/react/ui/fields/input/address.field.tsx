@@ -31,6 +31,7 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
           : (field.errorMessage ?? field?.description)
       }
       error={!!field.errors && !shouldIgnoreError}
+      disabled={field.isDisabled}
       defaultValue={{
         line1: field?.value?.line1,
         city: field?.value?.city,

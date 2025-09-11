@@ -707,7 +707,7 @@ const mockCredentials = [
 const mockCredentialRequests = [
   // 'FullNameCredential',
   {
-    allowUserInput: true,
+    allowUserInput: false,
     mandatory: 'if_available',
     multi: false,
     type: 'FullNameCredential',
@@ -728,14 +728,14 @@ const mockCredentialRequests = [
     ],
   },
   {
-    allowUserInput: true,
+    allowUserInput: false,
     mandatory: 'no',
     multi: false,
     type: 'PhoneCredential',
   },
   // 'AddressCredential',
   {
-    allowUserInput: true,
+    allowUserInput: false,
     mandatory: 'yes',
     multi: false,
     type: 'AddressCredential',
@@ -774,21 +774,21 @@ const mockCredentialRequests = [
     ],
   },
   {
-    allowUserInput: true,
+    allowUserInput: false,
     mandatory: 'yes',
     multi: false,
     type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',
   },
   {
-    allowUserInput: true,
+    allowUserInput: false,
     mandatory: 'yes',
     multi: false,
     type: 'SsnCredential',
     description: 'Your legal SSN',
   },
   {
-    allowUserInput: true,
+    allowUserInput: false,
     mandatory: 'yes',
     multi: false,
     type: 'SexCredential',

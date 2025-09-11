@@ -85,7 +85,10 @@ export function ReadonlyFields() {
     <Stack
       spacing={2}
       sx={{ width: '100%' }}
-      onClick={() => context.setEditMode(true)}
+      onClick={() => {
+        if (context.formContext.state.form?.isDisabled) return;
+        context.setEditMode(true);
+      }}
     >
       {Object.entries(fields).map(([fieldKey, field]) => {
         // Phone credential should not be rendered
