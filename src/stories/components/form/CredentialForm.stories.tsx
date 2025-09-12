@@ -426,17 +426,17 @@ const CredentialForm: React.FC = () => {
 // Mock credentials and requests data
 const mockCredentials = [
   {
-    uuid: '174714b4-b2d3-4369-a44d-b5f940d935ed',
-    type: 'fullName',
-    value: {
-      lastName: 'Hendricks',
-    },
-  },
-  {
     uuid: '174714b4-b2d3-4369-a44d-b5f940d935eb',
     type: 'fullName',
     value: {
       firstName: 'Richard',
+      lastName: 'Hendricks',
+    },
+  },
+  {
+    uuid: '174714b4-b2d3-4369-a44d-b5f940d935ed',
+    type: 'fullName',
+    value: {
       lastName: 'Hendricks',
     },
   },
@@ -491,7 +491,7 @@ const mockCredentialRequests = [
   // 'fullName',
   {
     allowUserInput: true,
-    mandatory: 'if_available',
+    mandatory: 'no',
     multi: false,
     type: 'fullName',
     children: [
@@ -503,13 +503,13 @@ const mockCredentialRequests = [
       // },
       {
         type: 'lastName',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Your last name',
         // allowUserInput: true,
       },
       {
         type: 'firstName',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Your first name',
         // allowUserInput: true,
       },
