@@ -718,6 +718,12 @@ const mockCredentialRequests = [
     type: 'FullNameCredential',
     children: [
       {
+        type: 'MiddleNameCredential',
+        mandatory: 'yes',
+        description: 'Your middle name',
+        // allowUserInput: true,
+      },
+      {
         type: 'LastNameCredential',
         mandatory: 'yes',
         description: 'Your last name',
@@ -729,7 +735,6 @@ const mockCredentialRequests = [
         description: 'Your first name',
         // allowUserInput: true,
       },
-      // { type: 'MiddleNameCredential', mandatory: 'yes', allowUserInput: false },
     ],
   },
   {

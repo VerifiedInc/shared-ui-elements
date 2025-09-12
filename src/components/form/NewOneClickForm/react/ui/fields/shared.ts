@@ -13,7 +13,6 @@ export const makeAttributes = (field: FormField | undefined) => ({
     field?.schema.characteristics.inputType === fieldInputTypes.composite
       ? `data-field-composite-${field?.schema.key}`
       : `data-field-atomic-${field?.schema.key}`,
-  'credential-id': field?.id,
 });
 
 /**

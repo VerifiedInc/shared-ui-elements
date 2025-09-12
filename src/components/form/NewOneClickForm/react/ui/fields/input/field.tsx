@@ -13,6 +13,7 @@ import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
 import { DateInputField } from './date.field';
+import { FormField } from '@/components/form/NewOneClickForm/core/form';
 
 function FieldRow({
   fieldKey,
@@ -33,9 +34,8 @@ function FieldRow({
 
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
-  const attributes = makeAttributes(field);
 
-  const renderField = () => {
+  const renderField = (fieldKey: string, field: FormField | undefined) => {
     if (
       field?.schema.characteristics.inputType === fieldInputTypes.text &&
       field?.schema.type === credentialTypes.SsnCredential
@@ -55,12 +55,24 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       return <TextInputField fieldKey={fieldKey} />;
     }
 
+    console.warn('Field not supported:', field?.schema.type);
+
     return null;
   };
 
   // If it's a composite field, render its children as individual fields
   if (field?.schema.characteristics.inputType === fieldInputTypes.composite) {
     if (!field?.children) return null;
+
+    if (field.schema.type === credentialTypes.FullNameCredential) {
+      return Object.keys(field.children).map((childKey) => (
+        <>
+          <FieldRow key={childKey} fieldKey={`${fieldKey}.${childKey}`}>
+            {renderField(`${fieldKey}.${childKey}`, field.children?.[childKey])}
+          </FieldRow>
+        </>
+      ));
+    }
 
     if (field.schema.type === credentialTypes.AddressCredential) {
       // Custom render for the address field
@@ -69,29 +81,21 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
           <FieldRow fieldKey={fieldKey}>
             <AddressInputField fieldKey={fieldKey} />
           </FieldRow>
-          <FieldRow fieldKey={fieldKey}>
+          <FieldRow fieldKey={`${fieldKey}.line2`}>
             <TextInputField fieldKey={`${fieldKey}.line2`} />
           </FieldRow>
         </>
       );
     }
 
-    // Render the children of the composite field if not custom render
-    return (
-      <Stack
-        component='section'
-        {...attributes}
-        spacing={2}
-        sx={{ width: '100%' }}
-      >
-        {Object.keys(field.children).map((childKey) => (
-          <FieldContainer key={childKey} fieldKey={`${fieldKey}.${childKey}`} />
-        ))}
-      </Stack>
-    );
+    console.warn('Composite field not supported:', field.schema.type);
+
+    return null;
   }
 
-  return <FieldRow fieldKey={fieldKey}>{renderField()}</FieldRow>;
+  return (
+    <FieldRow fieldKey={fieldKey}>{renderField(fieldKey, field)}</FieldRow>
+  );
 }
 
 export function EditFields() {
