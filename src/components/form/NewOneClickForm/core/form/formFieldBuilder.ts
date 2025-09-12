@@ -1,8 +1,10 @@
 import { cloneDeep } from 'lodash';
 
+import { type Credential, type CredentialRequestObject } from '../../types';
+
+import { type FieldValueDefinitions } from '../declarations';
 import { fieldInputTypes, fields } from '../fields';
 import type { BaseFieldDefinition } from '../fields';
-import { type Credential, type CredentialRequestObject } from '../../types';
 
 import { FormField } from './formField';
 
@@ -14,12 +16,14 @@ export interface CredentialRequestOptions {
 }
 
 export class FormFieldBuilder {
-  createFromCredential(
+  createFromCredential<
+    TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
+  >(
     credential: Credential,
-    children?: Record<string, FormField>,
+    children?: Record<string, FormField<TFieldKey>>,
     options?: CredentialRequestOptions,
-    variants?: FormField[],
-  ): FormField {
+    variants?: Array<FormField<TFieldKey>>,
+  ): FormField<TFieldKey> {
     const fieldSchema = fields[credential.type as keyof typeof fields];
 
     if (!fieldSchema) {
