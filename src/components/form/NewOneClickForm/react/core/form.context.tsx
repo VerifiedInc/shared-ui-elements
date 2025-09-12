@@ -186,7 +186,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
 
           // Only update parent value if it has any non-empty children
           parentField.value =
-            Object.keys(compositeValue).length > 0 ? compositeValue : undefined;
+            Object.keys(compositeValue).length > 0 ? compositeValue : {};
         }
 
         // Force re-render by creating new state object

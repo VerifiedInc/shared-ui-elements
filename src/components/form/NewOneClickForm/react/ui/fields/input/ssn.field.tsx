@@ -11,7 +11,7 @@ import { FieldLabel } from './label';
 import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function SSNInputField({ fieldKey }: { fieldKey: string }) {
-  const { field, setValue } = useFormField({ key: fieldKey });
+  const { field, setValue } = useFormField<'ssn'>({ key: fieldKey });
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   if (!field) return null;

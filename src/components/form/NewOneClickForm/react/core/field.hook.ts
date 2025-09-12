@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { FormField } from '../../core/form';
+import { type FieldValueDefinitions } from '../../core/declarations';
 
 import { useForm } from './form.context';
 import { fieldInputTypes } from '../../core/fields';
@@ -11,10 +12,12 @@ export interface UseFieldOptions {
   validateOnBlur?: boolean;
 }
 
-export interface UseFieldReturn {
-  field: FormField | undefined;
-  value: any;
-  setValue: (value: any) => void;
+export interface UseFieldReturn<
+  TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
+> {
+  field: FormField<TFieldKey> | undefined;
+  value: FieldValueDefinitions[TFieldKey];
+  setValue: (value: FieldValueDefinitions[TFieldKey]) => void;
   setChildValue: (childKey: string, value: any) => void;
   error: string | null;
   isDirty: boolean;
@@ -26,18 +29,20 @@ export interface UseFieldReturn {
   clear: (options?: { ignoreKeys?: string[] }) => void;
 }
 
-export const useField = ({
+export const useField = <
+  TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
+>({
   key,
   validateOnChange = true,
   validateOnBlur = true,
-}: UseFieldOptions): UseFieldReturn => {
+}: UseFieldOptions): UseFieldReturn<TFieldKey> => {
   const { updateFieldValue, setFieldTouched, getField, validateForm } =
     useForm();
 
-  const field = getField(key);
+  const field = getField(key) as FormField<TFieldKey> | undefined;
 
   const setValue = useCallback(
-    (value: any) => {
+    (value: FieldValueDefinitions[TFieldKey]) => {
       updateFieldValue(key, value);
       if (validateOnChange) {
         validateForm();
@@ -103,7 +108,7 @@ export const useField = ({
 
   return {
     field,
-    value: field?.value ?? '',
+    value: (field?.value ?? '') as FieldValueDefinitions[TFieldKey],
     setValue,
     setChildValue,
     error,
@@ -118,8 +123,12 @@ export const useField = ({
 };
 
 // Hook for creating input props
-export const useFieldInput = (fieldOptions: UseFieldOptions) => {
-  const field = useField(fieldOptions);
+export const useFieldInput = <
+  TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
+>(
+  fieldOptions: UseFieldOptions,
+) => {
+  const field = useField<TFieldKey>(fieldOptions);
 
   return {
     ...field,
@@ -129,7 +138,7 @@ export const useFieldInput = (fieldOptions: UseFieldOptions) => {
       onChange: (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
       ) => {
-        field.setValue(e.target.value);
+        field.setValue(e.target.value as FieldValueDefinitions[TFieldKey]);
       },
       onBlur: () => {
         field.setTouched(true);
@@ -140,8 +149,12 @@ export const useFieldInput = (fieldOptions: UseFieldOptions) => {
   };
 };
 
-export const useFormField = (options: UseFieldOptions) => {
-  const field = useFieldInput(options);
+export const useFormField = <
+  TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
+>(
+  options: UseFieldOptions,
+) => {
+  const field = useFieldInput<TFieldKey>(options);
   const {
     state: { isSubmitting, isSubmitSuccess },
   } = useForm();

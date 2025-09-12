@@ -11,7 +11,7 @@ import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function AddressInputField({ fieldKey }: { fieldKey: string }) {
   const { options } = useOneClickForm();
-  const { field, setChildValue } = useFormField({ key: fieldKey });
+  const { field, setChildValue } = useFormField<'address'>({ key: fieldKey });
 
   if (field?.schema.characteristics.inputType !== fieldInputTypes.composite) {
     return null;
@@ -37,7 +37,7 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
         city: field?.value?.city,
         state: field?.value?.state,
         zipCode: field?.value?.zipCode,
-        country: field?.value?.country,
+        country: field?.value?.country ?? 'US',
       }}
       onChange={(value) => {
         if (typeof value === 'string') return;

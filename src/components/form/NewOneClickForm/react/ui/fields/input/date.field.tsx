@@ -16,7 +16,7 @@ import { FieldLabel } from './label';
 import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function DateInputField({ fieldKey }: { fieldKey: string }) {
-  const { field, setValue } = useFormField({ key: fieldKey });
+  const { field, setValue } = useFormField<'birthDate'>({ key: fieldKey });
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [localValue, setLocalValue] = useState<string>(
     field?.value ? formatDateMMDDYYYY(field?.value) : '',

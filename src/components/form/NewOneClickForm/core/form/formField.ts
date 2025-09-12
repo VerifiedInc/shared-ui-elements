@@ -1,36 +1,41 @@
 import { z } from 'zod';
 import { cloneDeep } from 'lodash';
 
+import { type FieldValueDefinitions } from '../declarations';
 import { type BaseFieldDefinition } from '../fields';
 
-export interface FormFieldOptions {
+export interface FormFieldOptions<
+  TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
+> {
   children?: Record<string, FormField>;
   allowUserInput?: boolean;
   mandatory?: 'yes' | 'no' | 'if_available';
   multi?: boolean;
-  variants?: FormField[];
+  variants?: Array<FormField<TFieldKey>>;
   description?: string;
 }
 
-export class FormField {
+export class FormField<
+  TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
+> {
   id: string | undefined;
-  defaultValue: any;
-  value: any;
+  defaultValue: FieldValueDefinitions[TFieldKey];
+  value: FieldValueDefinitions[TFieldKey];
   schema: BaseFieldDefinition<string>;
   children?: Record<string, FormField>;
   touched: boolean;
   allowUserInput: boolean;
   mandatory: 'yes' | 'no' | 'if_available';
   multi: boolean;
-  variants?: FormField[];
+  variants?: Array<FormField<TFieldKey>>;
   description?: string;
 
   constructor(
     id: string | undefined,
-    defaultValue: any,
-    value: any,
+    defaultValue: FieldValueDefinitions[TFieldKey],
+    value: FieldValueDefinitions[TFieldKey],
     schema: BaseFieldDefinition<string>,
-    options: FormFieldOptions = {},
+    options: FormFieldOptions<TFieldKey> = {},
   ) {
     this.id = id;
     this.defaultValue = defaultValue;
@@ -314,7 +319,9 @@ export class FormField {
    * @param field - The FormField to clone
    * @returns A deep copy of the FormField
    */
-  private deepCloneFormField(field: FormField): FormField {
+  private deepCloneFormField<T extends keyof FieldValueDefinitions>(
+    field: FormField<T>,
+  ): FormField<T> {
     // Clone the field's value if it's an object
     const clonedValue =
       field.value && typeof field.value === 'object'
@@ -339,7 +346,7 @@ export class FormField {
     }
 
     // Create a new FormField instance with cloned data
-    return new FormField(
+    return new FormField<T>(
       field.id,
       clonedDefaultValue,
       clonedValue,
