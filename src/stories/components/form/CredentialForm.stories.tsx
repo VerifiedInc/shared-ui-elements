@@ -436,13 +436,6 @@ const mockCredentials = [
     },
   },
   {
-    uuid: '174714b4-b2d3-4369-a44d-b5f940d935ed',
-    type: 'fullName',
-    value: {
-      lastName: 'Hendricks',
-    },
-  },
-  {
     uuid: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
     type: 'ssn',
     value: {
