@@ -11,6 +11,10 @@ export class Form {
     return Object.values(this.fields).every((field) => field.isValid);
   }
 
+  get isEmpty() {
+    return Object.values(this.fields).every((field) => field.isEmpty);
+  }
+
   get isDirty() {
     return Object.values(this.fields).some((field) => field.isDirty);
   }

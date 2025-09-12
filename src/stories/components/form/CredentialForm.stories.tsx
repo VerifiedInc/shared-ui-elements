@@ -34,6 +34,7 @@ const Debugger = ({ form }: { form: FormContextValue }) => {
         <h3>Form State</h3>
         <p>Field Count: {Object.keys(form.state.form?.fields ?? {}).length}</p>
         <p>Valid: {form.state.form.isValid ? '✅' : '❌'}</p>
+        <p>Empty: {form.state.form.isEmpty ? '✅' : '❌'}</p>
         <p>Dirty: {form.state.form.isDirty ? '✅' : '❌'}</p>
         <p>Disabled: {form.state.form.isDisabled ? '✅' : '❌'}</p>
         <p>Submitting: {form.state.isSubmitting ? '✅' : '❌'}</p>
@@ -240,6 +241,7 @@ const FormFooter = ({ form }: { form: FormContextValue }) => {
         sx={{ mt: 2 }}
         disabled={
           !form.state.form.isValid ||
+          form.state.form.isEmpty ||
           form.state.isSubmitting ||
           form.state.isSubmitSuccess
         }
@@ -558,21 +560,21 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'birthDate',
     description: 'MM/DD/YYYY',
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'ssn',
     description: 'Your legal SSN',
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'sex',
     description: 'Your birth sex',
