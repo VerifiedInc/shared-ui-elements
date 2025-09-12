@@ -31,12 +31,35 @@ export class FormFieldBuilder {
 
     // Handle different credential value structures with the new format
     if (fieldSchema.characteristics.inputType === fieldInputTypes.composite) {
-      // For composite fields, use the credential's value directly
-      // The value should contain all the composite field data
-      defaultValue =
-        credential.value && Object.keys(credential.value).length > 0
-          ? credential.value
-          : undefined;
+      // TODO - check with Leo if the below approach is correct
+      // // For composite fields, use the credential's value directly
+      // // The value should contain all the composite field data
+      // defaultValue =
+      //   credential.value && Object.keys(credential.value).length > 0
+      //     ? credential.value
+      //     : undefined;
+
+      // TODO - check with Leo if the above approach is correct
+      // For composite fields, filter the credential's value to only include
+      // properties that correspond to the requested children
+      if (credential.value && Object.keys(credential.value).length > 0) {
+        if (children && Object.keys(children).length > 0) {
+          // Only include properties that have corresponding children fields
+          const filteredValue: Record<string, any> = {};
+          Object.keys(children).forEach((childKey) => {
+            if (childKey in credential.value) {
+              filteredValue[childKey] = credential.value[childKey];
+            }
+          });
+          defaultValue =
+            Object.keys(filteredValue).length > 0 ? filteredValue : undefined;
+        } else {
+          // If no children are specified, don't include any composite value
+          defaultValue = undefined;
+        }
+      } else {
+        defaultValue = undefined;
+      }
     } else {
       // For regular (non-composite) fields, extract the specific field value
       // The credential.value should contain the field data with the fieldKey

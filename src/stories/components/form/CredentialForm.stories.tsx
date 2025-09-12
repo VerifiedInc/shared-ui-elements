@@ -490,27 +490,27 @@ const mockCredentials = [
 ];
 
 const mockCredentialRequests = [
-  // 'fullName',
+  // 'FullNameCredential',
   {
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'fullName',
+    type: 'FullNameCredential',
     children: [
       // {
-      //   type: 'middleName',
+      //   type: 'MiddleNameCredential',
       //   mandatory: 'yes',
       //   description: 'Your middle name',
       //   // allowUserInput: true,
       // },
       {
-        type: 'lastName',
+        type: 'LastNameCredential',
         mandatory: 'no',
         description: 'Your last name',
         // allowUserInput: true,
       },
       {
-        type: 'firstName',
+        type: 'FirstNameCredential',
         mandatory: 'no',
         description: 'Your first name',
         // allowUserInput: true,
@@ -521,40 +521,36 @@ const mockCredentialRequests = [
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'phone',
+    type: 'PhoneCredential',
   },
-  // 'address',
+  // 'AddressCredential',
   {
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'address',
+    type: 'AddressCredential',
     description: 'Your address information',
     children: [
       {
-        type: 'line1',
+        type: 'Line1Credential',
         description: 'Street',
       },
       {
-        type: 'line2',
+        type: 'Line2Credential',
         mandatory: 'no',
         description: 'Apt, Unit, etc.',
       },
       {
-        type: 'city',
+        type: 'CityCredential',
         description: 'City',
       },
       {
-        type: 'state',
+        type: 'StateCredential',
         description: 'State',
       },
       {
-        type: 'country',
+        type: 'CountryCredential',
         description: 'Country',
-      },
-      {
-        type: 'zipCode',
-        description: 'Zip code',
       },
     ],
   },
@@ -562,21 +558,21 @@ const mockCredentialRequests = [
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'birthDate',
+    type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',
   },
   {
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'ssn',
+    type: 'SsnCredential',
     description: 'Your legal SSN',
   },
   {
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'sex',
+    type: 'SexCredential',
     description: 'Your birth sex',
   },
 ];

@@ -32,11 +32,12 @@ export class FormBuilder {
         requestObj = request;
       }
 
-      const requestType = requestObj.type as keyof typeof fields;
+      // Convert credential type (e.g., "FullNameCredential") to field key (e.g., "fullName")
+      const credentialType = this.normalizeCredentialType(requestObj.type);
 
       // Find matching credentials for this request (could be multiple for multi)
       const matchingCredentials = credentials.filter(
-        (cred) => cred.type === requestType,
+        (cred) => cred.type === credentialType,
       );
 
       // Find all credentials that meet the requirements
@@ -45,8 +46,12 @@ export class FormBuilder {
       );
 
       // Create field (either from credentials or empty)
-      const field = this.createField(requestObj, validCredentials, requestType);
-      const fieldSchema = fields[requestType];
+      const field = this.createField(
+        requestObj,
+        validCredentials,
+        credentialType,
+      );
+      const fieldSchema = fields[credentialType];
       if (fieldSchema) {
         formFields[fieldSchema.key] = field;
       }
@@ -118,8 +123,8 @@ export class FormBuilder {
     // For composite credentials, create child fields based on the credential's value object
     // The new structure has credential.value as an object with direct field values
     for (const childRequest of requestObj.children) {
-      const childRequestType = childRequest.type;
-      const fieldSchema = fields[childRequestType as keyof typeof fields];
+      const childRequestType = this.normalizeCredentialType(childRequest.type);
+      const fieldSchema = fields[childRequestType];
 
       if (!fieldSchema) {
         continue;
@@ -178,7 +183,11 @@ export class FormBuilder {
   private expandCredentialType(
     credentialType: string,
   ): CredentialRequestObject {
-    const fieldSchema = fields[credentialType as keyof typeof fields];
+    // Convert credential type (e.g., "FullNameCredential") to field key (e.g., "fullName")
+    const fieldKey = credentialType.replace(/Credential$/, '');
+    const requestType = (fieldKey.charAt(0).toLowerCase() +
+      fieldKey.slice(1)) as keyof typeof fields;
+    const fieldSchema = fields[requestType];
 
     if (!fieldSchema) {
       throw new Error(`Unknown credential type: ${credentialType}`);
@@ -231,8 +240,9 @@ export class FormBuilder {
 
     // Check if credential has all required children
     for (const childRequest of requestObj.children) {
-      const childRequestType =
-        typeof childRequest === 'string' ? childRequest : childRequest.type;
+      const childRequestType = this.normalizeCredentialType(
+        typeof childRequest === 'string' ? childRequest : childRequest.type,
+      );
       const childMandatory =
         typeof childRequest === 'string'
           ? 'no'
@@ -246,7 +256,7 @@ export class FormBuilder {
       let hasRequiredChild = false;
 
       // Check in credential's value object using the field schema key
-      const fieldSchema = fields[childRequestType as keyof typeof fields];
+      const fieldSchema = fields[childRequestType];
 
       if (fieldSchema && credential.value) {
         const fieldKey = fieldSchema.key;
@@ -278,5 +288,13 @@ export class FormBuilder {
       multi: requestObj.multi ?? false,
       description: requestObj.description,
     };
+  }
+
+  // Method to normalize credential type (e.g., "FullNameCredential" to "fullName")
+  private normalizeCredentialType(credentialType: string): keyof typeof fields {
+    const fieldKey = credentialType.replace(/Credential$/, '');
+    const requestType = (fieldKey.charAt(0).toLowerCase() +
+      fieldKey.slice(1)) as keyof typeof fields;
+    return requestType;
   }
 }
