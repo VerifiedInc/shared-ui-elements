@@ -29,7 +29,7 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
     return null;
   }
 
-  const isDob = field.schema.type === credentialKeys.BirthDateCredential;
+  const isDob = field.schema.key === credentialKeys.birthDate;
   const nowDate = new Date();
 
   // Min date boundaries (always 1900)
@@ -84,7 +84,7 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
         inputRef={inputRef}
         variant='outlined'
         size='small'
-        autoComplete={getAutoCompleteAttributeValue(field.schema.type)}
+        autoComplete={getAutoCompleteAttributeValue(field.schema.key)}
         label={<FieldLabel fieldKey={fieldKey} />}
         value={localValue}
         onChange={handleChange}

@@ -16,7 +16,7 @@ export interface SelectFieldCharacteristics {
 export interface CompositeFieldCharacteristics {
   inputType: 'composite';
   label: string;
-  defaultOrder: string[];
+  defaultOrder: readonly string[];
 }
 
 export interface DateFieldCharacteristics {
@@ -40,7 +40,6 @@ export interface BaseFieldDefinition<
   key: TKey;
   characteristics: TCharacteristics;
   zodSchema: z.ZodTypeAny;
-  children?: Record<string, BaseFieldDefinition<string>>;
   format?: (value: any) => string | null;
 }
 
@@ -52,7 +51,32 @@ export interface SelectFieldDefinition<TKey extends string>
   extends BaseFieldDefinition<TKey, SelectFieldCharacteristics> {}
 
 export interface CompositeFieldDefinition<TKey extends string>
-  extends BaseFieldDefinition<TKey, CompositeFieldCharacteristics> {}
+  extends BaseFieldDefinition<TKey, CompositeFieldCharacteristics> {
+  children: Record<string, BaseFieldDefinition<string>>;
+}
 
 export interface DateFieldDefinition<TKey extends string>
   extends BaseFieldDefinition<TKey, DateFieldCharacteristics> {}
+
+// Utility type to extract primitive field value types
+export type ExtractedFieldValueType<T> = T extends {
+  characteristics: { inputType: 'composite' };
+  children: infer C;
+}
+  ? C extends Record<string, any>
+    ? {
+        [K in keyof C]?: ExtractPrimitiveType<C[K]>;
+      }
+    : never
+  : ExtractPrimitiveType<T>;
+
+// Helper type to extract primitive types from field definitions
+type ExtractPrimitiveType<T> = T extends {
+  characteristics: { inputType: 'text' };
+}
+  ? string
+  : T extends { characteristics: { inputType: 'select' } }
+    ? string
+    : T extends { characteristics: { inputType: 'date' } }
+      ? string
+      : never;

@@ -17,23 +17,23 @@ export const makeAttributes = (field: FormField | undefined) => ({
 
 /**
  * Returns the autocomplete attribute value based on the type of the field.
- * @param type The type of the field.
+ * @param key The type of the field.
  * @returns The autocomplete attribute value.
  */
-export function getAutoCompleteAttributeValue(type: string) {
-  if (type === credentialKeys.firstName) {
+export function getAutoCompleteAttributeValue(key: string) {
+  if (key === credentialKeys.firstName) {
     return 'given-name';
   }
-  if (type === credentialKeys.lastName) {
+  if (key === credentialKeys.lastName) {
     return 'family-name';
   }
-  if (type === credentialKeys.phone) {
+  if (key === credentialKeys.phone) {
     return 'tel';
   }
-  if (type === credentialKeys.address) {
+  if (key === credentialKeys.address) {
     return 'street-address address-level2 address-level1 postal-code';
   }
-  if (type === credentialKeys.line2) {
+  if (key === credentialKeys.line2) {
     return 'address-line2';
   }
   return 'off';

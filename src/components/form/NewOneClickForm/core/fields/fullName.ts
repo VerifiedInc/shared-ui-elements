@@ -5,49 +5,53 @@ import {
   middleSchema,
 } from '../validations';
 
-import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
+import type {
+  TextFieldDefinition,
+  CompositeFieldDefinition,
+  ExtractedFieldValueType,
+} from './types';
 
 const fullNameKey = 'fullName';
 const firstNameKey = 'firstName';
 const lastNameKey = 'lastName';
 const middleNameKey = 'middleName';
 
-export const firstName: TextFieldDefinition<typeof firstNameKey> = {
+export const firstName = {
   key: firstNameKey,
   characteristics: {
-    inputType: 'text',
+    inputType: 'text' as const,
     label: 'First Name',
     placeholder: 'John',
   },
   zodSchema: firstSchema,
 };
 
-export const lastName: TextFieldDefinition<typeof lastNameKey> = {
+export const lastName = {
   key: lastNameKey,
   characteristics: {
-    inputType: 'text',
+    inputType: 'text' as const,
     label: 'Last Name',
     placeholder: 'Doe',
   },
   zodSchema: lastSchema,
 };
 
-export const middleName: TextFieldDefinition<typeof middleNameKey> = {
+export const middleName = {
   key: middleNameKey,
   characteristics: {
-    inputType: 'text',
+    inputType: 'text' as const,
     label: 'Middle Name',
     placeholder: 'William',
   },
   zodSchema: middleSchema,
 };
 
-export const fullName: CompositeFieldDefinition<typeof fullNameKey> = {
+export const fullName = {
   key: fullNameKey,
   characteristics: {
-    inputType: 'composite',
+    inputType: 'composite' as const,
     label: 'Full Name',
-    defaultOrder: [firstNameKey, middleNameKey, lastNameKey],
+    defaultOrder: [firstNameKey, middleNameKey, lastNameKey] as const,
   },
   children: {
     firstName,
@@ -63,5 +67,9 @@ declare module '../declarations' {
     firstName: TextFieldDefinition<typeof firstNameKey>;
     lastName: TextFieldDefinition<typeof lastNameKey>;
     middleName: TextFieldDefinition<typeof middleNameKey>;
+  }
+
+  interface FieldValueDefinitions {
+    fullName: ExtractedFieldValueType<typeof fullName>;
   }
 }

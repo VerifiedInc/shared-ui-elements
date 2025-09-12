@@ -1,12 +1,12 @@
 import { phoneSchema } from '../validations';
-import type { TextFieldDefinition } from './types';
+import type { TextFieldDefinition, ExtractedFieldValueType } from './types';
 
 const phoneKey = 'phone';
 
-export const phone: TextFieldDefinition<typeof phoneKey> = {
+export const phone = {
   key: phoneKey,
   characteristics: {
-    inputType: 'text',
+    inputType: 'text' as const,
     label: 'Phone Number',
     placeholder: '(555) 123-4567',
   },
@@ -16,5 +16,9 @@ export const phone: TextFieldDefinition<typeof phoneKey> = {
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
     phone: TextFieldDefinition<typeof phoneKey>;
+  }
+
+  interface FieldValueDefinitions {
+    phone: ExtractedFieldValueType<typeof phone>;
   }
 }

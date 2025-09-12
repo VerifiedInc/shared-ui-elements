@@ -18,7 +18,7 @@ export function TextInputField({ fieldKey }: { fieldKey: string }) {
     inputRef,
     variant: 'outlined',
     size: 'small',
-    autoComplete: getAutoCompleteAttributeValue(field.schema.type),
+    autoComplete: getAutoCompleteAttributeValue(field.schema.key),
     label: <FieldLabel fieldKey={fieldKey} />,
     value: field.value || '',
     onChange: (e) => {

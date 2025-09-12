@@ -1,11 +1,11 @@
 import { ssnSchema } from '../validations';
 import { ssnFormat } from '../formats';
 
-import type { TextFieldDefinition } from './types';
+import type { TextFieldDefinition, ExtractedFieldValueType } from './types';
 
 const ssnKey = 'ssn';
 
-export const ssn: TextFieldDefinition<typeof ssnKey> = {
+export const ssn = {
   key: ssnKey,
   characteristics: {
     inputType: 'text' as const,
@@ -19,5 +19,9 @@ export const ssn: TextFieldDefinition<typeof ssnKey> = {
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
     ssn: TextFieldDefinition<typeof ssnKey>;
+  }
+
+  interface FieldValueDefinitions {
+    ssn: ExtractedFieldValueType<typeof ssn>;
   }
 }

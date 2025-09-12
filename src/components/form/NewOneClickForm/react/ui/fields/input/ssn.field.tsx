@@ -27,7 +27,7 @@ export function SSNInputField({ fieldKey }: { fieldKey: string }) {
         inputRef={inputRef}
         variant='outlined'
         size='small'
-        autoComplete={getAutoCompleteAttributeValue(field.schema.type)}
+        autoComplete={getAutoCompleteAttributeValue(field.schema.key)}
         label={<FieldLabel fieldKey={fieldKey} />}
         value={field.value || ''}
         onChange={handleChange}

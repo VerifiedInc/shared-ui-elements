@@ -13,12 +13,10 @@ import { phone } from './phone';
 import { sex } from './sex';
 import { birthDate } from './birthDate';
 
-import type { FieldSchemaDefinitions } from '../declarations';
-
 export * from './constants';
 export type * from './types';
 
-export const fields: FieldSchemaDefinitions = {
+export const fields = {
   fullName,
   firstName,
   lastName,

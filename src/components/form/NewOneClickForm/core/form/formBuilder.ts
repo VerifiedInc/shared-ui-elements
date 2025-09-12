@@ -1,4 +1,4 @@
-import { fields } from '../fields';
+import { fieldInputTypes, fields } from '../fields';
 
 import type {
   CredentialRequest,
@@ -202,8 +202,8 @@ export class FormBuilder {
 
     // If it's a composite field, recursively expand children using defaultOrder
     if (
-      fieldSchema.characteristics.inputType === 'composite' &&
-      fieldSchema.children &&
+      fieldSchema.characteristics.inputType === fieldInputTypes.composite &&
+      'children' in fieldSchema &&
       'defaultOrder' in fieldSchema.characteristics &&
       fieldSchema.characteristics.defaultOrder
     ) {
@@ -211,7 +211,7 @@ export class FormBuilder {
 
       // Use defaultOrder to determine which children to include and their sequence
       for (const childKey of fieldSchema.characteristics.defaultOrder) {
-        const childField = fieldSchema.children[childKey];
+        const childField = (fieldSchema.children as any)?.[childKey];
         if (childField) {
           // Recursively expand each child credential type
           const expandedChild = this.expandCredentialType(childField.key);
