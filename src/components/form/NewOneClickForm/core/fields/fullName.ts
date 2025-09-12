@@ -1,6 +1,9 @@
-import { z } from 'zod';
-
-import { firstSchema, lastSchema, middleSchema } from '../validations';
+import {
+  firstSchema,
+  fullNameSchema,
+  lastSchema,
+  middleSchema,
+} from '../validations';
 
 import type { TextFieldDefinition, CompositeFieldDefinition } from './types';
 
@@ -51,11 +54,7 @@ export const fullName: CompositeFieldDefinition<typeof fullNameKey> = {
     lastName,
     middleName,
   },
-  zodSchema: z.object({
-    firstName: firstSchema,
-    lastName: lastSchema,
-    middleName: middleSchema,
-  }),
+  zodSchema: fullNameSchema,
 };
 
 declare module '../declarations' {
