@@ -1,6 +1,7 @@
 import { Stack } from '@mui/material';
 
-import { credentialTypes, fieldInputTypes } from '../../../../core/fields';
+import { credentialKeys, fieldInputTypes } from '../../../../core/fields';
+import { FormField } from '../../../../core/form';
 
 import { useFormField } from '../../../core/field.hook';
 
@@ -13,7 +14,6 @@ import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
 import { DateInputField } from './date.field';
-import { FormField } from '@/components/form/NewOneClickForm/core/form';
 
 function FieldRow({
   fieldKey,
@@ -38,7 +38,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const renderField = (fieldKey: string, field: FormField | undefined) => {
     if (
       field?.schema.characteristics.inputType === fieldInputTypes.text &&
-      field?.schema.type === credentialTypes.SsnCredential
+      field?.schema.key === credentialKeys.ssn
     ) {
       return <SSNInputField fieldKey={fieldKey} />;
     }
@@ -55,7 +55,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       return <TextInputField fieldKey={fieldKey} />;
     }
 
-    console.warn('Field not supported:', field?.schema.type);
+    console.warn('Field not supported:', field?.schema.key);
 
     return null;
   };
@@ -64,17 +64,15 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
   if (field?.schema.characteristics.inputType === fieldInputTypes.composite) {
     if (!field?.children) return null;
 
-    if (field.schema.type === credentialTypes.FullNameCredential) {
+    if (field.schema.key === credentialKeys.fullName) {
       return Object.keys(field.children).map((childKey) => (
-        <>
-          <FieldRow key={childKey} fieldKey={`${fieldKey}.${childKey}`}>
-            {renderField(`${fieldKey}.${childKey}`, field.children?.[childKey])}
-          </FieldRow>
-        </>
+        <FieldRow key={childKey} fieldKey={`${fieldKey}.${childKey}`}>
+          {renderField(`${fieldKey}.${childKey}`, field.children?.[childKey])}
+        </FieldRow>
       ));
     }
 
-    if (field.schema.type === credentialTypes.AddressCredential) {
+    if (field.schema.key === credentialKeys.address) {
       // Custom render for the address field
       return (
         <>
@@ -88,7 +86,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       );
     }
 
-    console.warn('Composite field not supported:', field.schema.type);
+    console.warn('Composite field not supported:', field.schema.key);
 
     return null;
   }
@@ -106,7 +104,7 @@ export function EditFields() {
     <Stack spacing={2} sx={{ width: '100%' }}>
       {Object.entries(fields).map(([fieldKey, field]) => {
         // We don't want to render the phone field in edit mode
-        if (field.schema.type === credentialTypes.PhoneCredential) return null;
+        if (field.schema.key === credentialKeys.phone) return null;
         return <FieldContainer key={fieldKey} fieldKey={fieldKey} />;
       })}
     </Stack>

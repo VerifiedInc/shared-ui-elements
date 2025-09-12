@@ -1,6 +1,6 @@
 import { Box, Stack } from '@mui/material';
 
-import { credentialTypes, fieldInputTypes } from '../../../../core/fields';
+import { credentialKeys, fieldInputTypes } from '../../../../core/fields';
 
 import { useFormField } from '../../../core/field.hook';
 
@@ -42,7 +42,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
     field.children
   ) {
     // Custom render for the address field
-    if (field.schema.type === credentialTypes.AddressCredential) {
+    if (field.schema.key === credentialKeys.address) {
       return (
         <FieldRow fieldKey={fieldKey}>
           <MultiField fieldKey={fieldKey} />
@@ -92,7 +92,7 @@ export function ReadonlyFields() {
     >
       {Object.entries(fields).map(([fieldKey, field]) => {
         // Phone credential should not be rendered
-        if (field.schema.type === credentialTypes.PhoneCredential) return null;
+        if (field.schema.key === credentialKeys.phone) return null;
         return <FieldContainer key={fieldKey} fieldKey={fieldKey} />;
       })}
     </Stack>

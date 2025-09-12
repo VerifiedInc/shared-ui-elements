@@ -9,11 +9,7 @@ const firstNameKey = 'firstName';
 const lastNameKey = 'lastName';
 const middleNameKey = 'middleName';
 
-export const firstName: TextFieldDefinition<
-  typeof firstNameKey,
-  'FirstNameCredential'
-> = {
-  type: 'FirstNameCredential',
+export const firstName: TextFieldDefinition<typeof firstNameKey> = {
   key: firstNameKey,
   characteristics: {
     inputType: 'text',
@@ -23,11 +19,7 @@ export const firstName: TextFieldDefinition<
   zodSchema: firstSchema,
 };
 
-export const lastName: TextFieldDefinition<
-  typeof lastNameKey,
-  'LastNameCredential'
-> = {
-  type: 'LastNameCredential',
+export const lastName: TextFieldDefinition<typeof lastNameKey> = {
   key: lastNameKey,
   characteristics: {
     inputType: 'text',
@@ -37,11 +29,7 @@ export const lastName: TextFieldDefinition<
   zodSchema: lastSchema,
 };
 
-export const middleName: TextFieldDefinition<
-  typeof middleNameKey,
-  'MiddleNameCredential'
-> = {
-  type: 'MiddleNameCredential',
+export const middleName: TextFieldDefinition<typeof middleNameKey> = {
   key: middleNameKey,
   characteristics: {
     inputType: 'text',
@@ -51,11 +39,7 @@ export const middleName: TextFieldDefinition<
   zodSchema: middleSchema,
 };
 
-export const fullName: CompositeFieldDefinition<
-  typeof fullNameKey,
-  'FullNameCredential'
-> = {
-  type: 'FullNameCredential',
+export const fullName: CompositeFieldDefinition<typeof fullNameKey> = {
   key: fullNameKey,
   characteristics: {
     inputType: 'composite',
@@ -76,15 +60,9 @@ export const fullName: CompositeFieldDefinition<
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    fullName: CompositeFieldDefinition<
-      typeof fullNameKey,
-      'FullNameCredential'
-    >;
-    firstName: TextFieldDefinition<typeof firstNameKey, 'FirstNameCredential'>;
-    lastName: TextFieldDefinition<typeof lastNameKey, 'LastNameCredential'>;
-    middleName: TextFieldDefinition<
-      typeof middleNameKey,
-      'MiddleNameCredential'
-    >;
+    fullName: CompositeFieldDefinition<typeof fullNameKey>;
+    firstName: TextFieldDefinition<typeof firstNameKey>;
+    lastName: TextFieldDefinition<typeof lastNameKey>;
+    middleName: TextFieldDefinition<typeof middleNameKey>;
   }
 }

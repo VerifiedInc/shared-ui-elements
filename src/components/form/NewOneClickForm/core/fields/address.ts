@@ -19,8 +19,7 @@ const stateKey = 'state';
 const countryKey = 'country';
 const zipCodeKey = 'zipCode';
 
-export const line1: TextFieldDefinition<typeof line1Key, 'Line1Credential'> = {
-  type: 'Line1Credential',
+export const line1: TextFieldDefinition<typeof line1Key> = {
   key: line1Key,
   characteristics: {
     inputType: 'text',
@@ -30,8 +29,7 @@ export const line1: TextFieldDefinition<typeof line1Key, 'Line1Credential'> = {
   zodSchema: line1Schema,
 };
 
-export const line2: TextFieldDefinition<typeof line2Key, 'Line2Credential'> = {
-  type: 'Line2Credential',
+export const line2: TextFieldDefinition<typeof line2Key> = {
   key: line2Key,
   characteristics: {
     inputType: 'text',
@@ -41,8 +39,7 @@ export const line2: TextFieldDefinition<typeof line2Key, 'Line2Credential'> = {
   zodSchema: line2Schema,
 };
 
-export const city: TextFieldDefinition<typeof cityKey, 'CityCredential'> = {
-  type: 'CityCredential',
+export const city: TextFieldDefinition<typeof cityKey> = {
   key: cityKey,
   characteristics: {
     inputType: 'text',
@@ -52,8 +49,7 @@ export const city: TextFieldDefinition<typeof cityKey, 'CityCredential'> = {
   zodSchema: citySchema,
 };
 
-export const state: TextFieldDefinition<typeof stateKey, 'StateCredential'> = {
-  type: 'StateCredential',
+export const state: TextFieldDefinition<typeof stateKey> = {
   key: stateKey,
   characteristics: {
     inputType: 'text',
@@ -63,11 +59,7 @@ export const state: TextFieldDefinition<typeof stateKey, 'StateCredential'> = {
   zodSchema: stateSchema,
 };
 
-export const country: TextFieldDefinition<
-  typeof countryKey,
-  'CountryCredential'
-> = {
-  type: 'CountryCredential',
+export const country: TextFieldDefinition<typeof countryKey> = {
   key: countryKey,
   characteristics: {
     inputType: 'text',
@@ -77,11 +69,7 @@ export const country: TextFieldDefinition<
   zodSchema: countrySchema,
 };
 
-export const zipCode: TextFieldDefinition<
-  typeof zipCodeKey,
-  'ZipCodeCredential'
-> = {
-  type: 'ZipCodeCredential',
+export const zipCode: TextFieldDefinition<typeof zipCodeKey> = {
   key: zipCodeKey,
   characteristics: {
     inputType: 'text',
@@ -91,11 +79,7 @@ export const zipCode: TextFieldDefinition<
   zodSchema: zipCodeSchema,
 };
 
-export const address: CompositeFieldDefinition<
-  typeof addressKey,
-  'AddressCredential'
-> = {
-  type: 'AddressCredential',
+export const address: CompositeFieldDefinition<typeof addressKey> = {
   key: addressKey,
   characteristics: {
     inputType: 'composite',
@@ -123,12 +107,12 @@ export const address: CompositeFieldDefinition<
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    address: CompositeFieldDefinition<typeof addressKey, 'AddressCredential'>;
-    line1: TextFieldDefinition<typeof line1Key, 'Line1Credential'>;
-    line2: TextFieldDefinition<typeof line2Key, 'Line2Credential'>;
-    city: TextFieldDefinition<typeof cityKey, 'CityCredential'>;
-    state: TextFieldDefinition<typeof stateKey, 'StateCredential'>;
-    country: TextFieldDefinition<typeof countryKey, 'CountryCredential'>;
-    zipCode: TextFieldDefinition<typeof zipCodeKey, 'ZipCodeCredential'>;
+    address: CompositeFieldDefinition<typeof addressKey>;
+    line1: TextFieldDefinition<typeof line1Key>;
+    line2: TextFieldDefinition<typeof line2Key>;
+    city: TextFieldDefinition<typeof cityKey>;
+    state: TextFieldDefinition<typeof stateKey>;
+    country: TextFieldDefinition<typeof countryKey>;
+    zipCode: TextFieldDefinition<typeof zipCodeKey>;
   }
 }

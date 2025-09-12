@@ -36,26 +36,8 @@ export const fields: FieldSchemaDefinitions = {
   birthDate,
 };
 
-export const fieldsFromCredentialTypes = {
-  FullNameCredential: fullName,
-  FirstNameCredential: firstName,
-  LastNameCredential: lastName,
-  MiddleNameCredential: middleName,
-  AddressCredential: address,
-  Line1Credential: line1,
-  Line2Credential: line2,
-  CityCredential: city,
-  StateCredential: state,
-  CountryCredential: country,
-  ZipCodeCredential: zipCode,
-  SsnCredential: ssn,
-  PhoneCredential: phone,
-  SexCredential: sex,
-  BirthDateCredential: birthDate,
-};
-
-export const credentialTypes = Object.fromEntries(
-  Object.keys(fieldsFromCredentialTypes).map((key) => [key, key]),
+export const credentialKeys = Object.fromEntries(
+  Object.keys(fields).map((key) => [key, key]),
 ) as {
-  [K in keyof typeof fieldsFromCredentialTypes]: K;
+  [K in keyof typeof fields]: K;
 };

@@ -1,4 +1,4 @@
-import { credentialTypes, fieldInputTypes } from '../../../core/fields';
+import { credentialKeys, fieldInputTypes } from '../../../core/fields';
 import { FormField } from '../../../core/form';
 
 /**
@@ -21,19 +21,19 @@ export const makeAttributes = (field: FormField | undefined) => ({
  * @returns The autocomplete attribute value.
  */
 export function getAutoCompleteAttributeValue(type: string) {
-  if (type === credentialTypes.FirstNameCredential) {
+  if (type === credentialKeys.firstName) {
     return 'given-name';
   }
-  if (type === credentialTypes.LastNameCredential) {
+  if (type === credentialKeys.lastName) {
     return 'family-name';
   }
-  if (type === credentialTypes.PhoneCredential) {
+  if (type === credentialKeys.phone) {
     return 'tel';
   }
-  if (type === credentialTypes.AddressCredential) {
+  if (type === credentialKeys.address) {
     return 'street-address address-level2 address-level1 postal-code';
   }
-  if (type === credentialTypes.Line2Credential) {
+  if (type === credentialKeys.line2) {
     return 'address-line2';
   }
   return 'off';

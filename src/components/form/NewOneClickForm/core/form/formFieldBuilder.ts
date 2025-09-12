@@ -1,6 +1,9 @@
 import { cloneDeep } from 'lodash';
-import { fieldsFromCredentialTypes, type BaseFieldDefinition } from '../fields';
+
+import { fieldInputTypes, fields } from '../fields';
+import type { BaseFieldDefinition } from '../fields';
 import { type Credential, type CredentialRequestObject } from '../../types';
+
 import { FormField } from './formField';
 
 export interface CredentialRequestOptions {
@@ -17,10 +20,7 @@ export class FormFieldBuilder {
     options?: CredentialRequestOptions,
     variants?: FormField[],
   ): FormField {
-    const fieldSchema =
-      fieldsFromCredentialTypes[
-        credential.type as keyof typeof fieldsFromCredentialTypes
-      ];
+    const fieldSchema = fields[credential.type as keyof typeof fields];
 
     if (!fieldSchema) {
       throw new Error(`Invalid credential type: ${credential.type}`);
@@ -29,39 +29,22 @@ export class FormFieldBuilder {
     const fieldKey = fieldSchema.key;
     let defaultValue: any;
 
-    // Handle different credential data structures
-    if (fieldSchema.characteristics.inputType === 'composite') {
-      // For composite fields, construct value from children if they have values
-      if (children && Object.keys(children).length > 0) {
-        const compositeValue: Record<string, any> = {};
-        let hasValues = false;
-
-        Object.entries(children).forEach(([key, child]) => {
-          // Always include all child values in composite value
-          compositeValue[key] = child.value;
-          if (
-            child.value !== undefined &&
-            child.value !== null &&
-            child.value !== ''
-          ) {
-            hasValues = true;
-          }
-        });
-
-        defaultValue = hasValues ? compositeValue : undefined;
-      } else {
-        defaultValue = undefined;
-      }
-    } else if (Array.isArray(credential.data)) {
-      // For non-composite credentials with array data (shouldn't happen normally)
-      defaultValue = undefined;
+    // Handle different credential value structures with the new format
+    if (fieldSchema.characteristics.inputType === fieldInputTypes.composite) {
+      // For composite fields, use the credential's value directly
+      // The value should contain all the composite field data
+      defaultValue =
+        credential.value && Object.keys(credential.value).length > 0
+          ? credential.value
+          : undefined;
     } else {
-      // For regular credentials with object data
-      defaultValue = credential.data[fieldKey];
+      // For regular (non-composite) fields, extract the specific field value
+      // The credential.value should contain the field data with the fieldKey
+      defaultValue = credential.value?.[fieldKey];
     }
 
     return new FormField(
-      credential.id,
+      credential.uuid,
       defaultValue,
       defaultValue,
       fieldSchema,
@@ -78,10 +61,8 @@ export class FormFieldBuilder {
 
   createFromSchema(
     requestObj: CredentialRequestObject,
-    fieldSchema: BaseFieldDefinition<string, string>,
+    fieldSchema: BaseFieldDefinition<string>,
   ): FormField {
-    // Generate a UUID for fields without existing credentials
-    const uuid = crypto.randomUUID();
     let defaultValue: any;
     let finalChildren: Record<string, FormField> | undefined;
 
@@ -95,7 +76,7 @@ export class FormFieldBuilder {
 
     // For composite fields, create children from request specification
     if (
-      fieldSchema.characteristics.inputType === 'composite' &&
+      fieldSchema.characteristics.inputType === fieldInputTypes.composite &&
       requestObj.children
     ) {
       const childFields: Record<string, FormField> = {};
@@ -103,9 +84,7 @@ export class FormFieldBuilder {
       for (const childRequest of requestObj.children) {
         const childRequestType = childRequest.type;
         const childFieldSchema =
-          fieldsFromCredentialTypes[
-            childRequestType as keyof typeof fieldsFromCredentialTypes
-          ];
+          fields[childRequestType as keyof typeof fields];
 
         if (childFieldSchema) {
           // Recursively create child field from its request
@@ -122,7 +101,7 @@ export class FormFieldBuilder {
     }
 
     // Handle different field types for value construction
-    if (fieldSchema.characteristics.inputType === 'composite') {
+    if (fieldSchema.characteristics.inputType === fieldInputTypes.composite) {
       // For composite fields, construct default value from children if they exist
       if (finalChildren && Object.keys(finalChildren).length > 0) {
         const compositeValue: Record<string, any> = {};
@@ -147,7 +126,7 @@ export class FormFieldBuilder {
         ? cloneDeep(defaultValue)
         : defaultValue;
 
-    return new FormField(uuid, defaultValue, value, fieldSchema, {
+    return new FormField(undefined, defaultValue, value, fieldSchema, {
       children: finalChildren,
       allowUserInput: options.allowUserInput,
       mandatory: options.mandatory,

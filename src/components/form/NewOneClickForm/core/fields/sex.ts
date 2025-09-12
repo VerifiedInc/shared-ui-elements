@@ -3,8 +3,7 @@ import type { SelectFieldDefinition } from './types';
 
 const sexKey = 'sex';
 
-export const sex: SelectFieldDefinition<typeof sexKey, 'SexCredential'> = {
-  type: 'SexCredential',
+export const sex: SelectFieldDefinition<typeof sexKey> = {
   key: sexKey,
   characteristics: {
     inputType: 'select',
@@ -16,6 +15,6 @@ export const sex: SelectFieldDefinition<typeof sexKey, 'SexCredential'> = {
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    sex: SelectFieldDefinition<typeof sexKey, 'SexCredential'>;
+    sex: SelectFieldDefinition<typeof sexKey>;
   }
 }

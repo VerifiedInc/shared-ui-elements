@@ -3,8 +3,7 @@ import type { TextFieldDefinition } from './types';
 
 const phoneKey = 'phone';
 
-export const phone: TextFieldDefinition<typeof phoneKey, 'PhoneCredential'> = {
-  type: 'PhoneCredential',
+export const phone: TextFieldDefinition<typeof phoneKey> = {
   key: phoneKey,
   characteristics: {
     inputType: 'text',
@@ -16,6 +15,6 @@ export const phone: TextFieldDefinition<typeof phoneKey, 'PhoneCredential'> = {
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    phone: TextFieldDefinition<typeof phoneKey, 'PhoneCredential'>;
+    phone: TextFieldDefinition<typeof phoneKey>;
   }
 }

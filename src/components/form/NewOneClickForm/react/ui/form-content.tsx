@@ -14,6 +14,7 @@ type OneClickFormContentProps = {
 
 function RenderReadonlyMode() {
   const context = useOneClickForm();
+
   return (
     <>
       <ReadonlyFields />
@@ -49,6 +50,8 @@ export function OneClickFormContent({
   FooterComponent,
 }: OneClickFormContentProps) {
   const context = useOneClickForm();
+
+  console.log(context.formContext.state.form.fields);
 
   return (
     <Stack

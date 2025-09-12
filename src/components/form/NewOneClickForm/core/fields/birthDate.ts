@@ -5,11 +5,7 @@ import type { DateFieldDefinition } from './types';
 
 const birthDateKey = 'birthDate';
 
-export const birthDate: DateFieldDefinition<
-  typeof birthDateKey,
-  'BirthDateCredential'
-> = {
-  type: 'BirthDateCredential',
+export const birthDate: DateFieldDefinition<typeof birthDateKey> = {
   key: birthDateKey,
   characteristics: {
     inputType: 'date',
@@ -22,6 +18,6 @@ export const birthDate: DateFieldDefinition<
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    birthDate: DateFieldDefinition<typeof birthDateKey, 'BirthDateCredential'>;
+    birthDate: DateFieldDefinition<typeof birthDateKey>;
   }
 }

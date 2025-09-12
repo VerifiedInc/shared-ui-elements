@@ -5,8 +5,7 @@ import type { TextFieldDefinition } from './types';
 
 const ssnKey = 'ssn';
 
-export const ssn: TextFieldDefinition<typeof ssnKey, 'SsnCredential'> = {
-  type: 'SsnCredential',
+export const ssn: TextFieldDefinition<typeof ssnKey> = {
   key: ssnKey,
   characteristics: {
     inputType: 'text' as const,
@@ -19,6 +18,6 @@ export const ssn: TextFieldDefinition<typeof ssnKey, 'SsnCredential'> = {
 
 declare module '../declarations' {
   interface FieldSchemaDefinitions {
-    ssn: TextFieldDefinition<typeof ssnKey, 'SsnCredential'>;
+    ssn: TextFieldDefinition<typeof ssnKey>;
   }
 }

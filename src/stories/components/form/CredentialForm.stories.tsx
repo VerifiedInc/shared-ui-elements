@@ -429,7 +429,6 @@ const mockCredentials = [
     uuid: '174714b4-b2d3-4369-a44d-b5f940d935ed',
     type: 'fullName',
     value: {
-      firstName: 'Richard',
       lastName: 'Hendricks',
     },
   },
@@ -449,7 +448,7 @@ const mockCredentials = [
     },
   },
   {
-    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcdej',
+    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde1',
     type: 'address',
     value: {
       line1: '123 Main Street',
@@ -461,7 +460,7 @@ const mockCredentials = [
     },
   },
   {
-    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcdej',
+    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde2',
     type: 'address',
     value: {
       line1: '123 Main Street',
@@ -489,27 +488,27 @@ const mockCredentials = [
 ];
 
 const mockCredentialRequests = [
-  // 'FullNameCredential',
+  // 'fullName',
   {
     allowUserInput: true,
     mandatory: 'if_available',
     multi: false,
-    type: 'FullNameCredential',
+    type: 'fullName',
     children: [
       // {
-      //   type: 'MiddleNameCredential',
+      //   type: 'middleName',
       //   mandatory: 'yes',
       //   description: 'Your middle name',
       //   // allowUserInput: true,
       // },
       {
-        type: 'LastNameCredential',
+        type: 'lastName',
         mandatory: 'yes',
         description: 'Your last name',
         // allowUserInput: true,
       },
       {
-        type: 'FirstNameCredential',
+        type: 'firstName',
         mandatory: 'yes',
         description: 'Your first name',
         // allowUserInput: true,
@@ -520,44 +519,39 @@ const mockCredentialRequests = [
     allowUserInput: true,
     mandatory: 'no',
     multi: false,
-    type: 'PhoneCredential',
+    type: 'phone',
   },
-  // 'AddressCredential',
+  // 'address',
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
-    type: 'AddressCredential',
+    type: 'address',
     description: 'Your address information',
     children: [
       {
-        type: 'Line1Credential',
-        mandatory: 'yes',
+        type: 'line1',
         description: 'Street',
       },
       {
-        type: 'Line2Credential',
-        mandatory: 'yes',
+        type: 'line2',
+        mandatory: 'no',
         description: 'Apt, Unit, etc.',
       },
       {
-        type: 'CityCredential',
-        mandatory: 'yes',
+        type: 'city',
         description: 'City',
       },
       {
-        type: 'StateCredential',
-        mandatory: 'yes',
+        type: 'state',
         description: 'State',
       },
       {
-        type: 'CountryCredential',
-        mandatory: 'yes',
+        type: 'country',
         description: 'Country',
       },
       {
-        type: 'ZipCodeCredential',
-        mandatory: 'yes',
+        type: 'zipCode',
         description: 'Zip code',
       },
     ],
@@ -566,21 +560,21 @@ const mockCredentialRequests = [
     allowUserInput: true,
     mandatory: 'yes',
     multi: false,
-    type: 'BirthDateCredential',
+    type: 'birthDate',
     description: 'MM/DD/YYYY',
   },
   {
     allowUserInput: true,
     mandatory: 'yes',
     multi: false,
-    type: 'SsnCredential',
+    type: 'ssn',
     description: 'Your legal SSN',
   },
   {
     allowUserInput: true,
     mandatory: 'yes',
     multi: false,
-    type: 'SexCredential',
+    type: 'sex',
     description: 'Your birth sex',
   },
 ];

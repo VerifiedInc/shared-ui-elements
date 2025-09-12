@@ -36,43 +36,37 @@ export type FieldCharacteristics =
 // Base field definition contract
 export interface BaseFieldDefinition<
   TKey extends string,
-  TType extends string,
   TCharacteristics extends FieldCharacteristics = FieldCharacteristics,
 > {
-  type: TType;
   key: TKey;
   characteristics: TCharacteristics;
   zodSchema: z.ZodTypeAny;
-  children?: Record<string, BaseFieldDefinition<string, string>>;
+  children?: Record<string, BaseFieldDefinition<string>>;
   format?: (value: any) => string | null;
 }
 
 // Specific field contracts
-export interface TextFieldDefinition<TKey extends string, TType extends string>
-  extends BaseFieldDefinition<TKey, TType, TextFieldCharacteristics> {}
+export interface TextFieldDefinition<TKey extends string>
+  extends BaseFieldDefinition<TKey, TextFieldCharacteristics> {}
 
-export interface SelectFieldDefinition<
-  TKey extends string,
-  TType extends string,
-> extends BaseFieldDefinition<TKey, TType, SelectFieldCharacteristics> {}
+export interface SelectFieldDefinition<TKey extends string>
+  extends BaseFieldDefinition<TKey, SelectFieldCharacteristics> {}
 
-export interface CompositeFieldDefinition<
-  TKey extends string,
-  TType extends string,
-> extends BaseFieldDefinition<TKey, TType, CompositeFieldCharacteristics> {}
+export interface CompositeFieldDefinition<TKey extends string>
+  extends BaseFieldDefinition<TKey, CompositeFieldCharacteristics> {}
 
-export interface DateFieldDefinition<TKey extends string, TType extends string>
-  extends BaseFieldDefinition<TKey, TType, DateFieldCharacteristics> {}
+export interface DateFieldDefinition<TKey extends string>
+  extends BaseFieldDefinition<TKey, DateFieldCharacteristics> {}
 
 // Extract field keys for type safety
 export type FieldKey = keyof FieldSchemaDefinitions;
 
-// Extract credential types for type safety
-export type CredentialType = FieldSchemaDefinitions[FieldKey]['type'];
+// Extract credential types for type safety (now same as field keys)
+export type CredentialType = FieldSchemaDefinitions[FieldKey]['key'];
 
 // Helper type to get field definition by key
 export type GetFieldDefinition<K extends FieldKey> = FieldSchemaDefinitions[K];
 
-// Helper type to get credential type by field key
+// Helper type to get credential type by field key (now same as key)
 export type GetCredentialType<K extends FieldKey> =
-  FieldSchemaDefinitions[K]['type'];
+  FieldSchemaDefinitions[K]['key'];

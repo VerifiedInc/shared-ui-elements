@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { cloneDeep } from 'lodash';
+
 import { type BaseFieldDefinition } from '../fields';
 
 export interface FormFieldOptions {
@@ -12,10 +13,10 @@ export interface FormFieldOptions {
 }
 
 export class FormField {
-  id: string;
+  id: string | undefined;
   defaultValue: any;
   value: any;
-  schema: BaseFieldDefinition<string, string>;
+  schema: BaseFieldDefinition<string>;
   children?: Record<string, FormField>;
   touched: boolean;
   allowUserInput: boolean;
@@ -25,10 +26,10 @@ export class FormField {
   description?: string;
 
   constructor(
-    id: string,
+    id: string | undefined,
     defaultValue: any,
     value: any,
-    schema: BaseFieldDefinition<string, string>,
+    schema: BaseFieldDefinition<string>,
     options: FormFieldOptions = {},
   ) {
     this.id = id;

@@ -6,7 +6,7 @@ import { formatDateMMDDYYYY } from '../../../../../../../utils/date';
 
 import { DateInput } from '../../../../../../form';
 
-import { credentialTypes, fieldInputTypes } from '../../../../core/fields';
+import { credentialKeys, fieldInputTypes } from '../../../../core/fields';
 
 import { useFormField } from '../../../core/field.hook';
 
@@ -29,7 +29,7 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
     return null;
   }
 
-  const isDob = field.schema.type === credentialTypes.BirthDateCredential;
+  const isDob = field.schema.type === credentialKeys.BirthDateCredential;
   const nowDate = new Date();
 
   // Min date boundaries (always 1900)
