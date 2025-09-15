@@ -284,8 +284,6 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setSubmitSuccess(false);
 
     try {
-      console.log(state);
-
       if (onSubmit) {
         await onSubmit(state.form);
         setSubmitSuccess(true);
