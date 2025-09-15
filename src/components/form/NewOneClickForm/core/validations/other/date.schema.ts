@@ -19,6 +19,22 @@ export const validateTimestamp = (timestampString: string): boolean => {
     return false;
   }
 
+  // Ensure the timestamp represents exactly 12:00 PM (noon) UTC
+  const utcHours = date.getUTCHours();
+  const utcMinutes = date.getUTCMinutes();
+  const utcSeconds = date.getUTCSeconds();
+  const utcMilliseconds = date.getUTCMilliseconds();
+
+  // Only accept timestamps that represent exactly 12:00:00.000 UTC
+  if (
+    utcHours !== 12 ||
+    utcMinutes !== 0 ||
+    utcSeconds !== 0 ||
+    utcMilliseconds !== 0
+  ) {
+    return false;
+  }
+
   return true;
 };
 

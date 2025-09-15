@@ -6,8 +6,16 @@ import parsePhoneNumber, { isValidPhoneNumber } from 'libphonenumber-js';
  * @param internationalPhone
  */
 const validatePhone = (internationalPhone: string) => {
+  const pattern = /^\+[1-9]\d{1,14}$/;
+
+  if (!pattern.test(internationalPhone)) {
+    return false;
+  }
+
   const phoneMeta = parsePhoneNumber(internationalPhone);
-  return isValidPhoneNumber(internationalPhone) && !!phoneMeta?.country;
+  const isNorthAmerica =
+    phoneMeta?.country === 'CA' || phoneMeta?.country === 'US';
+  return isValidPhoneNumber(internationalPhone) && isNorthAmerica;
 };
 
 /**
