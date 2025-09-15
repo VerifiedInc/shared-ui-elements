@@ -4,6 +4,7 @@ import { Button, Portal, Stack } from '@mui/material';
 
 import { type CredentialRequest } from '../../../components/form/NewOneClickForm/types';
 import { type Form } from '../../../components/form/NewOneClickForm/core/form/form';
+import { toCreatePatchCredentials } from '../../../components/form/NewOneClickForm/core/mappers';
 import {
   FormContextValue,
   NewOneClickForm,
@@ -268,6 +269,8 @@ const CredentialForm: React.FC = () => {
     console.log('Form submitted with form instance:', form);
     console.log('Form validation state:', form.isValid);
     console.log('Form all fields:', form.fields);
+    console.log('Form to create/patch:', toCreatePatchCredentials(form));
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
