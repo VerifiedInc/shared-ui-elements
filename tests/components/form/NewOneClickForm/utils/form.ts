@@ -4,6 +4,7 @@ import type {
 } from '../../../../../src/components/form/NewOneClickForm/types';
 
 import { fields } from '../../../../../src/components/form/NewOneClickForm/core/fields';
+import { FormField } from '../../../../../src/components/form/NewOneClickForm/core/form';
 
 export const makeCredential = (
   options: Partial<Credential> & { type: string; value: Credential['value'] },
@@ -29,4 +30,31 @@ export const makeCredentialRequest = (
     multi: options.multi ?? false,
     description: options.description,
   };
+};
+
+/**
+ * Generic helper function to update form field values for testing.
+ * Updates child field values recursively to ensure proper validation
+ * since isValid checks against children for composite fields.
+ */
+export const updateFormFieldValues = (
+  field: FormField,
+  values: Record<string, any>,
+) => {
+  if (!field.children || !values) return;
+
+  Object.entries(values).forEach(([key, value]) => {
+    const childField = field.children?.[key];
+    if (!childField) return;
+
+    if (value !== undefined) {
+      if (typeof value === 'object' && value !== null && childField.children) {
+        // Recursively handle nested composite fields
+        updateFormFieldValues(childField, value);
+      } else {
+        // Update primitive field value
+        childField.value = value;
+      }
+    }
+  });
 };

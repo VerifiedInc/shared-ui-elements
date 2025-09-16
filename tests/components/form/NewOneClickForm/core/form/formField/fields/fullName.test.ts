@@ -6,7 +6,11 @@ import {
   FormField,
 } from '../../../../../../../../src/components/form/NewOneClickForm/core/form';
 
-import { makeCredential, makeCredentialRequest } from '../../../../utils/form';
+import {
+  makeCredential,
+  makeCredentialRequest,
+  updateFormFieldValues,
+} from '../../../../utils/form';
 
 describe('fullName', () => {
   let form: Form;
@@ -42,15 +46,19 @@ describe('fullName', () => {
   describe('isValid', () => {
     test('fullName is valid', () => {
       const field = form.fields.fullName as FormField<'fullName'>;
-      field.value.firstName = 'John';
-      field.value.lastName = 'Doe';
+      updateFormFieldValues(field, {
+        firstName: 'John',
+        lastName: 'Doe',
+      });
       expect(field.isValid).toBe(true);
     });
 
     test('fullName is invalid', () => {
       const field = form.fields.fullName as FormField<'fullName'>;
-      field.value.firstName = 'John';
-      field.value.lastName = '';
+      updateFormFieldValues(field, {
+        firstName: 'John',
+        lastName: '',
+      });
       expect(field.isValid).toBe(false);
     });
   });

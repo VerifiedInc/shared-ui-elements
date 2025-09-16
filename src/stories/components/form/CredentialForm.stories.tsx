@@ -502,7 +502,6 @@ const mockCredentials = [
 ];
 
 const mockCredentialRequests = [
-  // 'FullNameCredential',
   {
     allowUserInput: true,
     mandatory: 'no',
@@ -511,7 +510,7 @@ const mockCredentialRequests = [
     children: [
       // {
       //   type: 'MiddleNameCredential',
-      //   mandatory: 'yes',
+      //   mandatory: 'no',
       //   description: 'Your middle name',
       //   // allowUserInput: true,
       // },
@@ -617,19 +616,21 @@ const mockCredentialRequests = [
         mandatory: 'no',
         multi: false,
         type: 'IssuanceDateCredential',
+        description: 'MM/DD/YYYY',
       },
       {
         allowUserInput: true,
         mandatory: 'yes',
         multi: false,
         type: 'ExpirationDateCredential',
+        description: 'MM/DD/YYYY',
       },
       {
         allowUserInput: true,
-        mandatory: 'no',
+        mandatory: 'yes',
         multi: false,
         type: 'AddressCredential',
-        description: 'Your address information',
+        description: 'The address on the license',
         children: [
           {
             type: 'Line1Credential',

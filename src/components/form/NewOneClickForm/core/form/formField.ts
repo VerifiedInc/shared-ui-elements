@@ -192,15 +192,16 @@ export class FormField<
 
         const result = this.schema.zodSchema.safeParse(compositeValue);
         error = result.success ? null : result.error;
-
-        // Collect children errors for composite fields
-        Object.entries(this.children).forEach(([key, child]) => {
-          const childError = child.errors;
-          if (childError) {
-            childrenErrors[key] = childError;
-          }
-        });
       }
+
+      // Always collect children errors for composite fields (recursive)
+      // This ensures nested composite field errors are properly bubbled up
+      Object.entries(this.children).forEach(([key, child]) => {
+        const childError = child.errors;
+        if (childError) {
+          childrenErrors[key] = childError;
+        }
+      });
     } else {
       // For non-composite fields, validate the field's value
       // For optional empty fields, return null (no errors) immediately
