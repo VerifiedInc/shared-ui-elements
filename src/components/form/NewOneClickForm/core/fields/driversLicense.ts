@@ -1,3 +1,4 @@
+import { dateFormat, stateFormat } from '../formats';
 import { US_STATES } from '../shared/us-states';
 import {
   dateSchema,
@@ -26,7 +27,7 @@ export const documentNumber = {
   key: documentNumberKey,
   characteristics: {
     inputType: 'text' as const,
-    label: 'Document Number',
+    label: 'Number',
     placeholder: 'John',
   },
   zodSchema: documentNumberSchema,
@@ -36,38 +37,41 @@ export const issuanceState = {
   key: issuanceStateKey,
   characteristics: {
     inputType: 'select' as const,
-    label: 'Issuance State',
+    label: 'State',
     placeholder: 'NY',
     options: US_STATES,
   },
   zodSchema: stateSchema,
+  format: stateFormat,
 };
 
 export const issuanceDate = {
   key: issuanceDateKey,
   characteristics: {
     inputType: 'date' as const,
-    label: 'Issuance Date',
+    label: 'Issued',
     placeholder: '__/__/____',
   },
   zodSchema: dateSchema,
+  format: dateFormat,
 };
 
 export const expirationDate = {
   key: expirationDateKey,
   characteristics: {
     inputType: 'date' as const,
-    label: 'Expiration Date',
+    label: 'Expired',
     placeholder: '__/__/____',
   },
   zodSchema: dateSchema,
+  format: dateFormat,
 };
 
 export const driversLicense = {
   key: driversLicenseKey,
   characteristics: {
     inputType: 'composite' as const,
-    label: 'Drivers License',
+    label: "Driver's License",
     defaultOrder: [
       documentNumberKey,
       issuanceStateKey,

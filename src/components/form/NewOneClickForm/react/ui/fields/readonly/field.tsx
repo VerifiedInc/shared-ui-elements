@@ -1,4 +1,4 @@
-import { Box, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 
 import { credentialKeys, fieldInputTypes } from '../../../../core/fields';
 
@@ -6,35 +6,17 @@ import { useFormField } from '../../../core/field.hook';
 
 import { useOneClickForm } from '../../form.context';
 
-import { makeAttributes } from '../shared';
-
-import { FieldLabel } from './style';
+import {
+  FieldRow,
+  FieldRowContainer,
+  FieldSectionTitle,
+  FieldSectionContent,
+} from './style';
 import { MultiField } from './multi.field';
 import { SingleField } from './single.field';
 
-function FieldRow({
-  fieldKey,
-  children,
-}: {
-  fieldKey: string;
-  children: React.ReactNode;
-}) {
-  const { field } = useFormField({ key: fieldKey });
-  const attributes = makeAttributes(field);
-
-  return (
-    <Box component='section' {...attributes} style={{ width: '100%' }}>
-      <Stack direction='row' width='100%'>
-        <FieldLabel fieldKey={fieldKey} />
-        <Stack direction='column'>{children}</Stack>
-      </Stack>
-    </Box>
-  );
-}
-
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
-  const attributes = makeAttributes(field);
 
   // If it's a composite field, render its children as individual fields
   if (
@@ -50,18 +32,32 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       );
     }
 
+    if (field.schema.key === credentialKeys.fullName) {
+      return (
+        <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
+          {Object.keys(field.children).map((childKey) => (
+            <FieldContainer
+              key={childKey}
+              fieldKey={`${fieldKey}.${childKey}`}
+            />
+          ))}
+        </FieldRowContainer>
+      );
+    }
+
     // Render the children of the composite field
     return (
-      <Stack
-        component='section'
-        {...attributes}
-        spacing={2}
-        sx={{ width: '100%' }}
-      >
-        {Object.keys(field.children).map((childKey) => (
-          <FieldContainer key={childKey} fieldKey={`${fieldKey}.${childKey}`} />
-        ))}
-      </Stack>
+      <FieldRowContainer fieldKey={fieldKey}>
+        <FieldSectionTitle fieldKey={fieldKey} />
+        <FieldSectionContent>
+          {Object.keys(field.children).map((childKey) => (
+            <FieldContainer
+              key={childKey}
+              fieldKey={`${fieldKey}.${childKey}`}
+            />
+          ))}
+        </FieldSectionContent>
+      </FieldRowContainer>
     );
   }
 
@@ -83,7 +79,7 @@ export function ReadonlyFields() {
 
   return (
     <Stack
-      spacing={2}
+      spacing={1.25}
       sx={{ width: '100%' }}
       onClick={() => {
         if (context.formContext.state.form?.isDisabled) return;

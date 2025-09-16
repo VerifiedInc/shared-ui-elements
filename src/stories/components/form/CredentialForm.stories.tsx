@@ -597,35 +597,32 @@ const mockCredentialRequests = [
     mandatory: 'no',
     multi: false,
     type: 'DriversLicenseCredential',
-    description: 'Your drivers license information',
+    description: 'We are required by law to ask for a government ID',
     children: [
       {
         allowUserInput: true,
         mandatory: 'no',
         multi: false,
         type: 'DocumentNumberCredential',
-        description: 'Your document number',
+        description: 'Your driver’s license number',
       },
       {
         allowUserInput: true,
         mandatory: 'no',
         multi: false,
         type: 'IssuanceStateCredential',
-        description: 'Your issuance state',
       },
       {
         allowUserInput: true,
         mandatory: 'no',
         multi: false,
         type: 'IssuanceDateCredential',
-        description: 'Your issuance date',
       },
       {
         allowUserInput: true,
         mandatory: 'no',
         multi: false,
         type: 'ExpirationDateCredential',
-        description: 'Your expiration date',
       },
       {
         allowUserInput: true,

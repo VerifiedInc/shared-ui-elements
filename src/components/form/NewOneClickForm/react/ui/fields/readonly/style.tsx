@@ -1,8 +1,16 @@
-import { Stack, Typography } from '@mui/material';
+import { Stack, Typography, SxProps } from '@mui/material';
 
 import { useFormField } from '../../../core/field.hook';
 
-export function FieldLabel({ fieldKey }: { fieldKey: string }) {
+import { makeAttributes } from '../shared';
+
+export function FieldLabel({
+  fieldKey,
+  sx,
+}: {
+  fieldKey: string;
+  sx?: SxProps;
+}) {
   const { fieldProps } = useFormField({ key: fieldKey });
   return (
     <Stack
@@ -12,6 +20,7 @@ export function FieldLabel({ fieldKey }: { fieldKey: string }) {
         justifyContent: 'flex-start',
         width: 100,
         mt: 0.7,
+        ...sx,
       }}
     >
       <Typography
@@ -73,5 +82,76 @@ export function FieldDescription({ fieldKey }: { fieldKey: string }) {
     >
       {fieldProps.description}
     </Typography>
+  );
+}
+
+export function FieldRowContainer({
+  fieldKey,
+  children,
+  spacing,
+}: {
+  fieldKey: string;
+  children: React.ReactNode;
+  spacing?: number;
+}) {
+  const { field } = useFormField({ key: fieldKey });
+  const attributes = makeAttributes(field);
+
+  return (
+    <Stack
+      component='section'
+      {...attributes}
+      spacing={spacing}
+      style={{ width: '100%' }}
+    >
+      {children}
+    </Stack>
+  );
+}
+
+export function FieldRow({
+  fieldKey,
+  children,
+}: {
+  fieldKey: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <FieldRowContainer fieldKey={fieldKey}>
+      <Stack direction='row' width='100%'>
+        <FieldLabel fieldKey={fieldKey} />
+        <Stack direction='column'>{children}</Stack>
+      </Stack>
+    </FieldRowContainer>
+  );
+}
+
+export function FieldSectionTitle({ fieldKey }: { fieldKey: string }) {
+  return (
+    <Stack>
+      <FieldLabel fieldKey={fieldKey} sx={{ width: '100%' }} />
+      <FieldDescription fieldKey={fieldKey} />
+    </Stack>
+  );
+}
+
+export function FieldSectionContent({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Stack
+      spacing={1.25}
+      sx={{
+        pl: 2,
+        mt: 1,
+        borderLeftWidth: 1,
+        borderLeftColor: 'neutral.main',
+        borderLeftStyle: 'solid',
+      }}
+    >
+      {children}
+    </Stack>
   );
 }
