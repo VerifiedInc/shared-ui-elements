@@ -7,30 +7,17 @@ import { useFormField } from '../../../core/field.hook';
 
 import { useOneClickForm } from '../../form.context';
 
-import { makeAttributes } from '../shared';
+import {
+  FieldRowContainer,
+  FieldSectionContent,
+  FieldSectionTitle,
+} from '../style';
 
 import { AddressInputField } from './address.field';
 import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
 import { DateInputField } from './date.field';
-
-function FieldRow({
-  fieldKey,
-  children,
-}: {
-  fieldKey: string;
-  children: React.ReactNode;
-}) {
-  const { field } = useFormField({ key: fieldKey });
-  const attributes = makeAttributes(field);
-
-  return (
-    <Stack component='section' {...attributes} style={{ width: '100%' }}>
-      {children}
-    </Stack>
-  );
-}
 
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
@@ -66,9 +53,9 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
 
     if (field.schema.key === credentialKeys.fullName) {
       return Object.keys(field.children).map((childKey) => (
-        <FieldRow key={childKey} fieldKey={`${fieldKey}.${childKey}`}>
+        <FieldRowContainer key={childKey} fieldKey={`${fieldKey}.${childKey}`}>
           {renderField(`${fieldKey}.${childKey}`, field.children?.[childKey])}
-        </FieldRow>
+        </FieldRowContainer>
       ));
     }
 
@@ -76,23 +63,36 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       // Custom render for the address field
       return (
         <>
-          <FieldRow fieldKey={fieldKey}>
+          <FieldRowContainer fieldKey={fieldKey}>
             <AddressInputField fieldKey={fieldKey} />
-          </FieldRow>
-          <FieldRow fieldKey={`${fieldKey}.line2`}>
+          </FieldRowContainer>
+          <FieldRowContainer fieldKey={`${fieldKey}.line2`}>
             <TextInputField fieldKey={`${fieldKey}.line2`} />
-          </FieldRow>
+          </FieldRowContainer>
         </>
       );
     }
 
-    console.warn('Composite field not supported:', field.schema.key);
-
-    return null;
+    // Render the children of the composite field
+    return (
+      <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
+        <FieldSectionTitle fieldKey={fieldKey} />
+        <FieldSectionContent spacing={2} sx={{ pt: 1 }}>
+          {Object.keys(field.children).map((childKey) => (
+            <FieldContainer
+              key={childKey}
+              fieldKey={`${fieldKey}.${childKey}`}
+            />
+          ))}
+        </FieldSectionContent>
+      </FieldRowContainer>
+    );
   }
 
   return (
-    <FieldRow fieldKey={fieldKey}>{renderField(fieldKey, field)}</FieldRow>
+    <FieldRowContainer fieldKey={fieldKey}>
+      {renderField(fieldKey, field)}
+    </FieldRowContainer>
   );
 }
 

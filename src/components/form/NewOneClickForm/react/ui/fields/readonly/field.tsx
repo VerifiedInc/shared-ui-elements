@@ -11,7 +11,7 @@ import {
   FieldRowContainer,
   FieldSectionTitle,
   FieldSectionContent,
-} from './style';
+} from '../style';
 import { MultiField } from './multi.field';
 import { SingleField } from './single.field';
 
@@ -47,9 +47,9 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
 
     // Render the children of the composite field
     return (
-      <FieldRowContainer fieldKey={fieldKey}>
+      <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
         <FieldSectionTitle fieldKey={fieldKey} />
-        <FieldSectionContent>
+        <FieldSectionContent spacing={1.25}>
           {Object.keys(field.children).map((childKey) => (
             <FieldContainer
               key={childKey}

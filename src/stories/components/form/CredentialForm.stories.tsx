@@ -487,8 +487,8 @@ const mockCredentials = [
     value: {
       documentNumber: '123456789',
       issuanceState: 'NY',
-      issuanceDate: '617976000000',
-      expirationDate: '617976000000',
+      issuanceDate: '1754049600000',
+      expirationDate: '1765800000000',
       address: {
         line1: '123 Main Street',
         line2: 'Apt 1A',
@@ -620,7 +620,7 @@ const mockCredentialRequests = [
       },
       {
         allowUserInput: true,
-        mandatory: 'no',
+        mandatory: 'yes',
         multi: false,
         type: 'ExpirationDateCredential',
       },

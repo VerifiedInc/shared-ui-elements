@@ -1,8 +1,8 @@
 import { Stack, Typography, SxProps } from '@mui/material';
 
-import { useFormField } from '../../../core/field.hook';
+import { useFormField } from '../../core/field.hook';
 
-import { makeAttributes } from '../shared';
+import { makeAttributes } from './shared';
 
 export function FieldLabel({
   fieldKey,
@@ -129,7 +129,7 @@ export function FieldRow({
 export function FieldSectionTitle({ fieldKey }: { fieldKey: string }) {
   return (
     <Stack>
-      <FieldLabel fieldKey={fieldKey} sx={{ width: '100%' }} />
+      <FieldLabel fieldKey={fieldKey} sx={{ width: '100%', mt: 0 }} />
       <FieldDescription fieldKey={fieldKey} />
     </Stack>
   );
@@ -137,18 +137,22 @@ export function FieldSectionTitle({ fieldKey }: { fieldKey: string }) {
 
 export function FieldSectionContent({
   children,
+  spacing,
+  sx,
 }: {
   children: React.ReactNode;
+  spacing?: number;
+  sx?: SxProps;
 }) {
   return (
     <Stack
-      spacing={1.25}
+      spacing={spacing}
       sx={{
         pl: 2,
-        mt: 1,
         borderLeftWidth: 1,
         borderLeftColor: 'neutral.main',
         borderLeftStyle: 'solid',
+        ...sx,
       }}
     >
       {children}
