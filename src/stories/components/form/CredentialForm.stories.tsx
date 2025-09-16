@@ -481,6 +481,24 @@ const mockCredentials = [
       birthDate: '617976000000',
     },
   },
+  {
+    uuid: 'drivers-license-id-1234',
+    type: 'driversLicense',
+    value: {
+      documentNumber: '123456789',
+      issuanceState: 'NY',
+      issuanceDate: '617976000000',
+      expirationDate: '617976000000',
+      address: {
+        line1: '123 Main Street',
+        line2: 'Apt 1A',
+        city: 'California',
+        state: 'CA',
+        country: 'US',
+        zipCode: '10001',
+      },
+    },
+  },
 ];
 
 const mockCredentialRequests = [
@@ -573,6 +591,78 @@ const mockCredentialRequests = [
     multi: false,
     type: 'SexCredential',
     description: 'Your birth sex',
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'no',
+    multi: false,
+    type: 'DriversLicenseCredential',
+    description: 'Your drivers license information',
+    children: [
+      {
+        allowUserInput: true,
+        mandatory: 'no',
+        multi: false,
+        type: 'DocumentNumberCredential',
+        description: 'Your document number',
+      },
+      {
+        allowUserInput: true,
+        mandatory: 'no',
+        multi: false,
+        type: 'IssuanceStateCredential',
+        description: 'Your issuance state',
+      },
+      {
+        allowUserInput: true,
+        mandatory: 'no',
+        multi: false,
+        type: 'IssuanceDateCredential',
+        description: 'Your issuance date',
+      },
+      {
+        allowUserInput: true,
+        mandatory: 'no',
+        multi: false,
+        type: 'ExpirationDateCredential',
+        description: 'Your expiration date',
+      },
+      {
+        allowUserInput: true,
+        mandatory: 'no',
+        multi: false,
+        type: 'AddressCredential',
+        description: 'Your address information',
+        children: [
+          {
+            type: 'Line1Credential',
+            description: 'Street',
+          },
+          {
+            type: 'Line2Credential',
+            mandatory: 'no',
+            description: 'Apt, Unit, etc.',
+          },
+          {
+            type: 'CityCredential',
+            description: 'City',
+          },
+          {
+            type: 'StateCredential',
+            description: 'State',
+          },
+          {
+            type: 'CountryCredential',
+            description: 'Country',
+          },
+
+          {
+            type: 'ZipCodeCredential',
+            description: 'ZipCode',
+          },
+        ],
+      },
+    ],
   },
 ];
 

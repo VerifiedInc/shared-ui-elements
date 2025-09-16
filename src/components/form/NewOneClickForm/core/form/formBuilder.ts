@@ -11,6 +11,7 @@ import {
 } from './formFieldBuilder';
 import { FormField } from './formField';
 import { Form } from './form';
+import { normalizeCredentialType } from './utils';
 
 export class FormBuilder {
   private readonly fieldBuilder = new FormFieldBuilder();
@@ -33,7 +34,7 @@ export class FormBuilder {
       }
 
       // Convert credential type (e.g., "FullNameCredential") to field key (e.g., "fullName")
-      const credentialType = this.normalizeCredentialType(requestObj.type);
+      const credentialType = normalizeCredentialType(requestObj.type);
 
       // Find matching credentials for this request (could be multiple for multi)
       const matchingCredentials = credentials.filter(
@@ -123,7 +124,7 @@ export class FormBuilder {
     // For composite credentials, create child fields based on the credential's value object
     // The new structure has credential.value as an object with direct field values
     for (const childRequest of requestObj.children) {
-      const childRequestType = this.normalizeCredentialType(childRequest.type);
+      const childRequestType = normalizeCredentialType(childRequest.type);
       const fieldSchema = fields[childRequestType];
 
       if (!fieldSchema) {
@@ -135,11 +136,27 @@ export class FormBuilder {
       // Check if the credential's value contains data for this child field
       if (credential.value && fieldKey in credential.value) {
         // Create a synthetic child credential from the parent's value
+        // For composite fields, we need to determine if this is a nested composite
+        // or a direct child of the current composite
+        let childCredentialValue: any;
+
+        if (
+          fieldSchema.characteristics.inputType === fieldInputTypes.composite
+        ) {
+          // For nested composite fields (like address within driversLicense),
+          // use the nested object directly
+          childCredentialValue = credential.value[fieldKey];
+        } else {
+          // For direct children of composite fields (like firstName within fullName),
+          // use the parent's value so the child can access its own data
+          childCredentialValue = credential.value;
+        }
+
         const childCredential: Credential = {
           ...credential,
           uuid: undefined as any, // Child fields don't have a uuid
           type: childRequestType,
-          value: { [fieldKey]: credential.value[fieldKey] },
+          value: childCredentialValue,
         };
 
         // Extract child request options including description
@@ -148,9 +165,21 @@ export class FormBuilder {
           requestObj,
         );
 
+        // Recursively handle nested composite fields
+        let nestedChildFields: Record<string, FormField> | undefined;
+        if (
+          fieldSchema.characteristics.inputType === fieldInputTypes.composite &&
+          childRequest.children
+        ) {
+          nestedChildFields = this.createChildFields(
+            childRequest,
+            childCredential,
+          );
+        }
+
         const childField = this.fieldBuilder.createFromCredential(
           childCredential,
-          undefined,
+          nestedChildFields,
           chilRequestdOptions,
         );
 
@@ -240,7 +269,7 @@ export class FormBuilder {
 
     // Check if credential has all required children
     for (const childRequest of requestObj.children) {
-      const childRequestType = this.normalizeCredentialType(
+      const childRequestType = normalizeCredentialType(
         typeof childRequest === 'string' ? childRequest : childRequest.type,
       );
       const childMandatory =
@@ -288,13 +317,5 @@ export class FormBuilder {
       multi: requestObj.multi ?? false,
       description: requestObj.description,
     };
-  }
-
-  // Method to normalize credential type (e.g., "FullNameCredential" to "fullName")
-  private normalizeCredentialType(credentialType: string): keyof typeof fields {
-    const fieldKey = credentialType.replace(/Credential$/, '');
-    const requestType = (fieldKey.charAt(0).toLowerCase() +
-      fieldKey.slice(1)) as keyof typeof fields;
-    return requestType;
   }
 }

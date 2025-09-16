@@ -40,9 +40,9 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
   // Max date boundaries (today for regular dates, 18 years ago for birth dates)
   const maxYear = isDob
     ? nowDate.getUTCFullYear() - 18
-    : nowDate.getUTCFullYear();
-  const maxMonth = nowDate.getUTCMonth() + 1;
-  const maxDay = nowDate.getUTCDate();
+    : nowDate.getUTCFullYear() + 100;
+  const maxMonth = isDob ? nowDate.getUTCMonth() + 1 : 12;
+  const maxDay = isDob ? nowDate.getUTCDate() : 31;
 
   // For the picker, we need to create local timezone dates that represent the same calendar dates
   // as our UTC boundaries, so the picker displays the correct selectable range

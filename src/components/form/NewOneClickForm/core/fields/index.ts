@@ -8,6 +8,13 @@ import {
   country,
   zipCode,
 } from './address';
+import {
+  driversLicense,
+  issuanceDate,
+  expirationDate,
+  documentNumber,
+  issuanceState,
+} from './driversLicense';
 import { ssn } from './ssn';
 import { phone } from './phone';
 import { sex } from './sex';
@@ -17,10 +24,12 @@ export * from './constants';
 export type * from './types';
 
 export const fields = {
+  // Full Name
   fullName,
   firstName,
   lastName,
   middleName,
+  // Address
   address,
   line1,
   line2,
@@ -28,6 +37,13 @@ export const fields = {
   state,
   country,
   zipCode,
+  // Drivers License
+  driversLicense,
+  documentNumber,
+  issuanceState,
+  issuanceDate,
+  expirationDate,
+  // Others
   ssn,
   phone,
   sex,

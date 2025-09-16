@@ -135,13 +135,17 @@ export class FormField<
   }
 
   get isEmpty(): boolean {
-    const _isEmpty = (value: any) => {
-      return value === undefined || value === null || value === '';
-    };
+    const _isEmpty = (value: any): boolean => {
+      if (value === undefined || value === null || value === '') {
+        return true;
+      }
 
-    if (typeof this.value === 'object') {
-      return Object.values(this.value).every(_isEmpty);
-    }
+      if (typeof value === 'object' && value !== null) {
+        return Object.values(value).every(_isEmpty);
+      }
+
+      return false;
+    };
 
     return _isEmpty(this.value);
   }

@@ -7,6 +7,7 @@ import { fieldInputTypes, fields } from '../fields';
 import type { BaseFieldDefinition } from '../fields';
 
 import { FormField } from './formField';
+import { normalizeCredentialType } from './utils';
 
 export interface CredentialRequestOptions {
   allowUserInput?: boolean;
@@ -109,9 +110,9 @@ export class FormFieldBuilder {
       const childFields: Record<string, FormField> = {};
 
       for (const childRequest of requestObj.children) {
-        const childRequestType = childRequest.type;
-        const childFieldSchema =
-          fields[childRequestType as keyof typeof fields];
+        // Normalize the credential type (e.g., "DocumentNumberCredential" to "documentNumber")
+        const childRequestType = normalizeCredentialType(childRequest.type);
+        const childFieldSchema = fields[childRequestType];
 
         if (childFieldSchema) {
           // Recursively create child field from its request

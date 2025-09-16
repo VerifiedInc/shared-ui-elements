@@ -1,3 +1,5 @@
+import * as zod from 'zod';
+
 export const validateTimestamp = (timestampString: string): boolean => {
   const timestampRegex = /^-?\d+$/;
   if (!timestampRegex.test(timestampString)) {
@@ -73,3 +75,8 @@ export const refineMinimumDate1900 = (value: string) => {
   }
   return validateMinimumDate1900(value);
 };
+
+export const dateSchema = zod
+  .string()
+  .refine(refineTimestamp, '')
+  .refine(refineMinimumDate1900, '');

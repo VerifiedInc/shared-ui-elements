@@ -9,6 +9,7 @@ import {
 
 import { useFormField } from '../../../core/field.hook';
 import { useForm } from '../../../core/form.context';
+import { SingleField } from './single.field';
 
 const styles = (): Record<string, SxProps> => ({
   menuStyle: {
@@ -170,6 +171,11 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
       resizeObserver.disconnect();
     };
   }, []);
+
+  // If the field does not contain an id, don't render the multi field.
+  if (!field?.id) {
+    return <SingleField fieldKey={fieldKey} />;
+  }
 
   return (
     <Box width='100%'>
