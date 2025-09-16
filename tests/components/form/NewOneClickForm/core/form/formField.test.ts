@@ -59,7 +59,6 @@ describe('FormField', () => {
             ),
           ],
         );
-        console.log(field);
         expect(field.hasVariants).toBe(true);
       });
 
