@@ -58,7 +58,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prebuild": "rm -rf dist",
-    "build": "tsc && vite build && find dist -name '*.mjs' -type f -exec esbuild {} --minify --outfile={} --allow-overwrite \\;",
+    "build": "npm run compile",
+    "compile": "tsc && vite build && find dist -name '*.mjs' -type f -exec esbuild {} --minify --outfile={} --allow-overwrite \\;",
     "prepublishOnly": "npm run build",
     "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
