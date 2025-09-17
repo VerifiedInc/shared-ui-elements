@@ -23,6 +23,7 @@ export function ResendPhoneBanner({
   sx,
 }: ResendPhoneBannerProps): React.JSX.Element {
   const theme = useTheme();
+  const message = 'Use the text we sent to ';
   return (
     <>
       <FullWidthAlert
@@ -48,7 +49,8 @@ export function ResendPhoneBanner({
           </Button>
         }
       >
-        Use the text we sent to <strong>{parseToPhoneNational(phone)}</strong>{' '}
+        {message}
+        <strong>{parseToPhoneNational(phone)}</strong>{' '}
       </FullWidthAlert>
     </>
   );
