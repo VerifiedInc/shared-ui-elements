@@ -9,6 +9,7 @@ workflows:
           context:
             - Github-Packages
           test_script_name: vitest
+          compile_script_name: build
           name: unumid/lint-and-test-branch
           cache_version: v6
           filters:
