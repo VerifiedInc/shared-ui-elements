@@ -15,10 +15,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const mockData = {
-  OCE000: 150,
+  OCE020: 150,
   OCE001: 75,
   OCE002: 200,
   OCE003: 50,
+  OCE021: 50,
 };
 
 export const Default: Story = {
