@@ -40,4 +40,6 @@ export const ERROR_CODES_MESSAGES: Record<string, string> = {
   OCE017: 'Risk score too high',
   OCE018: 'Maximum code attempts exceeded',
   OCE019: 'Maximum input attempts exceeded',
+  OCE020: 'Brand cannot be used for 1-Click API',
+  OCE021: 'User Opted Out',
 };
