@@ -53,7 +53,7 @@ function CustomPaper(props: PaperProps): ReactElement {
   const theme = useTheme();
 
   return (
-    <Paper {...props} sx={{ ...props.sx, opacity: 0.2 }}>
+    <Paper {...props}>
       {props.children}
       {/* Legal requirment https://developers.google.com/maps/documentation/javascript/policies#logo */}
       <Box
