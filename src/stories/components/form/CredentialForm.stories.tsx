@@ -511,25 +511,25 @@ const mockCredentials = [
 const mockCredentialRequests = [
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'FullNameCredential',
     children: [
       // {
       //   type: 'MiddleNameCredential',
-      //   mandatory: 'yes',
+      //   mandatory: 'no',
       //   description: 'Your middle name',
       //   // allowUserInput: true,
       // },
       {
         type: 'LastNameCredential',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Your last name',
         // allowUserInput: true,
       },
       {
         type: 'FirstNameCredential',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Your first name',
         // allowUserInput: true,
       },
@@ -537,14 +537,14 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'PhoneCredential',
   },
   // 'AddressCredential',
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'AddressCredential',
     description: 'Your address information',
@@ -555,7 +555,7 @@ const mockCredentialRequests = [
       },
       {
         type: 'Line2Credential',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Apt, Unit, etc.',
       },
       {
@@ -578,62 +578,62 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'SsnCredential',
     description: 'Your legal SSN',
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'SexCredential',
     description: 'Your birth sex',
   },
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'DriversLicenseCredential',
     description: 'We are required by law to ask for a government ID',
     children: [
       {
         allowUserInput: true,
-        mandatory: 'yes',
+        mandatory: 'no',
         multi: false,
         type: 'DocumentNumberCredential',
         description: 'Your driver’s license number',
       },
       {
         allowUserInput: true,
-        mandatory: 'yes',
+        mandatory: 'no',
         multi: false,
         type: 'IssuanceStateCredential',
       },
       {
         allowUserInput: true,
-        mandatory: 'yes',
+        mandatory: 'no',
         multi: false,
         type: 'IssuanceDateCredential',
         description: 'MM/DD/YYYY',
       },
       {
         allowUserInput: true,
-        mandatory: 'yes',
+        mandatory: 'no',
         multi: false,
         type: 'ExpirationDateCredential',
         description: 'MM/DD/YYYY',
       },
       {
         allowUserInput: true,
-        mandatory: 'yes',
+        mandatory: 'no',
         multi: false,
         type: 'AddressCredential',
         description: 'The address on the license',
@@ -644,7 +644,7 @@ const mockCredentialRequests = [
           },
           {
             type: 'Line2Credential',
-            mandatory: 'yes',
+            mandatory: 'no',
             description: 'Apt, Unit, etc.',
           },
           {

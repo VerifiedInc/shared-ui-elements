@@ -125,6 +125,21 @@ describe('Form', () => {
             }),
           ],
         );
+
+        expect(form.isEmpty).toBe(true);
+      });
+
+      test('phone credential provided should be empty', () => {
+        const form = new FormBuilder().createFromCredentialAndRequests(
+          [
+            makeCredential({
+              type: 'phone',
+              value: { phone: '+12125550010' },
+            }),
+          ],
+          [makeCredentialRequest({ type: 'PhoneCredential' })],
+        );
+
         expect(form.isEmpty).toBe(true);
       });
 

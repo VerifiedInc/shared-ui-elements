@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { cloneDeep } from 'lodash';
 
 import { type FieldValueDefinitions } from '../declarations';
-import { type BaseFieldDefinition } from '../fields';
+import { credentialKeys, type BaseFieldDefinition } from '../fields';
 
 export interface FormFieldOptions<
   TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
@@ -193,6 +193,11 @@ export class FormField<
   }
 
   get isEmpty(): boolean {
+    // Phone should not be considered empty, is not a visible field.
+    if (this.schema.key === credentialKeys.phone) {
+      return true;
+    }
+
     const _isEmpty = (value: any): boolean => {
       if (value === undefined || value === null || value === '') {
         return true;
