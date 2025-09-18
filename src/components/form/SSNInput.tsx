@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import { Box, TextField, type TextFieldProps } from '@mui/material';
 
 import { DataFieldClearAdornment } from './DataFieldClearAdornment';
