@@ -12,61 +12,70 @@ import {
   updateFormFieldValues,
 } from '../../../../utils/form';
 
+const setupCredential = () => {
+  return makeCredential({
+    type: 'address',
+    value: {
+      line1: '123 Main Street',
+      line2: 'Apt 4B',
+      city: 'New York',
+      state: 'NY',
+      country: 'US',
+      zipCode: '10001',
+    },
+  });
+};
+
+const setupCredentialRequest = (
+  { mandatory }: { mandatory: 'yes' | 'no' | 'if_available' } = {
+    mandatory: 'no',
+  },
+) => {
+  return makeCredentialRequest({
+    type: 'AddressCredential',
+    mandatory,
+    children: [
+      makeCredentialRequest({
+        type: 'Line1Credential',
+        mandatory: 'yes',
+        allowUserInput: true,
+      }),
+      makeCredentialRequest({
+        type: 'Line2Credential',
+        mandatory: 'no',
+        allowUserInput: true,
+      }),
+      makeCredentialRequest({
+        type: 'CityCredential',
+        mandatory: 'yes',
+        allowUserInput: true,
+      }),
+      makeCredentialRequest({
+        type: 'StateCredential',
+        mandatory: 'yes',
+        allowUserInput: true,
+      }),
+      makeCredentialRequest({
+        type: 'CountryCredential',
+        mandatory: 'yes',
+        allowUserInput: true,
+      }),
+      makeCredentialRequest({
+        type: 'ZipCodeCredential',
+        mandatory: 'yes',
+        allowUserInput: true,
+      }),
+    ],
+  });
+};
+
 describe('address', () => {
   let form: Form;
 
   beforeEach(() => {
     form = new FormBuilder().createFromCredentialAndRequests(
-      [
-        makeCredential({
-          type: 'address',
-          value: {
-            line1: '123 Main Street',
-            line2: 'Apt 4B',
-            city: 'New York',
-            state: 'NY',
-            country: 'US',
-            zipCode: '10001',
-          },
-        }),
-      ],
-      [
-        makeCredentialRequest({
-          type: 'AddressCredential',
-          children: [
-            makeCredentialRequest({
-              type: 'Line1Credential',
-              mandatory: 'yes',
-              allowUserInput: true,
-            }),
-            makeCredentialRequest({
-              type: 'Line2Credential',
-              mandatory: 'no',
-              allowUserInput: true,
-            }),
-            makeCredentialRequest({
-              type: 'CityCredential',
-              mandatory: 'yes',
-              allowUserInput: true,
-            }),
-            makeCredentialRequest({
-              type: 'StateCredential',
-              mandatory: 'yes',
-              allowUserInput: true,
-            }),
-            makeCredentialRequest({
-              type: 'CountryCredential',
-              mandatory: 'yes',
-              allowUserInput: true,
-            }),
-            makeCredentialRequest({
-              type: 'ZipCodeCredential',
-              mandatory: 'yes',
-              allowUserInput: true,
-            }),
-          ],
-        }),
-      ],
+      [setupCredential()],
+      [setupCredentialRequest()],
     );
   });
 
@@ -353,6 +362,115 @@ describe('address', () => {
           zipCode: '00901',
         });
         expect(field.isValid).toBe(true);
+      });
+
+      test('missing address parts are invalid', () => {
+        const field = form.fields.address as FormField<'address'>;
+        updateFormFieldValues(field, {
+          line1: '',
+          line2: 'Apt 4B',
+          city: '',
+          state: '', // Puerto Rico
+          country: '',
+          zipCode: '',
+        });
+
+        expect(form.isValid).toBe(false);
+        expect(field.isValid).toBe(false);
+      });
+
+      test('optional address parts errors are in the correct order', () => {
+        form = new FormBuilder().createFromCredentialAndRequests(
+          [setupCredential()],
+          [setupCredentialRequest({ mandatory: 'no' })],
+        );
+        const field = form.fields.address as FormField<'address'>;
+
+        updateFormFieldValues(field, {
+          line1: '',
+          line2: 'Apt 1A',
+          city: '',
+          state: '',
+          country: 'US',
+          zipCode: '',
+        });
+
+        expect(form.isValid).toBe(false);
+        expect(field.isValid).toBe(false);
+
+        const errors = field.errors;
+        expect(errors).not.toBeNull();
+        expect(errors?.error?.issues).toBeDefined();
+
+        const issues = errors?.error?.issues || [];
+        const errorMessages = issues.map((issue: any) => ({
+          path: issue.path[0],
+          message: issue.message,
+        }));
+
+        const errorPaths = errorMessages.map((e: any) => e.path);
+        const expectedOrder = ['line1', 'city', 'state', 'zipCode'];
+
+        // Verify the error order: line1, city, state, country, zipCode
+        expectedOrder.forEach((expectedPath, index) => {
+          const actualIndex = errorPaths.indexOf(expectedPath);
+          expect(actualIndex).toBeGreaterThanOrEqual(0); // Error should exist
+
+          // Check that this error comes before any subsequent expected errors
+          for (let j = index + 1; j < expectedOrder.length; j++) {
+            const subsequentIndex = errorPaths.indexOf(expectedOrder[j]);
+            if (subsequentIndex >= 0) {
+              expect(actualIndex).toBeLessThan(subsequentIndex);
+            }
+          }
+        });
+      });
+
+      test('required address parts errors are in the correct order', () => {
+        form = new FormBuilder().createFromCredentialAndRequests(
+          [setupCredential()],
+          [setupCredentialRequest({ mandatory: 'yes' })],
+        );
+        const field = form.fields.address as FormField<'address'>;
+
+        updateFormFieldValues(field, {
+          line1: '',
+          line2: 'Apt 4B',
+          city: '',
+          state: '',
+          country: '',
+          zipCode: '',
+        });
+
+        expect(form.isValid).toBe(false);
+        expect(field.isValid).toBe(false);
+
+        const errors = field.errors;
+        expect(errors).not.toBeNull();
+        expect(errors?.error?.issues).toBeDefined();
+
+        const issues = errors?.error?.issues || [];
+        const errorMessages = issues.map((issue: any) => ({
+          path: issue.path[0],
+          message: issue.message,
+        }));
+
+        const errorPaths = errorMessages.map((e: any) => e.path);
+        const expectedOrder = ['line1', 'city', 'state', 'country', 'zipCode'];
+
+        // Verify the error order: line1, city, state, country, zipCode
+        expectedOrder.forEach((expectedPath, index) => {
+          const actualIndex = errorPaths.indexOf(expectedPath);
+          expect(actualIndex).toBeGreaterThanOrEqual(0); // Error should exist
+
+          // Check that this error comes before any subsequent expected errors
+          for (let j = index + 1; j < expectedOrder.length; j++) {
+            const subsequentIndex = errorPaths.indexOf(expectedOrder[j]);
+            if (subsequentIndex >= 0) {
+              expect(actualIndex).toBeLessThan(subsequentIndex);
+            }
+          }
+        });
       });
     });
   });

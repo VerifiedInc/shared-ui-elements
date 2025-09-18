@@ -154,6 +154,30 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     [],
   );
 
+  // Helper function to recursively update all parent composite fields up the hierarchy
+  const updateParentFieldsRecursively = useCallback(
+    (childPath: string): void => {
+      const parentInfo = findParentField(childPath);
+      if (parentInfo) {
+        const { parentField } = parentInfo;
+        const compositeValue = constructCompositeValue(parentField);
+
+        // Only update parent value if it has any non-empty children
+        parentField.value =
+          Object.keys(compositeValue).length > 0 ? compositeValue : {};
+
+        // Recursively update the parent's parent (grandparent, etc.)
+        const pathParts = childPath.split('.');
+        if (pathParts.length > 2) {
+          // If there are more than 2 parts, there might be a grandparent
+          const parentPath = pathParts.slice(0, -1).join('.');
+          updateParentFieldsRecursively(parentPath);
+        }
+      }
+    },
+    [findParentField, constructCompositeValue],
+  );
+
   const updateFieldValue = useCallback(
     (path: string, value: any) => {
       setState((prev) => {
@@ -178,16 +202,8 @@ export const FormProvider: React.FC<FormProviderProps> = ({
         // Update the field value directly on the core FormField instance
         field.value = value;
 
-        // Update parent composite field value if this is a child field
-        const parentInfo = findParentField(path);
-        if (parentInfo) {
-          const { parentField } = parentInfo;
-          const compositeValue = constructCompositeValue(parentField);
-
-          // Only update parent value if it has any non-empty children
-          parentField.value =
-            Object.keys(compositeValue).length > 0 ? compositeValue : {};
-        }
+        // Recursively update all parent composite fields up the hierarchy
+        updateParentFieldsRecursively(path);
 
         // Force re-render by creating new state object
         return {
@@ -196,7 +212,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
         };
       });
     },
-    [getField, findParentField, constructCompositeValue],
+    [getField, updateParentFieldsRecursively],
   );
 
   const setFieldTouched = useCallback(

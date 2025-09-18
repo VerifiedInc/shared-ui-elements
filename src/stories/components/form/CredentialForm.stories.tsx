@@ -627,7 +627,7 @@ const mockCredentialRequests = [
       },
       {
         allowUserInput: true,
-        mandatory: 'yes',
+        mandatory: 'no',
         multi: false,
         type: 'AddressCredential',
         description: 'The address on the license',
@@ -653,7 +653,6 @@ const mockCredentialRequests = [
             type: 'CountryCredential',
             description: 'Country',
           },
-
           {
             type: 'ZipCodeCredential',
             description: 'ZipCode',

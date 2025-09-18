@@ -12,74 +12,107 @@ import {
   updateFormFieldValues,
 } from '../../../../utils/form';
 
+const setupCredential = () => {
+  return makeCredential({
+    uuid: 'drivers-license-id-1234',
+    type: 'driversLicense',
+    value: {
+      documentNumber: '123456789',
+      issuanceState: 'NY',
+      issuanceDate: '1754049600000',
+      expirationDate: '1765800000000',
+      address: {
+        line1: '123 Main Street',
+        line2: 'Apt 1A',
+        city: 'California',
+        state: 'CA',
+        country: 'US',
+        zipCode: '10001',
+      },
+    },
+  });
+};
+
+const setupCredentialRequest = (
+  { mandatory }: { mandatory: 'yes' | 'no' | 'if_available' } = {
+    mandatory: 'no',
+  },
+) => {
+  return makeCredentialRequest({
+    type: 'DriversLicenseCredential',
+    mandatory,
+    children: [
+      makeCredentialRequest({
+        type: 'DocumentNumberCredential',
+      }),
+      makeCredentialRequest({
+        type: 'IssuanceStateCredential',
+      }),
+      makeCredentialRequest({
+        type: 'IssuanceDateCredential',
+      }),
+      makeCredentialRequest({
+        type: 'ExpirationDateCredential',
+      }),
+      makeCredentialRequest({
+        type: 'AddressCredential',
+        children: [
+          makeCredentialRequest({
+            type: 'Line1Credential',
+          }),
+          makeCredentialRequest({
+            type: 'Line2Credential',
+          }),
+          makeCredentialRequest({
+            type: 'CityCredential',
+          }),
+          makeCredentialRequest({
+            type: 'StateCredential',
+          }),
+          makeCredentialRequest({
+            type: 'CountryCredential',
+          }),
+          makeCredentialRequest({
+            type: 'ZipCodeCredential',
+          }),
+        ],
+      }),
+    ],
+  });
+};
+
 describe('driversLicense', () => {
   let form: Form;
 
   beforeEach(() => {
     form = new FormBuilder().createFromCredentialAndRequests(
-      [
-        makeCredential({
-          uuid: 'drivers-license-id-1234',
-          type: 'driversLicense',
-          value: {
-            documentNumber: '123456789',
-            issuanceState: 'NY',
-            issuanceDate: '1754049600000',
-            expirationDate: '1765800000000',
-            address: {
-              line1: '123 Main Street',
-              line2: 'Apt 1A',
-              city: 'California',
-              state: 'CA',
-              country: 'US',
-              zipCode: '10001',
-            },
-          },
-        }),
-      ],
-      [
-        makeCredentialRequest({
-          type: 'DriversLicenseCredential',
-          children: [
-            makeCredentialRequest({
-              type: 'DocumentNumberCredential',
-            }),
-            makeCredentialRequest({
-              type: 'IssuanceStateCredential',
-            }),
-            makeCredentialRequest({
-              type: 'IssuanceDateCredential',
-            }),
-            makeCredentialRequest({
-              type: 'ExpirationDateCredential',
-            }),
-            makeCredentialRequest({
-              type: 'AddressCredential',
-              children: [
-                makeCredentialRequest({
-                  type: 'Line1Credential',
-                }),
-                makeCredentialRequest({
-                  type: 'Line2Credential',
-                }),
-                makeCredentialRequest({
-                  type: 'CityCredential',
-                }),
-                makeCredentialRequest({
-                  type: 'StateCredential',
-                }),
-                makeCredentialRequest({
-                  type: 'CountryCredential',
-                }),
-                makeCredentialRequest({
-                  type: 'ZipCodeCredential',
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
+      [setupCredential()],
+      [setupCredentialRequest()],
     );
+  });
+
+  test('value state changes', () => {
+    const field = form.fields.driversLicense as FormField<'driversLicense'>;
+
+    const newValues = {
+      issuanceState: 'CA',
+      address: {
+        line1: '123 Main Street',
+        line2: 'Apt 1A',
+        city: 'New York',
+        state: 'NY',
+        country: 'US',
+        zipCode: '10001',
+      },
+    };
+
+    updateFormFieldValues(field, newValues);
+
+    expect(form.isValid).toBe(true);
+    expect(field.isValid).toBe(true);
+
+    expect(form.fields.driversLicense.value).toMatchObject(newValues);
+    expect(field.value).toMatchObject(newValues);
   });
 
   describe('isValid', () => {
@@ -145,6 +178,17 @@ describe('driversLicense', () => {
         expect(field.isValid).toBe(true);
       });
 
+      test('issuance state is valid', () => {
+        const field = form.fields.driversLicense as FormField<'driversLicense'>;
+
+        updateFormFieldValues(field, {
+          issuanceState: 'NY',
+        });
+
+        expect(form.isValid).toBe(true);
+        expect(field.isValid).toBe(true);
+      });
+
       describe('address', () => {
         test('address zipcode five digits is valid', () => {
           const field = form.fields
@@ -205,6 +249,16 @@ describe('driversLicense', () => {
 
         expect(field.isValid).toBe(false);
       });
+      test('issuance state is valid', () => {
+        const field = form.fields.driversLicense as FormField<'driversLicense'>;
+
+        updateFormFieldValues(field, {
+          issuanceState: 'XX',
+        });
+
+        expect(form.isValid).toBe(false);
+        expect(field.isValid).toBe(false);
+      });
       describe('address', () => {
         test('address zipcode is invalid', () => {
           const field = form.fields
@@ -240,6 +294,25 @@ describe('driversLicense', () => {
             },
           });
 
+          expect(field.isValid).toBe(false);
+        });
+
+        test('missing address parts are invalid', () => {
+          const field = form.fields
+            .driversLicense as FormField<'driversLicense'>;
+
+          updateFormFieldValues(field, {
+            address: {
+              line1: '',
+              line2: 'Apt 4B',
+              city: '',
+              state: '', // Puerto Rico
+              country: '',
+              zipCode: '',
+            },
+          });
+
+          expect(form.isValid).toBe(false);
           expect(field.isValid).toBe(false);
         });
       });

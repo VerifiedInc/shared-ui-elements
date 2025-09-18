@@ -36,6 +36,7 @@ export const makeCredentialRequest = (
  * Generic helper function to update form field values for testing.
  * Updates child field values recursively to ensure proper validation
  * since isValid checks against children for composite fields.
+ * Also syncs parent composite field value with child values.
  */
 export const updateFormFieldValues = (
   field: FormField,
@@ -57,4 +58,15 @@ export const updateFormFieldValues = (
       }
     }
   });
+
+  // After updating child values, sync the parent composite field value
+  if (field.children) {
+    const compositeValue: Record<string, any> = {};
+    Object.entries(field.children).forEach(([key, child]) => {
+      compositeValue[key] = child.value;
+    });
+
+    // Update parent field value with the constructed composite value
+    field.value = compositeValue;
+  }
 };
