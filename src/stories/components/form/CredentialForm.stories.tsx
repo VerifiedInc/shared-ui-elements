@@ -571,6 +571,7 @@ const mockCredentialRequests = [
         description: 'Country',
       },
       {
+        mandatory: 'no',
         type: 'ZipCodeCredential',
         description: 'ZipCode',
       },
