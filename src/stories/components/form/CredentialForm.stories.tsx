@@ -563,7 +563,6 @@ const mockCredentialRequests = [
         type: 'CountryCredential',
         description: 'Country',
       },
-
       {
         type: 'ZipCodeCredential',
         description: 'ZipCode',
@@ -653,10 +652,10 @@ const mockCredentialRequests = [
             type: 'CountryCredential',
             description: 'Country',
           },
-          {
-            type: 'ZipCodeCredential',
-            description: 'ZipCode',
-          },
+          // {
+          //   type: 'ZipCodeCredential',
+          //   description: 'ZipCode',
+          // },
         ],
       },
     ],

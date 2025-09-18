@@ -91,28 +91,152 @@ describe('driversLicense', () => {
     );
   });
 
-  test('value state changes', () => {
-    const field = form.fields.driversLicense as FormField<'driversLicense'>;
+  describe('value state', () => {
+    test('value state changes', () => {
+      const field = form.fields.driversLicense as FormField<'driversLicense'>;
 
-    const newValues = {
-      issuanceState: 'CA',
-      address: {
-        line1: '123 Main Street',
-        line2: 'Apt 1A',
-        city: 'New York',
-        state: 'NY',
-        country: 'US',
+      const newValues = {
+        issuanceState: 'CA',
+        address: {
+          line1: '123 Main Street',
+          line2: 'Apt 1A',
+          city: 'New York',
+          state: 'NY',
+          country: 'US',
+          zipCode: '10001',
+        },
+      };
+
+      updateFormFieldValues(field, newValues);
+
+      expect(form.isValid).toBe(true);
+      expect(field.isValid).toBe(true);
+
+      expect(form.fields.driversLicense.value).toMatchObject(newValues);
+      expect(field.value).toMatchObject(newValues);
+    });
+
+    test('address zip code is not included', () => {
+      form = new FormBuilder().createFromCredentialAndRequests(
+        [setupCredential()],
+        [
+          makeCredentialRequest({
+            type: 'DriversLicenseCredential',
+            children: [
+              makeCredentialRequest({
+                type: 'DocumentNumberCredential',
+              }),
+              makeCredentialRequest({
+                type: 'IssuanceStateCredential',
+              }),
+              makeCredentialRequest({
+                type: 'IssuanceDateCredential',
+              }),
+              makeCredentialRequest({
+                type: 'ExpirationDateCredential',
+              }),
+              makeCredentialRequest({
+                type: 'AddressCredential',
+                children: [
+                  makeCredentialRequest({
+                    type: 'Line1Credential',
+                  }),
+                  makeCredentialRequest({
+                    type: 'Line2Credential',
+                  }),
+                  makeCredentialRequest({
+                    type: 'CityCredential',
+                  }),
+                  makeCredentialRequest({
+                    type: 'StateCredential',
+                  }),
+                  makeCredentialRequest({
+                    type: 'CountryCredential',
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      );
+
+      // Passes
+      expect(
+        (form.fields.driversLicense.children as any).address.value,
+      ).not.toMatchObject({
         zipCode: '10001',
-      },
-    };
+      });
 
-    updateFormFieldValues(field, newValues);
+      // Fails but should pass
+      expect(form.fields.driversLicense.value).not.toMatchObject({
+        address: {
+          zipCode: '10001',
+        },
+      });
 
-    expect(form.isValid).toBe(true);
-    expect(field.isValid).toBe(true);
+      // Test that defaultValue also doesn't include zipCode
+      expect(form.fields.driversLicense.defaultValue).not.toMatchObject({
+        address: {
+          zipCode: '10001',
+        },
+      });
+    });
 
-    expect(form.fields.driversLicense.value).toMatchObject(newValues);
-    expect(field.value).toMatchObject(newValues);
+    test('nested composite fields maintain structure with empty values', () => {
+      form = new FormBuilder().createFromCredentialAndRequests(
+        [setupCredential()],
+        [
+          makeCredentialRequest({
+            type: 'DriversLicenseCredential',
+            children: [
+              makeCredentialRequest({
+                type: 'DocumentNumberCredential',
+              }),
+              makeCredentialRequest({
+                type: 'AddressCredential',
+                children: [
+                  makeCredentialRequest({
+                    type: 'Line1Credential',
+                  }),
+                  makeCredentialRequest({
+                    type: 'CityCredential',
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      );
+
+      // Clear the address fields to make them empty
+      (
+        form.fields.driversLicense.children as any
+      ).address.children.line1.value = '';
+      (form.fields.driversLicense.children as any).address.children.city.value =
+        '';
+
+      // Nested composite field (address) should maintain its structure even when empty
+      expect(form.fields.driversLicense.value).toMatchObject({
+        documentNumber: '123456789',
+        address: {
+          line1: '',
+          city: '',
+        },
+      });
+
+      // Should include the properties in the nested object structure
+      expect((form.fields.driversLicense.value as any).address).toHaveProperty(
+        'line1',
+        '',
+      );
+      expect((form.fields.driversLicense.value as any).address).toHaveProperty(
+        'city',
+        '',
+      );
+      expect(typeof (form.fields.driversLicense.value as any).address).toBe(
+        'object',
+      );
+    });
   });
 
   describe('isValid', () => {

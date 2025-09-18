@@ -168,8 +168,8 @@ describe('Form', () => {
           ],
         );
 
-        (form.fields.fullName.value as any).firstName = '';
-        (form.fields.fullName.value as any).lastName = '';
+        (form.fields.fullName.children as any).firstName.value = '';
+        (form.fields.fullName.children as any).lastName.value = '';
 
         expect(form.isEmpty).toBe(true);
       });

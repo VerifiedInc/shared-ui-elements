@@ -19,8 +19,8 @@ export class FormField<
   TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
 > {
   id: string | undefined;
-  defaultValue: FieldValueDefinitions[TFieldKey];
-  value: FieldValueDefinitions[TFieldKey];
+  private _defaultValue: FieldValueDefinitions[TFieldKey];
+  private _value: FieldValueDefinitions[TFieldKey];
   schema: BaseFieldDefinition<string>;
   children?: Record<string, FormField>;
   touched: boolean;
@@ -38,8 +38,8 @@ export class FormField<
     options: FormFieldOptions<TFieldKey> = {},
   ) {
     this.id = id;
-    this.defaultValue = defaultValue;
-    this.value = value;
+    this._defaultValue = defaultValue;
+    this._value = value;
     this.children = options.children;
     this.touched = false;
     this.allowUserInput = options.allowUserInput ?? true;
@@ -117,6 +117,62 @@ export class FormField<
     }
   }
 
+  get defaultValue(): FieldValueDefinitions[TFieldKey] {
+    // For composite fields, construct defaultValue dynamically from children
+    if (
+      this.schema.characteristics.inputType === 'composite' &&
+      this.children
+    ) {
+      const compositeValue: Record<string, any> = {};
+      Object.entries(this.children).forEach(([key, child]) => {
+        // Include child defaultValues for all children that exist (were requested)
+        compositeValue[key] = child.defaultValue;
+      });
+
+      // Return undefined if no children exist
+      return Object.keys(compositeValue).length > 0
+        ? (compositeValue as FieldValueDefinitions[TFieldKey])
+        : (undefined as unknown as FieldValueDefinitions[TFieldKey]);
+    }
+
+    // For non-composite fields, return the stored defaultValue
+    return this._defaultValue;
+  }
+
+  get value(): FieldValueDefinitions[TFieldKey] {
+    // For composite fields, construct value dynamically from children
+    if (
+      this.schema.characteristics.inputType === 'composite' &&
+      this.children
+    ) {
+      const compositeValue: Record<string, any> = {};
+      Object.entries(this.children).forEach(([key, child]) => {
+        // Always include all requested children in the composite value
+        // For composite children (like address), use their value directly (they handle their own structure)
+        // For primitive children, use empty string if empty, otherwise use their value
+        if (child.schema.characteristics.inputType === 'composite') {
+          // Composite children always return their structure, even if all sub-fields are empty
+          compositeValue[key] = child.value;
+        } else {
+          // Primitive children: empty string for empty values, actual value otherwise
+          compositeValue[key] = child.isEmpty ? '' : child.value;
+        }
+      });
+
+      // Return the composite value if any children exist (were requested)
+      return Object.keys(compositeValue).length > 0
+        ? (compositeValue as FieldValueDefinitions[TFieldKey])
+        : (undefined as unknown as FieldValueDefinitions[TFieldKey]);
+    }
+
+    // For non-composite fields, return the stored value
+    return this._value;
+  }
+
+  set value(newValue: FieldValueDefinitions[TFieldKey]) {
+    this._value = newValue;
+  }
+
   get hasVariants(): boolean {
     if (!this.variants) {
       return false;
@@ -159,7 +215,7 @@ export class FormField<
     ) {
       return Object.values(this.children).some((child) => child.isDirty);
     }
-    return this.value !== this.defaultValue;
+    return this._value !== this._defaultValue;
   }
 
   get errors(): { error: any; childrenErrors: Record<string, any> } | null {
@@ -290,12 +346,12 @@ export class FormField<
     this.mandatory = selectedVariant.mandatory;
     this.multi = selectedVariant.multi;
     // Use the variant's value, but create a deep copy if it's an object
-    this.value =
+    this._value =
       selectedVariant.value && typeof selectedVariant.value === 'object'
         ? cloneDeep(selectedVariant.value)
         : selectedVariant.value;
     // Use the variant's defaultValue, but create a deep copy if it's an object
-    this.defaultValue =
+    this._defaultValue =
       selectedVariant.defaultValue &&
       typeof selectedVariant.defaultValue === 'object'
         ? cloneDeep(selectedVariant.defaultValue)
@@ -329,15 +385,15 @@ export class FormField<
   ): FormField<T> {
     // Clone the field's value if it's an object
     const clonedValue =
-      field.value && typeof field.value === 'object'
-        ? cloneDeep(field.value)
-        : field.value;
+      field._value && typeof field._value === 'object'
+        ? cloneDeep(field._value)
+        : field._value;
 
     // Clone the field's defaultValue if it's an object
     const clonedDefaultValue =
-      field.defaultValue && typeof field.defaultValue === 'object'
-        ? cloneDeep(field.defaultValue)
-        : field.defaultValue;
+      field._defaultValue && typeof field._defaultValue === 'object'
+        ? cloneDeep(field._defaultValue)
+        : field._defaultValue;
 
     // Recursively clone children if they exist
     let clonedChildren: Record<string, FormField> | undefined;

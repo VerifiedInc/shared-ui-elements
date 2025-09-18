@@ -178,4 +178,65 @@ describe('toCreatePatchCredentials', () => {
     });
     expect(result[0]).not.toHaveProperty('uuid');
   });
+
+  test('should exclude empty objects with no keys', () => {
+    const driversLicense = makeCredential({
+      type: 'driversLicense',
+      value: {
+        documentNumber: '123456789',
+        address: {
+          line1: '123 Main St',
+          city: 'New York',
+        },
+      },
+    });
+
+    const form = new FormBuilder().createFromCredentialAndRequests(
+      [driversLicense],
+      [
+        makeCredentialRequest({
+          type: 'DriversLicenseCredential',
+          children: [
+            makeCredentialRequest({
+              type: 'DocumentNumberCredential',
+            }),
+            makeCredentialRequest({
+              type: 'AddressCredential',
+              children: [
+                makeCredentialRequest({
+                  type: 'Line1Credential',
+                }),
+                makeCredentialRequest({
+                  type: 'CityCredential',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    );
+
+    // Clear all address fields to make the address object empty
+    (form.fields.driversLicense.children as any).address.children.line1.value =
+      '';
+    (form.fields.driversLicense.children as any).address.children.city.value =
+      '';
+
+    const result = toCreatePatchCredentials(form);
+
+    expect(result).toHaveLength(1);
+    // Should not include address property since it would be an empty object
+    expect(result[0]).toEqual({
+      uuid: driversLicense.uuid,
+      value: {
+        driversLicense: {
+          documentNumber: '123456789',
+          // address should be omitted - would be empty object
+        },
+      },
+    });
+
+    // Verify address property is not present at all
+    expect(result[0].value.driversLicense).not.toHaveProperty('address');
+  });
 });
