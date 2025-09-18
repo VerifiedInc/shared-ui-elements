@@ -239,4 +239,41 @@ describe('toCreatePatchCredentials', () => {
     // Verify address property is not present at all
     expect(result[0].value.driversLicense).not.toHaveProperty('address');
   });
+
+  test('should exclude phone fields from patch results', () => {
+    const ssn = makeCredential({
+      type: 'ssn',
+      value: { ssn: '123456789' },
+    });
+    const phone = makeCredential({
+      type: 'phone',
+      value: { phone: '+1234567890' },
+    });
+
+    const form = new FormBuilder().createFromCredentialAndRequests(
+      [ssn, phone],
+      [
+        makeCredentialRequest({
+          type: 'SsnCredential',
+        }),
+        makeCredentialRequest({
+          type: 'PhoneCredential',
+        }),
+      ],
+    );
+
+    const result = toCreatePatchCredentials(form);
+
+    // Should only include SSN, phone should be excluded
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual({
+      uuid: ssn.uuid,
+      value: {
+        ssn: '123456789',
+      },
+    });
+
+    // Verify no phone field in results
+    expect(result.find((r) => r.value.phone)).toBeUndefined();
+  });
 });
