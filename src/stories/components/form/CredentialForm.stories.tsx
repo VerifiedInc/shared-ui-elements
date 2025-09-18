@@ -665,7 +665,7 @@ const mockCredentialRequests = [
 ];
 
 const meta: Meta<typeof CredentialForm> = {
-  title: 'Components/Form/CredentialForm',
+  title: 'Components/form/NewOneClickForm',
   component: CredentialForm,
   parameters: {
     layout: 'centered',
