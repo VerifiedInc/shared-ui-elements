@@ -9,6 +9,7 @@ export * from './EmailInput';
 export * from './DateRangeInput';
 export * from './TimezoneInput';
 export * from './OneClickForm';
+export * from './NewOneClickForm';
 export * from './RadioOption';
 export * from './DefaultInput';
 export * from './AddressInput';

@@ -31,6 +31,30 @@ export class FormBuilder {
       } else {
         // Handle complex credential request (object format)
         requestObj = request;
+
+        // If it's a composite field without children, expand it automatically
+        if (!requestObj.children) {
+          const fieldKey = requestObj.type.replace(/Credential$/, '');
+          const requestType = (fieldKey.charAt(0).toLowerCase() +
+            fieldKey.slice(1)) as keyof typeof fields;
+          const fieldSchema = fields[requestType];
+
+          if (
+            fieldSchema &&
+            fieldSchema.characteristics.inputType ===
+              fieldInputTypes.composite &&
+            'children' in fieldSchema &&
+            'defaultOrder' in fieldSchema.characteristics &&
+            fieldSchema.characteristics.defaultOrder
+          ) {
+            // Expand the composite field
+            const expandedRequest = this.expandCredentialType(requestObj.type);
+            requestObj = {
+              ...requestObj,
+              children: expandedRequest.children,
+            };
+          }
+        }
       }
 
       // Convert credential type (e.g., "FullNameCredential") to field key (e.g., "fullName")

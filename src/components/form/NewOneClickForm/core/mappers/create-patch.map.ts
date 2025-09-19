@@ -3,6 +3,7 @@ import { Form, FormField } from '../form';
 
 export type CreatePatchCredentialsResult = {
   uuid?: string;
+  type?: string;
   value: Record<string, any>;
 };
 
@@ -65,6 +66,7 @@ export function toCreatePatchCredentials(
 
   const map = (field: FormField) => {
     const result: CreatePatchCredentialsResult = {
+      type: field.schema.key,
       value: {},
     };
 
@@ -74,7 +76,14 @@ export function toCreatePatchCredentials(
 
     // Clean empty properties from the field value for patch operations
     const cleanedValue = cleanEmptyProperties(field.value);
-    result.value[field.schema.key] = cleanedValue;
+
+    // For composite fields, use the cleaned value directly without wrapping with field key
+    if (field.schema.characteristics.inputType === fieldInputTypes.composite) {
+      result.value = cleanedValue;
+    } else {
+      // For primitive fields, wrap with the field key
+      result.value[field.schema.key] = cleanedValue;
+    }
 
     return result;
   };

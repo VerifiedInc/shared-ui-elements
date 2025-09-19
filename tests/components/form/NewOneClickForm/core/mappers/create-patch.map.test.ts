@@ -1,8 +1,6 @@
 import { test, describe, expect } from 'vitest';
-
 import { toCreatePatchCredentials } from '../../../../../../src/components/form/NewOneClickForm/core/mappers/create-patch.map';
 import { FormBuilder } from '../../../../../../src/components/form/NewOneClickForm/core/form';
-
 import { makeCredential, makeCredentialRequest } from '../../utils/form';
 
 describe('toCreatePatchCredentials', () => {
@@ -13,20 +11,9 @@ describe('toCreatePatchCredentials', () => {
   });
 
   test('should filter out fields that are empty', () => {
-    const ssn = makeCredential({
-      type: 'ssn',
-      value: { ssn: '' },
-    });
-    const fullName = makeCredential({
-      type: 'fullName',
-      value: { firstName: '', lastName: '' },
-    });
     const form = new FormBuilder().createFromCredentialAndRequests(
-      [ssn, fullName],
+      [],
       [
-        makeCredentialRequest({
-          type: 'SsnCredential',
-        }),
         makeCredentialRequest({
           type: 'FullNameCredential',
           children: [
@@ -42,238 +29,630 @@ describe('toCreatePatchCredentials', () => {
     expect(result).toHaveLength(0);
   });
 
-  test('should map mix primitive and composite credentials correctly', () => {
-    const ssn = makeCredential({
-      type: 'ssn',
-      value: { ssn: '123456789' },
-    });
-    const fullName = makeCredential({
-      type: 'fullName',
-      value: { firstName: 'John', lastName: 'Doe' },
-    });
-    const address = makeCredential({
-      type: 'address',
-      value: {
-        line1: '123 Main St',
-        city: 'New York',
-        state: 'NY',
-        country: 'US',
-        zipCode: '10001',
-      },
-    });
-    const form = new FormBuilder().createFromCredentialAndRequests(
-      [ssn, fullName, address],
-      [
-        makeCredentialRequest({
-          type: 'SsnCredential',
-        }),
-        makeCredentialRequest({
-          type: 'FullNameCredential',
-          children: [
-            makeCredentialRequest({ type: 'FirstNameCredential' }),
-            makeCredentialRequest({ type: 'LastNameCredential' }),
-          ],
-        }),
-        makeCredentialRequest({
-          type: 'AddressCredential',
-          children: [
-            makeCredentialRequest({ type: 'Line1Credential' }),
-            makeCredentialRequest({ type: 'Line2Credential' }),
-            makeCredentialRequest({ type: 'CityCredential' }),
-            makeCredentialRequest({ type: 'StateCredential' }),
-            makeCredentialRequest({ type: 'CountryCredential' }),
-            makeCredentialRequest({ type: 'ZipCodeCredential' }),
-          ],
-        }),
-      ],
-    );
+  describe('SSN field', () => {
+    test('should map SSN credential correctly', () => {
+      const ssn = makeCredential({
+        type: 'ssn',
+        value: { ssn: '123456789' },
+      });
 
-    const result = toCreatePatchCredentials(form);
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [ssn],
+        [makeCredentialRequest({ type: 'SsnCredential' })],
+      );
 
-    expect(result).toHaveLength(3);
-    expect(result[0]).toEqual({
-      uuid: ssn.uuid,
-      value: {
-        ssn: ssn.value.ssn,
-      },
-    });
-    expect(result[1]).toEqual({
-      uuid: fullName.uuid,
-      value: {
-        fullName: {
-          firstName: fullName.value.firstName,
-          lastName: fullName.value.lastName,
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: ssn.uuid,
+        type: 'ssn',
+        value: {
+          ssn: '123456789',
         },
-      },
+      });
     });
-    expect(result[2]).toEqual({
-      uuid: address.uuid,
-      value: {
-        address: {
-          line1: address.value.line1,
-          city: address.value.city,
-          state: address.value.state,
-          country: address.value.country,
-          zipCode: address.value.zipCode,
+
+    test('should exclude SSN when empty', () => {
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [],
+        [makeCredentialRequest({ type: 'SsnCredential' })],
+      );
+
+      const result = toCreatePatchCredentials(form);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('Phone field', () => {
+    test('should exclude phone fields from patch results', () => {
+      const phone = makeCredential({
+        type: 'phone',
+        value: { phone: '+1234567890' },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [phone],
+        [makeCredentialRequest({ type: 'PhoneCredential' })],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      // Phone should be excluded entirely
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('FullName field', () => {
+    test('should map FullName credential correctly', () => {
+      const fullName = makeCredential({
+        type: 'fullName',
+        value: { firstName: 'John', lastName: 'Doe' },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [fullName],
+        [
+          makeCredentialRequest({
+            type: 'FullNameCredential',
+            children: [
+              makeCredentialRequest({ type: 'FirstNameCredential' }),
+              makeCredentialRequest({ type: 'LastNameCredential' }),
+            ],
+          }),
+        ],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: fullName.uuid,
+        type: 'fullName',
+        value: {
+          firstName: 'John',
+          lastName: 'Doe',
         },
-      },
+      });
+    });
+
+    test('should handle FullName with middleName', () => {
+      const fullName = makeCredential({
+        type: 'fullName',
+        value: { firstName: 'John', middleName: 'Michael', lastName: 'Doe' },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [fullName],
+        [
+          makeCredentialRequest({
+            type: 'FullNameCredential',
+            children: [
+              makeCredentialRequest({ type: 'FirstNameCredential' }),
+              makeCredentialRequest({ type: 'MiddleNameCredential' }),
+              makeCredentialRequest({ type: 'LastNameCredential' }),
+            ],
+          }),
+        ],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: fullName.uuid,
+        type: 'fullName',
+        value: {
+          firstName: 'John',
+          middleName: 'Michael',
+          lastName: 'Doe',
+        },
+      });
+    });
+
+    test('should exclude empty middleName from FullName', () => {
+      const fullName = makeCredential({
+        type: 'fullName',
+        value: { firstName: 'John', lastName: 'Doe' },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [fullName],
+        [
+          makeCredentialRequest({
+            type: 'FullNameCredential',
+            children: [
+              makeCredentialRequest({ type: 'FirstNameCredential' }),
+              makeCredentialRequest({ type: 'MiddleNameCredential' }),
+              makeCredentialRequest({ type: 'LastNameCredential' }),
+            ],
+          }),
+        ],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: fullName.uuid,
+        type: 'fullName',
+        value: {
+          firstName: 'John',
+          lastName: 'Doe',
+          // middleName should be excluded since it's empty
+        },
+      });
+      expect(result[0].value).not.toHaveProperty('middleName');
     });
   });
 
-  test('should create value object with schema key for primitive values', () => {
-    const form = new FormBuilder().createFromCredentialAndRequests(
-      [
-        makeCredential({
-          type: 'ssn',
-          value: { ssn: '123456789' },
-        }),
-      ],
-      [
-        makeCredentialRequest({
-          type: 'SsnCredential',
-        }),
-      ],
-    );
+  describe('Address field', () => {
+    test('should map Address credential correctly', () => {
+      const address = makeCredential({
+        type: 'address',
+        value: {
+          line1: '123 Main St',
+          city: 'New York',
+          state: 'NY',
+          country: 'US',
+          zipCode: '10001',
+        },
+      });
 
-    const result = toCreatePatchCredentials(form);
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [address],
+        [
+          makeCredentialRequest({
+            type: 'AddressCredential',
+            children: [
+              makeCredentialRequest({ type: 'Line1Credential' }),
+              makeCredentialRequest({ type: 'CityCredential' }),
+              makeCredentialRequest({ type: 'StateCredential' }),
+              makeCredentialRequest({ type: 'CountryCredential' }),
+              makeCredentialRequest({ type: 'ZipCodeCredential' }),
+            ],
+          }),
+        ],
+      );
 
-    expect(result).toHaveLength(1);
-    expect(result[0].value).toEqual({ ssn: '123456789' });
-  });
+      const result = toCreatePatchCredentials(form);
 
-  test('should include uuid when field has id', () => {
-    const credentialWithId = makeCredential({
-      type: 'ssn',
-      value: { ssn: '123456789' },
-      uuid: 'test-uuid-123',
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: address.uuid,
+        type: 'address',
+        value: {
+          line1: '123 Main St',
+          city: 'New York',
+          state: 'NY',
+          country: 'US',
+          zipCode: '10001',
+        },
+      });
     });
 
-    const form = new FormBuilder().createFromCredentialAndRequests(
-      [credentialWithId],
-      [makeCredentialRequest({ type: 'SsnCredential' })],
-    );
+    test('should exclude empty line2 from Address', () => {
+      const address = makeCredential({
+        type: 'address',
+        value: {
+          line1: '123 Main St',
+          city: 'New York',
+          state: 'NY',
+          country: 'US',
+          zipCode: '10001',
+        },
+      });
 
-    const result = toCreatePatchCredentials(form);
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [address],
+        [
+          makeCredentialRequest({
+            type: 'AddressCredential',
+            children: [
+              makeCredentialRequest({ type: 'Line1Credential' }),
+              makeCredentialRequest({ type: 'Line2Credential' }),
+              makeCredentialRequest({ type: 'CityCredential' }),
+              makeCredentialRequest({ type: 'StateCredential' }),
+              makeCredentialRequest({ type: 'CountryCredential' }),
+              makeCredentialRequest({ type: 'ZipCodeCredential' }),
+            ],
+          }),
+        ],
+      );
 
-    expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({
-      uuid: 'test-uuid-123',
-      value: { ssn: '123456789' },
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].value).not.toHaveProperty('line2');
     });
-  });
 
-  test('should omit uuid when is a new field', () => {
-    const form = new FormBuilder().createFromCredentialAndRequests(
-      [],
-      [makeCredentialRequest({ type: 'SsnCredential' })],
-    );
-
-    form.fields.ssn.value = '123456789';
-
-    const result = toCreatePatchCredentials(form);
-
-    expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({
-      value: { ssn: '123456789' },
-    });
-    expect(result[0]).not.toHaveProperty('uuid');
-  });
-
-  test('should exclude empty objects with no keys', () => {
-    const driversLicense = makeCredential({
-      type: 'driversLicense',
-      value: {
-        documentNumber: '123456789',
-        address: {
+    test('should exclude entire Address when all fields are empty', () => {
+      const address = makeCredential({
+        type: 'address',
+        value: {
           line1: '123 Main St',
           city: 'New York',
         },
-      },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [address],
+        [
+          makeCredentialRequest({
+            type: 'AddressCredential',
+            children: [
+              makeCredentialRequest({ type: 'Line1Credential' }),
+              makeCredentialRequest({ type: 'CityCredential' }),
+            ],
+          }),
+        ],
+      );
+
+      // Clear all address fields to make them empty
+      (form.fields.address.children as any).line1.value = '';
+      (form.fields.address.children as any).city.value = '';
+
+      const result = toCreatePatchCredentials(form);
+
+      // Should exclude the entire address since all fields are empty
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('DriversLicense field', () => {
+    test('should map DriversLicense credential correctly', () => {
+      const driversLicense = makeCredential({
+        type: 'driversLicense',
+        value: {
+          documentNumber: '123456789',
+          issuanceState: 'NY',
+          issuanceDate: '1754049600000',
+          expirationDate: '1765800000000',
+          address: {
+            line1: '123 Main Street',
+            city: 'New York',
+            state: 'NY',
+            country: 'US',
+            zipCode: '10001',
+          },
+        },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [driversLicense],
+        [
+          makeCredentialRequest({
+            type: 'DriversLicenseCredential',
+            children: [
+              makeCredentialRequest({ type: 'DocumentNumberCredential' }),
+              makeCredentialRequest({ type: 'IssuanceStateCredential' }),
+              makeCredentialRequest({ type: 'IssuanceDateCredential' }),
+              makeCredentialRequest({ type: 'ExpirationDateCredential' }),
+              makeCredentialRequest({
+                type: 'AddressCredential',
+                children: [
+                  makeCredentialRequest({ type: 'Line1Credential' }),
+                  makeCredentialRequest({ type: 'CityCredential' }),
+                  makeCredentialRequest({ type: 'StateCredential' }),
+                  makeCredentialRequest({ type: 'CountryCredential' }),
+                  makeCredentialRequest({ type: 'ZipCodeCredential' }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: driversLicense.uuid,
+        type: 'driversLicense',
+        value: {
+          documentNumber: '123456789',
+          issuanceState: 'NY',
+          issuanceDate: '1754049600000',
+          expirationDate: '1765800000000',
+          address: {
+            line1: '123 Main Street',
+            city: 'New York',
+            state: 'NY',
+            country: 'US',
+            zipCode: '10001',
+          },
+        },
+      });
     });
 
-    const form = new FormBuilder().createFromCredentialAndRequests(
-      [driversLicense],
-      [
-        makeCredentialRequest({
-          type: 'DriversLicenseCredential',
-          children: [
-            makeCredentialRequest({
-              type: 'DocumentNumberCredential',
-            }),
-            makeCredentialRequest({
-              type: 'AddressCredential',
-              children: [
-                makeCredentialRequest({
-                  type: 'Line1Credential',
-                }),
-                makeCredentialRequest({
-                  type: 'CityCredential',
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    );
+    test('should exclude zipCode from DriversLicense address when not requested', () => {
+      const driversLicense = makeCredential({
+        type: 'driversLicense',
+        value: {
+          documentNumber: '123456789',
+          address: {
+            line1: '123 Main Street',
+            city: 'New York',
+            state: 'NY',
+            country: 'US',
+            zipCode: '10001',
+          },
+        },
+      });
 
-    // Clear all address fields to make the address object empty
-    (form.fields.driversLicense.children as any).address.children.line1.value =
-      '';
-    (form.fields.driversLicense.children as any).address.children.city.value =
-      '';
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [driversLicense],
+        [
+          makeCredentialRequest({
+            type: 'DriversLicenseCredential',
+            children: [
+              makeCredentialRequest({ type: 'DocumentNumberCredential' }),
+              makeCredentialRequest({
+                type: 'AddressCredential',
+                children: [
+                  makeCredentialRequest({ type: 'Line1Credential' }),
+                  makeCredentialRequest({ type: 'CityCredential' }),
+                  makeCredentialRequest({ type: 'StateCredential' }),
+                  makeCredentialRequest({ type: 'CountryCredential' }),
+                  // Note: ZipCodeCredential is not requested
+                ],
+              }),
+            ],
+          }),
+        ],
+      );
 
-    const result = toCreatePatchCredentials(form);
+      const result = toCreatePatchCredentials(form);
 
-    expect(result).toHaveLength(1);
-    // Should not include address property since it would be an empty object
-    expect(result[0]).toEqual({
-      uuid: driversLicense.uuid,
-      value: {
-        driversLicense: {
+      expect(result).toHaveLength(1);
+      expect(result[0].value.address).not.toHaveProperty('zipCode');
+    });
+
+    test('should exclude address from DriversLicense when all address fields are empty', () => {
+      const driversLicense = makeCredential({
+        type: 'driversLicense',
+        value: {
+          documentNumber: '123456789',
+          address: {
+            line1: '123 Main Street',
+            city: 'New York',
+          },
+        },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [driversLicense],
+        [
+          makeCredentialRequest({
+            type: 'DriversLicenseCredential',
+            children: [
+              makeCredentialRequest({ type: 'DocumentNumberCredential' }),
+              makeCredentialRequest({
+                type: 'AddressCredential',
+                children: [
+                  makeCredentialRequest({ type: 'Line1Credential' }),
+                  makeCredentialRequest({ type: 'CityCredential' }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      );
+
+      // Clear all address fields to make them empty
+      (
+        form.fields.driversLicense.children as any
+      ).address.children.line1.value = '';
+      (form.fields.driversLicense.children as any).address.children.city.value =
+        '';
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: driversLicense.uuid,
+        type: 'driversLicense',
+        value: {
           documentNumber: '123456789',
           // address should be omitted - would be empty object
         },
-      },
+      });
+      expect(result[0].value).not.toHaveProperty('address');
     });
-
-    // Verify address property is not present at all
-    expect(result[0].value.driversLicense).not.toHaveProperty('address');
   });
 
-  test('should exclude phone fields from patch results', () => {
-    const ssn = makeCredential({
-      type: 'ssn',
-      value: { ssn: '123456789' },
-    });
-    const phone = makeCredential({
-      type: 'phone',
-      value: { phone: '+1234567890' },
-    });
+  describe('BirthDate field', () => {
+    test('should map BirthDate credential correctly', () => {
+      const birthDate = makeCredential({
+        type: 'birthDate',
+        value: { birthDate: '946684800000' }, // 2000-01-01
+      });
 
-    const form = new FormBuilder().createFromCredentialAndRequests(
-      [ssn, phone],
-      [
-        makeCredentialRequest({
-          type: 'SsnCredential',
-        }),
-        makeCredentialRequest({
-          type: 'PhoneCredential',
-        }),
-      ],
-    );
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [birthDate],
+        [makeCredentialRequest({ type: 'BirthDateCredential' })],
+      );
 
-    const result = toCreatePatchCredentials(form);
+      const result = toCreatePatchCredentials(form);
 
-    // Should only include SSN, phone should be excluded
-    expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({
-      uuid: ssn.uuid,
-      value: {
-        ssn: '123456789',
-      },
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: birthDate.uuid,
+        type: 'birthDate',
+        value: {
+          birthDate: '946684800000',
+        },
+      });
     });
 
-    // Verify no phone field in results
-    expect(result.find((r) => r.value.phone)).toBeUndefined();
+    test('should exclude BirthDate when empty', () => {
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [],
+        [makeCredentialRequest({ type: 'BirthDateCredential' })],
+      );
+
+      const result = toCreatePatchCredentials(form);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('Sex field', () => {
+    test('should map Sex credential correctly', () => {
+      const sex = makeCredential({
+        type: 'sex',
+        value: { sex: 'M' },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [sex],
+        [makeCredentialRequest({ type: 'SexCredential' })],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: sex.uuid,
+        type: 'sex',
+        value: {
+          sex: 'M',
+        },
+      });
+    });
+
+    test('should exclude Sex when empty', () => {
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [],
+        [makeCredentialRequest({ type: 'SexCredential' })],
+      );
+
+      const result = toCreatePatchCredentials(form);
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe('Mixed field scenarios', () => {
+    test('should handle multiple different field types together', () => {
+      const ssn = makeCredential({
+        type: 'ssn',
+        value: { ssn: '123456789' },
+      });
+      const fullName = makeCredential({
+        type: 'fullName',
+        value: { firstName: 'John', lastName: 'Doe' },
+      });
+      const birthDate = makeCredential({
+        type: 'birthDate',
+        value: { birthDate: '946684800000' },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [ssn, fullName, birthDate],
+        [
+          makeCredentialRequest({ type: 'SsnCredential' }),
+          makeCredentialRequest({
+            type: 'FullNameCredential',
+            children: [
+              makeCredentialRequest({ type: 'FirstNameCredential' }),
+              makeCredentialRequest({ type: 'LastNameCredential' }),
+            ],
+          }),
+          makeCredentialRequest({ type: 'BirthDateCredential' }),
+        ],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(3);
+      expect(result[0]).toEqual({
+        uuid: ssn.uuid,
+        type: 'ssn',
+        value: { ssn: '123456789' },
+      });
+      expect(result[1]).toEqual({
+        uuid: fullName.uuid,
+        type: 'fullName',
+        value: { firstName: 'John', lastName: 'Doe' },
+      });
+      expect(result[2]).toEqual({
+        uuid: birthDate.uuid,
+        type: 'birthDate',
+        value: { birthDate: '946684800000' },
+      });
+    });
+
+    test('should exclude phone while including other fields', () => {
+      const ssn = makeCredential({
+        type: 'ssn',
+        value: { ssn: '123456789' },
+      });
+      const phone = makeCredential({
+        type: 'phone',
+        value: { phone: '+1234567890' },
+      });
+
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [ssn, phone],
+        [
+          makeCredentialRequest({ type: 'SsnCredential' }),
+          makeCredentialRequest({ type: 'PhoneCredential' }),
+        ],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      // Should only include SSN, phone should be excluded
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: ssn.uuid,
+        type: 'ssn',
+        value: { ssn: '123456789' },
+      });
+
+      // Verify no phone field in results
+      expect(result.find((r) => r.type === 'phone')).toBeUndefined();
+    });
+  });
+
+  describe('UUID handling', () => {
+    test('should include uuid when field has id', () => {
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [
+          makeCredential({
+            uuid: 'test-uuid-123',
+            type: 'ssn',
+            value: { ssn: '123456789' },
+          }),
+        ],
+        [makeCredentialRequest({ type: 'SsnCredential' })],
+      );
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        uuid: 'test-uuid-123',
+        type: 'ssn',
+        value: { ssn: '123456789' },
+      });
+    });
+
+    test('should omit uuid when is a new field', () => {
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [],
+        [makeCredentialRequest({ type: 'SsnCredential' })],
+      );
+
+      form.fields.ssn.value = '123456789';
+
+      const result = toCreatePatchCredentials(form);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        type: 'ssn',
+        value: { ssn: '123456789' },
+      });
+      expect(result[0]).not.toHaveProperty('uuid');
+    });
   });
 });
