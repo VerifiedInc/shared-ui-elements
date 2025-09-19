@@ -357,7 +357,7 @@ describe('address', () => {
           line1: '789 Caribbean Avenue',
           line2: '',
           city: 'San Juan',
-          state: 'PR', // Puerto Rico
+          state: 'AL', // Alabama
           country: 'US',
           zipCode: '00901',
         });
