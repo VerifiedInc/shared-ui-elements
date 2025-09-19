@@ -6,7 +6,7 @@ import {
 
 describe('toShareCredentials', () => {
   test('should return empty array for empty input', () => {
-    const result = toShareCredentials.toShareCredentials([]);
+    const result = toShareCredentials([]);
 
     expect(result).toEqual([]);
   });
@@ -22,7 +22,7 @@ describe('toShareCredentials', () => {
       },
     ];
 
-    const result = toShareCredentials.toShareCredentials(credentials);
+    const result = toShareCredentials(credentials);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -44,7 +44,7 @@ describe('toShareCredentials', () => {
       },
     ];
 
-    const result = toShareCredentials.toShareCredentials(credentials);
+    const result = toShareCredentials(credentials);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -72,7 +72,7 @@ describe('toShareCredentials', () => {
       },
     ];
 
-    const result = toShareCredentials.toShareCredentials(credentials);
+    const result = toShareCredentials(credentials);
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
@@ -97,7 +97,7 @@ describe('toShareCredentials', () => {
       },
     ];
 
-    const result = toShareCredentials.toShareCredentials(credentials);
+    const result = toShareCredentials(credentials);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -127,7 +127,7 @@ describe('toShareCredentials', () => {
       },
     ];
 
-    const result = toShareCredentials.toShareCredentials(credentials);
+    const result = toShareCredentials(credentials);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
