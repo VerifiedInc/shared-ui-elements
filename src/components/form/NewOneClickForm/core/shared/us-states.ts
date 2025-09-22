@@ -7,7 +7,6 @@ export const US_STATES_RECORD = {
   CO: 'Colorado',
   CT: 'Connecticut',
   DE: 'Delaware',
-  DC: 'District of Columbia',
   FL: 'Florida',
   GA: 'Georgia',
   HI: 'Hawaii',
@@ -45,12 +44,18 @@ export const US_STATES_RECORD = {
   TX: 'Texas',
   UT: 'Utah',
   VT: 'Vermont',
-  VI: 'Virgin Islands',
   VA: 'Virginia',
   WA: 'Washington',
   WV: 'West Virginia',
   WI: 'Wisconsin',
   WY: 'Wyoming',
+  DC: 'District of Columbia',
+  AS: 'American Samoa',
+  GU: 'Guam',
+  MP: 'Northern Mariana Islands',
+  PR: 'Puerto Rico',
+  UM: 'United States Minor Outlying Islands',
+  VI: 'Virgin Islands',
 } as const;
 
 export type USStateCode = keyof typeof US_STATES_RECORD;
@@ -60,12 +65,15 @@ export type USStateName = (typeof US_STATES_RECORD)[USStateCode];
  * US States and Territories with their ISO 3166-2 codes
  * Used for state selection when country is US
  */
-export const US_STATES = Object.entries(US_STATES_RECORD).map(
-  ([code, name]) => ({
+export const US_STATES = Object.entries(US_STATES_RECORD)
+  .map(([code, name]) => ({
     value: code,
     label: name,
-  }),
-) as Array<{ value: USStateCode; label: USStateName }>;
+  }))
+  .sort((a, b) => a.label.localeCompare(b.label)) as Array<{
+  value: USStateCode;
+  label: USStateName;
+}>;
 
 export const US_STATE_CODES = Object.keys(US_STATES_RECORD) as USStateCode[];
 export const US_STATE_NAMES = Object.values(US_STATES_RECORD) as USStateName[];
