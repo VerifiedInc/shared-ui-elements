@@ -193,11 +193,6 @@ export class FormField<
   }
 
   get isEmpty(): boolean {
-    // Phone should not be considered empty, is not a visible field.
-    if (this.schema.key === credentialKeys.phone) {
-      return true;
-    }
-
     const _isEmpty = (value: any): boolean => {
       if (value === undefined || value === null || value === '') {
         return true;

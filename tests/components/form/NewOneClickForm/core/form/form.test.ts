@@ -129,7 +129,7 @@ describe('Form', () => {
         expect(form.isEmpty).toBe(true);
       });
 
-      test('phone credential provided should be empty', () => {
+      test('phone credential provided should be empty form level but not field level', () => {
         const form = new FormBuilder().createFromCredentialAndRequests(
           [
             makeCredential({
@@ -141,6 +141,7 @@ describe('Form', () => {
         );
 
         expect(form.isEmpty).toBe(true);
+        expect(form.fields.phone.isEmpty).toBe(false);
       });
 
       test('credentials are provided', () => {

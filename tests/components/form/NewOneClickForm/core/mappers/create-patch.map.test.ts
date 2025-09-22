@@ -65,7 +65,7 @@ describe('toCreatePatchCredentials', () => {
   });
 
   describe('Phone field', () => {
-    test('should exclude phone fields from patch results', () => {
+    test('should not exclude phone fields from patch results', () => {
       const phone = makeCredential({
         type: 'phone',
         value: { phone: '+1234567890' },
@@ -79,7 +79,7 @@ describe('toCreatePatchCredentials', () => {
       const result = toCreatePatchCredentials(form);
 
       // Phone should be excluded entirely
-      expect(result).toHaveLength(0);
+      expect(result).toHaveLength(1);
     });
   });
 
@@ -601,16 +601,21 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      // Should only include SSN, phone should be excluded
-      expect(result).toHaveLength(1);
+      // Should include SSN and phone
+      expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
         uuid: ssn.uuid,
         type: 'ssn',
         value: { ssn: '123456789' },
       });
+      expect(result[1]).toEqual({
+        uuid: phone.uuid,
+        type: 'phone',
+        value: { phone: '+1234567890' },
+      });
 
       // Verify no phone field in results
-      expect(result.find((r) => r.type === 'phone')).toBeUndefined();
+      expect(result.find((r) => r.type === 'phone')).toBeDefined();
     });
   });
 

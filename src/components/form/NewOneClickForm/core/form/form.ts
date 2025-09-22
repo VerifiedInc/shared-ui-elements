@@ -1,3 +1,5 @@
+import { credentialKeys } from '../fields';
+
 import { FormField } from './formField';
 
 export class Form {
@@ -12,7 +14,14 @@ export class Form {
   }
 
   get isEmpty() {
-    return Object.values(this.fields).every((field) => field.isEmpty);
+    return Object.values(this.fields).every((field) => {
+      // Phone should be considered empty, is not a visible field.
+      if (field.schema.key === credentialKeys.phone) {
+        return true;
+      }
+
+      return field.isEmpty;
+    });
   }
 
   get isDirty() {
