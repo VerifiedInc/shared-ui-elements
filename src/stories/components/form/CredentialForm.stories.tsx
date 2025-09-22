@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Button, Portal, Stack } from '@mui/material';
 
 import { type CredentialRequest } from '../../../components/form/NewOneClickForm/types';
-import { type Form } from '../../../components/form/NewOneClickForm/core/form/form';
-import { toCreatePatchCredentials } from '../../../components/form/NewOneClickForm/core/mappers';
 import {
-  FormContextValue,
+  type FormContextValue,
+  type Form,
   NewOneClickForm,
-} from '../../../components/form/NewOneClickForm/react';
+  toCreatePatchCredentials,
+} from '../../../components/form/NewOneClickForm';
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
   const [key, setKey] = useState(0);
@@ -542,6 +542,13 @@ const mockCredentialRequests = [
     type: 'PhoneCredential',
   },
   // 'AddressCredential',
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'yes',
+  //   multi: false,
+  //   type: 'AddressCredential',
+  //   description: 'Your address information',
+  // },
   {
     allowUserInput: true,
     mandatory: 'no',
@@ -598,6 +605,13 @@ const mockCredentialRequests = [
     type: 'SexCredential',
     description: 'Your birth sex',
   },
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'no',
+  //   multi: false,
+  //   type: 'DriversLicenseCredential',
+  //   description: 'We are required by law to ask for a government ID',
+  // },
   {
     allowUserInput: true,
     mandatory: 'no',
@@ -659,10 +673,6 @@ const mockCredentialRequests = [
           {
             type: 'CountryCredential',
             description: 'Country',
-          },
-          {
-            type: 'ZipCodeCredential',
-            description: 'ZipCode',
           },
         ],
       },
