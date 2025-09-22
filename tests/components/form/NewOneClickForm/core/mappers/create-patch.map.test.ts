@@ -613,8 +613,6 @@ describe('toCreatePatchCredentials', () => {
         type: 'phone',
         value: { phone: '+1234567890' },
       });
-
-      // Verify no phone field in results
       expect(result.find((r) => r.type === 'phone')).toBeDefined();
     });
   });

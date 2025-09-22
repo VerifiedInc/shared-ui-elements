@@ -15,7 +15,7 @@ export class Form {
 
   get isEmpty() {
     return Object.values(this.fields).every((field) => {
-      // Phone should be considered empty, is not a visible field.
+      // Always treat phone field as empty for form-level validation, while preserving its actual value for patch creation.
       if (field.schema.key === credentialKeys.phone) {
         return true;
       }
