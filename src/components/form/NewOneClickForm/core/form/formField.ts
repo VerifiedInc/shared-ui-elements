@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { cloneDeep } from 'lodash';
 
 import { type FieldValueDefinitions } from '../declarations';
-import { credentialKeys, type BaseFieldDefinition } from '../fields';
+import { type BaseFieldDefinition } from '../fields';
 
 export interface FormFieldOptions<
   TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
