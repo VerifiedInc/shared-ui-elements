@@ -78,7 +78,6 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      // Phone should be excluded entirely
       expect(result).toHaveLength(1);
     });
   });
