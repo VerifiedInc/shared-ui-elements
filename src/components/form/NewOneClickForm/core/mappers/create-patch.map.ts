@@ -1,4 +1,4 @@
-import { credentialKeys, fieldInputTypes } from '../fields';
+import { fieldInputTypes } from '../fields';
 import { Form, FormField } from '../form';
 
 export type CreatePatchCredentialsResult = {
@@ -11,11 +11,6 @@ export function toCreatePatchCredentials(
   form: Form,
 ): CreatePatchCredentialsResult[] {
   const nonEmptyFields = (field: FormField) => {
-    // Phone is not included in the patch/create request.
-    if (field.schema.key === credentialKeys.phone) {
-      return false;
-    }
-
     if (
       field.schema.characteristics.inputType === fieldInputTypes.composite &&
       field.children

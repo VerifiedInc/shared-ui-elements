@@ -538,7 +538,6 @@ const mockCredentialRequests = [
   {
     allowUserInput: true,
     mandatory: 'no',
-    multi: false,
     type: 'PhoneCredential',
   },
   // 'AddressCredential',
