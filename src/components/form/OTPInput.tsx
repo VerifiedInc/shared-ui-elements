@@ -161,7 +161,8 @@ function OTPInputComponent(
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
+      const _value = event.target.value;
+      const value = _value.replace(/-/g, '');
 
       // Handle autofill (particularly from iOS/Android)
       if (value.length === 6 && /^\d{6}$/.test(value)) {
@@ -323,7 +324,13 @@ function OTPInputComponent(
               inputRef={(input) =>
                 ((inputsRef.current[index + startIndex] as any) = input)
               }
-              autoComplete={props.autoComplete ?? 'one-time-code'}
+              id={ids.current[index + startIndex]}
+              name={`otp-input-${index + startIndex}`}
+              autoComplete={
+                index + startIndex === 0
+                  ? (props.autoComplete ?? 'one-time-code')
+                  : undefined
+              }
               autoFocus={index + startIndex === 0}
               value={values[index + startIndex] || ''}
               disabled={props.disabled}
@@ -337,8 +344,6 @@ function OTPInputComponent(
               data-testid={`otp-input-${index + startIndex}`}
               inputProps={{
                 ...inputProps.inputProps,
-                'aria-labelledby':
-                  props.ariaLabelledBy ?? props.name ?? 'otp-input',
                 'aria-required': 'true',
                 'aria-invalid': props.error ? 'true' : 'false',
                 'aria-label': `Digit ${index + startIndex + 1} of 6`,
