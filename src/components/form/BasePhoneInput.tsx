@@ -37,6 +37,7 @@ export interface BasePhoneInputProps {
   InputLabelProps?: InputLabelProps;
   placeholder?: string;
   lazy?: boolean;
+  enableChromeAutofill?: boolean;
 }
 
 /**
@@ -62,6 +63,7 @@ export interface BasePhoneInputProps {
  * @param variant - The variant of the phone input. Defaults to 'outlined'.
  * @param placeholder - The placeholder for the phone input.
  * @param lazy - Whether to use lazy loading for the phone input. Defaults to false.
+ * @param enableChromeAutofill - Whether to enable Chrome mobile autofill support. Defaults to false.
  */
 export function BasePhoneInput({
   label = 'Phone',
@@ -83,6 +85,7 @@ export function BasePhoneInput({
   size,
   placeholder = '+1 (___) ___-____',
   lazy = true,
+  enableChromeAutofill = true,
 }: Readonly<BasePhoneInputProps>): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -162,6 +165,7 @@ export function BasePhoneInput({
       // Tab index for each block.
       tabIndex: 0,
       type: 'tel',
+      enableChromeAutofill,
     },
     InputLabelProps: {
       shrink: true,
