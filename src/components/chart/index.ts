@@ -16,3 +16,4 @@ export * from './LoadingChartSection';
 export * from './EmptyChartSection';
 export * from './MetricLastUpdated';
 export * from './SignupBigNumbers';
+export * from './TTSOverTimeChart';
