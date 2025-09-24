@@ -162,7 +162,7 @@ function OTPInputComponent(
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const _value = event.target.value;
-      const value = _value.replace(/-/g, '');
+      const value = _value.replace(/[^0-9]/g, '');
 
       // Handle autofill (particularly from iOS/Android)
       if (value.length === 6 && /^\d{6}$/.test(value)) {
