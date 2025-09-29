@@ -18,3 +18,4 @@ export * from './useResizeObserver';
 export * from './useNavigatorOnline';
 export * from './useDebounceCallback';
 export * from './useStyledQRCode';
+export * from './text-to-signup';
