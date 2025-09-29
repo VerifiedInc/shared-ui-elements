@@ -20,3 +20,4 @@ export * from './WhenStyled';
 export * from './RequiredLabel';
 export * from './icons';
 export * from './UI';
+export * from './text-to-signup';
