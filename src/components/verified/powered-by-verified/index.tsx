@@ -1,11 +1,32 @@
 import { Box, BoxProps } from '@mui/material';
 
+type PoweredByVerifiedProps = BoxProps & {
+  variant?: 'default' | 'green' | 'gray' | 'white' | 'black';
+  containerProps?: BoxProps;
+};
+
 export function PoweredByVerified({
+  variant = 'default',
   containerProps,
   ...props
-}: BoxProps & {
-  containerProps?: BoxProps;
-}) {
+}: PoweredByVerifiedProps) {
+  const colors = {
+    default: '#0DBC3D',
+    green: '#0DBC3D',
+    gray: '#A5A5A5',
+    white: '#FFFFFF',
+    black: '#000000',
+  };
+  const textColors = {
+    default: '#202020',
+    green: '#202020',
+    gray: '#A5A5A5',
+    white: '#ffffff',
+    black: '#202020',
+  };
+  const currentColor = colors[variant] ?? colors.default;
+  const currentTextColor = textColors[variant] ?? textColors.default;
+
   return (
     <Box
       component='a'
@@ -47,7 +68,7 @@ export function PoweredByVerified({
                 <g
                   id='Clear-Check'
                   transform='translate(185.4544, 0)'
-                  fill='#0DBC3D'
+                  fill={currentColor}
                 >
                   <g id='Check-Mark' fillRule='nonzero'>
                     <path
@@ -97,7 +118,7 @@ export function PoweredByVerified({
                 <g
                   id='Powered-by'
                   transform='translate(0, 7.9808)'
-                  fill='#202020'
+                  fill={currentTextColor}
                 >
                   <path
                     d='M5.5432,16.564 L5.5432,24.5508 L0,24.5508 L0,0.656 L8.4296,0.656 C10.1133333,0.656 11.5592667,0.855533333 12.7674,1.2546 C13.9755333,1.65366667 14.9704667,2.20306667 15.7522,2.9028 C16.5339333,3.60253333 17.1106667,4.428 17.4824,5.3792 C17.8541333,6.3304 18.04,7.35813333 18.04,8.4624 C18.04,9.65413333 17.8486667,10.7474667 17.466,11.7424 C17.0833333,12.7373333 16.4984,13.5901333 15.7112,14.3008 C14.924,15.0114667 13.9263333,15.5663333 12.7182,15.9654 C11.5100667,16.3644667 10.0805333,16.564 8.4296,16.564 L5.5432,16.564 Z M5.5432,12.382 L8.4296,12.382 C9.8728,12.382 10.9114667,12.0376 11.5456,11.3488 C12.1797333,10.66 12.4968,9.69786667 12.4968,8.4624 C12.4968,7.91573333 12.4148,7.41826667 12.2508,6.97 C12.0868,6.52173333 11.8380667,6.13633333 11.5046,5.8138 C11.1711333,5.49126667 10.7502,5.24253333 10.2418,5.0676 C9.7334,4.89266667 9.12933333,4.8052 8.4296,4.8052 L5.5432,4.8052 L5.5432,12.382 Z'
