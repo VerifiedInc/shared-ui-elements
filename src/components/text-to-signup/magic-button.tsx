@@ -6,12 +6,12 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Box, Stack } from '@mui/material';
+import { type ButtonProps, Box, Button, Stack } from '@mui/material';
 import { AutoAwesome } from '@mui/icons-material';
 import * as htmlToImage from 'html-to-image';
 
-import { contrastColor } from '../../utils/color';
 import { wrapPromise } from '../../utils/wrapPromise';
+import { PoweredByVerified, PoweredByVerifiedProps } from '../verified';
 
 export type TTSMagicButtonHandle = {
   download(extension: 'png' | 'svg'): Promise<void>;
@@ -19,24 +19,25 @@ export type TTSMagicButtonHandle = {
 
 function TTSMagicButtonComponent(
   {
-    backgroundColor,
-    borderRadius,
-    fontFamily,
     magicLink,
     magicText,
+    buttonProps,
+    renderAsImage,
+    enablePoweredByVerified,
+    poweredByVerifiedProps,
   }: {
-    backgroundColor: string;
-    borderRadius: string | number;
-    fontFamily: string;
     magicLink: string;
     magicText: string;
+    buttonProps?: ButtonProps;
+    renderAsImage?: boolean;
+    enablePoweredByVerified?: boolean;
+    poweredByVerifiedProps?: PoweredByVerifiedProps;
   },
   ref: ForwardedRef<TTSMagicButtonHandle>,
 ) {
   const buttonRef = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<string | null>(null);
   const [count, setCount] = useState<number>(0);
-  const foregroundColor = contrastColor(backgroundColor);
 
   const handleDownload = async (extension: 'png' | 'svg') => {
     if (!buttonRef.current) return;
@@ -79,6 +80,13 @@ function TTSMagicButtonComponent(
    * Force a re-render to create the image with the border correctly
    */
   useEffect(() => {
+    // Reset count when is not rendering as image,
+    // so it can count when it renders as image.
+    if (!renderAsImage) {
+      setCount(0);
+      return;
+    }
+
     if (!buttonRef.current || count > 4) return;
 
     const interval = setInterval(() => {
@@ -86,10 +94,12 @@ function TTSMagicButtonComponent(
     }, 1);
 
     return () => clearInterval(interval);
-  }, [count]);
+  }, [count, renderAsImage]);
 
   // Effect to update the image
   useEffect(() => {
+    if (!renderAsImage) return;
+
     const storeImage = async () => {
       if (!buttonRef.current) return;
 
@@ -106,38 +116,33 @@ function TTSMagicButtonComponent(
 
     void storeImage();
   }, [
-    backgroundColor,
-    borderRadius,
     count,
-    fontFamily,
-    foregroundColor,
     magicLink,
     magicText,
+    buttonProps,
+    enablePoweredByVerified,
+    poweredByVerifiedProps,
+    renderAsImage,
   ]);
 
   return (
-    <Stack
-      component='a'
-      href={magicLink}
-      target='_blank'
-      rel='noopener noreferrer'
-      flex={1}
-      sx={{ overflow: 'visible' }}
-    >
+    <Stack>
       <Box
         className='button-preview-container'
         sx={{
-          position: 'fixed',
-          top: -9999,
-          left: -9999,
-          overflow: 'hidden',
-          zIndex: -1,
+          ...(renderAsImage && {
+            position: 'fixed',
+            top: -9999,
+            left: -9999,
+            maxWidth: 9999,
+            overflow: 'hidden',
+            zIndex: -1,
+          }),
         }}
       >
         <Stack
           ref={buttonRef}
           className='canvas-copiable'
-          direction='row'
           spacing={1}
           sx={{
             display: 'inline-flex',
@@ -145,32 +150,67 @@ function TTSMagicButtonComponent(
             justifyContent: 'center',
             alignItems: 'center',
             alignSelf: 'center',
-            bgcolor: backgroundColor,
-            color: foregroundColor,
-            fontFamily,
-            fontWeight: 700,
-            lineHeight: 0,
-            borderRadius: `${borderRadius}px`,
-            p: 1.5,
-            textAlign: 'center',
-            m: 0,
-            mr: 'auto',
-            whiteSpace: 'nowrap',
+            ...(renderAsImage && {
+              pt: '3px',
+              pb: '6px',
+              px: '4px',
+            }),
           }}
         >
-          <AutoAwesome />
-          <span>{magicText}</span>
+          <Button
+            href={magicLink}
+            target='_blank'
+            variant='contained'
+            size='large'
+            color={'primary'}
+            startIcon={<AutoAwesome />}
+            sx={{
+              textTransform: 'none',
+              fontSize: 16,
+              p: 1.5,
+              m: 1,
+              '&, & >span': {
+                wordBreak: 'break-word',
+                lineHeight: renderAsImage ? 0 : undefined,
+              },
+              ...buttonProps?.sx,
+            }}
+            {...(buttonProps as unknown as any)}
+          >
+            <span>{magicText}</span>
+          </Button>
+          {enablePoweredByVerified && (
+            <PoweredByVerified
+              {...poweredByVerifiedProps}
+              containerProps={{
+                pt: 0.5,
+                maxWidth: 143,
+                ...poweredByVerifiedProps?.containerProps,
+              }}
+            />
+          )}
         </Stack>
       </Box>
-      {image && (
-        <Box
-          component='img'
-          src={image}
-          sx={{
-            width: '100%',
-            height: 'auto',
-          }}
-        />
+      {image && renderAsImage && (
+        <Stack
+          component='a'
+          href={magicLink}
+          target='_blank'
+          rel='noopener noreferrer'
+          flex={1}
+          sx={{ overflow: 'visible' }}
+        >
+          <Box
+            component='img'
+            src={image}
+            alt={magicText}
+            draggable={false}
+            sx={{
+              width: '100%',
+              height: 'auto',
+            }}
+          />
+        </Stack>
       )}
     </Stack>
   );

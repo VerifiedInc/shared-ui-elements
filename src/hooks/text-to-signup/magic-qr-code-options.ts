@@ -34,7 +34,7 @@ export function useTTSMagicQRCodeOptions({
           color: '#000000',
         } as const,
         backgroundOptions: {
-          color: '#fff',
+          color: '#00000000',
         } as const,
       },
     }),

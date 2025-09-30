@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCodeStyling, { FileExtension, Options } from 'qr-code-styling';
+import isEqual from 'lodash/isEqual';
 
 export type StyledQRCodeOptions = {
   className?: string;
@@ -39,7 +40,6 @@ export function useStyledQRCode({ options, className }: StyledQRCodeOptions) {
       cornersSquareOptions: options?.cornersSquareOptions,
       cornersDotOptions: options?.cornersDotOptions,
       backgroundOptions: {
-        color: '#ffffff',
         ...options?.backgroundOptions,
       },
     };
@@ -51,7 +51,9 @@ export function useStyledQRCode({ options, className }: StyledQRCodeOptions) {
 
   // Memoize the component to prevent unnecessary re-renders
   const Component = useMemo(() => {
-    const QRComponent = () => <div className={className} ref={ref} />;
+    const QRComponent = () => (
+      <div key='qr-code' className={className} ref={ref} />
+    );
     return QRComponent;
   }, [className]);
 
@@ -75,8 +77,9 @@ export function useStyledQRCode({ options, className }: StyledQRCodeOptions) {
   // Update QR code when options change
   useEffect(() => {
     if (!qrCode) return;
+    if (isEqual(qrCodeOptions, buildOptions(options))) return;
     qrCode.update(buildOptions(options));
-  }, [qrCode, options]);
+  }, [qrCode, qrCodeOptions, options]);
 
   return { Component, getRawData, download };
 }

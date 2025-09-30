@@ -1,6 +1,6 @@
 import { Box, BoxProps } from '@mui/material';
 
-type PoweredByVerifiedProps = BoxProps & {
+export type PoweredByVerifiedProps = BoxProps & {
   variant?: 'default' | 'green' | 'gray' | 'white' | 'black';
   containerProps?: BoxProps;
 };
