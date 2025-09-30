@@ -121,5 +121,5 @@ function TTSMagicQRCodeComponent(
 
 export const TTSMagicQRCode = memo(
   forwardRef(TTSMagicQRCodeComponent),
-  isEqual
+  isEqual,
 );
