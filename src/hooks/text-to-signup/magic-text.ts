@@ -19,10 +19,16 @@ export function useTTSMagicText({
         .replace(')', '')
         .replace(' ', '-') ?? phoneNumber;
   }
-  return {
+
+  const magicText = {
     text,
     keyword,
     phoneNumber,
     signature,
+  };
+
+  return {
+    ...magicText,
+    displayValue: `${magicText.text} ${magicText.keyword} ${magicText.signature} ${magicText.phoneNumber}`,
   };
 }

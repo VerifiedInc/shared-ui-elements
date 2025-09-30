@@ -6,12 +6,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Box, Button, Stack } from '@mui/material';
+import { type ButtonProps, Box, Button, Stack } from '@mui/material';
 import { AutoAwesome } from '@mui/icons-material';
 import * as htmlToImage from 'html-to-image';
 
-import { colors } from '../../styles';
-import { contrastColor } from '../../utils/color';
 import { wrapPromise } from '../../utils/wrapPromise';
 import { PoweredByVerified, PoweredByVerifiedProps } from '../verified';
 
@@ -21,20 +19,16 @@ export type TTSMagicButtonHandle = {
 
 function TTSMagicButtonComponent(
   {
-    backgroundColor,
-    borderRadius,
-    fontFamily,
     magicLink,
     magicText,
+    buttonProps,
     renderAsImage,
     enablePoweredByVerified,
     poweredByVerifiedProps,
   }: {
     magicLink: string;
     magicText: string;
-    backgroundColor?: string;
-    borderRadius?: string | number;
-    fontFamily?: string;
+    buttonProps?: ButtonProps;
     renderAsImage?: boolean;
     enablePoweredByVerified?: boolean;
     poweredByVerifiedProps?: PoweredByVerifiedProps;
@@ -44,7 +38,6 @@ function TTSMagicButtonComponent(
   const buttonRef = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<string | null>(null);
   const [count, setCount] = useState<number>(0);
-  const foregroundColor = contrastColor(backgroundColor ?? colors.green);
 
   const handleDownload = async (extension: 'png' | 'svg') => {
     if (!buttonRef.current) return;
@@ -87,6 +80,13 @@ function TTSMagicButtonComponent(
    * Force a re-render to create the image with the border correctly
    */
   useEffect(() => {
+    // Reset count when is not rendering as image,
+    // so it can count when it renders as image.
+    if (!renderAsImage) {
+      setCount(0);
+      return;
+    }
+
     if (!buttonRef.current || count > 4) return;
 
     const interval = setInterval(() => {
@@ -94,10 +94,12 @@ function TTSMagicButtonComponent(
     }, 1);
 
     return () => clearInterval(interval);
-  }, [count]);
+  }, [count, renderAsImage]);
 
   // Effect to update the image
   useEffect(() => {
+    if (!renderAsImage) return;
+
     const storeImage = async () => {
       if (!buttonRef.current) return;
 
@@ -114,15 +116,13 @@ function TTSMagicButtonComponent(
 
     void storeImage();
   }, [
-    backgroundColor,
-    borderRadius,
     count,
-    fontFamily,
-    foregroundColor,
     magicLink,
     magicText,
+    buttonProps,
     enablePoweredByVerified,
     poweredByVerifiedProps,
+    renderAsImage,
   ]);
 
   return (
@@ -150,9 +150,11 @@ function TTSMagicButtonComponent(
             justifyContent: 'center',
             alignItems: 'center',
             alignSelf: 'center',
-            pt: '3px',
-            pb: '6px',
-            px: '4px',
+            ...(renderAsImage && {
+              pt: '3px',
+              pb: '6px',
+              px: '4px',
+            }),
           }}
         >
           <Button
@@ -163,16 +165,17 @@ function TTSMagicButtonComponent(
             color={'primary'}
             startIcon={<AutoAwesome />}
             sx={{
-              bgcolor: backgroundColor,
               textTransform: 'none',
               fontSize: 16,
               p: 1.5,
               m: 1,
               '&, & >span': {
                 wordBreak: 'break-word',
-                // lineHeight: 0,
+                lineHeight: renderAsImage ? 0 : undefined,
               },
+              ...buttonProps?.sx,
             }}
+            {...(buttonProps as unknown as any)}
           >
             <span>{magicText}</span>
           </Button>

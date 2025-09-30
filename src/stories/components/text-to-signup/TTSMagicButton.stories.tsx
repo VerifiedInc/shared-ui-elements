@@ -19,19 +19,6 @@ export default {
   // This component will have an automatically generated Autodocs entry
   tags: ['autodocs'],
   argTypes: {
-    backgroundColor: {
-      control: { type: 'color' },
-      description: 'Background color of the magic button',
-    },
-    borderRadius: {
-      control: { type: 'number', min: 0, max: 50, step: 1 },
-      description: 'Border radius of the button in pixels',
-    },
-    fontFamily: {
-      control: { type: 'select' },
-      options: ['Lato'],
-      description: 'Font family for the button text',
-    },
     magicLink: {
       control: { type: 'text' },
       description: 'URL that the button links to',
@@ -83,9 +70,6 @@ const Template = (args: any) => {
 // Default story
 export const Default = Template.bind({});
 Default.args = {
-  backgroundColor: '#0DBC3D',
-  borderRadius: 8,
-  fontFamily: 'Lato',
   magicLink: 'https://www.verified.inc',
   magicText: 'Text Verified to 20222',
 };
