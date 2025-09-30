@@ -51,7 +51,9 @@ export function useStyledQRCode({ options, className }: StyledQRCodeOptions) {
 
   // Memoize the component to prevent unnecessary re-renders
   const Component = useMemo(() => {
-    const QRComponent = () => <div className={className} ref={ref} />;
+    const QRComponent = () => (
+      <div key='qr-code' className={className} ref={ref} />
+    );
     return QRComponent;
   }, [className]);
 
