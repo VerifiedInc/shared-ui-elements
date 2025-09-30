@@ -6,12 +6,14 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Box, Stack } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import { AutoAwesome } from '@mui/icons-material';
 import * as htmlToImage from 'html-to-image';
 
+import { colors } from '../../styles';
 import { contrastColor } from '../../utils/color';
 import { wrapPromise } from '../../utils/wrapPromise';
+import { PoweredByVerified, PoweredByVerifiedProps } from '../verified';
 
 export type TTSMagicButtonHandle = {
   download(extension: 'png' | 'svg'): Promise<void>;
@@ -24,19 +26,25 @@ function TTSMagicButtonComponent(
     fontFamily,
     magicLink,
     magicText,
+    renderAsImage,
+    enablePoweredByVerified,
+    poweredByVerifiedProps,
   }: {
-    backgroundColor: string;
-    borderRadius: string | number;
-    fontFamily: string;
     magicLink: string;
     magicText: string;
+    backgroundColor?: string;
+    borderRadius?: string | number;
+    fontFamily?: string;
+    renderAsImage?: boolean;
+    enablePoweredByVerified?: boolean;
+    poweredByVerifiedProps?: PoweredByVerifiedProps;
   },
   ref: ForwardedRef<TTSMagicButtonHandle>,
 ) {
   const buttonRef = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<string | null>(null);
   const [count, setCount] = useState<number>(0);
-  const foregroundColor = contrastColor(backgroundColor);
+  const foregroundColor = contrastColor(backgroundColor ?? colors.green);
 
   const handleDownload = async (extension: 'png' | 'svg') => {
     if (!buttonRef.current) return;
@@ -113,31 +121,28 @@ function TTSMagicButtonComponent(
     foregroundColor,
     magicLink,
     magicText,
+    enablePoweredByVerified,
+    poweredByVerifiedProps,
   ]);
 
   return (
-    <Stack
-      component='a'
-      href={magicLink}
-      target='_blank'
-      rel='noopener noreferrer'
-      flex={1}
-      sx={{ overflow: 'visible' }}
-    >
+    <Stack>
       <Box
         className='button-preview-container'
         sx={{
-          position: 'fixed',
-          top: -9999,
-          left: -9999,
-          overflow: 'hidden',
-          zIndex: -1,
+          ...(renderAsImage && {
+            position: 'fixed',
+            top: -9999,
+            left: -9999,
+            maxWidth: 9999,
+            overflow: 'hidden',
+            zIndex: -1,
+          }),
         }}
       >
         <Stack
           ref={buttonRef}
           className='canvas-copiable'
-          direction='row'
           spacing={1}
           sx={{
             display: 'inline-flex',
@@ -145,32 +150,64 @@ function TTSMagicButtonComponent(
             justifyContent: 'center',
             alignItems: 'center',
             alignSelf: 'center',
-            bgcolor: backgroundColor,
-            color: foregroundColor,
-            fontFamily,
-            fontWeight: 700,
-            lineHeight: 0,
-            borderRadius: `${borderRadius}px`,
-            p: 1.5,
-            textAlign: 'center',
-            m: 0,
-            mr: 'auto',
-            whiteSpace: 'nowrap',
+            pt: '3px',
+            pb: '6px',
+            px: '4px',
           }}
         >
-          <AutoAwesome />
-          <span>{magicText}</span>
+          <Button
+            href={magicLink}
+            target='_blank'
+            variant='contained'
+            size='large'
+            color={'primary'}
+            startIcon={<AutoAwesome />}
+            sx={{
+              bgcolor: backgroundColor,
+              textTransform: 'none',
+              fontSize: 16,
+              p: 1.5,
+              m: 1,
+              '&, & >span': {
+                wordBreak: 'break-word',
+                // lineHeight: 0,
+              },
+            }}
+          >
+            <span>{magicText}</span>
+          </Button>
+          {enablePoweredByVerified && (
+            <PoweredByVerified
+              {...poweredByVerifiedProps}
+              containerProps={{
+                pt: 0.5,
+                maxWidth: 143,
+                ...poweredByVerifiedProps?.containerProps,
+              }}
+            />
+          )}
         </Stack>
       </Box>
-      {image && (
-        <Box
-          component='img'
-          src={image}
-          sx={{
-            width: '100%',
-            height: 'auto',
-          }}
-        />
+      {image && renderAsImage && (
+        <Stack
+          component='a'
+          href={magicLink}
+          target='_blank'
+          rel='noopener noreferrer'
+          flex={1}
+          sx={{ overflow: 'visible' }}
+        >
+          <Box
+            component='img'
+            src={image}
+            alt={magicText}
+            draggable={false}
+            sx={{
+              width: '100%',
+              height: 'auto',
+            }}
+          />
+        </Stack>
       )}
     </Stack>
   );

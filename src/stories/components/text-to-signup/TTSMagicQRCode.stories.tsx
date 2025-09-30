@@ -28,6 +28,14 @@ export default {
       description:
         'URL of the brand logo to display in the center of the QR code',
     },
+    enablePoweredByVerified: {
+      control: { type: 'boolean' },
+      description: 'Whether to display the Powered by Verified logo',
+    },
+    poweredByVerifiedProps: {
+      control: { type: 'object' },
+      description: 'Props for the Powered by Verified logo',
+    },
   },
 };
 

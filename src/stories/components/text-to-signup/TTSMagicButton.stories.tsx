@@ -40,6 +40,10 @@ export default {
       control: { type: 'text' },
       description: 'Text displayed on the button',
     },
+    enablePoweredByVerified: {
+      control: { type: 'boolean' },
+      description: 'Whether to display the Powered by Verified logo',
+    },
   },
 };
 
