@@ -1,39 +1,32 @@
-import { BrandFilter } from '../../BrandFilterInput';
-import { kebabCaseToPretty } from '../../../utils/string/formatKebabToPretty';
-import { uuidToHashedColor } from '../../../utils/uuidColor';
 import _ from 'lodash';
 
-export interface TimeSeriesDataPoint {
+import { uuidToHashedColor } from '../../../utils/uuidColor';
+
+import { BrandFilter } from '../../BrandFilterInput';
+
+interface TimeSeriesDataPoint {
   date: number;
   value: number;
 }
 
-export interface TimeSeriesChartData {
+interface TimeSeriesChartData {
   uuid: string;
   name: string;
   color: string;
-  description: string;
   chartData: TimeSeriesDataPoint[];
 }
 
-export interface MapTimeSeriesDataOptions {
+interface MapTimeSeriesDataOptions {
   brands: BrandFilter[];
   data: Array<{
     interval?: Array<{
-      oneClickCreated: number;
-      oneClickSuccess: number;
+      ttsSent: number;
+      ttsVerified: number;
       date: string;
-      totalCost?: string;
-      riskSignal?: number;
       [key: string]: any;
     }>;
     brandUuid: string;
     brandName: string;
-    overall: {
-      oneClickCreated: number;
-      oneClickSuccess: number;
-      totalCost?: string;
-    };
   }>;
   keyValue: string;
   filterOutZeroValues?: boolean;
@@ -44,7 +37,7 @@ export interface MapTimeSeriesDataOptions {
  * @param options Configuration options for mapping the data
  * @returns Array of formatted time series data ready for charting
  */
-export function mapTimeSeriesData(
+export function mapTTSTimeSeriesData(
   options: MapTimeSeriesDataOptions,
 ): TimeSeriesChartData[] {
   const { brands, data, keyValue } = options;
@@ -62,10 +55,7 @@ export function mapTimeSeriesData(
     return {
       uuid: brand.brandUuid,
       name: brand.brandName,
-      description: kebabCaseToPretty(brand.integrationType),
-      color:
-        brand.additionalData?.primaryColor ??
-        uuidToHashedColor(brand.brandUuid),
+      color: uuidToHashedColor(crypto.randomUUID()), // TODO - to be defined once the structure
       chartData,
     };
   });
