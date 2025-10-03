@@ -100,7 +100,6 @@ function TTSMagicQRCodeComponent(
           aspectRatio: 1,
           p: 1,
         },
-        aspectRatio: 1,
         ...sx,
       }}
     >
