@@ -1,4 +1,5 @@
 import React from 'react';
+import type { SxProps } from '@mui/material';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -24,6 +25,7 @@ export interface TTSOverTimeChartProps {
     timezone?: string;
     brands?: BrandFilter[];
   };
+  sx?: SxProps;
 }
 
 export function TTSOverTimeChart({
@@ -33,6 +35,7 @@ export function TTSOverTimeChart({
   isFetching,
   isSuccess,
   filter,
+  sx,
 }: Readonly<TTSOverTimeChartProps>): React.ReactNode {
   if (isLoading) {
     return <LoadingChartSection />;
@@ -41,14 +44,14 @@ export function TTSOverTimeChart({
   if (!data.length || !isSuccess) {
     return <EmptyChartSection />;
   }
-
+  console.log(data);
   return (
     <SeriesChart
       label={label ?? 'TTS Over Time'}
       data={data}
       filter={filter}
       showUuid={false}
-      sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1 }}
+      sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1, ...sx }}
     />
   );
 }
