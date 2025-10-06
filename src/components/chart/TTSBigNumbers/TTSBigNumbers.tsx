@@ -29,14 +29,14 @@ export function TTSBigNumbers({
   return (
     <Stack direction='row' spacing={3}>
       <BigNumber
-        label='Total TTS Signups'
+        label='Total Sent'
         value={metrics.total}
         initialValue={metrics.total}
         map={formatNumberRounded}
       />
 
       <BigNumber
-        label='Finished TTS Signups'
+        label='Total Verified'
         value={metrics.success}
         initialValue={metrics.success}
         map={formatNumberRounded}
@@ -44,7 +44,7 @@ export function TTSBigNumbers({
 
       {!hideTotalCost && (
         <BigNumber
-          label='Total TTS Cost'
+          label='Total Cost'
           value={metrics.totalCost}
           initialValue={metrics.totalCost}
           map={formatCurrency}
