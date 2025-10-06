@@ -9,14 +9,14 @@ interface TimeSeriesDataPoint {
   value: number;
 }
 
-export interface TimeSeriesChartData {
+interface TimeSeriesChartData {
   uuid: string;
   name: string;
   color: string;
   chartData: TimeSeriesDataPoint[];
 }
 
-interface MapTimeSeriesDataOptions {
+export interface MapTTSTimeSeriesDataOptions {
   brands: BrandFilter[];
   data: Array<{
     interval?: Array<{
@@ -39,7 +39,7 @@ interface MapTimeSeriesDataOptions {
  * @returns Array of formatted time series data ready for charting, one entry per keyword
  */
 export function mapTTSTimeSeriesData(
-  options: MapTimeSeriesDataOptions,
+  options: MapTTSTimeSeriesDataOptions,
 ): TimeSeriesChartData[] {
   const { brands, data, keyValue } = options;
 

@@ -1,5 +1,3 @@
-import { TimeSeriesChartData } from '../OneClickOverTimeChart/OneClickTimeSeriesDataMapper';
-
 export interface SignupMetrics {
   totalSignups: number;
   totalSuccess: number;
