@@ -44,7 +44,6 @@ export function TTSOverTimeChart({
   if (!data.length || !isSuccess) {
     return <EmptyChartSection />;
   }
-  console.log(data);
   return (
     <SeriesChart
       label={label ?? 'TTS Over Time'}
