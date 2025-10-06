@@ -12,7 +12,7 @@ export interface TimeSeriesChartData {
   uuid: string;
   name: string;
   color: string;
-  integrationType: string;
+  description: string;
   chartData: TimeSeriesDataPoint[];
 }
 
@@ -62,7 +62,7 @@ export function mapTimeSeriesData(
     return {
       uuid: brand.brandUuid,
       name: brand.brandName,
-      integrationType: kebabCaseToPretty(brand.integrationType),
+      description: kebabCaseToPretty(brand.integrationType),
       color:
         brand.additionalData?.primaryColor ??
         uuidToHashedColor(brand.brandUuid),
