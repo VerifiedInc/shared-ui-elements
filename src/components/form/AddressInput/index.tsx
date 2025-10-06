@@ -21,13 +21,13 @@ type Option = {
 };
 
 export type AddressInputProps = {
-  name: string;
   defaultValue: Address | null;
   onChange: (
     value: string | Address | null,
     changeOptions?: { shouldValidate?: boolean },
   ) => void;
   label?: TextFieldProps['label'];
+  error?: boolean | undefined;
   disabled?: boolean;
   variant?: TextFieldProps['variant'];
   size?: TextFieldProps['size'];
@@ -83,10 +83,10 @@ function CustomPaper(props: PaperProps): ReactElement {
 }
 
 function AddressInputContent({
-  name,
   defaultValue,
   onChange,
   label,
+  error,
   disabled,
   variant,
   size,
@@ -101,11 +101,10 @@ function AddressInputContent({
     suggestions,
     isPending,
     isFetchingPlace,
-    error,
     handleInputChange,
     handleOptionChange,
     handleClear,
-  } = useDataFieldAddressInput({ name, defaultValue, onChange });
+  } = useDataFieldAddressInput({ defaultValue, onChange });
 
   return (
     <Box width='100%'>
@@ -153,8 +152,8 @@ function AddressInputContent({
             label={label}
             variant={variant}
             size={size}
-            error={!!error}
-            helperText={!error ? helperText : error}
+            error={error}
+            helperText={helperText}
             inputProps={{
               ...params.inputProps,
               // Tab index for each block.
