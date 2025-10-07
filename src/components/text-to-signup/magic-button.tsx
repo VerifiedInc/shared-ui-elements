@@ -263,8 +263,9 @@ function TTSMagicButtonComponent(
             size='large'
             color={'primary'}
             startIcon={<AutoAwesome />}
+            {...(buttonProps as unknown as any)}
             sx={{
-              fontFamily: fontFamily ? `"${fontFamily}"` : undefined,
+              fontFamily: fontFamily ? `"${fontFamily}" !important` : undefined,
               textTransform: 'none',
               fontSize: 16,
               p: 1.5,
@@ -275,7 +276,6 @@ function TTSMagicButtonComponent(
               },
               ...buttonProps?.sx,
             }}
-            {...(buttonProps as unknown as any)}
           >
             <span>{magicText}</span>
           </Button>
