@@ -11,12 +11,25 @@ import { AutoAwesome } from '@mui/icons-material';
 import * as htmlToImage from 'html-to-image';
 
 import { wrapPromise } from '../../utils/wrapPromise';
+import { useGoogleFont } from '../../hooks/useGoogleFont';
 import { PoweredByVerified, PoweredByVerifiedProps } from '../verified';
 
 export type TTSMagicButtonHandle = {
   download(extension: 'png' | 'svg'): Promise<void>;
 };
 
+/**
+ * TTSMagicButton component that renders a magic button with optional Google Fonts support
+ *
+ * @param magicLink - URL that the button links to
+ * @param magicText - Text displayed on the button
+ * @param buttonProps - Additional props to pass to the MUI Button component
+ * @param renderAsImage - Whether to render the button as an image for download
+ * @param enablePoweredByVerified - Whether to display the Powered by Verified logo
+ * @param poweredByVerifiedProps - Props for the PoweredByVerified component
+ * @param fontFamily - Google Font family name. When provided, automatically loads the font from Google Fonts
+ * @param enableGoogleFontLoad - Whether to load the Google Font
+ */
 function TTSMagicButtonComponent(
   {
     magicLink,
@@ -25,6 +38,8 @@ function TTSMagicButtonComponent(
     renderAsImage,
     enablePoweredByVerified,
     poweredByVerifiedProps,
+    fontFamily,
+    enableGoogleFontLoad = true,
   }: {
     magicLink: string;
     magicText: string;
@@ -32,12 +47,21 @@ function TTSMagicButtonComponent(
     renderAsImage?: boolean;
     enablePoweredByVerified?: boolean;
     poweredByVerifiedProps?: PoweredByVerifiedProps;
+    fontFamily?: string;
+    enableGoogleFontLoad?: boolean;
   },
   ref: ForwardedRef<TTSMagicButtonHandle>,
 ) {
   const buttonRef = useRef<HTMLDivElement>(null);
   const [image, setImage] = useState<string | null>(null);
+  const [minifiedDataUrlState, setMinifiedDataUrl] = useState<string | null>(
+    null,
+  );
   const [count, setCount] = useState<number>(0);
+  const [successCount, setSuccessCount] = useState<number>(0);
+
+  // Load Google Font if fontFamily is provided
+  const fontLoadingStatus = useGoogleFont(fontFamily, enableGoogleFontLoad);
 
   const handleDownload = async (extension: 'png' | 'svg') => {
     if (!buttonRef.current) return;
@@ -47,24 +71,48 @@ function TTSMagicButtonComponent(
       svg: htmlToImage.toSvg,
     };
 
-    const [dataUrl, error] = await wrapPromise(
-      methods[extension](buttonRef.current, {
-        pixelRatio: 4,
-      }),
-    );
+    let tempStyleElement: HTMLStyleElement | null = null;
 
-    if (error) {
-      console.error('Failed to generate magic button:', error);
-      return;
+    try {
+      // If we have CSS content from Google Fonts, inject it temporarily
+      if (fontLoadingStatus.cssContent) {
+        tempStyleElement = document.createElement('style');
+        tempStyleElement.id = 'temp-font-style-for-download';
+        tempStyleElement.textContent = fontLoadingStatus.cssContent;
+        document.head.appendChild(tempStyleElement);
+      }
+
+      const [dataUrl, error] = await wrapPromise(
+        methods[extension](buttonRef.current, {
+          pixelRatio: 4,
+        }),
+      );
+
+      // Clean up temporary style element
+      if (tempStyleElement) {
+        document.head.removeChild(tempStyleElement);
+        tempStyleElement = null;
+      }
+
+      if (error) {
+        console.error('Failed to generate magic button:', error);
+        return;
+      }
+
+      if (!dataUrl) return;
+
+      // Create download link
+      const downloadLink = document.createElement('a');
+      downloadLink.href = dataUrl;
+      downloadLink.download = `magic-button-${magicText.replace(/\s+/g, '-')}.${extension}`;
+      downloadLink.click();
+    } catch (downloadError) {
+      // Clean up temporary style element in case of error
+      if (tempStyleElement) {
+        document.head.removeChild(tempStyleElement);
+      }
+      console.error('Failed to generate magic button:', downloadError);
     }
-
-    if (!dataUrl) return;
-
-    // Create download link
-    const downloadLink = document.createElement('a');
-    downloadLink.href = dataUrl;
-    downloadLink.download = `magic-button-${magicText.replace(/\s+/g, '-')}.${extension}`;
-    downloadLink.click();
   };
 
   useImperativeHandle(
@@ -87,35 +135,82 @@ function TTSMagicButtonComponent(
       return;
     }
 
-    if (!buttonRef.current || count > 4) return;
+    if (!buttonRef.current || count > 10) return;
 
-    const interval = setInterval(() => {
-      setCount((prev) => prev + 1);
-    }, 1);
+    setCount((prev) => prev + 1);
+
+    const interval = setInterval(
+      () => {
+        setCount((prev) => prev + 1);
+      },
+      count + 1 * 500,
+    );
 
     return () => clearInterval(interval);
-  }, [count, renderAsImage]);
+  }, [count, renderAsImage, fontLoadingStatus.isLoaded]);
 
   // Effect to update the image
   useEffect(() => {
     if (!renderAsImage) return;
 
+    // Wait for font to load before generating image if a custom font is specified
+    if (fontFamily && enableGoogleFontLoad && fontLoadingStatus.isLoading) {
+      return;
+    }
+
     const storeImage = async () => {
       if (!buttonRef.current) return;
+      if (enableGoogleFontLoad && !fontLoadingStatus.isLoaded) return;
+
+      let tempStyleElement: HTMLStyleElement | null = null;
 
       // Caputre the element node and transform to png image
       try {
+        // If we have CSS content from Google Fonts, inject it temporarily
+        if (fontLoadingStatus.cssContent) {
+          tempStyleElement = document.createElement('style');
+          tempStyleElement.id = 'temp-font-style-for-image';
+          tempStyleElement.textContent = fontLoadingStatus.cssContent;
+          document.head.appendChild(tempStyleElement);
+        }
+
+        const minifiedDataUrl = await htmlToImage.toPng(buttonRef.current, {
+          pixelRatio: 0.5,
+        });
+
+        // HACK ALERT:
+        // If the minified data url is the same as the previous one, no need to generate the full data url
+        if (minifiedDataUrl === minifiedDataUrlState) {
+          if (successCount === 0) {
+            setSuccessCount((prev) => prev + 1);
+          }
+          return;
+        }
+
+        setMinifiedDataUrl(minifiedDataUrl);
+
         const dataUrl = await htmlToImage.toPng(buttonRef.current, {
           pixelRatio: 4,
         });
+
+        // Clean up temporary style element
+        if (tempStyleElement) {
+          document.head.removeChild(tempStyleElement);
+        }
+
         setImage(dataUrl);
       } catch (error) {
+        // Clean up temporary style element in case of error
+        if (tempStyleElement) {
+          document.head.removeChild(tempStyleElement);
+        }
         console.error('Failed to generate PNG:', error);
       }
     };
 
     void storeImage();
   }, [
+    successCount,
     count,
     magicLink,
     magicText,
@@ -123,6 +218,9 @@ function TTSMagicButtonComponent(
     enablePoweredByVerified,
     poweredByVerifiedProps,
     renderAsImage,
+    fontFamily,
+    fontLoadingStatus.isLoaded,
+    minifiedDataUrlState,
   ]);
 
   return (
@@ -165,6 +263,7 @@ function TTSMagicButtonComponent(
             color={'primary'}
             startIcon={<AutoAwesome />}
             sx={{
+              fontFamily: fontFamily ? `"${fontFamily}"` : undefined,
               textTransform: 'none',
               fontSize: 16,
               p: 1.5,

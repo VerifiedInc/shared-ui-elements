@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
-import { Button, Stack } from '@mui/material';
+import { Button, Stack, Typography, Chip } from '@mui/material';
 import { Download } from '@mui/icons-material';
 
 import { TTSMagicButton, TTSMagicButtonHandle } from '../../../components';
+import { useGoogleFont } from '../../../hooks';
 
 export default {
   title: 'Components/text-to-signup/TTSMagicButton',
@@ -30,6 +31,11 @@ export default {
     enablePoweredByVerified: {
       control: { type: 'boolean' },
       description: 'Whether to display the Powered by Verified logo',
+    },
+    fontFamily: {
+      control: { type: 'text' },
+      description:
+        'Google Font family name. When set, automatically loads the font from Google Fonts.',
     },
   },
 };
@@ -72,4 +78,5 @@ export const Default = Template.bind({});
 Default.args = {
   magicLink: 'https://www.verified.inc',
   magicText: 'Text Verified to 20222',
+  // fontFamily: 'Rubik',
 };
