@@ -149,6 +149,26 @@ function TTSMagicButtonComponent(
     return () => clearInterval(interval);
   }, [count, renderAsImage, fontLoadingStatus.isLoaded]);
 
+  // Effect to maange style tag
+  useEffect(() => {
+    let tempStyleElement: HTMLStyleElement | null = null;
+
+    // If we have CSS content from Google Fonts, inject it temporarily
+    if (fontLoadingStatus.cssContent) {
+      tempStyleElement = document.createElement('style');
+      tempStyleElement.id = 'temp-font-style-for-image';
+      tempStyleElement.textContent = fontLoadingStatus.cssContent;
+      document.head.appendChild(tempStyleElement);
+    }
+
+    return () => {
+      // Clean up temporary style element
+      if (tempStyleElement) {
+        document.head.removeChild(tempStyleElement);
+      }
+    };
+  }, [fontLoadingStatus.cssContent]);
+
   // Effect to update the image
   useEffect(() => {
     if (!renderAsImage) return;
@@ -162,18 +182,8 @@ function TTSMagicButtonComponent(
       if (!buttonRef.current) return;
       if (enableGoogleFontLoad && !fontLoadingStatus.isLoaded) return;
 
-      let tempStyleElement: HTMLStyleElement | null = null;
-
       // Caputre the element node and transform to png image
       try {
-        // If we have CSS content from Google Fonts, inject it temporarily
-        if (fontLoadingStatus.cssContent) {
-          tempStyleElement = document.createElement('style');
-          tempStyleElement.id = 'temp-font-style-for-image';
-          tempStyleElement.textContent = fontLoadingStatus.cssContent;
-          document.head.appendChild(tempStyleElement);
-        }
-
         const minifiedDataUrl = await htmlToImage.toPng(buttonRef.current, {
           pixelRatio: 0.5,
         });
@@ -193,17 +203,8 @@ function TTSMagicButtonComponent(
           pixelRatio: 4,
         });
 
-        // Clean up temporary style element
-        if (tempStyleElement) {
-          document.head.removeChild(tempStyleElement);
-        }
-
         setImage(dataUrl);
       } catch (error) {
-        // Clean up temporary style element in case of error
-        if (tempStyleElement) {
-          document.head.removeChild(tempStyleElement);
-        }
         console.error('Failed to generate PNG:', error);
       }
     };
