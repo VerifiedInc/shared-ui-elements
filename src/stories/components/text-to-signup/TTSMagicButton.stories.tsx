@@ -31,6 +31,11 @@ export default {
       control: { type: 'boolean' },
       description: 'Whether to display the Powered by Verified logo',
     },
+    fontFamily: {
+      control: { type: 'text' },
+      description:
+        'Google Font family name. When set, automatically loads the font from Google Fonts.',
+    },
   },
 };
 
@@ -72,4 +77,5 @@ export const Default = Template.bind({});
 Default.args = {
   magicLink: 'https://www.verified.inc',
   magicText: 'Text Verified to 20222',
+  enableGoogleFontLoad: false,
 };
