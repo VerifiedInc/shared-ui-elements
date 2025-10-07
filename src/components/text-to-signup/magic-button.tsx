@@ -39,7 +39,7 @@ function TTSMagicButtonComponent(
     enablePoweredByVerified,
     poweredByVerifiedProps,
     fontFamily,
-    enableGoogleFontLoad = true,
+    enableGoogleFontLoad,
   }: {
     magicLink: string;
     magicText: string;
