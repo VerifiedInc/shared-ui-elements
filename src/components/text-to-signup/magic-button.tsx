@@ -277,7 +277,9 @@ function TTSMagicButtonComponent(
               ...buttonProps?.sx,
             }}
           >
-            <span style={{ whiteSpace: 'nowrap' }}>{magicText}</span>
+            <span style={{ whiteSpace: renderAsImage ? 'nowrap' : undefined }}>
+              {magicText}
+            </span>
           </Button>
           {enablePoweredByVerified && (
             <PoweredByVerified
