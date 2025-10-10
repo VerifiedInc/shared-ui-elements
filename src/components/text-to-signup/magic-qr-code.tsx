@@ -2,8 +2,10 @@ import {
   ForwardedRef,
   forwardRef,
   memo,
+  useEffect,
   useImperativeHandle,
   useRef,
+  useState,
 } from 'react';
 import { Stack, SxProps } from '@mui/material';
 import * as htmlToImage from 'html-to-image';
@@ -23,12 +25,14 @@ export type TTSMagicQRCodeHandle = {
 function TTSMagicQRCodeComponent(
   {
     brandLogo,
+    brandLogo64,
     magicLink,
     enablePoweredByVerified,
     poweredByVerifiedProps,
     sx,
   }: {
     brandLogo?: string;
+    brandLogo64?: string;
     magicLink: string;
     sx?: SxProps;
     enablePoweredByVerified?: boolean;
@@ -37,9 +41,12 @@ function TTSMagicQRCodeComponent(
   ref: ForwardedRef<TTSMagicQRCodeHandle>,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [brandLogoData, setBrandLogoData] = useState<string | undefined>(
+    brandLogo64,
+  );
   const {
     qrcode: { Component },
-  } = useTTSMagicQRCode({ magicLink, brandLogo });
+  } = useTTSMagicQRCode({ magicLink, brandLogo: brandLogoData });
 
   const handleDownload = async (
     filename: string | undefined,
@@ -79,6 +86,34 @@ function TTSMagicQRCodeComponent(
     }),
     [handleDownload],
   );
+
+  // Effect to fetch brand logo as base64
+  useEffect(() => {
+    // No need to fetch if we already have a base64 logo
+    if (brandLogo64) return;
+
+    const handle = async () => {
+      if (!brandLogo) return;
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous'; // Request CORS
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0);
+          setBrandLogoData(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => console.error('Error loading brand logo');
+        img.src = brandLogo;
+      } catch (error) {
+        console.error('Error fetching brand logo:', error);
+      }
+    };
+
+    void handle();
+  }, [brandLogo, brandLogo64]);
 
   return (
     <Stack

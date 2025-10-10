@@ -270,16 +270,17 @@ function TTSMagicButtonComponent(
               fontSize: 16,
               p: 1.5,
               m: 1,
-              '&, & >span': {
+              '&, & > span': {
                 wordBreak: 'break-word',
-                lineHeight: renderAsImage ? 0 : undefined,
+                lineHeight: renderAsImage ? 0 : 1.75,
+              },
+              '& > span': {
+                whiteSpace: renderAsImage ? 'nowrap' : undefined,
               },
               ...buttonProps?.sx,
             }}
           >
-            <span style={{ whiteSpace: renderAsImage ? 'nowrap' : undefined }}>
-              {magicText}
-            </span>
+            <span>{magicText}</span>
           </Button>
           {enablePoweredByVerified && (
             <PoweredByVerified
