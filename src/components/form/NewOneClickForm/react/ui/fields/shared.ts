@@ -47,7 +47,8 @@ export function getAutoCompleteAttributeValue(key: string) {
 export const getRawValue = (field: FormField) => {
   if (field.schema.key === credentialKeys.ssn) {
     // SSN is a sensitive data so we don't show the full value
-    return (field?.value as string | undefined)?.slice(-4);
+    const ssnValue = field.value as string | undefined;
+    return ssnValue ? ssnValue.slice(-4) : undefined;
   }
 
   if (typeof field?.value === 'string') {
