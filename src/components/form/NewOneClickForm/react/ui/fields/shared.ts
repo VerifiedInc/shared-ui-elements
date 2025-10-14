@@ -38,3 +38,21 @@ export function getAutoCompleteAttributeValue(key: string) {
   }
   return 'off';
 }
+
+/**
+ * Get the raw value, if object use display value
+ * @param field The field to get the raw value from.
+ * @returns The raw value of the field.
+ */
+export const getRawValue = (field: FormField) => {
+  if (field.schema.key === credentialKeys.ssn) {
+    // SSN is a sensitive data so we don't show the full value
+    return (field?.value as string | undefined)?.slice(-4);
+  }
+
+  if (typeof field?.value === 'string') {
+    return field?.value;
+  }
+
+  return field?.displayValue;
+};

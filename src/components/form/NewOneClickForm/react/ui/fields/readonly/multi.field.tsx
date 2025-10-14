@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import {
   Box,
   MenuItem,
+  SelectProps,
   SxProps,
   TextField,
   TextFieldProps,
@@ -103,8 +104,9 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
       readOnly: !hasVariants || fieldProps.disabled,
     },
     SelectProps: {
+      'data-testid': `data-multifield-select-${fieldKey}`,
       size: 'small',
-      onClose: (e) => {
+      onClose: (e: SyntheticEvent) => {
         // Prevent the event to propagate to the parent.
         e.stopPropagation();
         e.preventDefault();
@@ -118,7 +120,7 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
           },
         },
       },
-    },
+    } as unknown as SelectProps,
     sx: {
       width: '100%',
       ..._styles.fieldInputDisabledStyle,
