@@ -51,9 +51,9 @@ export const getRawValue = (field: FormField) => {
     return ssnValue ? ssnValue.slice(-4) : undefined;
   }
 
-  if (typeof field?.value === 'string') {
-    return field?.value;
+  if (typeof field.value === 'string') {
+    return field.value;
   }
 
-  return field?.displayValue;
+  return field.displayValue;
 };
