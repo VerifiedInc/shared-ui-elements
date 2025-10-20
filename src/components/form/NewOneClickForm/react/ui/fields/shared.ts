@@ -6,13 +6,16 @@ import { FormField } from '../../../core/form';
  * @param field The field to make attributes for.
  * @returns The attributes for the field.
  */
-export const makeAttributes = (field: FormField | undefined) => ({
+export const makeAttributes = (
+  field: FormField | undefined,
+  fieldKey: string,
+) => ({
   role: 'region',
   'aria-label': field?.schema.characteristics.label,
   'data-testid':
     field?.schema.characteristics.inputType === fieldInputTypes.composite
-      ? `data-field-composite-${field?.schema.key}`
-      : `data-field-atomic-${field?.schema.key}`,
+      ? `data-field-composite-${fieldKey}`
+      : `data-field-atomic-${fieldKey}`,
 });
 
 /**
