@@ -100,7 +100,7 @@ export function FieldRowContainer({
   spacing?: number;
 }) {
   const { field } = useFormField({ key: fieldKey });
-  const attributes = makeAttributes(field);
+  const attributes = makeAttributes(field, fieldKey);
 
   return (
     <Stack
