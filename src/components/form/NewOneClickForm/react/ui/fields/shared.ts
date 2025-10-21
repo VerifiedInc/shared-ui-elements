@@ -45,8 +45,8 @@ export function getAutoCompleteAttributeValue(key: string) {
 
 /**
  * Get the value, if object use display value
- * @param field The field to get the raw value from.
- * @returns The raw value of the field.
+ * @param field The field to get the value from.
+ * @returns The value of the field.
  */
 export const getFieldValue = (field: FormField) => {
   // Ignore composite fields except address
