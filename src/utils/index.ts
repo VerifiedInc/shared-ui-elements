@@ -9,3 +9,4 @@ export * from './string';
 export * from './color';
 export * from './address';
 export * from './makeGoogleFont';
+export * from './notification';
