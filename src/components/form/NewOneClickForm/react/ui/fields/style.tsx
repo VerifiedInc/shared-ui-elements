@@ -2,7 +2,7 @@ import { Stack, Typography, SxProps } from '@mui/material';
 
 import { useFormField } from '../../core/field.hook';
 
-import { getRawValue, makeAttributes } from './shared';
+import { makeAttributes } from './shared';
 
 export function FieldLabel({
   fieldKey,
@@ -50,8 +50,6 @@ export function FieldValue({ fieldKey }: { fieldKey: string }) {
 
   return (
     <Typography
-      data-testid={`data-field-value-${fieldKey}`}
-      data-verified-sdk-raw-value={getRawValue(field)}
       variant='body1'
       sx={
         {
