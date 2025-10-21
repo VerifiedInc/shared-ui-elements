@@ -16,6 +16,7 @@ export const makeAttributes = (
     field?.schema.characteristics.inputType === fieldInputTypes.composite
       ? `data-field-composite-${fieldKey}`
       : `data-field-atomic-${fieldKey}`,
+  'data-verified-sdk-field-value': field ? getFieldValue(field) : undefined,
 });
 
 /**
@@ -43,18 +44,26 @@ export function getAutoCompleteAttributeValue(key: string) {
 }
 
 /**
- * Get the raw value, if object use display value
- * @param field The field to get the raw value from.
- * @returns The raw value of the field.
+ * Get the value, if object use display value
+ * @param field The field to get the value from.
+ * @returns The value or display value of the field.
  */
-export const getRawValue = (field: FormField) => {
-  if (field.schema.key === credentialKeys.ssn) {
-    // SSN is a sensitive data so we don't show the full value
-    const ssnValue = field.value as string | undefined;
-    return ssnValue ? ssnValue.slice(-4) : undefined;
+export const getFieldValue = (field: FormField) => {
+  // Ignore composite fields except address
+  if (typeof field.value === 'object') {
+    if (field.schema.key !== credentialKeys.address) {
+      return;
+    }
   }
 
-  if (typeof field.value === 'string') {
+  // Get raw value for dates and list fields
+  if (
+    field.schema.key === credentialKeys.state ||
+    field.schema.key === credentialKeys.issuanceState ||
+    field.schema.key === credentialKeys.birthDate ||
+    field.schema.key === credentialKeys.expirationDate ||
+    field.schema.key === credentialKeys.issuanceDate
+  ) {
     return field.value;
   }
 
