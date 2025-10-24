@@ -9,7 +9,14 @@ import * as Access from './components/1-Click Access powered by Verified';
 import * as AutoFill from './components/1-Click AutoFill powered by Verified';
 
 export interface OneClickPoweredByVerifiedProps {
-  variant?: 'default' | 'green' | 'gray' | 'white' | 'black';
+  variant?:
+    | 'default'
+    | 'green' // @deprecated - use whiteGreen instead
+    | 'gray'
+    | 'white'
+    | 'black'
+    | 'whiteGreen'
+    | 'blackGreen';
   title?: 'Signup' | 'Login' | 'Verify' | 'Apply' | 'Access' | 'AutoFill';
   sx?: SxProps;
 }

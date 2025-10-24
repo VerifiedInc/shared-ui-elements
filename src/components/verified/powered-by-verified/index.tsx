@@ -1,7 +1,14 @@
 import { Box, BoxProps } from '@mui/material';
 
 export type PoweredByVerifiedProps = BoxProps & {
-  variant?: 'default' | 'green' | 'gray' | 'white' | 'black';
+  variant?:
+    | 'default'
+    | 'green'
+    | 'gray'
+    | 'white'
+    | 'black'
+    | 'whiteGreen'
+    | 'blackGreen';
   containerProps?: BoxProps;
 };
 
@@ -16,6 +23,8 @@ export function PoweredByVerified({
     gray: '#A5A5A5',
     white: '#FFFFFF',
     black: '#000000',
+    blackGreen: '#0DBC3D',
+    whiteGreen: '#0DBC3D',
   };
   const textColors = {
     default: '#202020',
@@ -23,6 +32,8 @@ export function PoweredByVerified({
     gray: '#A5A5A5',
     white: '#ffffff',
     black: '#202020',
+    blackGreen: '#202020',
+    whiteGreen: '#ffffff',
   };
   const currentColor = colors[variant] ?? colors.default;
   const currentTextColor = textColors[variant] ?? textColors.default;
