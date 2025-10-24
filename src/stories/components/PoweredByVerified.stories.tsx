@@ -14,7 +14,15 @@ export default {
   argTypes: {
     variant: {
       control: { type: 'select' },
-      options: ['default', 'green', 'gray', 'white', 'black'],
+      options: [
+        'default',
+        'green',
+        'gray',
+        'white',
+        'black',
+        'whiteGreen',
+        'blackGreen',
+      ],
       description: 'The color variant of the PoweredByVerified component',
     },
     containerProps: {
@@ -64,5 +72,22 @@ White.parameters = {
 export const Black = Template.bind({});
 Black.args = {
   variant: 'black',
+  containerProps: {},
+};
+
+// WhiteGreen variant story
+export const WhiteGreen = Template.bind({});
+WhiteGreen.args = {
+  variant: 'whiteGreen',
+  containerProps: {},
+};
+WhiteGreen.parameters = {
+  backgrounds: { default: 'dark' },
+};
+
+// BlackGreen variant story
+export const BlackGreen = Template.bind({});
+BlackGreen.args = {
+  variant: 'blackGreen',
   containerProps: {},
 };
