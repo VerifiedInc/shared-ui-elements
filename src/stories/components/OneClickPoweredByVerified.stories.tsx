@@ -17,7 +17,15 @@ export default {
       description: 'The type of 1-Click button to display',
     },
     variant: {
-      options: ['default', 'green', 'gray', 'white', 'black'],
+      options: [
+        'default',
+        'green',
+        'gray',
+        'white',
+        'black',
+        'whiteGreen',
+        'blackGreen',
+      ],
       control: { type: 'select' },
       description: 'The color variant of the button',
     },
@@ -25,7 +33,7 @@ export default {
 };
 
 // Create a template for the component
-const Template = (args: any) => <OneClickPoweredByVerified {...args} />;
+const Template: any = (args: any) => <OneClickPoweredByVerified {...args} />;
 
 // Default story (Signup with green variant)
 export const Default = Template.bind({});
@@ -56,6 +64,27 @@ White.parameters = {
 export const Black = Template.bind({});
 Black.args = {
   variant: 'black',
+};
+
+export const WhiteGreen = Template.bind({});
+WhiteGreen.args = {
+  variant: 'whiteGreen',
+};
+WhiteGreen.parameters = {
+  backgrounds: {
+    default: 'dark',
+    values: [
+      {
+        name: 'dark',
+        value: '#333333',
+      },
+    ],
+  },
+};
+
+export const BlackGreen = Template.bind({});
+BlackGreen.args = {
+  variant: 'blackGreen',
 };
 
 // Different titles
