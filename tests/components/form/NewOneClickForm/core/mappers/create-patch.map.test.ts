@@ -4,10 +4,14 @@ import { FormBuilder } from '../../../../../../src/components/form/NewOneClickFo
 import { makeCredential, makeCredentialRequest } from '../../utils/form';
 
 describe('toCreatePatchCredentials', () => {
-  test('should return empty array when form has no fields', () => {
+  test('should return empty arrays when form has no fields', () => {
     const form = new FormBuilder().createFromCredentialAndRequests([], []);
     const result = toCreatePatchCredentials(form);
-    expect(result).toEqual([]);
+    expect(result).toEqual({
+      toCreate: [],
+      toPatch: [],
+      unchanged: [],
+    });
   });
 
   test('should filter out fields that are empty', () => {
@@ -26,7 +30,9 @@ describe('toCreatePatchCredentials', () => {
 
     const result = toCreatePatchCredentials(form);
 
-    expect(result).toHaveLength(0);
+    expect(result.toCreate).toHaveLength(0);
+    expect(result.toPatch).toHaveLength(0);
+    expect(result.unchanged).toHaveLength(0);
   });
 
   describe('SSN field', () => {
@@ -43,8 +49,10 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.toPatch).toHaveLength(0);
+      expect(result.toCreate).toHaveLength(0);
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: ssn.uuid,
         type: 'ssn',
         value: {
@@ -60,7 +68,9 @@ describe('toCreatePatchCredentials', () => {
       );
 
       const result = toCreatePatchCredentials(form);
-      expect(result).toHaveLength(0);
+      expect(result.toCreate).toHaveLength(0);
+      expect(result.toPatch).toHaveLength(0);
+      expect(result.unchanged).toHaveLength(0);
     });
   });
 
@@ -78,7 +88,7 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
+      expect(result.unchanged).toHaveLength(1);
     });
   });
 
@@ -104,8 +114,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: fullName.uuid,
         type: 'fullName',
         value: {
@@ -137,8 +147,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: fullName.uuid,
         type: 'fullName',
         value: {
@@ -171,8 +181,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: fullName.uuid,
         type: 'fullName',
         value: {
@@ -181,7 +191,7 @@ describe('toCreatePatchCredentials', () => {
           // middleName should be excluded since it's empty
         },
       });
-      expect(result[0].value).not.toHaveProperty('middleName');
+      expect(result.unchanged[0].value).not.toHaveProperty('middleName');
     });
   });
 
@@ -216,8 +226,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: address.uuid,
         type: 'address',
         value: {
@@ -261,8 +271,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].value).not.toHaveProperty('line2');
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0].value).not.toHaveProperty('line2');
     });
 
     test('should exclude entire Address when all fields are empty', () => {
@@ -294,7 +304,9 @@ describe('toCreatePatchCredentials', () => {
       const result = toCreatePatchCredentials(form);
 
       // Should exclude the entire address since all fields are empty
-      expect(result).toHaveLength(0);
+      expect(result.toCreate).toHaveLength(0);
+      expect(result.toPatch).toHaveLength(0);
+      expect(result.unchanged).toHaveLength(0);
     });
   });
 
@@ -344,8 +356,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: driversLicense.uuid,
         type: 'driversLicense',
         value: {
@@ -403,8 +415,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].value.address).not.toHaveProperty('zipCode');
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0].value.address).not.toHaveProperty('zipCode');
     });
 
     test('should exclude address from DriversLicense when all address fields are empty', () => {
@@ -447,8 +459,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.toPatch).toHaveLength(1);
+      expect(result.toPatch[0]).toEqual({
         uuid: driversLicense.uuid,
         type: 'driversLicense',
         value: {
@@ -456,7 +468,7 @@ describe('toCreatePatchCredentials', () => {
           // address should be omitted - would be empty object
         },
       });
-      expect(result[0].value).not.toHaveProperty('address');
+      expect(result.toPatch[0].value).not.toHaveProperty('address');
     });
   });
 
@@ -474,8 +486,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: birthDate.uuid,
         type: 'birthDate',
         value: {
@@ -491,7 +503,9 @@ describe('toCreatePatchCredentials', () => {
       );
 
       const result = toCreatePatchCredentials(form);
-      expect(result).toHaveLength(0);
+      expect(result.toCreate).toHaveLength(0);
+      expect(result.toPatch).toHaveLength(0);
+      expect(result.unchanged).toHaveLength(0);
     });
   });
 
@@ -509,8 +523,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: sex.uuid,
         type: 'sex',
         value: {
@@ -526,7 +540,9 @@ describe('toCreatePatchCredentials', () => {
       );
 
       const result = toCreatePatchCredentials(form);
-      expect(result).toHaveLength(0);
+      expect(result.toCreate).toHaveLength(0);
+      expect(result.toPatch).toHaveLength(0);
+      expect(result.unchanged).toHaveLength(0);
     });
   });
 
@@ -562,18 +578,18 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(3);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(3);
+      expect(result.unchanged[0]).toEqual({
         uuid: ssn.uuid,
         type: 'ssn',
         value: { ssn: '123456789' },
       });
-      expect(result[1]).toEqual({
+      expect(result.unchanged[1]).toEqual({
         uuid: fullName.uuid,
         type: 'fullName',
         value: { firstName: 'John', lastName: 'Doe' },
       });
-      expect(result[2]).toEqual({
+      expect(result.unchanged[2]).toEqual({
         uuid: birthDate.uuid,
         type: 'birthDate',
         value: { birthDate: '946684800000' },
@@ -601,18 +617,18 @@ describe('toCreatePatchCredentials', () => {
       const result = toCreatePatchCredentials(form);
 
       // Should include SSN and phone
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(2);
+      expect(result.unchanged[0]).toEqual({
         uuid: ssn.uuid,
         type: 'ssn',
         value: { ssn: '123456789' },
       });
-      expect(result[1]).toEqual({
+      expect(result.unchanged[1]).toEqual({
         uuid: phone.uuid,
         type: 'phone',
         value: { phone: '+1234567890' },
       });
-      expect(result.find((r) => r.type === 'phone')).toBeDefined();
+      expect(result.unchanged.find((r) => r.type === 'phone')).toBeDefined();
     });
   });
 
@@ -631,8 +647,8 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.unchanged).toHaveLength(1);
+      expect(result.unchanged[0]).toEqual({
         uuid: 'test-uuid-123',
         type: 'ssn',
         value: { ssn: '123456789' },
@@ -649,12 +665,12 @@ describe('toCreatePatchCredentials', () => {
 
       const result = toCreatePatchCredentials(form);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.toCreate).toHaveLength(1);
+      expect(result.toCreate[0]).toEqual({
         type: 'ssn',
         value: { ssn: '123456789' },
       });
-      expect(result[0]).not.toHaveProperty('uuid');
+      expect(result.toCreate[0]).not.toHaveProperty('uuid');
     });
   });
 });

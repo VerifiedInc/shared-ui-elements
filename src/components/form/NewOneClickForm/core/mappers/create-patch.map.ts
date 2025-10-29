@@ -1,15 +1,43 @@
 import { fieldInputTypes } from '../fields';
 import { Form, FormField } from '../form';
 
-export type CreatePatchCredentialsResult = {
+export type ToCreateCredentialsResult = {
   uuid?: string;
-  type?: string;
+  type: string;
   value: Record<string, any>;
 };
 
-export function toCreatePatchCredentials(
-  form: Form,
-): CreatePatchCredentialsResult[] {
+export type ToPatchCredentialsResult = {
+  uuid: string;
+  type: string;
+  value: Record<string, any>;
+};
+
+export type UnchangedCredentialsResult = {
+  uuid: string;
+  type: string;
+  value: Record<string, any>;
+};
+
+export type CategorizedCredentials = {
+  toCreate: ToCreateCredentialsResult[];
+  toPatch: ToPatchCredentialsResult[];
+  unchanged: UnchangedCredentialsResult[];
+};
+
+export type UnknownCredentials =
+  | ToCreateCredentialsResult
+  | ToPatchCredentialsResult
+  | UnchangedCredentialsResult;
+
+export function toCreatePatchCredentials(form: Form): CategorizedCredentials {
+  // Type guard to check if a credential has a uuid
+  const hasUuid = (
+    credential: UnknownCredentials,
+  ): credential is UnchangedCredentialsResult => {
+    return credential.uuid !== undefined;
+  };
+
   const nonEmptyFields = (field: FormField) => {
     if (
       field.schema.characteristics.inputType === fieldInputTypes.composite &&
@@ -59,29 +87,66 @@ export function toCreatePatchCredentials(
     return value;
   };
 
-  const map = (field: FormField) => {
-    const result: CreatePatchCredentialsResult = {
-      type: field.schema.key,
-      value: {},
-    };
-
-    if (field.id) {
-      result.uuid = field.id;
-    }
-
+  const map = (field: FormField): UnknownCredentials => {
     // Clean empty properties from the field value for patch operations
     const cleanedValue = cleanEmptyProperties(field.value);
 
+    // Prepare the value object
+    let value: Record<string, any>;
     // For composite fields, use the cleaned value directly without wrapping with field key
     if (field.schema.characteristics.inputType === fieldInputTypes.composite) {
-      result.value = cleanedValue;
+      value = cleanedValue;
     } else {
       // For primitive fields, wrap with the field key
-      result.value[field.schema.key] = cleanedValue;
+      value = { [field.schema.key]: cleanedValue };
     }
 
-    return result;
+    // Return the appropriate type based on whether uuid exists
+    if (field.id) {
+      return {
+        uuid: field.id,
+        type: field.schema.key,
+        value,
+      };
+    } else {
+      return {
+        type: field.schema.key,
+        value,
+      };
+    }
   };
 
-  return Object.values(form.fields).filter(nonEmptyFields).map(map);
+  const allFields = Object.values(form.fields);
+  const nonEmptyFieldsList = allFields.filter(nonEmptyFields);
+
+  const toCreate: ToCreateCredentialsResult[] = [];
+  const toPatch: ToPatchCredentialsResult[] = [];
+  const unchanged: UnchangedCredentialsResult[] = [];
+
+  nonEmptyFieldsList.forEach((field) => {
+    const credential = map(field);
+
+    if (field.isDirty) {
+      // Field has been modified
+      if (hasUuid(credential)) {
+        // Has UUID and is dirty, needs to be patched
+        toPatch.push(credential);
+      } else {
+        // No UUID and is dirty, needs to be created
+        toCreate.push(credential);
+      }
+    } else {
+      // Field is not dirty but has data, it's unchanged
+      // At this point, credential.uuid must exist (unchanged fields come from existing credentials)
+      if (hasUuid(credential)) {
+        unchanged.push(credential);
+      }
+    }
+  });
+
+  return {
+    toCreate,
+    toPatch,
+    unchanged,
+  };
 }
