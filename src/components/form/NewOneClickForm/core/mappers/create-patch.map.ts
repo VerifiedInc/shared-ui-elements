@@ -130,7 +130,7 @@ export function toCreatePatchCredentials(form: Form): CategorizedCredentials {
       // Field has been modified
       if (hasUuid(credential)) {
         // Has UUID and is dirty, needs to be patched
-        toPatch.push(credential);
+        toPatch.push(credential as ToPatchCredentialsResult);
       } else {
         // No UUID and is dirty, needs to be created
         toCreate.push(credential);
@@ -139,7 +139,7 @@ export function toCreatePatchCredentials(form: Form): CategorizedCredentials {
       // Field is not dirty but has data, it's unchanged
       // At this point, credential.uuid must exist (unchanged fields come from existing credentials)
       if (hasUuid(credential)) {
-        unchanged.push(credential);
+        unchanged.push(credential as UnchangedCredentialsResult);
       }
     }
   });
