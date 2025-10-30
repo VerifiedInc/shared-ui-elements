@@ -11,24 +11,18 @@ import { SdkIntegrationType } from '../../components/CredentialRequestsEditor/ty
 const meta = {
   title: 'Components/CredentialRequestsEditor',
   component: CredentialRequestsEditor,
-  render: (args: any, { loaded: { credentialRequests, schemas } }) => (
+  render: (args: any, { loaded: { credentialRequests } }) => (
     <Box width={440}>
       <CredentialRequestsEditor
         {...args}
         credentialRequests={credentialRequests}
-        schemas={schemas}
       />
     </Box>
   ),
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
-    docs: {
-      description: {
-        component:
-          '⚠️ REQUIRES schema resolver V2 to be running locally in order to fetch schemas.',
-      },
-    },
+    docs: {},
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
@@ -36,10 +30,6 @@ const meta = {
   argTypes: {
     credentialRequests: {
       description: 'This props is used to populate the credential requests.',
-    },
-    schemas: {
-      description:
-        'Schemas are being used to populate the field types, also it maps its children types to the parent.',
     },
     addButtonText: {
       type: 'string',
@@ -60,21 +50,16 @@ type Story = StoryObj<typeof meta>;
 export const API: Story = {
   loaders: [
     async () => {
-      const schemas = await (
-        await fetch('http://localhost:6061/jsonSchema')
-      ).json();
-
       const credentialRequests = [
-        buildDataFieldValue('FullNameCredential', schemas),
-        buildDataFieldValue('PhoneCredential', schemas),
-        buildDataFieldValue('AddressCredential', schemas),
-        buildDataFieldValue('BirthDateCredential', schemas),
-        buildDataFieldValue('SsnCredential', schemas),
+        buildDataFieldValue('FullNameCredential'),
+        buildDataFieldValue('PhoneCredential'),
+        buildDataFieldValue('AddressCredential'),
+        buildDataFieldValue('BirthDateCredential'),
+        buildDataFieldValue('SsnCredential'),
       ];
 
       return {
         credentialRequests,
-        schemas,
       };
     },
   ],
@@ -82,7 +67,6 @@ export const API: Story = {
     riskSignals: 'basic',
     integrationType: SdkIntegrationType.NonHosted,
     credentialRequests: [],
-    schemas: {},
     onChange: fn() as any,
     features: {
       allowUserInput: {
@@ -104,21 +88,16 @@ export const API: Story = {
 export const SDK: Story = {
   loaders: [
     async () => {
-      const schemas = await (
-        await fetch('http://localhost:6061/jsonSchema')
-      ).json();
-
       const credentialRequests = [
-        buildDataFieldValue('FullNameCredential', schemas),
-        buildDataFieldValue('PhoneCredential', schemas),
-        buildDataFieldValue('AddressCredential', schemas),
-        buildDataFieldValue('BirthDateCredential', schemas),
-        buildDataFieldValue('SsnCredential', schemas),
+        buildDataFieldValue('FullNameCredential'),
+        buildDataFieldValue('PhoneCredential'),
+        buildDataFieldValue('AddressCredential'),
+        buildDataFieldValue('BirthDateCredential'),
+        buildDataFieldValue('SsnCredential'),
       ];
 
       return {
         credentialRequests,
-        schemas,
       };
     },
   ],
@@ -126,7 +105,6 @@ export const SDK: Story = {
     riskSignals: 'basic',
     integrationType: SdkIntegrationType.Hosted,
     credentialRequests: [],
-    schemas: {},
     onChange: fn() as any,
     features: {
       allowUserInput: {
@@ -148,21 +126,16 @@ export const SDK: Story = {
 export const SDKWithNoRiskSignals: Story = {
   loaders: [
     async () => {
-      const schemas = await (
-        await fetch('http://localhost:6061/jsonSchema')
-      ).json();
-
       const credentialRequests = [
-        buildDataFieldValue('FullNameCredential', schemas),
-        buildDataFieldValue('PhoneCredential', schemas),
-        buildDataFieldValue('AddressCredential', schemas),
-        buildDataFieldValue('BirthDateCredential', schemas),
-        buildDataFieldValue('SsnCredential', schemas),
+        buildDataFieldValue('FullNameCredential'),
+        buildDataFieldValue('PhoneCredential'),
+        buildDataFieldValue('AddressCredential'),
+        buildDataFieldValue('BirthDateCredential'),
+        buildDataFieldValue('SsnCredential'),
       ];
 
       return {
         credentialRequests,
-        schemas,
       };
     },
   ],
@@ -170,7 +143,6 @@ export const SDKWithNoRiskSignals: Story = {
     riskSignals: 'none',
     integrationType: SdkIntegrationType.Hosted,
     credentialRequests: [],
-    schemas: {},
     onChange: fn() as any,
     features: {
       allowUserInput: {
