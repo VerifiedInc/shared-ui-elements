@@ -61,6 +61,7 @@ export function DataFieldAccordion(
   const credentialRequest = field.field.value as CredentialRequestsWithNew;
   const credentialRequests = formContext.watch('credentialRequests');
   const isNew: boolean = (credentialRequestField?.field as any).isNew;
+  const isChild = (credentialRequestField?.level ?? 0) > 0;
   const [expanded, setOpen] = useState((defaultExpanded ?? isNew) || false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -215,8 +216,6 @@ export function DataFieldAccordion(
   };
 
   const renderDataFields = (): React.JSX.Element => {
-    const isChild = (credentialRequestField?.level ?? 0) > 0;
-
     return (
       <Stack spacing={2}>
         {!isChild && <DataFieldOptionType />}
@@ -271,7 +270,15 @@ export function DataFieldAccordion(
             data-testid='custom-demo-dialog-data-field-accordion'
           >
             <AccordionSummary
-              onClick={() => {
+              onClick={(e) => {
+                if (
+                  isChild &&
+                  integrationType === SdkIntegrationType.NonHosted
+                ) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
                 setOpen((prev) => !prev);
               }}
               expandIcon={
@@ -291,18 +298,21 @@ export function DataFieldAccordion(
                       }}
                     />
                   </IconButton>
-                  <Stack
-                    className={chevronClassName}
-                    sx={{ ml: 1, alignSelf: 'center' }}
-                  >
-                    <ChevronLeft
-                      fontSize='small'
-                      sx={{
-                        color: '#0dbc3d',
-                        transform: 'rotate(0deg)',
-                      }}
-                    />
-                  </Stack>
+                  {(!isChild ||
+                    integrationType !== SdkIntegrationType.NonHosted) && (
+                    <Stack
+                      className={chevronClassName}
+                      sx={{ ml: 1, alignSelf: 'center' }}
+                    >
+                      <ChevronLeft
+                        fontSize='small'
+                        sx={{
+                          color: '#0dbc3d',
+                          transform: 'rotate(0deg)',
+                        }}
+                      />
+                    </Stack>
+                  )}
                 </>
               }
               sx={{
