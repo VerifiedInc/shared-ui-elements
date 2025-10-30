@@ -12,7 +12,6 @@ import {
 } from '../types/form';
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
-import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldOptionType(): React.JSX.Element {
@@ -21,29 +20,24 @@ export function DataFieldOptionType(): React.JSX.Element {
     name: `${credentialRequestField?.path as any}` as any,
   });
 
-  const { schemas } = useCredentialRequestsEditor();
   const schemaValues = useMemo(() => {
-    if (!schemas) return [];
-
-    const orderedSchemas: Record<string, number> = {
+    const orderedTypes: Record<string, number> = {
       PhoneCredential: 0,
       FullNameCredential: 1,
       AddressCredential: 2,
       BirthDateCredential: 3,
       SsnCredential: 4,
       SexCredential: 5,
+      DriversLicenseCredential: 6,
     };
 
-    return Object.values(schemas)
-      .map((schema) => ({
-        label: prettyField(schema.$id),
-        id: schema.$id as string,
+    return Object.keys(orderedTypes)
+      .map((key) => ({
+        label: prettyField(key),
+        id: key,
       }))
-      .filter((schema) => {
-        return Object.keys(orderedSchemas).includes(schema.id);
-      })
-      .sort((a, b) => orderedSchemas[a.id] - orderedSchemas[b.id]);
-  }, [schemas]);
+      .sort((a, b) => orderedTypes[a.id] - orderedTypes[b.id]);
+  }, []);
   const selectedValue = useMemo(() => {
     const type = (field.field?.value as CredentialRequests)?.type;
     return schemaValues?.find((value) => value.id === type);
@@ -66,7 +60,7 @@ export function DataFieldOptionType(): React.JSX.Element {
         onChange={(_, value) => {
           if (!value) return;
 
-          const baseValue = buildDataFieldValue(value.id, schemas);
+          const baseValue = buildDataFieldValue(value.id);
           const newValue: CredentialRequestsWithNew = {
             type: baseValue.type,
             issuers: baseValue.issuers,
@@ -101,7 +95,7 @@ export function DataFieldOptionType(): React.JSX.Element {
             placeholder='Choose a type...'
           />
         )}
-        disabled={(credentialRequestField?.level ?? 0) > 0 || schemas === null}
+        disabled={(credentialRequestField?.level ?? 0) > 0}
       />
     </DataFieldSection>
   );
