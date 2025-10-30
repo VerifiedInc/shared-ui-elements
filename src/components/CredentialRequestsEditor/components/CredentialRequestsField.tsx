@@ -77,7 +77,7 @@ function CredentialRequestField({
           type='button'
           onClick={() => {
             if (!customConfig) return;
-            const baseValue = buildDataFieldValue('', customConfig.schemas);
+            const baseValue = buildDataFieldValue('');
             const newValue: CredentialRequestsWithNew = {
               type: baseValue.type,
               issuers: baseValue.issuers,

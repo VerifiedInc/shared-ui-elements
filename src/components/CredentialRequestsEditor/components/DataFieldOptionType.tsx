@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useController } from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 import { Autocomplete, TextField } from '@mui/material';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 
@@ -16,6 +16,7 @@ import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldOptionType(): React.JSX.Element {
   const credentialRequestField = useCredentialRequestField();
+  const formContext = useFormContext<CredentialRequestsEditorForm>();
   const field = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}` as any,
   });
@@ -31,13 +32,32 @@ export function DataFieldOptionType(): React.JSX.Element {
       DriversLicenseCredential: 6,
     };
 
+    // Get all sibling fields at the same level to check for duplicates
+    const currentPath = credentialRequestField?.path ?? '';
+    const currentIndex = credentialRequestField?.index ?? 0;
+    const pathParts = currentPath.split('.');
+
+    // Get parent path (e.g., "credentialRequests" or "credentialRequests.0.children")
+    const parentPath = pathParts.slice(0, -1).join('.');
+    const siblingFields = formContext.getValues(parentPath as any) as
+      | CredentialRequestsWithNew[]
+      | undefined;
+
+    // Get types that are already used by siblings (excluding current field)
+    const usedTypes = new Set(
+      siblingFields
+        ?.map((f, idx) => (idx !== currentIndex ? f.type : null))
+        .filter((type): type is string => type !== null) ?? [],
+    );
+
     return Object.keys(orderedTypes)
       .map((key) => ({
         label: prettyField(key),
         id: key,
       }))
+      .filter((option) => !usedTypes.has(option.id))
       .sort((a, b) => orderedTypes[a.id] - orderedTypes[b.id]);
-  }, []);
+  }, [credentialRequestField, formContext]);
   const selectedValue = useMemo(() => {
     const type = (field.field?.value as CredentialRequests)?.type;
     return schemaValues?.find((value) => value.id === type);

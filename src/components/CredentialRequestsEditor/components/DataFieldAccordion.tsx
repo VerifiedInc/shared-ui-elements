@@ -215,9 +215,11 @@ export function DataFieldAccordion(
   };
 
   const renderDataFields = (): React.JSX.Element => {
+    const isChild = (credentialRequestField?.level ?? 0) > 0;
+
     return (
       <Stack spacing={2}>
-        <DataFieldOptionType />
+        {!isChild && <DataFieldOptionType />}
         {integrationType !== SdkIntegrationType.NonHosted && (
           <>
             <DataFieldDescription />
