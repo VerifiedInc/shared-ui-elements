@@ -65,7 +65,10 @@ export function propagateToChildren(
           childHasAllowUserInputField;
 
         if (shouldPropagate) {
-          form.setValue(childPropertyPath as any, value);
+          // Casting to any to bypass type issues with deeply nested paths
+          (form.setValue as any)(childPropertyPath as any, value, {
+            shouldValidate: false,
+          });
           // Recursively propagate to grandchildren
           propagateToChildren(form, value, childPath, propertyKey);
         }

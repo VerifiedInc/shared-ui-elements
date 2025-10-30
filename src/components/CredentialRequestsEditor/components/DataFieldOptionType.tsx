@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useController } from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 import { Autocomplete, TextField } from '@mui/material';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 
@@ -12,38 +12,52 @@ import {
 } from '../types/form';
 import { buildDataFieldValue } from '../utils/buildDataFieldValue';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
-import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldOptionType(): React.JSX.Element {
   const credentialRequestField = useCredentialRequestField();
+  const formContext = useFormContext<CredentialRequestsEditorForm>();
   const field = useController<CredentialRequestsEditorForm>({
     name: `${credentialRequestField?.path as any}` as any,
   });
 
-  const { schemas } = useCredentialRequestsEditor();
   const schemaValues = useMemo(() => {
-    if (!schemas) return [];
-
-    const orderedSchemas: Record<string, number> = {
+    const orderedTypes: Record<string, number> = {
       PhoneCredential: 0,
       FullNameCredential: 1,
       AddressCredential: 2,
       BirthDateCredential: 3,
       SsnCredential: 4,
       SexCredential: 5,
+      DriversLicenseCredential: 6,
     };
 
-    return Object.values(schemas)
-      .map((schema) => ({
-        label: prettyField(schema.$id),
-        id: schema.$id as string,
+    // Get all sibling fields at the same level to check for duplicates
+    const currentPath = credentialRequestField?.path ?? '';
+    const currentIndex = credentialRequestField?.index ?? 0;
+    const pathParts = currentPath.split('.');
+
+    // Get parent path (e.g., "credentialRequests" or "credentialRequests.0.children")
+    const parentPath = pathParts.slice(0, -1).join('.');
+    const siblingFields = formContext.getValues(parentPath as any) as
+      | CredentialRequestsWithNew[]
+      | undefined;
+
+    // Get types that are already used by siblings (excluding current field)
+    const usedTypes = new Set(
+      siblingFields
+        ?.map((f, idx) => (idx !== currentIndex ? f.type : null))
+        .filter((type): type is string => type !== null) ?? [],
+    );
+
+    return Object.keys(orderedTypes)
+      .map((key) => ({
+        label: prettyField(key),
+        id: key,
       }))
-      .filter((schema) => {
-        return Object.keys(orderedSchemas).includes(schema.id);
-      })
-      .sort((a, b) => orderedSchemas[a.id] - orderedSchemas[b.id]);
-  }, [schemas]);
+      .filter((option) => !usedTypes.has(option.id))
+      .sort((a, b) => orderedTypes[a.id] - orderedTypes[b.id]);
+  }, [credentialRequestField, formContext]);
   const selectedValue = useMemo(() => {
     const type = (field.field?.value as CredentialRequests)?.type;
     return schemaValues?.find((value) => value.id === type);
@@ -66,7 +80,7 @@ export function DataFieldOptionType(): React.JSX.Element {
         onChange={(_, value) => {
           if (!value) return;
 
-          const baseValue = buildDataFieldValue(value.id, schemas);
+          const baseValue = buildDataFieldValue(value.id);
           const newValue: CredentialRequestsWithNew = {
             type: baseValue.type,
             issuers: baseValue.issuers,
@@ -101,7 +115,7 @@ export function DataFieldOptionType(): React.JSX.Element {
             placeholder='Choose a type...'
           />
         )}
-        disabled={(credentialRequestField?.level ?? 0) > 0 || schemas === null}
+        disabled={(credentialRequestField?.level ?? 0) > 0}
       />
     </DataFieldSection>
   );

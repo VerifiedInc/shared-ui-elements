@@ -1,73 +1,48 @@
 import _ from 'lodash';
-import { type CompositeCredentialSchema } from '../types/compositeCredentialSchema';
 import { CredentialRequests } from '../types/form';
-import { type CredentialSchemaDto } from '../types/credentialSchemasDto';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 
-const isComposed = (schema: unknown): schema is CompositeCredentialSchema =>
-  Object.prototype.hasOwnProperty.call(schema || {}, 'anyOf') ||
-  Object.prototype.hasOwnProperty.call(schema || {}, 'allOf');
+import { fields } from '../../form/NewOneClickForm/core/fields';
 
-function extractTypes(record: any, parentId?: string): string[] {
-  const result: string[] = [];
-
-  // Handle direct $id at current level (skip if it matches parent)
-  if (record.$id && typeof record.$id === 'string' && record.$id !== parentId) {
-    result.push(record.$id);
-  }
-
-  // Handle direct $ref at current level
-  if (record.$ref && typeof record.$ref === 'string') {
-    result.push(record.$ref);
-    return result;
-  }
-
-  // Process anyOf array - only process direct children
-  if (Array.isArray(record.anyOf)) {
-    record.anyOf.forEach((schema: any) => {
-      if (schema && typeof schema === 'object') {
-        // If schema has $id, collect it but don't traverse deeper
-        if (schema.$id && typeof schema.$id === 'string') {
-          result.push(schema.$id);
-        }
-        // If schema has $ref, collect it
-        else if (schema.$ref && typeof schema.$ref === 'string') {
-          result.push(schema.$ref);
-        }
-        // If no $id or $ref, traverse deeper
-        else {
-          result.push(...extractTypes(schema, parentId));
-        }
-      }
-    });
-  }
-
-  // Process allOf array
-  if (Array.isArray(record.allOf)) {
-    record.allOf.forEach((schema: any) => {
-      if (schema && typeof schema === 'object') {
-        if (schema.$ref && typeof schema.$ref === 'string') {
-          result.push(schema.$ref);
-        } else {
-          result.push(...extractTypes(schema, parentId));
-        }
-      }
-    });
-  }
-
-  return _.uniq(result);
+/**
+ * Converts a field key to a Credential type name
+ * Example: 'fullName' -> 'FullNameCredential'
+ */
+function toCredentialType(fieldKey: string): string {
+  return _.upperFirst(_.camelCase(fromCredentialType(fieldKey))) + 'Credential';
 }
 
-export function buildDataFieldValue(
-  type: string,
-  schema: CredentialSchemaDto['schemas'],
-): CredentialRequests {
-  const selectedSchema = schema[type];
-  const isComposedSchema = isComposed(selectedSchema);
+function fromCredentialType(credentialType: string): string {
+  const withoutSuffix = credentialType.replace('Credential', '');
+  return _.lowerFirst(_.camelCase(withoutSuffix));
+}
 
-  if (isComposedSchema) {
-    const children = extractTypes(selectedSchema, type)
-      .map((item) => buildDataFieldValue(item, schema))
+/**
+ * Recursively builds a CredentialRequests object from a field key
+ * @param fieldKey - The key of the field to build (e.g., 'fullName', 'address')
+ * @returns A CredentialRequests object with nested children if applicable
+ */
+export function buildDataFieldValue(fieldKey: string): CredentialRequests {
+  const key = fromCredentialType(fieldKey);
+  const type = toCredentialType(fieldKey);
+  const field = fields[key as keyof typeof fields];
+
+  if (!field) {
+    // If field doesn't exist, return a simple credential request
+    return {
+      type: fieldKey,
+      mandatory: MandatoryEnum.NO,
+      description: '',
+      allowUserInput: true,
+      multi: false,
+    };
+  }
+
+  // Check if field has children (composite field)
+  if ('children' in field && field.children) {
+    const childrenObj = field.children as Record<string, any>;
+    const children = Object.keys(childrenObj)
+      .map((childKey) => buildDataFieldValue(childKey))
       .filter((child): child is CredentialRequests => child !== null);
 
     return {
@@ -76,15 +51,16 @@ export function buildDataFieldValue(
       description: '',
       allowUserInput: true,
       multi: false,
-      ...(children.length > 0 ? { children } : {}),
+      children,
     };
   }
 
+  // Simple field without children
   return {
     type,
     mandatory: MandatoryEnum.NO,
     description: '',
     allowUserInput: true,
-    multi: type === 'EmailCredential',
+    multi: false,
   };
 }

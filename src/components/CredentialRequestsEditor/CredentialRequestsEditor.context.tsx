@@ -29,7 +29,6 @@ export interface CredentialRequestsEditorFeatures {
 export interface CredentialRequestsEditorProps {
   addButtonText?: string;
   credentialRequests: CredentialRequestsWithNew[];
-  schemas: Record<string, any>;
   children: ReactNode;
   integrationType: SdkIntegrationType;
   riskSignals: 'none' | 'basic' | 'advanced';
@@ -40,7 +39,6 @@ export interface CredentialRequestsEditorProps {
 export interface CredentialRequestsEditorContext {
   addButtonText?: string;
   riskSignals: 'none' | 'basic' | 'advanced';
-  schemas: Record<string, any>;
   features?: CredentialRequestsEditorFeatures;
   integrationType: SdkIntegrationType;
 }
@@ -93,7 +91,6 @@ export function CredentialRequestsEditorProvider(
         value={{
           addButtonText: props.addButtonText,
           riskSignals: props.riskSignals,
-          schemas: props.schemas,
           features: props.features,
           integrationType: props.integrationType,
         }}
