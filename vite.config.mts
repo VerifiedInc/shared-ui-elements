@@ -37,6 +37,7 @@ export default defineConfig({
         'components/typographies': resolvePath(
           'src/components/typographies/index.ts',
         ),
+        contexts: resolvePath('src/contexts/index.ts'),
         hooks: resolvePath('src/hooks/index.ts'),
         styles: resolvePath('src/styles/index.ts'),
         validations: resolvePath('src/validations/index.ts'),
