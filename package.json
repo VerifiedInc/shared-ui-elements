@@ -23,6 +23,10 @@
       "types": "./dist/components/index.d.ts",
       "import": "./dist/components/index.mjs"
     },
+    "./contexts": {
+      "types": "./dist/contexts/index.d.ts",
+      "import": "./dist/contexts/index.mjs"
+    },
     "./components/*": {
       "types": "./dist/components/*/index.d.ts",
       "import": "./dist/components/*/index.mjs"
