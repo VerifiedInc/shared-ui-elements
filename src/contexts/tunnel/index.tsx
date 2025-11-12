@@ -5,6 +5,7 @@ import {
   useCallback,
   useLayoutEffect,
   type ReactNode,
+  useRef,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { Stack, StackProps } from '@mui/material';
@@ -35,43 +36,37 @@ function Provider({ children }: { children: ReactNode }) {
   const [tunnelMap, setTunnelMap] = useState<Map<string, HTMLElement>>(
     new Map(),
   );
-  const [subscribers] = useState<
+  const subscribers = useRef<
     Map<string, Set<(element: HTMLElement | null) => void>>
   >(new Map());
 
-  const register = useCallback(
-    (id: string, element: HTMLElement) => {
-      setTunnelMap((prev) => {
-        const next = new Map(prev);
-        next.set(id, element);
-        return next;
-      });
+  const register = useCallback((id: string, element: HTMLElement) => {
+    setTunnelMap((prev) => {
+      const next = new Map(prev);
+      next.set(id, element);
+      return next;
+    });
 
-      // Notify subscribers
-      const callbacks = subscribers.get(id);
-      if (callbacks) {
-        callbacks.forEach((callback) => callback(element));
-      }
-    },
-    [subscribers],
-  );
+    // Notify subscribers
+    const callbacks = subscribers.current.get(id);
+    if (callbacks) {
+      callbacks.forEach((callback) => callback(element));
+    }
+  }, []);
 
-  const unregister = useCallback(
-    (id: string) => {
-      setTunnelMap((prev) => {
-        const next = new Map(prev);
-        next.delete(id);
-        return next;
-      });
+  const unregister = useCallback((id: string) => {
+    setTunnelMap((prev) => {
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
 
-      // Notify subscribers
-      const callbacks = subscribers.get(id);
-      if (callbacks) {
-        callbacks.forEach((callback) => callback(null));
-      }
-    },
-    [subscribers],
-  );
+    // Notify subscribers
+    const callbacks = subscribers.current.get(id);
+    if (callbacks) {
+      callbacks.forEach((callback) => callback(null));
+    }
+  }, []);
 
   const getTarget = useCallback(
     (id: string) => {
@@ -82,10 +77,10 @@ function Provider({ children }: { children: ReactNode }) {
 
   const subscribe = useCallback(
     (id: string, callback: (element: HTMLElement | null) => void) => {
-      if (!subscribers.has(id)) {
-        subscribers.set(id, new Set());
+      if (!subscribers.current.has(id)) {
+        subscribers.current.set(id, new Set());
       }
-      subscribers.get(id)?.add(callback);
+      subscribers.current.get(id)?.add(callback);
 
       // Immediately call with current value
       const current = tunnelMap.get(id) ?? null;
@@ -93,16 +88,16 @@ function Provider({ children }: { children: ReactNode }) {
 
       // Return unsubscribe function
       return () => {
-        const callbacks = subscribers.get(id);
+        const callbacks = subscribers.current.get(id);
         if (callbacks) {
           callbacks.delete(callback);
           if (callbacks.size === 0) {
-            subscribers.delete(id);
+            subscribers.current.delete(id);
           }
         }
       };
     },
-    [subscribers, tunnelMap],
+    [tunnelMap],
   );
 
   return (
