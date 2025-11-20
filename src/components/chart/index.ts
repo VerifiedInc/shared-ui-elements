@@ -18,3 +18,5 @@ export * from './MetricLastUpdated';
 export * from './SignupBigNumbers';
 export * from './TTSOverTimeChart';
 export * from './TTSBigNumbers';
+export * from './OneClickHealthOverTimeChart';
+export * from './OneClickHealthBigNumbers';

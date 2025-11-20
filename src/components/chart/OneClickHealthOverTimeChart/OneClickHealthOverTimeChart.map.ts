@@ -3,30 +3,29 @@ import {
   type MapSeriesTimeSeriesDataOptions,
 } from '../SeriesChart/SeriesChart.map';
 
-export interface MapTTSTimeSeriesDataOptions
+export interface MapOneClickHealthTimeSeriesDataOptions
   extends MapSeriesTimeSeriesDataOptions {
   data: Array<{
     interval?: Array<{
-      ttsSent: number;
-      ttsVerified: number;
+      oneClickCreated: number;
+      oneClickSuccess: number;
       date: string | number;
       [key: string]: any;
     }>;
-    keyword: string;
     brandUuid: string;
     brandName: string;
   }>;
 }
 
 /**
- * Maps raw TTS time series data into a format suitable for charting, grouped by keyword.
+ * Maps raw OneClick health time series data into a format suitable for charting.
  * Delegates to the shared mapSeriesTimeSeriesData function.
  *
  * @param options Configuration options for mapping the data
  * @returns Array of formatted time series data ready for charting, one entry per keyword
  */
-export function mapTTSTimeSeriesData(
-  options: MapTTSTimeSeriesDataOptions,
+export function mapOneClickHealthTimeSeriesData(
+  options: MapOneClickHealthTimeSeriesDataOptions,
 ): ReturnType<typeof mapSeriesTimeSeriesData> {
   return mapSeriesTimeSeriesData(options);
 }

@@ -1,2 +1,2 @@
 export * from './OneClickOverTimeChart';
-export * from './OneClickTimeSeriesDataMapper';
+export * from './OneClickOverTimeChart.map';
