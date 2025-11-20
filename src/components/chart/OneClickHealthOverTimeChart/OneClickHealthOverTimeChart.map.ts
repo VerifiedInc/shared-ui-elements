@@ -7,8 +7,8 @@ export interface MapOneClickHealthTimeSeriesDataOptions
   extends MapSeriesTimeSeriesDataOptions {
   data: Array<{
     interval?: Array<{
-      oneClickCreated: number;
-      oneClickSuccess: number;
+      oneClickHealthCreated: number;
+      oneClickHealthSuccess: number;
       date: string | number;
       [key: string]: any;
     }>;
