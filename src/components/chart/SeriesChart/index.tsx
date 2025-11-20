@@ -126,3 +126,5 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
     </Box>
   );
 }
+
+export * from './SeriesChart.map';
