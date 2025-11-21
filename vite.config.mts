@@ -47,6 +47,7 @@ export default defineConfig({
         'utils/masks': resolvePath('src/utils/masks/index.ts'),
         'utils/string': resolvePath('src/utils/string/index.ts'),
         'utils/phone': resolvePath('src/utils/phone.ts'),
+        'utils/logo': resolvePath('src/utils/logo/index.ts'),
         'utils/wrapPromise': resolvePath('src/utils/wrapPromise/index.ts'),
       },
       formats: ['es'],
