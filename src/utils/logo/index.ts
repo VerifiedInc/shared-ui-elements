@@ -15,16 +15,15 @@ export function resolveLogo({
     const clearBitDomain = 'logo.clearbit.com';
     const logoDevDomain = 'img.logo.dev';
 
+    const _host = new URL(_urlString).hostname;
+
     // If the URL doesn't contain Clearbit or Logo.dev domains, return it as-is
-    if (
-      !_urlString.includes(clearBitDomain) &&
-      !_urlString.includes(logoDevDomain)
-    ) {
+    if (_host !== clearBitDomain && _host !== logoDevDomain) {
       return _urlString;
     }
 
     // Replace Clearbit domain with Logo Dev domain
-    if (_urlString.includes(clearBitDomain)) {
+    if (_host === clearBitDomain) {
       _urlString = _urlString.replace(clearBitDomain, logoDevDomain);
     }
 
