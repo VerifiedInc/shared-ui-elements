@@ -10,3 +10,4 @@ export * from './color';
 export * from './address';
 export * from './makeGoogleFont';
 export * from './notification';
+export * from './logo';
