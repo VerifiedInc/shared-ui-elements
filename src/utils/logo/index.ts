@@ -6,7 +6,7 @@ export function resolveLogo({
   urlString?: string;
   size?: number;
   token?: string;
-}): string | undefined {
+}) {
   let _urlString = urlString;
 
   if (!_urlString) return;
