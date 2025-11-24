@@ -1,13 +1,13 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import {
   Box,
   InputAdornment,
   type InputProps,
   InputLabelProps,
+  type TextFieldProps,
 } from '@mui/material';
 
 import { npiSchema } from '../../../validations/npi.schema';
-import { type TextFieldProps } from '../TextField';
 
 import { TextMaskCustom } from '../TextMaskCustom';
 import DefaultInput from '../DefaultInput';
