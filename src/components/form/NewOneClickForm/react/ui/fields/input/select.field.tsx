@@ -65,6 +65,10 @@ export function SelectInputField({ fieldKey }: { fieldKey: string }) {
               ...params.inputProps,
               ...textFieldStyle.inputProps,
             }}
+            InputLabelProps={{
+              shrink: true,
+              ...textFieldStyle.InputLabelProps,
+            }}
           />
         )}
         disabled={field.isDisabled}
