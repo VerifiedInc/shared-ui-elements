@@ -6,3 +6,4 @@ export * from './phone.schema';
 export * from './ssn.schema';
 export * from './state.schema';
 export * from './unix.schema';
+export * from './npi.schema';

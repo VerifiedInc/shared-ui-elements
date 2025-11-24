@@ -220,11 +220,11 @@ export function DataFieldAccordion(
       <Stack spacing={2}>
         {!isChild && <DataFieldOptionType />}
         {integrationType !== SdkIntegrationType.NonHosted && (
-          <>
-            <DataFieldDescription />
-            <DataFieldMandatory />
-            <DataFieldUserInput />
-          </>
+          <DataFieldDescription />
+        )}
+        <DataFieldMandatory />
+        {integrationType !== SdkIntegrationType.NonHosted && (
+          <DataFieldUserInput />
         )}
         {fieldName === 'AddressCredential' && (
           <DataFieldMulti riskSignals={riskSignals} />
