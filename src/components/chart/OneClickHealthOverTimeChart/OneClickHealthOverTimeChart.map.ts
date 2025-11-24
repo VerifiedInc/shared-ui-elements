@@ -8,7 +8,7 @@ export interface MapOneClickHealthTimeSeriesDataOptions
   data: Array<{
     interval?: Array<{
       oneClickHealthCreated: number;
-      oneClickHealthSuccess: number;
+      oneClickHealthSucceeded: number;
       date: string | number;
       [key: string]: any;
     }>;
