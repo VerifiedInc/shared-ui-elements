@@ -15,7 +15,7 @@ export const defaultMetrics: OneClickHealthOverallMetrics = {
 export interface OneClickHealthBigNumbersChartData {
   interval?: Array<{
     oneClickHealthCreated: number;
-    oneClickHealthSuccess: number;
+    oneClickHealthSucceeded: number;
     date: string | number;
     [key: string]: any;
   }>;
@@ -41,7 +41,7 @@ export function calculateOneClickHealthMetrics(
       );
 
       const brandTotalSuccess = brand.interval.reduce(
-        (sum, interval) => sum + (interval.oneClickHealthSuccess || 0),
+        (sum, interval) => sum + (interval.oneClickHealthSucceeded || 0),
         0,
       );
 
