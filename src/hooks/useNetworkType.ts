@@ -67,14 +67,6 @@ export function useNetworkType(): NetworkType {
       (navigator as any).mozConnection ||
       (navigator as any).webkitConnection;
 
-    console.log('Connection API:', {
-      connection,
-      hasType: connection?.type,
-      type: connection?.type,
-      effectiveType: connection?.effectiveType,
-      allProperties: connection ? Object.keys(connection) : [],
-    });
-
     if (!connection?.type) {
       // API not available, default to 'unknown'
       return 'unknown';
