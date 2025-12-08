@@ -20,3 +20,4 @@ export * from './useNavigatorOnline';
 export * from './useDebounceCallback';
 export * from './useStyledQRCode';
 export * from './text-to-signup';
+export * from './useNetworkType';
