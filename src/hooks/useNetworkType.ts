@@ -25,7 +25,7 @@ type NetworkType =
  * - Type-safe return value
  * - Zero dependencies
  *
- * Note: The Network Information API is not available in all browsers.
+ * Note: The Network Information API is not available in all browsers, just in Chrome Android.
  * Check browser compatibility before relying on this hook.
  *
  * @returns {NetworkType} Current network connection type ('bluetooth' | 'cellular' | 'ethernet' | 'none' | 'wifi' | 'wimax' | 'other' | 'unknown')
