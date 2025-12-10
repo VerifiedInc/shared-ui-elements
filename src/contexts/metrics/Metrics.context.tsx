@@ -72,23 +72,17 @@ export function MetricsProvider(props: MetricsContextProps) {
     return Object.entries(stateObject).reduce((acc, [key, value]) => {
       return {
         ...acc,
-        [key]: Object.entries(props.environments).reduce(
-          (innerAcc, [, environment]) => {
-            return {
-              ...innerAcc,
-              [environment]: Object.entries(props.products).reduce(
-                (innerAcc, [, productType]) => {
-                  return {
-                    ...innerAcc,
-                    [productType]: cloneDeep(value),
-                  };
-                },
-                {},
-              ),
-            };
-          },
-          {},
-        ),
+        [key]: props.environments.reduce((innerAcc, environment) => {
+          return {
+            ...innerAcc,
+            [environment]: props.products.reduce((innerAcc, productType) => {
+              return {
+                ...innerAcc,
+                [productType]: cloneDeep(value),
+              };
+            }, {}),
+          };
+        }, {}),
       };
     }, {}) as Pick<
       InternalMetricsReducer,
