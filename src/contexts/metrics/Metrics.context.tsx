@@ -12,13 +12,12 @@ import {
   type MetricsIntervalType,
 } from '../../constants/metrics';
 import { usePersistedReducer } from '../../hooks/usePersistedReducer';
-
 import { type BrandFilter } from '../../components/BrandFilterInput';
 
 export type InternalMetricsReducer = {
-  brands: Record<string, BrandFilter[]>;
-  brand: Record<string, BrandFilter | undefined>;
-  monthlyBillableBrands: Record<string, BrandFilter[]>;
+  brands: Record<string, Record<string, BrandFilter[]>>;
+  brand: Record<string, Record<string, BrandFilter | undefined>>;
+  monthlyBillableBrands: Record<string, Record<string, BrandFilter[]>>;
   interval: MetricsIntervalType;
   timezone: string;
   startDate: number; //  timestamp Date
@@ -47,8 +46,11 @@ type MetricsContext = {
 };
 
 type MetricsContextProps = PropsWithChildren & {
-  products: string[];
+  storageKey: string;
+  environment: string;
+  environments: string[];
   product: string;
+  products: string[];
 };
 
 const Context = createContext<MetricsContext | null>(null);
@@ -70,11 +72,19 @@ export function MetricsProvider(props: MetricsContextProps) {
     return Object.entries(stateObject).reduce((acc, [key, value]) => {
       return {
         ...acc,
-        [key]: Object.entries(props.products).reduce(
-          (innerAcc, [, productType]) => {
+        [key]: Object.entries(props.environments).reduce(
+          (innerAcc, [, environment]) => {
             return {
               ...innerAcc,
-              [productType]: cloneDeep(value),
+              [environment]: Object.entries(props.products).reduce(
+                (innerAcc, [, productType]) => {
+                  return {
+                    ...innerAcc,
+                    [productType]: cloneDeep(value),
+                  };
+                },
+                {},
+              ),
             };
           },
           {},
@@ -86,9 +96,8 @@ export function MetricsProvider(props: MetricsContextProps) {
     >;
   };
 
-  const STORAGE_KEY = `metrics-filter-v1`;
   const [state, dispatch] = usePersistedReducer(
-    STORAGE_KEY,
+    props.storageKey,
     (
       prevState: InternalMetricsReducer,
       action: Partial<InternalMetricsReducer>,
@@ -121,19 +130,31 @@ export function MetricsProvider(props: MetricsContextProps) {
   const setBrands = useCallback(
     (brands: BrandFilter[]) => {
       dispatch({
-        brands: { ...state.brands, [props.product]: brands },
+        brands: {
+          ...state.brands,
+          [props.environment]: {
+            ...state.brands[props.environment],
+            [props.product]: brands,
+          },
+        },
       });
     },
-    [state.brands, props.product, dispatch],
+    [state.brands, props.environment, props.product, dispatch],
   );
 
   const setBrand = useCallback(
     (brand: BrandFilter | undefined) => {
       dispatch({
-        brand: { ...state.brand, [props.product]: brand },
+        brand: {
+          ...state.brand,
+          [props.environment]: {
+            ...state.brand[props.environment],
+            [props.product]: brand,
+          },
+        },
       });
     },
-    [state.brand, props.product, dispatch],
+    [state.brand, props.environment, props.product, dispatch],
   );
 
   const setMonthlyBillableBrands = useCallback(
@@ -141,11 +162,14 @@ export function MetricsProvider(props: MetricsContextProps) {
       dispatch({
         monthlyBillableBrands: {
           ...state.monthlyBillableBrands,
-          [props.product]: monthlyBillableBrands,
+          [props.environment]: {
+            ...state.monthlyBillableBrands[props.environment],
+            [props.product]: monthlyBillableBrands,
+          },
         },
       });
     },
-    [state.monthlyBillableBrands, props.product, dispatch],
+    [state.monthlyBillableBrands, props.environment, props.product, dispatch],
   );
 
   const setTimezone = useCallback(
@@ -159,11 +183,12 @@ export function MetricsProvider(props: MetricsContextProps) {
     if (!state) return state;
     return {
       ...state,
-      brands: state.brands[props.product],
-      brand: state.brand[props.product],
-      monthlyBillableBrands: state.monthlyBillableBrands[props.product],
+      brands: state.brands[props.environment][props.product],
+      brand: state.brand[props.environment][props.product],
+      monthlyBillableBrands:
+        state.monthlyBillableBrands[props.environment][props.product],
     };
-  }, [state, props.product]);
+  }, [state, props.environment, props.product]);
 
   const value = useMemo(
     () => ({
