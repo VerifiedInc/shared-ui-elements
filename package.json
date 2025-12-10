@@ -43,6 +43,10 @@
       "types": "./dist/validations/index.d.ts",
       "import": "./dist/validations/index.mjs"
     },
+    "./constants": {
+      "types": "./dist/constants/index.d.ts",
+      "import": "./dist/constants/index.mjs"
+    },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.mjs"

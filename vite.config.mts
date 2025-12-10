@@ -41,6 +41,7 @@ export default defineConfig({
         hooks: resolvePath('src/hooks/index.ts'),
         styles: resolvePath('src/styles/index.ts'),
         validations: resolvePath('src/validations/index.ts'),
+        constants: resolvePath('src/constants/index.ts'),
         utils: resolvePath('src/utils/index.ts'),
         'utils/address': resolvePath('src/utils/address/index.ts'),
         'utils/color': resolvePath('src/utils/color/index.ts'),
