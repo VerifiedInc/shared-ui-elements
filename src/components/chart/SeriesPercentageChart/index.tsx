@@ -190,7 +190,7 @@ export function SeriesPercentageChart(
               const dataKeyToUuid = new Map<string, string>();
               props.data.forEach((series) => {
                 props.keyValues
-                  .filter((kv) => !kv.isTotal && kv.key === 'oneClickSuccess')
+                  .filter((kv) => !kv.isTotal)
                   .forEach((keyValue) => {
                     const dataKey = `${series.uuid}_${keyValue.key}`;
                     dataKeyToUuid.set(dataKey, series.uuid);
@@ -219,7 +219,7 @@ export function SeriesPercentageChart(
           />
           {props.data.map((series) =>
             props.keyValues
-              .filter((kv) => !kv.isTotal && kv.key === 'oneClickSuccess')
+              .filter((kv) => !kv.isTotal)
               .map((keyValue) => (
                 <Line
                   key={`${series.uuid}_${keyValue.key}`}

@@ -4,20 +4,20 @@ import { LoadingChartSection } from '../LoadingChartSection';
 import { SeriesPercentageChart } from '../SeriesPercentageChart';
 import { useStyle } from '../styles';
 
-export interface OneClickChartData {
+export interface OneClickHealthChartData {
   uuid: string;
   name?: string;
   color?: string;
   integrationType?: string;
   chartData: Array<{
     date: string;
-    oneClickSuccess: number;
-    oneClickCreated: number;
+    oneClickHealthSucceeded: number;
+    oneClickHealthCreated: number;
   }>;
 }
 
-interface OneClickPercentageChartProps {
-  data: OneClickChartData[];
+interface OneClickHealthPercentageChartProps {
+  data: OneClickHealthChartData[];
   isLoading: boolean;
   isFetching: boolean;
   isSuccess: boolean;
@@ -25,24 +25,24 @@ interface OneClickPercentageChartProps {
   sx?: any;
 }
 
-export function OneClickPercentageChart({
+export function OneClickHealthPercentageChart({
   data,
   isLoading,
   isFetching,
   isSuccess,
   filter,
   sx,
-}: Readonly<OneClickPercentageChartProps>): React.ReactNode {
+}: Readonly<OneClickHealthPercentageChartProps>) {
   const style = useStyle();
 
   const KEY_VALUES = {
-    oneClickCreated: {
-      key: 'oneClickCreated',
+    oneClickHealthCreated: {
+      key: 'oneClickHealthCreated',
       name: 'Started',
       isTotal: true,
     },
-    oneClickSuccess: {
-      key: 'oneClickSuccess',
+    oneClickHealthSucceeded: {
+      key: 'oneClickHealthSucceeded',
       name: 'Finished',
     },
   };

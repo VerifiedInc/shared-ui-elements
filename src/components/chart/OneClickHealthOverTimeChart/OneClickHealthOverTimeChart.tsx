@@ -49,7 +49,7 @@ export function OneClickHealthOverTimeChart({
       label={label ?? 'OneClick Health Over Time'}
       data={data}
       filter={filter}
-      showUuid={false}
+      showUuid
       sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1, ...sx }}
     />
   );
