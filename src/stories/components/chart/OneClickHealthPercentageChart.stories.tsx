@@ -1,14 +1,13 @@
-import React from 'react';
 import type { Meta, StoryFn } from '@storybook/react';
-import { OneClickPercentageChart } from '../components/chart/OneClickPercentageChart/OneClickPercentageChart';
+import { OneClickHealthPercentageChart } from '../../../components/chart/OneClickHealthPercentageChart/OneClickHealthPercentageChart';
 
 export default {
-  title: 'Charts/OneClickPercentageChart',
-  component: OneClickPercentageChart,
-} as Meta<typeof OneClickPercentageChart>;
+  title: 'Components/chart/OneClickHealthPercentageChart',
+  component: OneClickHealthPercentageChart,
+} as Meta<typeof OneClickHealthPercentageChart>;
 
-const Template: StoryFn<typeof OneClickPercentageChart> = (args) => (
-  <OneClickPercentageChart {...args} />
+const Template: StoryFn<typeof OneClickHealthPercentageChart> = (args) => (
+  <OneClickHealthPercentageChart {...args} />
 );
 
 export const Default = Template.bind({});
@@ -21,18 +20,18 @@ Default.args = {
       chartData: [
         {
           date: '2025-01-01',
-          oneClickSuccess: 80,
-          oneClickCreated: 100,
+          oneClickHealthSucceeded: 80,
+          oneClickHealthCreated: 100,
         },
         {
           date: '2025-01-02',
-          oneClickSuccess: 85,
-          oneClickCreated: 95,
+          oneClickHealthSucceeded: 85,
+          oneClickHealthCreated: 95,
         },
         {
           date: '2025-01-03',
-          oneClickSuccess: 90,
-          oneClickCreated: 98,
+          oneClickHealthSucceeded: 90,
+          oneClickHealthCreated: 98,
         },
       ],
     },
@@ -44,18 +43,18 @@ Default.args = {
       chartData: [
         {
           date: '2025-01-01',
-          oneClickSuccess: 70,
-          oneClickCreated: 90,
+          oneClickHealthSucceeded: 70,
+          oneClickHealthCreated: 90,
         },
         {
           date: '2025-01-02',
-          oneClickSuccess: 75,
-          oneClickCreated: 85,
+          oneClickHealthSucceeded: 75,
+          oneClickHealthCreated: 85,
         },
         {
           date: '2025-01-03',
-          oneClickSuccess: 85,
-          oneClickCreated: 88,
+          oneClickHealthSucceeded: 85,
+          oneClickHealthCreated: 88,
         },
       ],
     },

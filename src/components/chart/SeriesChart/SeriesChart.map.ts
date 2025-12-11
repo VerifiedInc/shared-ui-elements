@@ -18,6 +18,7 @@ interface TimeSeriesChartData {
 
 export interface MapSeriesTimeSeriesDataOptions {
   brands: BrandFilter[];
+  colorMap: Map<string, string>;
   data: Array<{
     interval?: Array<{
       date: string | number;
@@ -42,7 +43,7 @@ export interface MapSeriesTimeSeriesDataOptions {
 export function mapSeriesTimeSeriesData(
   options: MapSeriesTimeSeriesDataOptions,
 ): TimeSeriesChartData[] {
-  const { brands, data, keyValue } = options;
+  const { brands, colorMap, data, keyValue } = options;
 
   // Group data by keyword first
   const keywordDataMap = new Map<
@@ -96,7 +97,7 @@ export function mapSeriesTimeSeriesData(
           keyword: brandData.keyword,
           brandUuid: brand.brandUuid,
           brandName: brand.brandName,
-          brandColor: brand.additionalData?.primaryColor,
+          brandColor: colorMap.get(brand.brandUuid),
           chartData: consolidatedChartData,
         });
       } else {
@@ -104,7 +105,7 @@ export function mapSeriesTimeSeriesData(
           keyword: brandData.keyword,
           brandUuid: brand.brandUuid,
           brandName: brand.brandName,
-          brandColor: brand.additionalData?.primaryColor,
+          brandColor: colorMap.get(brand.brandUuid),
           chartData,
         });
       }
