@@ -345,8 +345,6 @@ export function BrandFilterInput({
             // Group by live status
             return option._raw.isLiveBrand ? 'Live Brands' : 'Not Live Yet';
           },
-          // Live brands should appear first
-          groupOrder: (a: string, b: string) => (a === 'Live Brands' ? -1 : 1),
         })}
         renderOption={(props, option, { selected }) => {
           // For virtual options, show them as selected based on the current selection state

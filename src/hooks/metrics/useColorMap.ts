@@ -7,6 +7,11 @@ export function useColorMap(
     primaryColor?: string;
   }>,
 ): Map<string, string> {
+  const brandsKey = useMemo(
+    () => brands.map((b) => `${b.uuid}:${b.primaryColor ?? ''}`).join(','),
+    [brands],
+  );
+
   return useMemo(
     () =>
       new Map<string, string>(
@@ -21,6 +26,6 @@ export function useColorMap(
           )
           .map((brand) => [brand.uuid, brand.primaryColor]),
       ),
-    [brands],
+    [brandsKey],
   );
 }
