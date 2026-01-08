@@ -73,14 +73,15 @@ export const formatExtendedDate = (
   });
 };
 
-export const toUTCMilliseconds = (date: Date): number => {
+export const toUTCMilliseconds = (date: Date | number): number => {
+  const dateState = typeof date === 'number' ? new Date(date) : date;
   return Date.UTC(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    date.getHours(),
-    date.getMinutes(),
-    date.getSeconds(),
-    date.getMilliseconds(),
+    dateState.getFullYear(),
+    dateState.getMonth(),
+    dateState.getDate(),
+    dateState.getHours(),
+    dateState.getMinutes(),
+    dateState.getSeconds(),
+    dateState.getMilliseconds(),
   );
 };
