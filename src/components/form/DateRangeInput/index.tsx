@@ -7,11 +7,12 @@ import {
 } from 'react';
 import { Box, TextField } from '@mui/material';
 import DatePicker from 'react-datepicker';
+
 import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 
-import { useStyle } from './style';
 import { useOnClickOutside } from '../../../hooks';
-import { toUTCMilliseconds } from '../../../utils';
+
+import { useStyle } from './style';
 
 const Input = forwardRef(function RenderInput(props, ref) {
   return (
@@ -94,12 +95,8 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
             end.setHours(23, 59, 59, 999);
           }
 
-          // Create UTC dates to ensure consistent timezone handling
-          const startUTC = toUTCMilliseconds(start);
-          const endUTC = toUTCMilliseconds(end);
-
           // Pass UTC timestamps to onChange handler
-          props.onChange(startUTC, endUTC);
+          props.onChange(+start, +end);
         }}
         customInput={<Input />}
       />

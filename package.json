@@ -112,7 +112,7 @@
     "prettier": "^3.3.3",
     "storybook": "^8.3.1",
     "tsconfig-paths": "^4.2.0",
-    "tsx": "^3.12.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.2.2",
     "vite-plugin-dts": "^4.3.0",
     "vitest": "^3.2.4"
@@ -143,7 +143,7 @@
     "react-dom": ">=18 <19",
     "react-hook-form": ">=7.52.1 <=7.53.2",
     "react-imask": ">=7.6.1",
-    "react-to-pdf": ">=2.0.0 <3",
+    "react-to-pdf": ">=3.0.0",
     "recharts": ">=2.15.0 <3",
     "tinycolor2": ">=1.6.0 <2",
     "zod": ">=3.23.8 <4"
