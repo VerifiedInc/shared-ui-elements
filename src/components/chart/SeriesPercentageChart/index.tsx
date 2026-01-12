@@ -201,6 +201,22 @@ export function SeriesPercentageChart(
                   });
               });
 
+              const getIntegrationType = (entry: any) => {
+                const integrationType = dataKeyToUuid.get(
+                  `${entry.dataKey as string}_integrationType`,
+                );
+
+                if (integrationType === 'hosted') {
+                  return 'SDK';
+                }
+
+                if (integrationType === 'non-hosted') {
+                  return 'API';
+                }
+
+                return integrationType;
+              };
+
               return (
                 <SeriesPercentageChartLegend
                   {...otherProps}
@@ -208,9 +224,7 @@ export function SeriesPercentageChart(
                     uuid: dataKeyToUuid.get(entry.dataKey as string) ?? '',
                     value: entry.value,
                     color: entry.color ?? theme.palette.primary.main,
-                    integrationType: dataKeyToUuid.get(
-                      `${entry.dataKey as string}_integrationType`,
-                    ),
+                    integrationType: getIntegrationType(entry),
                     dataKey: entry.dataKey as string,
                   }))}
                 />
