@@ -48,7 +48,7 @@ const mockBrands = [
       brandUuid: 'moomoo-uuid',
       brandName: 'Moomoo',
       customerUuid: 'customer-1',
-      integrationType: 'sms',
+      integrationType: 'hosted',
       additionalData: { primaryColor: '#2196f3' },
     },
   },
@@ -59,7 +59,7 @@ const mockBrands = [
       brandUuid: 'clickme-uuid',
       brandName: 'ClickMe',
       customerUuid: 'customer-2',
-      integrationType: 'sms',
+      integrationType: 'hosted',
       additionalData: { primaryColor: '#f44336' },
     },
   },
@@ -70,7 +70,7 @@ const mockBrands = [
       brandUuid: 'aha-uuid',
       brandName: 'AHA',
       customerUuid: 'customer-3',
-      integrationType: 'sms',
+      integrationType: 'hosted',
       additionalData: { primaryColor: '#4caf50' },
     },
   },
@@ -81,7 +81,7 @@ const mockBrands = [
       brandUuid: 'wellness-uuid',
       brandName: 'Wellness Co',
       customerUuid: 'customer-4',
-      integrationType: 'sms',
+      integrationType: 'hosted',
       additionalData: { primaryColor: '#9c27b0' },
     },
   },
@@ -324,6 +324,7 @@ export const Created: Story = {
   args: {
     label: 'Keywords Created',
     data: mapOneClickHealthTimeSeriesData({
+      colorMap: new Map(),
       brands: mockBrands,
       data: mockRawOneClickHealthData,
       keyValue: 'oneClickHealthCreated',
@@ -348,6 +349,7 @@ export const Success: Story = {
   args: {
     label: 'Keywords Success',
     data: mapOneClickHealthTimeSeriesData({
+      colorMap: new Map(),
       brands: mockBrands,
       data: mockRawOneClickHealthData,
       keyValue: 'oneClickHealthSucceeded',
@@ -402,6 +404,7 @@ export const Fetching: Story = {
   args: {
     label: 'Keywords Created',
     data: mapOneClickHealthTimeSeriesData({
+      colorMap: new Map(),
       brands: mockBrands,
       data: mockRawOneClickHealthData,
       keyValue: 'oneClickHealthCreated',
@@ -424,6 +427,7 @@ export const SingleKeyword: Story = {
   args: {
     label: 'Keywords Created',
     data: mapOneClickHealthTimeSeriesData({
+      colorMap: new Map(),
       brands: [mockBrands[0], mockBrands[2]],
       data: mockRawOneClickHealthData.filter(
         (item) => item.brandName === 'Moomoo' || item.brandName === 'AHA',
@@ -447,6 +451,7 @@ export const CustomLabel: Story = {
   args: {
     label: 'Custom OneClick Health Metrics by Keyword',
     data: mapOneClickHealthTimeSeriesData({
+      colorMap: new Map(),
       brands: mockBrands,
       data: mockRawOneClickHealthData,
       keyValue: 'oneClickHealthCreated',
@@ -469,6 +474,7 @@ export const FilterZeroValues: Story = {
   args: {
     label: 'Keywords Created (Zero Values Filtered)',
     data: mapOneClickHealthTimeSeriesData({
+      colorMap: new Map(),
       brands: mockBrands,
       data: mockRawOneClickHealthData,
       keyValue: 'oneClickHealthCreated',
