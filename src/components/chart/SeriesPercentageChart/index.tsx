@@ -206,11 +206,14 @@ export function SeriesPercentageChart(
                   `${entry.dataKey as string}_integrationType`,
                 );
 
-                if (integrationType === 'hosted') {
+                if (integrationType === 'hosted' || integrationType === 'sdk') {
                   return 'SDK';
                 }
 
-                if (integrationType === 'non-hosted') {
+                if (
+                  integrationType === 'non-hosted' ||
+                  integrationType === 'api'
+                ) {
                   return 'API';
                 }
 

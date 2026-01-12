@@ -116,10 +116,10 @@ export function mapSeriesTimeSeriesData(
   });
 
   const getIntegrationType = (integrationType: string) => {
-    if (integrationType === 'hosted') {
+    if (integrationType === 'hosted' || integrationType === 'sdk') {
       return 'SDK';
     }
-    if (integrationType === 'non-hosted') {
+    if (integrationType === 'non-hosted' || integrationType === 'api') {
       return 'API';
     }
 
