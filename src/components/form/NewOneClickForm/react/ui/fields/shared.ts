@@ -6,18 +6,32 @@ import { FormField } from '../../../core/form';
  * @param field The field to make attributes for.
  * @returns The attributes for the field.
  */
-export const makeAttributes = (
-  field: FormField | undefined,
-  fieldKey: string,
-) => ({
-  role: 'region',
-  'aria-label': field?.schema.characteristics.label,
-  'data-testid':
-    field?.schema.characteristics.inputType === fieldInputTypes.composite
-      ? `data-field-composite-${fieldKey}`
-      : `data-field-atomic-${fieldKey}`,
-  'data-verified-sdk-field-value': field ? getFieldValue(field) : undefined,
-});
+export const makeAttributes = ({
+  userPrivacyEnabled,
+  field,
+  fieldKey,
+}: {
+  userPrivacyEnabled?: boolean;
+  field: FormField | undefined;
+  fieldKey: string;
+}) => {
+  const attributes = {
+    role: 'region',
+    'aria-label': field?.schema.characteristics.label,
+    'data-testid':
+      field?.schema.characteristics.inputType === fieldInputTypes.composite
+        ? `data-field-composite-${fieldKey}`
+        : `data-field-atomic-${fieldKey}`,
+    'data-verified-sdk-field-value': undefined,
+  };
+
+  if (!userPrivacyEnabled) {
+    attributes['data-verified-sdk-field-value'] = field
+      ? getFieldValue(field)
+      : undefined;
+  }
+  return attributes;
+};
 
 /**
  * Returns the autocomplete attribute value based on the type of the field.

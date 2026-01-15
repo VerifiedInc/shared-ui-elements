@@ -6,6 +6,7 @@ import { FormContextValue, useForm } from '../core/form.context';
 type OneClickOptionFeatures = {
   /** Element that the date picker should be detached from when clicking outside of it. */
   datePickerClickOutsideBoundaryElement?: HTMLElement | null;
+  enableUserPrivacy?: boolean;
 };
 
 type OneClickOptionServicePaths = {

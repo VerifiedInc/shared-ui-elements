@@ -35,9 +35,12 @@ export function SSNInputField({ fieldKey }: { fieldKey: string }) {
         helperText={field?.description}
         shouldHaveCloseAdornment={false}
         disabled={field.isDisabled}
-        InputProps={{
-          endAdornment: <ClearFieldAdornment fieldKey={fieldKey} />,
-        }}
+        InputProps={
+          {
+            'data-mask-me': true,
+            endAdornment: <ClearFieldAdornment fieldKey={fieldKey} />,
+          } as any
+        }
       />
     </Box>
   );

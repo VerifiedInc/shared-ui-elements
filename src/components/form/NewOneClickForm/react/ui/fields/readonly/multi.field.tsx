@@ -104,6 +104,7 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
       readOnly: !hasVariants || fieldProps.disabled,
     },
     SelectProps: {
+      'data-mask-me': true,
       'data-testid': `data-multifield-select-${fieldKey}`,
       size: 'small',
       onClose: (e: SyntheticEvent) => {
@@ -112,6 +113,7 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
         e.preventDefault();
       },
       MenuProps: {
+        'data-mask-me': true,
         slotProps: {
           paper: {
             sx: {

@@ -65,10 +65,13 @@ export function SelectInputField({ fieldKey }: { fieldKey: string }) {
               ...params.inputProps,
               ...textFieldStyle.inputProps,
             }}
-            InputLabelProps={{
-              shrink: true,
-              ...textFieldStyle.InputLabelProps,
-            }}
+            InputLabelProps={
+              {
+                'data-mask-me': true,
+                shrink: true,
+                ...textFieldStyle.InputLabelProps,
+              } as any
+            }
           />
         )}
         disabled={field.isDisabled}

@@ -28,6 +28,7 @@ export function TextInputField({ fieldKey }: { fieldKey: string }) {
     error: !field?.isValid,
     helperText: field?.description,
     InputProps: {
+      'data-mask-me': true,
       endAdornment: (
         <ClearFieldAdornment
           fieldKey={fieldKey}
@@ -38,7 +39,7 @@ export function TextInputField({ fieldKey }: { fieldKey: string }) {
           }}
         />
       ),
-    },
+    } as any,
     inputProps: {
       // Tab index for each block.
       tabIndex: 0,
