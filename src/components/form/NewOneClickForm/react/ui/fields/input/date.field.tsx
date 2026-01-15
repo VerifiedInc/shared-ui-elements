@@ -98,6 +98,7 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
         maxDate={maxDateForPicker}
         disabled={field.isDisabled}
         InputProps={{
+          'data-mask-me': true,
           endAdornment: (
             <ClearFieldAdornment
               fieldKey={fieldKey}

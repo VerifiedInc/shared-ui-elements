@@ -3,6 +3,7 @@ import { Stack, Typography, SxProps } from '@mui/material';
 import { useFormField } from '../../core/field.hook';
 
 import { makeAttributes } from './shared';
+import { useOneClickForm } from '../form.context';
 
 export function FieldLabel({
   fieldKey,
@@ -50,6 +51,7 @@ export function FieldValue({ fieldKey }: { fieldKey: string }) {
 
   return (
     <Typography
+      data-mask-me
       variant='body1'
       sx={
         {
@@ -97,8 +99,13 @@ export function FieldRowContainer({
   children: React.ReactNode;
   spacing?: number;
 }) {
+  const formContext = useOneClickForm();
   const { field } = useFormField({ key: fieldKey });
-  const attributes = makeAttributes(field, fieldKey);
+  const attributes = makeAttributes({
+    userPrivacyEnabled: formContext.options.features.enableUserPrivacy,
+    field,
+    fieldKey,
+  });
 
   return (
     <Stack

@@ -71,6 +71,11 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
           setChildValue('country', value?.country ?? '');
         }
       }}
+      InputProps={
+        {
+          'data-mask-me': true,
+        } as any
+      }
       ClearAdornment={function ClearAdornment({
         onClick,
       }: {

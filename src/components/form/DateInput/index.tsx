@@ -36,6 +36,9 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   inputMaskProps?: Readonly<Partial<InputMaskProps>>;
   minDate?: Date;
   maxDate?: Date;
+  InputProps?: TextFieldProps['InputProps'] & {
+    'data-mask-me'?: boolean;
+  };
 }
 
 const GhostInput = forwardRef(function RenderInput(
