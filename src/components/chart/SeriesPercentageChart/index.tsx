@@ -246,6 +246,7 @@ export function SeriesPercentageChart(
                   stroke={series.color ?? theme.palette.primary.main}
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
                 />
               )),
           )}
