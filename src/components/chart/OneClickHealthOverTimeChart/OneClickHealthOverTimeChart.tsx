@@ -37,7 +37,7 @@ export function OneClickHealthOverTimeChart({
   filter,
   sx,
 }: Readonly<OneClickHealthOverTimeChartProps>): React.ReactNode {
-  if (isLoading) {
+  if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
 

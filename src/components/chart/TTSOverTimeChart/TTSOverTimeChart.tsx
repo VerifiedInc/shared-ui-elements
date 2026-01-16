@@ -37,7 +37,7 @@ export function TTSOverTimeChart({
   filter,
   sx,
 }: Readonly<TTSOverTimeChartProps>): React.ReactNode {
-  if (isLoading) {
+  if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
 
