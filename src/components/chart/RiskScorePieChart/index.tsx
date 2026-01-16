@@ -64,7 +64,7 @@ export function RiskScorePieChart({
     return <NoRiskSignalsPermissionSection />;
   }
 
-  if (isLoading) {
+  if ((!data || data.length <= 0) && isLoading) {
     return <LoadingChartSection />;
   }
 

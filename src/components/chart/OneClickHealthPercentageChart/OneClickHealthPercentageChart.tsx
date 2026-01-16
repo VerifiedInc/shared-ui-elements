@@ -47,7 +47,7 @@ export function OneClickHealthPercentageChart({
     },
   };
 
-  if (isLoading) {
+  if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
 

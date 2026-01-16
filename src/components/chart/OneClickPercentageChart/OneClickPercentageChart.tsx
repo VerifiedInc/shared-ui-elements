@@ -47,7 +47,7 @@ export function OneClickPercentageChart({
     },
   };
 
-  if (isLoading) {
+  if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
 

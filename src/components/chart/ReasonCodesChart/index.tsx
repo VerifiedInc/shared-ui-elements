@@ -92,7 +92,7 @@ export function ReasonCodesChart({
     return <NoRiskSignalsPermissionSection />;
   }
 
-  if (isLoading) {
+  if ((!data || Object.keys(data).length === 0) && isLoading) {
     return <LoadingChartSection />;
   }
 

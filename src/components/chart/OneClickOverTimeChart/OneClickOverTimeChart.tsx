@@ -31,7 +31,7 @@ export function OneClickOverTimeChart({
   isSuccess,
   filter,
 }: Readonly<OneClickOverTimeChartProps>): React.ReactNode {
-  if (isLoading) {
+  if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
 

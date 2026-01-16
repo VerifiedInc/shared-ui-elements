@@ -28,6 +28,7 @@ export type MonthlySignupsOverviewTableData = {
 export type MonthlySignupsOverviewTableProps = {
   data: MonthlySignupsOverviewTableData[];
   isLoading: boolean;
+  isFetching: boolean;
   showTotalCost?: boolean;
   showRiskSignal?: boolean;
   timezone?: string;
@@ -40,11 +41,12 @@ export const MonthlySignupsOverviewTable: React.FC<
 > = ({
   data,
   isLoading,
+  isFetching,
   showTotalCost = true,
   showRiskSignal = true,
   timezone = DEFAULT_TIMEZONE,
 }) => {
-  if (isLoading) {
+  if (!data?.length && isLoading) {
     return <LoadingChartSection />;
   }
 
@@ -52,7 +54,7 @@ export const MonthlySignupsOverviewTable: React.FC<
     return <EmptyChartSection />;
   }
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} sx={{ opacity: isFetching ? 0.4 : 1 }}>
       <Table>
         <TableHead>
           <TableRow>
