@@ -118,6 +118,7 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
                 type='monotone'
                 stroke={value.color}
                 strokeWidth={2}
+                isAnimationActive={false}
               />
             );
           })}
