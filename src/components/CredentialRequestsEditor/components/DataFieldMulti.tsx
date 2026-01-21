@@ -2,8 +2,10 @@ import { RadioGroup } from '@mui/material';
 import { useController } from 'react-hook-form';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
+import { SdkIntegrationType } from '../types/sdk';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
+
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
@@ -12,9 +14,11 @@ export function DataFieldMulti({
 }: {
   riskSignals: 'none' | 'basic' | 'advanced';
 }): React.JSX.Element | null {
-  const { features } = useCredentialRequestsEditor();
+  const { features, integrationType } = useCredentialRequestsEditor();
   const isFeatureDisabled =
-    features?.multi?.disabled === true || riskSignals === 'none';
+    integrationType === SdkIntegrationType.Hosted ||
+    features?.multi?.disabled === true ||
+    riskSignals === 'none';
 
   const credentialRequestField = useCredentialRequestField();
   const multi = useController<CredentialRequestsEditorForm>({
