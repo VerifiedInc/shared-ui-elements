@@ -13,6 +13,8 @@ export type SSNInputProps = TextFieldProps & {
   label?: ReactNode;
   error?: boolean;
   helperText?: string;
+  placeholder?: string;
+  mask?: string;
   shouldHaveCloseAdornment?: boolean;
 };
 
@@ -25,6 +27,8 @@ export function SSNInput({
   label = 'Social Security number',
   value,
   shouldHaveCloseAdornment = false,
+  mask = 'XXX-XX-0000',
+  placeholder = '___-__-____',
   InputProps,
   ...rest
 }: SSNInputProps) {
@@ -52,7 +56,7 @@ export function SSNInput({
       }
       onChange?.({ target: { value: e.target.value } });
     }) as ChangeEvent,
-    placeholder: '___-__-____',
+    placeholder: placeholder,
     inputProps: {
       // Use onChange event.
       useOnComplete: false,
@@ -61,7 +65,7 @@ export function SSNInput({
       // Make placeholder always visible
       lazy: true,
       // Mask in the pattern of SSN.
-      mask: 'XXX-XX-0000',
+      mask,
       definitions: {
         X: {
           mask: /[0-9•]/,
