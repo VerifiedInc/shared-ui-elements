@@ -7,6 +7,9 @@ type OneClickOptionFeatures = {
   /** Element that the date picker should be detached from when clicking outside of it. */
   datePickerClickOutsideBoundaryElement?: HTMLElement | null;
   enableUserPrivacy?: boolean;
+  editMode?: {
+    hide?: boolean;
+  };
 };
 
 type OneClickOptionServicePaths = {

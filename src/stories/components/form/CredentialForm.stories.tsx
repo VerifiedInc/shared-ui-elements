@@ -367,6 +367,9 @@ const CredentialForm: React.FC = () => {
           options={{
             features: {
               datePickerClickOutsideBoundaryElement: document.body,
+              // editMode: {
+              //   hide: true,
+              // },
             },
             servicePaths: {
               googlePlacesAutocompletePlaces: async (
@@ -506,6 +509,30 @@ const mockCredentials = [
       },
     },
   },
+  {
+    uuid: 'health-insurance-id-1234',
+    type: 'healthInsurance',
+    value: [
+      {
+        selected: true,
+        memberId: 'AC****02',
+        payer: {
+          verifiedId: 'insurance-1',
+          name: 'Aviato Health Insurance Of California',
+          logoUrl:
+            'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
+        },
+      },
+      {
+        selected: true,
+        memberId: 'XY****99',
+        payer: {
+          verifiedId: 'insurance-2',
+          name: 'Blue Cross Blue Shield',
+        },
+      },
+    ],
+  },
 ];
 
 const mockCredentialRequests = [
@@ -598,8 +625,8 @@ const mockCredentialRequests = [
     description: 'Your legal SSN',
   },
   {
-    allowUserInput: true,
-    mandatory: 'no',
+    allowUserInput: false,
+    mandatory: 'if_available',
     multi: false,
     type: 'SexCredential',
     description: 'Your birth sex',
@@ -676,6 +703,12 @@ const mockCredentialRequests = [
         ],
       },
     ],
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'if_available',
+    type: 'HealthInsuranceCredential',
+    description: 'Your health insurance information',
   },
 ];
 
