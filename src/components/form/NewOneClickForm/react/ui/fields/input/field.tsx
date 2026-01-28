@@ -18,6 +18,7 @@ import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
 import { DateInputField } from './date.field';
+import { HealthInsuranceField } from '../readonly/healthInsurance.field';
 
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
@@ -46,6 +47,18 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
 
     return null;
   };
+
+  // Custom render for the health insurance field as a section with formatted value
+  if (field?.schema?.key === credentialKeys.healthInsurance) {
+    return (
+      <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
+        <FieldSectionTitle fieldKey={fieldKey} />
+        <FieldSectionContent spacing={1.25}>
+          <HealthInsuranceField fieldKey={fieldKey} />
+        </FieldSectionContent>
+      </FieldRowContainer>
+    );
+  }
 
   // If it's a composite field, render its children as individual fields
   if (field?.schema.characteristics.inputType === fieldInputTypes.composite) {

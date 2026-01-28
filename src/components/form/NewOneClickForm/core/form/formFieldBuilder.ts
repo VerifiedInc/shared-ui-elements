@@ -59,8 +59,9 @@ export class FormFieldBuilder {
           defaultValue =
             Object.keys(filteredValue).length > 0 ? filteredValue : undefined;
         } else {
-          // If no children are specified, don't include any composite value
-          defaultValue = undefined;
+          // For composite fields without children (like healthInsurance),
+          // use the entire credential value
+          defaultValue = credential.value;
         }
       } else {
         defaultValue = undefined;
