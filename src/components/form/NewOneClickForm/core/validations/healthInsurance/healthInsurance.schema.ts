@@ -7,10 +7,7 @@ const healthInsuranceItemSchema = z.object({
   selected: z.boolean(),
   memberId: memberIdSchema,
   payer: z.object({
-    verifiedId: z
-      .string()
-      .regex(/^V\d+$/)
-      .optional(),
+    verifiedId: z.string().regex(/^V\d+$/),
     name: payerNameSchema,
     logoUrl: z.string().url().optional(),
   }),

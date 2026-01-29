@@ -12,91 +12,91 @@ import {
 } from '@mui/material';
 import { DeleteOutline, Add } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
+import { AnimatePresence } from 'framer-motion';
+
+import {
+  AnimateHeight,
+  MotionBox,
+} from '../../../../../../../components/animation';
+
+import { maskMemberId } from '../../../../core/formats';
+import { HealthInsuranceValue } from '../../../../core/validations';
 
 import { useFormField } from '../../../core/field.hook';
-import { maskMemberId } from '../../../../core/formats';
-
-type HealthPayer = {
-  uuid: string;
-  verifiedId: string;
-  name: string;
-  logoUrl?: string;
-  ids?: Array<{ type: string; value: string }>;
-  createdAt: number;
-  updatedAt: number;
-};
 
 // Mock data for health insurance providers
-const MOCK_HEALTH_INSURANCE_PROVIDERS: HealthPayer[] = [
+const MOCK_HEALTH_INSURANCE_PROVIDERS: Array<
+  Omit<HealthInsuranceValue[number], 'selected'>
+> = [
   {
-    uuid: 'aetna-uuid',
-    verifiedId: 'aetna',
-    name: 'Aetna',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '123456789',
+    payer: {
+      verifiedId: 'aetna',
+      name: 'Aetna',
+    },
   },
   {
-    uuid: 'anthem-uuid',
-    verifiedId: 'anthem',
-    name: 'Anthem Blue Cross Blue Shield',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '987654321',
+    payer: {
+      verifiedId: 'anthem',
+      name: 'Anthem Blue Cross Blue Shield',
+    },
   },
   {
-    uuid: 'bcbs-uuid',
-    verifiedId: 'bcbs',
-    name: 'Blue Cross Blue Shield',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '456789123',
+    payer: {
+      verifiedId: 'bcbs',
+      name: 'Blue Cross Blue Shield',
+    },
   },
   {
-    uuid: 'cigna-uuid',
-    verifiedId: 'cigna',
-    name: 'Cigna',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '321654987',
+    payer: {
+      verifiedId: 'cigna',
+      name: 'Cigna',
+    },
   },
   {
-    uuid: 'humana-uuid',
-    verifiedId: 'humana',
-    name: 'Humana',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '789123456',
+    payer: {
+      verifiedId: 'humana',
+      name: 'Humana',
+    },
   },
   {
-    uuid: 'kaiser-uuid',
-    verifiedId: 'kaiser',
-    name: 'Kaiser Permanente',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '654987321',
+    payer: {
+      verifiedId: 'kaiser',
+      name: 'Kaiser Permanente',
+    },
   },
   {
-    uuid: 'medicaid-uuid',
-    verifiedId: 'medicaid',
-    name: 'Medicaid',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '147258369',
+    payer: {
+      verifiedId: 'medicaid',
+      name: 'Medicaid',
+    },
   },
   {
-    uuid: 'medicare-uuid',
-    verifiedId: 'medicare',
-    name: 'Medicare',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '963852741',
+    payer: {
+      verifiedId: 'medicare',
+      name: 'Medicare',
+    },
   },
   {
-    uuid: 'uhc-uuid',
-    verifiedId: 'uhc',
-    name: 'UnitedHealthcare',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '258369147',
+    payer: {
+      verifiedId: 'uhc',
+      name: 'UnitedHealthcare',
+    },
   },
   {
-    uuid: 'wellcare-uuid',
-    verifiedId: 'wellcare',
-    name: 'WellCare',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
+    memberId: '741852963',
+    payer: {
+      verifiedId: 'wellcare',
+      name: 'WellCare',
+    },
   },
 ];
 
@@ -115,22 +115,49 @@ function useHealthInsuranceProviders() {
 }
 
 type AddHealthInsuranceFormProps = {
-  currentValue: Array<{
-    selected?: boolean;
-    memberId?: string;
-    payer?: { verifiedId: string; name?: string; logoUrl?: string };
-  }>;
-  onAdd: (newItem: {
-    selected: boolean;
-    memberId: string;
-    payer: { verifiedId: string; name: string; logoUrl?: string };
-  }) => void;
+  fieldKey: string;
+  onAdd: (newItem: HealthInsuranceValue[number]) => void;
 };
 
-function AddHealthInsuranceForm({ onAdd }: AddHealthInsuranceFormProps) {
+function AddHealthInsuranceForm({
+  fieldKey,
+  onAdd,
+}: AddHealthInsuranceFormProps) {
+  const { value } = useFormField<'healthInsurance'>({ key: fieldKey });
   const { data: providers, isLoading: loading } = useHealthInsuranceProviders();
-  const [selectedPayer, setSelectedPayer] = useState<HealthPayer | null>(null);
+  const [selectedPayer, setSelectedPayer] = useState<
+    HealthInsuranceValue[number] | null
+  >(null);
   const [newMemberId, setNewMemberId] = useState<string>('');
+
+  // Filter out providers that already exist in currentValue with verifiedId
+  const existingVerifiedIds = useMemo(() => {
+    if (!value || !Array.isArray(value)) return new Set<string>();
+    return new Set(
+      value
+        .map((item) => item.payer?.verifiedId)
+        .filter((id): id is string => !!id),
+    );
+  }, [value]);
+
+  // Also track existing payer names to avoid duplicates
+  const existingPayerNames = useMemo(() => {
+    if (!value || !Array.isArray(value)) return new Set<string>();
+    return new Set(
+      value
+        .map((item) => item.payer?.name)
+        .filter((name): name is string => !!name),
+    );
+  }, [value]);
+
+  const availableProviders = useMemo(() => {
+    if (!providers) return [];
+    return providers.filter(
+      (provider) =>
+        !existingVerifiedIds.has(provider.payer.verifiedId) &&
+        !existingPayerNames.has(provider.payer.name),
+    );
+  }, [providers, existingVerifiedIds, existingPayerNames]);
 
   const handleAddInsurance = () => {
     if (!selectedPayer || !newMemberId) return;
@@ -139,9 +166,9 @@ function AddHealthInsuranceForm({ onAdd }: AddHealthInsuranceFormProps) {
       selected: true,
       memberId: newMemberId,
       payer: {
-        verifiedId: selectedPayer.verifiedId,
-        name: selectedPayer.name,
-        logoUrl: selectedPayer.logoUrl,
+        name: selectedPayer.payer.name,
+        logoUrl: selectedPayer.payer.logoUrl,
+        verifiedId: selectedPayer.payer.verifiedId,
       },
     };
 
@@ -165,27 +192,29 @@ function AddHealthInsuranceForm({ onAdd }: AddHealthInsuranceFormProps) {
           Add New Insurance
         </Typography>
         <Autocomplete
-          options={providers ?? []}
+          options={availableProviders}
           loading={loading}
           value={selectedPayer}
           onChange={(_, newValue) => {
-            setSelectedPayer(newValue);
+            if (newValue) {
+              setSelectedPayer({ selected: true, ...newValue });
+            }
           }}
-          getOptionLabel={(option) => option.name}
+          getOptionLabel={(option) => option.payer.name}
           renderOption={(props, option) => (
             <Box component='li' {...props} key={props.key}>
               <Stack direction='row' spacing={1.5} alignItems='center'>
                 <Avatar
-                  src={option.logoUrl}
+                  src={option.payer.logoUrl}
                   sx={{
                     width: 32,
                     height: 32,
-                    bgcolor: option.logoUrl ? undefined : 'primary.main',
+                    bgcolor: option.payer.logoUrl ? undefined : 'primary.main',
                   }}
                 >
-                  {!option.logoUrl && option.name[0]?.toUpperCase()}
+                  {!option.payer.logoUrl && option.payer.name[0]?.toUpperCase()}
                 </Avatar>
-                <Typography>{option.name}</Typography>
+                <Typography>{option.payer.name}</Typography>
               </Stack>
             </Box>
           )}
@@ -249,14 +278,11 @@ function AddHealthInsuranceForm({ onAdd }: AddHealthInsuranceFormProps) {
 }
 
 type HealthInsuranceItemProps = {
-  item: {
-    selected?: boolean;
-    memberId?: string;
-    payer?: { verifiedId?: string; name?: string; logoUrl?: string };
-  };
+  item: HealthInsuranceValue[number];
   index: number;
   canDeselect: boolean;
   isDisabled: boolean;
+  isUserAdded: boolean;
   onToggleSelect: (index: number, currentSelected: boolean) => void;
   onDelete: (index: number) => void;
 };
@@ -266,6 +292,7 @@ function HealthInsuranceItem({
   index,
   canDeselect,
   isDisabled,
+  isUserAdded,
   onToggleSelect,
   onDelete,
 }: HealthInsuranceItemProps) {
@@ -288,6 +315,7 @@ function HealthInsuranceItem({
       }}
       disabled={isDisabled}
       sx={{
+        width: '100%',
         justifyContent: 'flex-start',
         alignItems: 'center',
         textAlign: 'left',
@@ -358,7 +386,7 @@ function HealthInsuranceItem({
           )}
         </Stack>
       </Stack>
-      {!item.payer?.verifiedId && (
+      {isUserAdded && (
         <Stack
           alignItems='center'
           justifyContent='flex-end'
@@ -400,18 +428,14 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
     key: fieldKey,
   });
 
+  const [userAddedItems, setUserAddedItems] = useState<Map<string, boolean>>(
+    new Map(),
+  );
+
   const canDeselect = useMemo(() => {
     if (!field?.value) return false;
     return field.value.filter((item) => item.selected).length > 1;
   }, [field?.value]);
-
-  const handleAddInsurance = (newItem: {
-    selected: boolean;
-    memberId: string;
-    payer: { name: string; logoUrl?: string };
-  }) => {
-    setValue([...(field?.value ?? []), newItem]);
-  };
 
   const handleToggleSelect = (index: number, currentSelected: boolean) => {
     if (!field?.value) return;
@@ -424,9 +448,26 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
     ]);
   };
 
+  const handleAddInsurance = (newItem: HealthInsuranceValue[number]) => {
+    const itemWithId = { ...newItem, id: newItem.payer.verifiedId };
+    setValue([...(field?.value ?? []), itemWithId]);
+    setUserAddedItems((prev) =>
+      new Map(prev).set(newItem.payer.verifiedId, true),
+    );
+  };
+
   const handleDeleteInsurance = (index: number) => {
     if (!field?.value) return;
+    const itemToDelete = field.value[index];
+
     setValue([...field.value.slice(0, index), ...field.value.slice(index + 1)]);
+
+    // Remove from Map if it has an ID
+    setUserAddedItems((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(itemToDelete.payer.verifiedId);
+      return newMap;
+    });
   };
 
   if (!field) return null;
@@ -437,7 +478,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
         <Typography>No health insurance information available.</Typography>
         {field?.allowUserInput && (
           <AddHealthInsuranceForm
-            currentValue={field.value}
+            fieldKey={fieldKey}
             onAdd={handleAddInsurance}
           />
         )}
@@ -458,18 +499,32 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
         {field.value.filter((item) => item.selected).length})
       </Typography>
 
-      {field.value.map((item, index) => (
-        <HealthInsuranceItem
-          key={item.payer?.verifiedId ?? index}
-          item={item}
-          index={index}
-          canDeselect={canDeselect}
-          isDisabled={!field?.allowUserInput}
-          onToggleSelect={handleToggleSelect}
-          onDelete={handleDeleteInsurance}
-        />
-      ))}
-
+      <AnimateHeight duration={0.3}>
+        <Stack spacing={2}>
+          <AnimatePresence>
+            {field.value.map((item, index) => (
+              <MotionBox
+                key={item.payer?.verifiedId ?? index}
+                layout='position'
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                sx={{ width: '100%' }}
+              >
+                <HealthInsuranceItem
+                  item={item}
+                  index={index}
+                  canDeselect={canDeselect}
+                  isDisabled={!field?.allowUserInput}
+                  isUserAdded={userAddedItems.has(item.payer.verifiedId)}
+                  onToggleSelect={handleToggleSelect}
+                  onDelete={handleDeleteInsurance}
+                />
+              </MotionBox>
+            ))}
+          </AnimatePresence>
+        </Stack>
+      </AnimateHeight>
       <Typography
         variant='body2'
         color='text.secondary'
@@ -483,7 +538,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
 
       {field?.allowUserInput && (
         <AddHealthInsuranceForm
-          currentValue={field.value}
+          fieldKey={fieldKey}
           onAdd={handleAddInsurance}
         />
       )}
