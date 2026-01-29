@@ -506,9 +506,14 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
               <MotionBox
                 key={item.payer?.verifiedId ?? index}
                 layout='position'
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
+                transition={{
+                  delay: index * 0.05,
+                  duration: 0.3,
+                  ease: 'easeOut',
+                }}
                 sx={{ width: '100%' }}
               >
                 <HealthInsuranceItem
