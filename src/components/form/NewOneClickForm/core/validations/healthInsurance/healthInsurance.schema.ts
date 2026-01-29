@@ -4,6 +4,7 @@ import { memberIdSchema } from './memberId.schema';
 import { payerNameSchema } from './payerName.schema';
 
 const healthInsuranceItemSchema = z.object({
+  id: z.string().uuid().optional(),
   selected: z.boolean(),
   memberId: memberIdSchema,
   payer: z.object({

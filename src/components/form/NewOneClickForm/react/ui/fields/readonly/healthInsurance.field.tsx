@@ -31,70 +31,70 @@ const MOCK_HEALTH_INSURANCE_PROVIDERS: Array<
   {
     memberId: '123456789',
     payer: {
-      verifiedId: 'aetna',
+      verifiedId: 'V9980890',
       name: 'Aetna',
     },
   },
   {
     memberId: '987654321',
     payer: {
-      verifiedId: 'anthem',
+      verifiedId: 'V989089',
       name: 'Anthem Blue Cross Blue Shield',
     },
   },
   {
     memberId: '456789123',
     payer: {
-      verifiedId: 'bcbs',
+      verifiedId: 'V4352321',
       name: 'Blue Cross Blue Shield',
     },
   },
   {
     memberId: '321654987',
     payer: {
-      verifiedId: 'cigna',
+      verifiedId: 'V9483759',
       name: 'Cigna',
     },
   },
   {
     memberId: '789123456',
     payer: {
-      verifiedId: 'humana',
+      verifiedId: 'V57459834',
       name: 'Humana',
     },
   },
   {
     memberId: '654987321',
     payer: {
-      verifiedId: 'kaiser',
+      verifiedId: 'V32567324',
       name: 'Kaiser Permanente',
     },
   },
   {
     memberId: '147258369',
     payer: {
-      verifiedId: 'medicaid',
+      verifiedId: 'V58943751',
       name: 'Medicaid',
     },
   },
   {
     memberId: '963852741',
     payer: {
-      verifiedId: 'medicare',
+      verifiedId: 'V098765',
       name: 'Medicare',
     },
   },
   {
     memberId: '258369147',
     payer: {
-      verifiedId: 'uhc',
+      verifiedId: 'V09876543',
       name: 'UnitedHealthcare',
     },
   },
   {
     memberId: '741852963',
     payer: {
-      verifiedId: 'wellcare',
+      verifiedId: 'V567898765',
       name: 'WellCare',
     },
   },
@@ -448,9 +448,11 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
     ]);
   };
 
-  const handleAddInsurance = (newItem: HealthInsuranceValue[number]) => {
-    const itemWithId = { ...newItem, id: newItem.payer.verifiedId };
-    setValue([...(field?.value ?? []), itemWithId]);
+  const handleAddInsurance = (
+    healthInsurance: HealthInsuranceValue[number],
+  ) => {
+    const newItem = structuredClone(healthInsurance);
+    setValue([...(field?.value ?? []), newItem]);
     setUserAddedItems((prev) =>
       new Map(prev).set(newItem.payer.verifiedId, true),
     );

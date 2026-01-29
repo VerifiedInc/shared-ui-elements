@@ -5,6 +5,7 @@ import type {
 
 import { fields } from '../../../../../src/components/form/NewOneClickForm/core/fields';
 import { FormField } from '../../../../../src/components/form/NewOneClickForm/core/form';
+import { toDomainCredentials } from '../../../../../src/components/form/NewOneClickForm/core/internal/mappers/domain.map';
 
 export const makeCredential = (
   options: Partial<Credential> & { type: string; value: Credential['value'] },
@@ -12,11 +13,13 @@ export const makeCredential = (
   if (!fields[options.type as keyof typeof fields]) {
     throw new Error(`Invalid credential type: ${options.type}`);
   }
-  return {
-    uuid: options.uuid ?? crypto.randomUUID(),
-    type: options.type,
-    value: options.value,
-  };
+  return toDomainCredentials([
+    {
+      uuid: options.uuid ?? crypto.randomUUID(),
+      type: options.type,
+      value: options.value,
+    },
+  ])[0];
 };
 
 export const makeCredentialRequest = (

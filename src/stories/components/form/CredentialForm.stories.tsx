@@ -12,6 +12,7 @@ import {
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
   const [key, setKey] = useState(0);
+  console.log({ form });
 
   useEffect(() => {
     setKey((prev) => prev + 1);
@@ -514,6 +515,7 @@ const mockCredentials = [
     type: 'healthInsurance',
     value: [
       {
+        id: '174e5f8e-1234-5678-9101-112131415161',
         memberId: 'AC****02',
         payer: {
           verifiedId: 'V123123',
@@ -523,6 +525,7 @@ const mockCredentials = [
         },
       },
       {
+        id: '174e5f8e-1234-5678-9101-112131415161',
         memberId: 'XY****99',
         payer: {
           verifiedId: 'V123321',

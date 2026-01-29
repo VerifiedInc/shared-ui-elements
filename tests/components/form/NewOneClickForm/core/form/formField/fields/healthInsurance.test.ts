@@ -13,7 +13,7 @@ const setupCredential = () => {
     type: 'healthInsurance',
     value: [
       {
-        selected: true,
+        id: '174e5f8e-1234-5678-9101-112131415161',
         memberId: 'AC****02',
         payer: {
           verifiedId: 'V123456789',
@@ -50,6 +50,23 @@ describe('health insurance', () => {
       test('field is valid', () => {
         const field = form.fields
           .healthInsurance as FormField<'healthInsurance'>;
+        expect(field.isValid).toBe(true);
+      });
+      test('field with new value is valid', () => {
+        const field = form.fields
+          .healthInsurance as FormField<'healthInsurance'>;
+
+        field.value = [
+          ...field.value,
+          {
+            selected: true,
+            memberId: 'ACDE321',
+            payer: {
+              verifiedId: 'V123456789',
+              name: 'Custom Health Insurance',
+            },
+          },
+        ];
         expect(field.isValid).toBe(true);
       });
     });
