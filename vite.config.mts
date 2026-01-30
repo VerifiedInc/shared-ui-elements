@@ -60,7 +60,10 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      external: Object.keys(pkg.peerDependencies),
+      external: (id) => {
+        const peerDeps = Object.keys(pkg.peerDependencies || {});
+        return peerDeps.some((dep) => id === dep || id.startsWith(`${dep}/`));
+      },
       output: {
         chunkFileNames: 'shared/[name]-[hash].mjs',
         // Preserve module structure and ensure proper React key handling
