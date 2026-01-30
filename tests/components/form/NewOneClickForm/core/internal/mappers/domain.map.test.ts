@@ -1,6 +1,7 @@
 import { test, describe, expect } from 'vitest';
+
 import { toDomainCredentials } from '../../../../../../../src/components/form/NewOneClickForm/core/internal/mappers/domain.map';
-import type { Credential } from '../../../../../../../src/components/form/NewOneClickForm/types';
+
 import { makeCredential } from '../../../utils/form';
 
 describe('toDomainCredentials', () => {
