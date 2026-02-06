@@ -419,6 +419,32 @@ const CredentialForm: React.FC = () => {
 
                 return response.json();
               },
+              oneClickHealthProviderPayers: async () => {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                return [
+                  {
+                    verifiedId: 'V9980890',
+                    name: 'Aetna',
+                    logoUrl:
+                      'https://renatozupo.com.br/storage/unnamed-768x768.jpg',
+                  },
+                  {
+                    verifiedId: 'V989089',
+                    name: 'Anthem Blue Cross Blue Shield',
+                  },
+                  {
+                    verifiedId: 'V4352321',
+                    name: 'Blue Cross Blue Shield',
+                  },
+                  { verifiedId: 'V9483759', name: 'Cigna' },
+                  { verifiedId: 'V57459834', name: 'Humana' },
+                  { verifiedId: 'V32567324', name: 'Kaiser Permanente' },
+                  { verifiedId: 'V58943751', name: 'Medicaid' },
+                  { verifiedId: 'V098765', name: 'Medicare' },
+                  { verifiedId: 'V09876543', name: 'UnitedHealthcare' },
+                  { verifiedId: 'V567898765', name: 'WellCare' },
+                ];
+              },
             },
           }}
           onSubmit={handleSubmit}
