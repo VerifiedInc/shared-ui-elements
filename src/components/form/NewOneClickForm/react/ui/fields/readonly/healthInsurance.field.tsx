@@ -24,80 +24,24 @@ import { HealthInsuranceValue } from '../../../../core/validations';
 
 import { useFormField } from '../../../core/field.hook';
 
+type Payer = HealthInsuranceValue[number]['payer'];
+
 // Mock data for health insurance providers
-const MOCK_HEALTH_INSURANCE_PROVIDERS: Array<
-  Omit<HealthInsuranceValue[number], 'selected'>
-> = [
+const MOCK_HEALTH_INSURANCE_PROVIDERS: Payer[] = [
   {
-    memberId: '123456789',
-    payer: {
-      verifiedId: 'V9980890',
-      name: 'Aetna',
-    },
+    verifiedId: 'V9980890',
+    name: 'Aetna',
+    logoUrl: 'https://renatozupo.com.br/storage/unnamed-768x768.jpg',
   },
-  {
-    memberId: '987654321',
-    payer: {
-      verifiedId: 'V989089',
-      name: 'Anthem Blue Cross Blue Shield',
-    },
-  },
-  {
-    memberId: '456789123',
-    payer: {
-      verifiedId: 'V4352321',
-      name: 'Blue Cross Blue Shield',
-    },
-  },
-  {
-    memberId: '321654987',
-    payer: {
-      verifiedId: 'V9483759',
-      name: 'Cigna',
-    },
-  },
-  {
-    memberId: '789123456',
-    payer: {
-      verifiedId: 'V57459834',
-      name: 'Humana',
-    },
-  },
-  {
-    memberId: '654987321',
-    payer: {
-      verifiedId: 'V32567324',
-      name: 'Kaiser Permanente',
-    },
-  },
-  {
-    memberId: '147258369',
-    payer: {
-      verifiedId: 'V58943751',
-      name: 'Medicaid',
-    },
-  },
-  {
-    memberId: '963852741',
-    payer: {
-      verifiedId: 'V098765',
-      name: 'Medicare',
-    },
-  },
-  {
-    memberId: '258369147',
-    payer: {
-      verifiedId: 'V09876543',
-      name: 'UnitedHealthcare',
-    },
-  },
-  {
-    memberId: '741852963',
-    payer: {
-      verifiedId: 'V567898765',
-      name: 'WellCare',
-    },
-  },
+  { verifiedId: 'V989089', name: 'Anthem Blue Cross Blue Shield' },
+  { verifiedId: 'V4352321', name: 'Blue Cross Blue Shield' },
+  { verifiedId: 'V9483759', name: 'Cigna' },
+  { verifiedId: 'V57459834', name: 'Humana' },
+  { verifiedId: 'V32567324', name: 'Kaiser Permanente' },
+  { verifiedId: 'V58943751', name: 'Medicaid' },
+  { verifiedId: 'V098765', name: 'Medicare' },
+  { verifiedId: 'V09876543', name: 'UnitedHealthcare' },
+  { verifiedId: 'V567898765', name: 'WellCare' },
 ];
 
 /**
@@ -116,18 +60,18 @@ function useHealthInsuranceProviders() {
 
 type AddHealthInsuranceFormProps = {
   fieldKey: string;
+  disabled: boolean;
   onAdd: (newItem: HealthInsuranceValue[number]) => void;
 };
 
 function AddHealthInsuranceForm({
   fieldKey,
+  disabled,
   onAdd,
 }: AddHealthInsuranceFormProps) {
   const { value } = useFormField<'healthInsurance'>({ key: fieldKey });
   const { data: providers, isLoading: loading } = useHealthInsuranceProviders();
-  const [selectedPayer, setSelectedPayer] = useState<
-    HealthInsuranceValue[number] | null
-  >(null);
+  const [selectedPayer, setSelectedPayer] = useState<Payer | null>(null);
   const [newMemberId, setNewMemberId] = useState<string>('');
 
   // Filter out providers that already exist in currentValue with verifiedId
@@ -154,8 +98,8 @@ function AddHealthInsuranceForm({
     if (!providers) return [];
     return providers.filter(
       (provider) =>
-        !existingVerifiedIds.has(provider.payer.verifiedId) &&
-        !existingPayerNames.has(provider.payer.name),
+        !existingVerifiedIds.has(provider.verifiedId) &&
+        !existingPayerNames.has(provider.name),
     );
   }, [providers, existingVerifiedIds, existingPayerNames]);
 
@@ -166,9 +110,9 @@ function AddHealthInsuranceForm({
       selected: true,
       memberId: newMemberId,
       payer: {
-        name: selectedPayer.payer.name,
-        logoUrl: selectedPayer.payer.logoUrl,
-        verifiedId: selectedPayer.payer.verifiedId,
+        name: selectedPayer.name,
+        logoUrl: selectedPayer.logoUrl,
+        verifiedId: selectedPayer.verifiedId,
       },
     };
 
@@ -192,29 +136,31 @@ function AddHealthInsuranceForm({
           Add New Insurance
         </Typography>
         <Autocomplete
+          disabled={disabled}
           options={availableProviders}
           loading={loading}
           value={selectedPayer}
           onChange={(_, newValue) => {
-            if (newValue) {
-              setSelectedPayer({ selected: true, ...newValue });
-            }
+            setSelectedPayer(newValue);
           }}
-          getOptionLabel={(option) => option.payer.name}
+          isOptionEqualToValue={(option, value) =>
+            option.verifiedId === value.verifiedId
+          }
+          getOptionLabel={(option) => option.name}
           renderOption={(props, option) => (
             <Box component='li' {...props} key={props.key}>
               <Stack direction='row' spacing={1.5} alignItems='center'>
                 <Avatar
-                  src={option.payer.logoUrl}
+                  src={option.logoUrl}
                   sx={{
                     width: 32,
                     height: 32,
-                    bgcolor: option.payer.logoUrl ? undefined : 'primary.main',
+                    bgcolor: option.logoUrl ? undefined : 'primary.main',
                   }}
                 >
-                  {!option.payer.logoUrl && option.payer.name[0]?.toUpperCase()}
+                  {!option.logoUrl && option.name[0]?.toUpperCase()}
                 </Avatar>
-                <Typography>{option.payer.name}</Typography>
+                <Typography>{option.name}</Typography>
               </Stack>
             </Box>
           )}
@@ -260,6 +206,7 @@ function AddHealthInsuranceForm({
           }
           placeholder='Enter member ID'
           size='small'
+          disabled={disabled}
           value={newMemberId}
           onChange={(e) => setNewMemberId(e.target.value)}
         />
@@ -267,7 +214,7 @@ function AddHealthInsuranceForm({
           variant='contained'
           startIcon={<Add />}
           onClick={handleAddInsurance}
-          disabled={!selectedPayer || !newMemberId}
+          disabled={disabled || !selectedPayer || !newMemberId}
           sx={{ alignSelf: 'flex-end' }}
         >
           Add Insurance
@@ -481,6 +428,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
         {field?.allowUserInput && (
           <AddHealthInsuranceForm
             fieldKey={fieldKey}
+            disabled={field.isDisabled}
             onAdd={handleAddInsurance}
           />
         )}
@@ -522,7 +470,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
                   item={item}
                   index={index}
                   canDeselect={canDeselect}
-                  isDisabled={!field?.allowUserInput}
+                  isDisabled={field.isDisabled}
                   isUserAdded={userAddedItems.has(item.payer.verifiedId)}
                   onToggleSelect={handleToggleSelect}
                   onDelete={handleDeleteInsurance}
@@ -546,6 +494,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
       {field?.allowUserInput && (
         <AddHealthInsuranceForm
           fieldKey={fieldKey}
+          disabled={field.isDisabled}
           onAdd={handleAddInsurance}
         />
       )}

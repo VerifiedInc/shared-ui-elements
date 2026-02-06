@@ -515,7 +515,7 @@ const mockCredentials = [
     type: 'healthInsurance',
     value: [
       {
-        id: '174e5f8e-1234-5678-9101-112131415161',
+        id: 174,
         memberId: 'AC****02',
         payer: {
           verifiedId: 'V123123',
@@ -525,7 +525,7 @@ const mockCredentials = [
         },
       },
       {
-        id: '174e5f8e-1234-5678-9101-112131415161',
+        id: 175,
         memberId: 'XY****99',
         payer: {
           verifiedId: 'V123321',
