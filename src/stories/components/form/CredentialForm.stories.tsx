@@ -12,6 +12,7 @@ import {
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
   const [key, setKey] = useState(0);
+  console.log({ form });
 
   useEffect(() => {
     setKey((prev) => prev + 1);
@@ -367,6 +368,9 @@ const CredentialForm: React.FC = () => {
           options={{
             features: {
               datePickerClickOutsideBoundaryElement: document.body,
+              // editMode: {
+              //   hide: true,
+              // },
             },
             servicePaths: {
               googlePlacesAutocompletePlaces: async (
@@ -414,6 +418,32 @@ const CredentialForm: React.FC = () => {
                 }
 
                 return response.json();
+              },
+              oneClickHealthProviderPayers: async () => {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                return [
+                  {
+                    verifiedId: 'V9980890',
+                    name: 'Aetna',
+                    logoUrl:
+                      'https://renatozupo.com.br/storage/unnamed-768x768.jpg',
+                  },
+                  {
+                    verifiedId: 'V989089',
+                    name: 'Anthem Blue Cross Blue Shield',
+                  },
+                  {
+                    verifiedId: 'V4352321',
+                    name: 'Blue Cross Blue Shield',
+                  },
+                  { verifiedId: 'V9483759', name: 'Cigna' },
+                  { verifiedId: 'V57459834', name: 'Humana' },
+                  { verifiedId: 'V32567324', name: 'Kaiser Permanente' },
+                  { verifiedId: 'V58943751', name: 'Medicaid' },
+                  { verifiedId: 'V098765', name: 'Medicare' },
+                  { verifiedId: 'V09876543', name: 'UnitedHealthcare' },
+                  { verifiedId: 'V567898765', name: 'WellCare' },
+                ];
               },
             },
           }}
@@ -506,176 +536,206 @@ const mockCredentials = [
       },
     },
   },
+  {
+    uuid: 'health-insurance-id-1234',
+    type: 'healthInsurance',
+    value: [
+      {
+        id: 174,
+        memberId: 'AC****02',
+        payer: {
+          verifiedId: 'V123123',
+          name: 'Aviato Health Insurance Of California',
+          logoUrl:
+            'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
+        },
+      },
+      {
+        id: 175,
+        memberId: 'XY****99',
+        payer: {
+          verifiedId: 'V123321',
+          name: 'Blue Cross Blue Shield',
+        },
+      },
+    ],
+  },
 ];
 
 const mockCredentialRequests = [
-  {
-    allowUserInput: true,
-    mandatory: 'no',
-    multi: false,
-    type: 'FullNameCredential',
-    children: [
-      // {
-      //   type: 'MiddleNameCredential',
-      //   mandatory: 'no',
-      //   description: 'Your middle name',
-      //   // allowUserInput: true,
-      // },
-      {
-        type: 'LastNameCredential',
-        mandatory: 'no',
-        description: 'Your last name',
-        // allowUserInput: true,
-      },
-      {
-        type: 'FirstNameCredential',
-        mandatory: 'no',
-        description: 'Your first name',
-        // allowUserInput: true,
-      },
-    ],
-  },
-  {
-    allowUserInput: true,
-    mandatory: 'no',
-    type: 'PhoneCredential',
-  },
-  // 'AddressCredential',
   // {
   //   allowUserInput: true,
-  //   mandatory: 'yes',
+  //   mandatory: 'no',
+  //   multi: false,
+  //   type: 'FullNameCredential',
+  //   children: [
+  //     // {
+  //     //   type: 'MiddleNameCredential',
+  //     //   mandatory: 'no',
+  //     //   description: 'Your middle name',
+  //     //   // allowUserInput: true,
+  //     // },
+  //     {
+  //       type: 'LastNameCredential',
+  //       mandatory: 'no',
+  //       description: 'Your last name',
+  //       // allowUserInput: true,
+  //     },
+  //     {
+  //       type: 'FirstNameCredential',
+  //       mandatory: 'no',
+  //       description: 'Your first name',
+  //       // allowUserInput: true,
+  //     },
+  //   ],
+  // },
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'no',
+  //   type: 'PhoneCredential',
+  // },
+  // // 'AddressCredential',
+  // // {
+  // //   allowUserInput: true,
+  // //   mandatory: 'yes',
+  // //   multi: false,
+  // //   type: 'AddressCredential',
+  // //   description: 'Your address information',
+  // // },
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'no',
   //   multi: false,
   //   type: 'AddressCredential',
   //   description: 'Your address information',
+  //   children: [
+  //     {
+  //       type: 'Line1Credential',
+  //       description: 'Street',
+  //     },
+  //     {
+  //       type: 'Line2Credential',
+  //       mandatory: 'no',
+  //       description: 'Apt, Unit, etc.',
+  //     },
+  //     {
+  //       type: 'CityCredential',
+  //       description: 'City',
+  //     },
+  //     {
+  //       type: 'StateCredential',
+  //       description: 'State',
+  //     },
+  //     {
+  //       type: 'CountryCredential',
+  //       description: 'Country',
+  //     },
+  //     {
+  //       mandatory: 'no',
+  //       type: 'ZipCodeCredential',
+  //       description: 'ZipCode',
+  //     },
+  //   ],
   // },
-  {
-    allowUserInput: true,
-    mandatory: 'no',
-    multi: false,
-    type: 'AddressCredential',
-    description: 'Your address information',
-    children: [
-      {
-        type: 'Line1Credential',
-        description: 'Street',
-      },
-      {
-        type: 'Line2Credential',
-        mandatory: 'no',
-        description: 'Apt, Unit, etc.',
-      },
-      {
-        type: 'CityCredential',
-        description: 'City',
-      },
-      {
-        type: 'StateCredential',
-        description: 'State',
-      },
-      {
-        type: 'CountryCredential',
-        description: 'Country',
-      },
-      {
-        mandatory: 'no',
-        type: 'ZipCodeCredential',
-        description: 'ZipCode',
-      },
-    ],
-  },
-  {
-    allowUserInput: true,
-    mandatory: 'no',
-    multi: false,
-    type: 'BirthDateCredential',
-    description: 'MM/DD/YYYY',
-  },
-  {
-    allowUserInput: true,
-    mandatory: 'no',
-    multi: false,
-    type: 'SsnCredential',
-    description: 'Your legal SSN',
-  },
-  {
-    allowUserInput: true,
-    mandatory: 'no',
-    multi: false,
-    type: 'SexCredential',
-    description: 'Your birth sex',
-  },
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'no',
+  //   multi: false,
+  //   type: 'BirthDateCredential',
+  //   description: 'MM/DD/YYYY',
+  // },
+  // {
+  //   allowUserInput: true,
+  //   mandatory: 'no',
+  //   multi: false,
+  //   type: 'SsnCredential',
+  //   description: 'Your legal SSN',
+  // },
+  // {
+  //   allowUserInput: false,
+  //   mandatory: 'if_available',
+  //   multi: false,
+  //   type: 'SexCredential',
+  //   description: 'Your birth sex',
+  // },
+  // // {
+  // //   allowUserInput: true,
+  // //   mandatory: 'no',
+  // //   multi: false,
+  // //   type: 'DriversLicenseCredential',
+  // //   description: 'We are required by law to ask for a government ID',
+  // // },
   // {
   //   allowUserInput: true,
   //   mandatory: 'no',
   //   multi: false,
   //   type: 'DriversLicenseCredential',
   //   description: 'We are required by law to ask for a government ID',
+  //   children: [
+  //     {
+  //       allowUserInput: true,
+  //       mandatory: 'no',
+  //       multi: false,
+  //       type: 'DocumentNumberCredential',
+  //       description: 'Your driver’s license number',
+  //     },
+  //     {
+  //       allowUserInput: true,
+  //       mandatory: 'no',
+  //       multi: false,
+  //       type: 'IssuanceStateCredential',
+  //     },
+  //     {
+  //       allowUserInput: true,
+  //       mandatory: 'no',
+  //       multi: false,
+  //       type: 'IssuanceDateCredential',
+  //       description: 'MM/DD/YYYY',
+  //     },
+  //     {
+  //       allowUserInput: true,
+  //       mandatory: 'no',
+  //       multi: false,
+  //       type: 'ExpirationDateCredential',
+  //       description: 'MM/DD/YYYY',
+  //     },
+  //     {
+  //       allowUserInput: true,
+  //       mandatory: 'no',
+  //       multi: false,
+  //       type: 'AddressCredential',
+  //       description: 'The address on the license',
+  //       children: [
+  //         {
+  //           type: 'Line1Credential',
+  //           description: 'Street',
+  //         },
+  //         {
+  //           type: 'Line2Credential',
+  //           mandatory: 'no',
+  //           description: 'Apt, Unit, etc.',
+  //         },
+  //         {
+  //           type: 'CityCredential',
+  //           description: 'City',
+  //         },
+  //         {
+  //           type: 'StateCredential',
+  //           description: 'State',
+  //         },
+  //         {
+  //           type: 'CountryCredential',
+  //           description: 'Country',
+  //         },
+  //       ],
+  //     },
+  //   ],
   // },
   {
     allowUserInput: true,
-    mandatory: 'no',
-    multi: false,
-    type: 'DriversLicenseCredential',
-    description: 'We are required by law to ask for a government ID',
-    children: [
-      {
-        allowUserInput: true,
-        mandatory: 'no',
-        multi: false,
-        type: 'DocumentNumberCredential',
-        description: 'Your driver’s license number',
-      },
-      {
-        allowUserInput: true,
-        mandatory: 'no',
-        multi: false,
-        type: 'IssuanceStateCredential',
-      },
-      {
-        allowUserInput: true,
-        mandatory: 'no',
-        multi: false,
-        type: 'IssuanceDateCredential',
-        description: 'MM/DD/YYYY',
-      },
-      {
-        allowUserInput: true,
-        mandatory: 'no',
-        multi: false,
-        type: 'ExpirationDateCredential',
-        description: 'MM/DD/YYYY',
-      },
-      {
-        allowUserInput: true,
-        mandatory: 'no',
-        multi: false,
-        type: 'AddressCredential',
-        description: 'The address on the license',
-        children: [
-          {
-            type: 'Line1Credential',
-            description: 'Street',
-          },
-          {
-            type: 'Line2Credential',
-            mandatory: 'no',
-            description: 'Apt, Unit, etc.',
-          },
-          {
-            type: 'CityCredential',
-            description: 'City',
-          },
-          {
-            type: 'StateCredential',
-            description: 'State',
-          },
-          {
-            type: 'CountryCredential',
-            description: 'Country',
-          },
-        ],
-      },
-    ],
+    mandatory: 'if_available',
+    type: 'HealthInsuranceCredential',
+    description: 'Your health insurance information',
   },
 ];
 

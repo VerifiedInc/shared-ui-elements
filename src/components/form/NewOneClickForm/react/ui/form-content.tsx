@@ -14,11 +14,14 @@ type OneClickFormContentProps = {
 
 function RenderReadonlyMode() {
   const context = useOneClickForm();
+  const shouldRenderEditButton =
+    !context.options.features.editMode?.hide &&
+    !context.formContext.state.form?.isDisabled;
 
   return (
     <>
       <ReadonlyFields />
-      {!context.formContext.state.form?.isDisabled && (
+      {shouldRenderEditButton && (
         <Button
           aria-controls='credentials-region'
           variant='text'
@@ -86,7 +89,7 @@ export function OneClickFormContent({
         alignItems='center'
         sx={{ flex: 1, width: '100%' }}
       >
-        {context.editMode ? <RenderEditMode /> : <RenderReadonlyMode />}
+        <>{context.editMode ? <RenderEditMode /> : <RenderReadonlyMode />}</>
       </Box>
       {FooterComponent && <FooterComponent form={context.formContext} />}
     </Stack>
