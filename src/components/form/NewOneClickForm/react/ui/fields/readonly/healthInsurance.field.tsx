@@ -108,6 +108,7 @@ function AddHealthInsuranceForm({
   return (
     <Box
       sx={{
+        width: '100%',
         border: '1px dashed',
         borderColor: 'divider',
         borderRadius: 1,
@@ -115,11 +116,16 @@ function AddHealthInsuranceForm({
         backgroundColor: 'background.paper',
       }}
     >
-      <Stack spacing={2}>
-        <Typography variant='subtitle2' fontWeight={600}>
+      <Stack spacing={2} alignItems='flex-start' width='100%'>
+        <Typography
+          variant='subtitle2'
+          fontWeight={600}
+          sx={{ textAlign: 'left' }}
+        >
           Add New Insurance
         </Typography>
         <Autocomplete
+          fullWidth
           disabled={disabled}
           options={availableProviders}
           loading={loading}
@@ -144,7 +150,9 @@ function AddHealthInsuranceForm({
                 >
                   {!option.logoUrl && option.name[0]?.toUpperCase()}
                 </Avatar>
-                <Typography>{option.name}</Typography>
+                <Typography sx={{ textAlign: 'left' }}>
+                  {option.name}
+                </Typography>
               </Stack>
             </Box>
           )}
@@ -174,6 +182,7 @@ function AddHealthInsuranceForm({
           )}
         />
         <TextField
+          fullWidth
           label={
             <>
               {'Member ID'}{' '}
@@ -195,11 +204,11 @@ function AddHealthInsuranceForm({
           onChange={(e) => setNewMemberId(e.target.value)}
         />
         <Button
+          fullWidth
           variant='contained'
           startIcon={<Add />}
           onClick={handleAddInsurance}
           disabled={disabled || !selectedPayer || !newMemberId}
-          sx={{ alignSelf: 'flex-end' }}
         >
           Add Insurance
         </Button>
@@ -287,7 +296,7 @@ function HealthInsuranceItem({
             {!item?.payer?.logoUrl && item?.payer?.name?.[0]?.toUpperCase()}
           </Avatar>
         </Box>
-        <Stack spacing={1}>
+        <Stack spacing={1} alignItems='flex-start'>
           {item?.payer?.name && (
             <Typography
               variant='body1'
@@ -297,6 +306,7 @@ function HealthInsuranceItem({
                 fontSize: 16,
                 fontWeight: isSelected ? 600 : 500,
                 wordBreak: 'break-word',
+                textAlign: 'left',
               }}
             >
               {item.payer.name}
@@ -310,6 +320,7 @@ function HealthInsuranceItem({
               sx={{
                 fontSize: 14,
                 fontWeight: 400,
+                textAlign: 'left',
               }}
             >
               Member ID: {maskMemberId(item.memberId)}
@@ -407,8 +418,10 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
 
   if (!field.value || !Array.isArray(field.value) || field.value.length === 0) {
     return (
-      <Stack spacing={2}>
-        <Typography>No health insurance information available.</Typography>
+      <Stack spacing={2} alignItems='flex-start'>
+        <Typography sx={{ textAlign: 'left' }}>
+          No health insurance information available.
+        </Typography>
         {field?.allowUserInput && (
           <AddHealthInsuranceForm
             fieldKey={fieldKey}
@@ -423,12 +436,17 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
   return (
     <Stack
       spacing={2}
+      alignItems='flex-start'
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
       }}
     >
-      <Typography variant='subtitle2' fontWeight={600}>
+      <Typography
+        variant='subtitle2'
+        fontWeight={600}
+        sx={{ textAlign: 'left' }}
+      >
         Selected Health Insurances (
         {field.value.filter((item) => item.selected).length})
       </Typography>
@@ -470,6 +488,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
         sx={{
           fontSize: 12,
           fontWeight: 400,
+          textAlign: 'left',
         }}
       >
         Member ID partially hidden for your privacy
