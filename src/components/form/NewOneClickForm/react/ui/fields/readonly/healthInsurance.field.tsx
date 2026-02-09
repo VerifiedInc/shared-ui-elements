@@ -491,7 +491,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
           textAlign: 'left',
         }}
       >
-        Member ID partially hidden for your privacy
+        Partially hidden for your privacy
       </Typography>
 
       {field?.allowUserInput && (
