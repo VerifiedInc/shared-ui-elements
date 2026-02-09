@@ -7,6 +7,9 @@ type OneClickOptionFeatures = {
   /** Element that the date picker should be detached from when clicking outside of it. */
   datePickerClickOutsideBoundaryElement?: HTMLElement | null;
   enableUserPrivacy?: boolean;
+  editMode?: {
+    hide?: boolean;
+  };
 };
 
 type OneClickOptionServicePaths = {
@@ -16,6 +19,10 @@ type OneClickOptionServicePaths = {
   ) => Promise<unknown>;
   googlePlacesGetPlace?: (
     placeId: string,
+    signal?: AbortSignal,
+  ) => Promise<unknown>;
+  oneClickHealthProviderPayers?: (
+    params?: { search?: string; limit?: number; skip?: number },
     signal?: AbortSignal,
   ) => Promise<unknown>;
 };
