@@ -419,9 +419,8 @@ const CredentialForm: React.FC = () => {
 
                 return response.json();
               },
-              oneClickHealthProviderPayers: async () => {
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-                return [
+              oneClickHealthProviderPayers: async (params) => {
+                const allProviders = [
                   {
                     verifiedId: 'V9980890',
                     name: 'Aetna',
@@ -431,6 +430,8 @@ const CredentialForm: React.FC = () => {
                   {
                     verifiedId: 'V989089',
                     name: 'Anthem Blue Cross Blue Shield',
+                    logoUrl:
+                      'http://s3.localhost.localstack.cloud:4566/1-click/health/payers/890dabde-a4de-49fa-8f37-5093702a54c6.png',
                   },
                   {
                     verifiedId: 'V4352321',
@@ -444,6 +445,20 @@ const CredentialForm: React.FC = () => {
                   { verifiedId: 'V09876543', name: 'UnitedHealthcare' },
                   { verifiedId: 'V567898765', name: 'WellCare' },
                 ];
+
+                await new Promise((resolve) => setTimeout(resolve, 500));
+
+                let filtered = allProviders;
+                if (params?.search) {
+                  const search = params.search.toLowerCase();
+                  filtered = allProviders.filter((p) =>
+                    p.name.toLowerCase().includes(search),
+                  );
+                }
+
+                const skip = params?.skip ?? 0;
+                const limit = params?.limit ?? 20;
+                return filtered.slice(skip, skip + limit);
               },
             },
           }}

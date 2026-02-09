@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Autocomplete,
   Avatar,
   Box,
   Button,
   ButtonBase,
+  CircularProgress,
   IconButton,
   Stack,
   TextField,
@@ -18,6 +19,7 @@ import {
   AnimateHeight,
   MotionBox,
 } from '../../../../../../../components/animation';
+import { useDebounceValue } from '../../../../../../../hooks/useDebounceValue';
 
 import { maskMemberId } from '../../../../core/formats';
 import { HealthInsuranceValue } from '../../../../core/validations';
@@ -28,18 +30,67 @@ import { useOneClickForm } from '../../form.context';
 
 type Payer = HealthInsuranceValue[number]['payer'];
 
-function useHealthInsuranceProviders() {
-  const { options } = useOneClickForm();
+const PROVIDERS_PAGE_SIZE = 20;
 
-  return useQuery({
-    queryKey: ['insurance-providers'],
+function useHealthInsuranceProviders(search: string) {
+  const { options } = useOneClickForm();
+  const debouncedSearch = useDebounceValue(search, 300);
+  const [allProviders, setAllProviders] = useState<Payer[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const skipRef = useRef(0);
+
+  const { isFetching } = useQuery({
+    queryKey: ['insurance-providers', debouncedSearch],
     queryFn: async ({ signal }) => {
-      const result =
-        await options.servicePaths.oneClickHealthProviderPayers?.(signal);
-      return (result as Payer[]) ?? [];
+      const result = await options.servicePaths.oneClickHealthProviderPayers?.(
+        {
+          search: debouncedSearch || undefined,
+          limit: PROVIDERS_PAGE_SIZE,
+          skip: 0,
+        },
+        signal,
+      );
+
+      const providers = (result as Payer[]) ?? [];
+
+      // Reset pagination state for initial page
+      skipRef.current = providers.length;
+      setAllProviders(providers);
+      setHasMore(providers.length >= PROVIDERS_PAGE_SIZE);
+
+      return providers;
     },
     enabled: !!options.servicePaths.oneClickHealthProviderPayers,
   });
+
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      const result = await options.servicePaths.oneClickHealthProviderPayers?.({
+        search: debouncedSearch || undefined,
+        limit: PROVIDERS_PAGE_SIZE,
+        skip: skipRef.current,
+      });
+      const newProviders = (result as Payer[]) ?? [];
+
+      setAllProviders((prev) => [...prev, ...newProviders]);
+      skipRef.current += newProviders.length;
+      setHasMore(newProviders.length >= PROVIDERS_PAGE_SIZE);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, debouncedSearch, options.servicePaths]);
+
+  return {
+    providers: allProviders,
+    isLoading: isFetching,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+  };
 }
 
 type AddHealthInsuranceFormProps = {
@@ -54,9 +105,12 @@ function AddHealthInsuranceForm({
   onAdd,
 }: AddHealthInsuranceFormProps) {
   const { value } = useFormField<'healthInsurance'>({ key: fieldKey });
-  const { data: providers, isLoading: loading } = useHealthInsuranceProviders();
+  const [searchInput, setSearchInput] = useState('');
+  const { providers, isLoading, isLoadingMore, hasMore, loadMore } =
+    useHealthInsuranceProviders(searchInput);
   const [selectedPayer, setSelectedPayer] = useState<Payer | null>(null);
   const [newMemberId, setNewMemberId] = useState<string>('');
+  const listboxRef = useRef<HTMLUListElement | null>(null);
 
   // Filter out providers that already exist in currentValue with verifiedId
   const existingVerifiedIds = useMemo(() => {
@@ -79,13 +133,25 @@ function AddHealthInsuranceForm({
   }, [value]);
 
   const availableProviders = useMemo(() => {
-    if (!providers) return [];
     return providers.filter(
       (provider) =>
         !existingVerifiedIds.has(provider.verifiedId) &&
         !existingPayerNames.has(provider.name),
     );
   }, [providers, existingVerifiedIds, existingPayerNames]);
+
+  const handleListboxScroll = useCallback(
+    (event: React.UIEvent<HTMLUListElement>) => {
+      const listbox = event.currentTarget;
+      const isNearBottom =
+        listbox.scrollTop + listbox.clientHeight >= listbox.scrollHeight - 50;
+
+      if (isNearBottom && hasMore && !isLoadingMore) {
+        void loadMore();
+      }
+    },
+    [hasMore, isLoadingMore, loadMore],
+  );
 
   const handleAddInsurance = () => {
     if (!selectedPayer || !newMemberId) return;
@@ -103,6 +169,7 @@ function AddHealthInsuranceForm({
     onAdd(newItem);
     setSelectedPayer(null);
     setNewMemberId('');
+    setSearchInput('');
   };
 
   return (
@@ -128,8 +195,13 @@ function AddHealthInsuranceForm({
           fullWidth
           disabled={disabled}
           options={availableProviders}
-          loading={loading}
+          loading={isLoading || isLoadingMore}
+          filterOptions={(x) => x}
           value={selectedPayer}
+          inputValue={searchInput}
+          onInputChange={(_, newInputValue) => {
+            setSearchInput(newInputValue);
+          }}
           onChange={(_, newValue) => {
             setSelectedPayer(newValue);
           }}
@@ -137,18 +209,30 @@ function AddHealthInsuranceForm({
             option.verifiedId === value.verifiedId
           }
           getOptionLabel={(option) => option.name}
+          ListboxProps={{
+            ref: listboxRef,
+            onScroll: handleListboxScroll,
+          }}
           renderOption={(props, option) => (
-            <Box component='li' {...props} key={props.key}>
+            <Box component='li' {...props} key={option.verifiedId}>
               <Stack direction='row' spacing={1.5} alignItems='center'>
                 <Avatar
                   src={option.logoUrl}
+                  alt={option.name[0]?.toUpperCase()}
                   sx={{
                     width: 32,
                     height: 32,
-                    bgcolor: option.logoUrl ? undefined : 'primary.main',
+                    bgcolor: 'primary.main',
+                  }}
+                  slotProps={{
+                    img: {
+                      onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
+                        e.currentTarget.style.display = 'none';
+                      },
+                    },
                   }}
                 >
-                  {!option.logoUrl && option.name[0]?.toUpperCase()}
+                  {option.name[0]?.toUpperCase()}
                 </Avatar>
                 <Typography sx={{ textAlign: 'left' }}>
                   {option.name}
@@ -173,10 +257,21 @@ function AddHealthInsuranceForm({
                   </Typography>
                 </>
               }
-              placeholder='Select provider'
+              placeholder='Search providers...'
               size='small'
               InputLabelProps={{
                 shrink: true,
+              }}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {isLoading ? (
+                      <CircularProgress color='primary' size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
               }}
             />
           )}
@@ -292,8 +387,15 @@ function HealthInsuranceItem({
               height: 48,
               mt: 0.5,
             }}
+            slotProps={{
+              img: {
+                onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
+                  e.currentTarget.style.display = 'none';
+                },
+              },
+            }}
           >
-            {!item?.payer?.logoUrl && item?.payer?.name?.[0]?.toUpperCase()}
+            {item?.payer?.name?.[0]?.toUpperCase()}
           </Avatar>
         </Box>
         <Stack spacing={1} alignItems='flex-start'>
@@ -357,7 +459,7 @@ function HealthInsuranceItem({
             }}
             sx={{ alignSelf: 'flex-end', flexShrink: 0 }}
           >
-            <DeleteOutline />
+            <DeleteOutline color='inherit' />
           </IconButton>
         </Stack>
       )}
@@ -442,15 +544,6 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
         e.stopPropagation();
       }}
     >
-      <Typography
-        variant='subtitle2'
-        fontWeight={600}
-        sx={{ textAlign: 'left' }}
-      >
-        Selected Health Insurances (
-        {field.value.filter((item) => item.selected).length})
-      </Typography>
-
       <AnimateHeight duration={0.3}>
         <Stack spacing={2}>
           <AnimatePresence>
@@ -473,7 +566,11 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
                   index={index}
                   canDeselect={canDeselect}
                   isDisabled={field.isDisabled}
-                  isUserAdded={userAddedItems.has(item.payer.verifiedId)}
+                  isUserAdded={
+                    item.payer?.verifiedId
+                      ? userAddedItems.has(item.payer.verifiedId)
+                      : false
+                  }
                   onToggleSelect={handleToggleSelect}
                   onDelete={handleDeleteInsurance}
                 />

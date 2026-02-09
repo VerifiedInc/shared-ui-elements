@@ -21,7 +21,10 @@ type OneClickOptionServicePaths = {
     placeId: string,
     signal?: AbortSignal,
   ) => Promise<unknown>;
-  oneClickHealthProviderPayers?: (signal?: AbortSignal) => Promise<unknown>;
+  oneClickHealthProviderPayers?: (
+    params?: { search?: string; limit?: number; skip?: number },
+    signal?: AbortSignal,
+  ) => Promise<unknown>;
 };
 
 export type OneClickFormOptions = {
