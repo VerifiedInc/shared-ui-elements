@@ -395,11 +395,7 @@ function HealthInsuranceItem({
             draggable={false}
             src={item?.payer?.logoUrl ?? ''}
             sx={{
-              bgcolor: item?.payer?.logoUrl
-                ? undefined
-                : isSelected
-                  ? 'primary.main'
-                  : 'muted.main',
+              bgcolor: 'primary.main',
               width: 48,
               height: 48,
               mt: 0.5,
