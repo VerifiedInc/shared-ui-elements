@@ -61,6 +61,7 @@ function useHealthInsuranceProviders(search: string) {
 
       return providers;
     },
+    refetchOnMount: true,
     enabled: !!options.servicePaths.oneClickHealthProviderPayers,
   });
 
@@ -96,14 +97,17 @@ function useHealthInsuranceProviders(search: string) {
 type AddHealthInsuranceFormProps = {
   fieldKey: string;
   disabled: boolean;
+  hasExistingUserInsurance: boolean;
   onAdd: (newItem: HealthInsuranceValue[number]) => void;
 };
 
 function AddHealthInsuranceForm({
   fieldKey,
   disabled,
+  hasExistingUserInsurance,
   onAdd,
 }: AddHealthInsuranceFormProps) {
+  const { editMode } = useOneClickForm();
   const { value } = useFormField<'healthInsurance'>({ key: fieldKey });
   const [searchInput, setSearchInput] = useState('');
   const { providers, isLoading, isLoadingMore, hasMore, loadMore } =
@@ -172,15 +176,22 @@ function AddHealthInsuranceForm({
     setSearchInput('');
   };
 
+  if (!editMode) return null;
+
+  const isFormDisabled = disabled || hasExistingUserInsurance;
+
   return (
     <Box
       sx={{
         width: '100%',
-        border: '1px dashed',
-        borderColor: 'divider',
+        border: '1px solid',
+        borderColor: 'transparent',
         borderRadius: 1,
         p: 2,
-        backgroundColor: 'background.paper',
+        backgroundColor: hasExistingUserInsurance
+          ? 'action.disabledBackground'
+          : 'background.paper',
+        opacity: hasExistingUserInsurance ? 0.6 : 1,
       }}
     >
       <Stack spacing={2} alignItems='flex-start' width='100%'>
@@ -193,7 +204,7 @@ function AddHealthInsuranceForm({
         </Typography>
         <Autocomplete
           fullWidth
-          disabled={disabled}
+          disabled={isFormDisabled}
           options={availableProviders}
           loading={isLoading || isLoadingMore}
           filterOptions={(x) => x}
@@ -294,16 +305,21 @@ function AddHealthInsuranceForm({
           }
           placeholder='Enter member ID'
           size='small'
-          disabled={disabled}
+          disabled={isFormDisabled}
           value={newMemberId}
           onChange={(e) => setNewMemberId(e.target.value)}
+          helperText={
+            hasExistingUserInsurance
+              ? 'Delete your added insurance to add a different one'
+              : undefined
+          }
         />
         <Button
           fullWidth
           variant='contained'
           startIcon={<Add />}
           onClick={handleAddInsurance}
-          disabled={disabled || !selectedPayer || !newMemberId}
+          disabled={isFormDisabled || !selectedPayer || !newMemberId}
         >
           Add Insurance
         </Button>
@@ -340,6 +356,7 @@ function HealthInsuranceItem({
       aria-label={`${item.payer?.name} insurance`}
       role='button'
       tabIndex={0}
+      disableRipple={isUserAdded}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -355,7 +372,7 @@ function HealthInsuranceItem({
         alignItems: 'center',
         textAlign: 'left',
         userSelect: 'none',
-        cursor: 'pointer',
+        cursor: isUserAdded ? 'default' : 'pointer',
         ...(isSelected
           ? {
               border: '1px solid',
@@ -476,6 +493,10 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
     new Map(),
   );
 
+  const hasUserAddedInsurance = useMemo(() => {
+    return userAddedItems.size > 0;
+  }, [userAddedItems]);
+
   const canDeselect = useMemo(() => {
     if (!field?.value) return false;
     return field.value.filter((item) => item.selected).length > 1;
@@ -484,6 +505,13 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
   const handleToggleSelect = (index: number, currentSelected: boolean) => {
     if (!field?.value) return;
     if (!canDeselect && currentSelected) return;
+
+    const item = field.value[index];
+    const isUserAdded =
+      item.payer?.verifiedId && userAddedItems.has(item.payer.verifiedId);
+
+    // Prevent deselecting user-added insurances
+    if (isUserAdded && currentSelected) return;
 
     setValue([
       ...field.value.slice(0, index),
@@ -528,6 +556,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
           <AddHealthInsuranceForm
             fieldKey={fieldKey}
             disabled={field.isDisabled}
+            hasExistingUserInsurance={hasUserAddedInsurance}
             onAdd={handleAddInsurance}
           />
         )}
@@ -546,7 +575,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
     >
       <AnimateHeight duration={0.3}>
         <Stack spacing={2}>
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {field.value.map((item, index) => (
               <MotionBox
                 key={item.payer?.verifiedId ?? index}
@@ -595,6 +624,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
         <AddHealthInsuranceForm
           fieldKey={fieldKey}
           disabled={field.isDisabled}
+          hasExistingUserInsurance={hasUserAddedInsurance}
           onAdd={handleAddInsurance}
         />
       )}
