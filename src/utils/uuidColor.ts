@@ -1,4 +1,4 @@
-const nummbersToColor = (numbers: number[]): string => {
+const numbersToColor = (numbers: number[]): string => {
   // Get RGB values using modulo to ensure they're in 0-255 range
   const r = numbers.reduce((acc, val) => (acc + val) % 256, 0);
   const g = numbers.slice(1).reduce((acc, val) => (acc + val) % 256, 0);
@@ -21,7 +21,7 @@ export const uuidToHashedColor = (uuid: string): string => {
       .replace(/-/g, '')
       .match(/.{1,2}/g)
       ?.map((hex) => parseInt(hex, 16)) ?? [];
-  return nummbersToColor(numbers);
+  return numbersToColor(numbers);
 };
 
 /**
@@ -34,5 +34,5 @@ export const stringToHashedColor = (string: string): string => {
     .padEnd(3, 'abc')
     .split('')
     .map((char) => char.charCodeAt(0));
-  return nummbersToColor(numbers);
+  return numbersToColor(numbers);
 };
