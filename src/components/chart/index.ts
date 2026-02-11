@@ -3,6 +3,7 @@ export * from './SeriesChartLegend';
 export * from './SeriesPercentageChart';
 export * from './BigNumber';
 export * from './SimpleBarChart';
+export * from './AreaChart';
 export * from './ErrorCodesChart';
 export * from './ReasonCodesChart';
 export * from './PieChart';
