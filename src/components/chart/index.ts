@@ -22,3 +22,4 @@ export * from './TTSBigNumbers';
 export * from './OneClickHealthOverTimeChart';
 export * from './OneClickHealthBigNumbers';
 export * from './OneClickHealthPercentageChart';
+export * from './OneClickVerificationBigNumbers';
