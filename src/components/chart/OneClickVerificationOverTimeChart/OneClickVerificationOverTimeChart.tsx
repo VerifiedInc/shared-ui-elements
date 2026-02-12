@@ -3,9 +3,8 @@ import type { SxProps } from '@mui/material';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
+import { SeriesChart, type SeriesChartData } from '../SeriesChart';
 import type { BrandFilter } from '../../BrandFilterInput';
-import { AreaChart, type AreaSeriesChartData } from '../AreaChart';
-import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 
 const styles = {
   chartWrapper: {
@@ -16,13 +15,9 @@ const styles = {
   },
 } as const;
 
-export interface OneClickVerificationOverTimeChartData {
-  data: Array<Record<string, number | string>>;
-  series: AreaSeriesChartData[];
-}
-
 export interface OneClickVerificationOverTimeChartProps {
-  chartData: OneClickVerificationOverTimeChartData;
+  label?: string;
+  data: SeriesChartData[];
   isLoading: boolean;
   isSuccess: boolean;
   isFetching: boolean;
@@ -34,50 +29,27 @@ export interface OneClickVerificationOverTimeChartProps {
 }
 
 export function OneClickVerificationOverTimeChart({
-  chartData,
+  label,
+  data,
   isLoading,
   isFetching,
   isSuccess,
   filter,
   sx,
 }: Readonly<OneClickVerificationOverTimeChartProps>): React.ReactNode {
-  if (!chartData.data.length && isLoading) {
+  if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
 
-  if (!chartData.data.length || !isSuccess) {
+  if (!data.length || !isSuccess) {
     return <EmptyChartSection />;
   }
-
   return (
-    <AreaChart
-      series={chartData.series}
-      data={chartData.data}
-      xAxis={{
-        dataKey: 'month',
-        type: 'number',
-        domain: ['dataMin', 'dataMax'],
-        tickFormatter: (value: number) =>
-          formatDateMMYY(value, {
-            timeZone: filter.timezone,
-            hour12: false,
-            hour: 'numeric',
-          }),
-      }}
-      yAxis={{
-        tickFormatter: (value: number) => `${value}%`,
-      }}
-      tooltip={{
-        formatter: (value: number | string | Array<number | string>) => [
-          `${String(value)}%`,
-          'Success Percentage',
-        ],
-        labelFormatter: (value: number) =>
-          formatExtendedDate(value, {
-            timeZone: filter.timezone,
-            hour12: false,
-          }),
-      }}
+    <SeriesChart
+      label={label ?? 'OneClick Verification Over Time'}
+      data={data}
+      filter={filter}
+      showUuid
       sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1, ...sx }}
     />
   );
