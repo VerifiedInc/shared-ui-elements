@@ -28,6 +28,7 @@ export interface AreaSeriesChartData {
 interface AreaChartProps {
   data: Array<Record<string, number | string>>;
   series: AreaSeriesChartData[];
+  color?: string;
   xAxis?: ComponentProps<typeof XAxis>;
   yAxis?: ComponentProps<typeof YAxis>;
   tooltip?: ComponentProps<typeof Tooltip>;
@@ -42,6 +43,7 @@ interface AreaChartProps {
 export function AreaChart({
   data,
   series,
+  color,
   xAxis,
   yAxis,
   tooltip,
@@ -53,6 +55,7 @@ export function AreaChart({
   areaType = 'monotone',
 }: AreaChartProps): ReactElement {
   const theme = useTheme();
+  const defaultColor = color ?? theme.palette.primary.main;
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
@@ -61,7 +64,7 @@ export function AreaChart({
           <defs>
             {series.map((serie, idx) => {
               const safeId = `gradient-${idx}`;
-              const color = serie.color ?? '#8884d8';
+              const color = serie.color ?? defaultColor;
               return (
                 <linearGradient
                   key={safeId}
@@ -92,7 +95,7 @@ export function AreaChart({
           ))}
           {series.map((serie, idx) => {
             const safeId = `gradient-${idx}`;
-            const color = serie.color ?? '#8884d8';
+            const color = serie.color ?? defaultColor;
             return (
               <Area
                 key={serie.key}

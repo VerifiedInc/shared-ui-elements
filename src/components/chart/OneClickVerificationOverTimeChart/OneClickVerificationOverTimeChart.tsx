@@ -1,11 +1,11 @@
-import React, { type ComponentProps } from 'react';
+import React from 'react';
 import type { SxProps } from '@mui/material';
-import type { Tooltip, YAxis } from 'recharts';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import type { BrandFilter } from '../../BrandFilterInput';
 import { AreaChart, type AreaSeriesChartData } from '../AreaChart';
+import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 
 const styles = {
   chartWrapper: {
@@ -16,10 +16,13 @@ const styles = {
   },
 } as const;
 
-export interface OneClickVerificationOverTimeChartProps {
-  label?: string;
+export interface OneClickVerificationOverTimeChartData {
   data: Array<Record<string, number | string>>;
   series: AreaSeriesChartData[];
+}
+
+export interface OneClickVerificationOverTimeChartProps {
+  chartData: OneClickVerificationOverTimeChartData;
   isLoading: boolean;
   isSuccess: boolean;
   isFetching: boolean;
@@ -27,35 +30,54 @@ export interface OneClickVerificationOverTimeChartProps {
     timezone?: string;
     brands?: BrandFilter[];
   };
-  yAxis?: ComponentProps<typeof YAxis>;
-  tooltip?: ComponentProps<typeof Tooltip>;
   sx?: SxProps;
 }
 
 export function OneClickVerificationOverTimeChart({
-  data,
-  series,
+  chartData,
   isLoading,
   isFetching,
   isSuccess,
-  yAxis,
-  tooltip,
+  filter,
   sx,
 }: Readonly<OneClickVerificationOverTimeChartProps>): React.ReactNode {
-  if (!data.length && isLoading) {
+  if (!chartData.data.length && isLoading) {
     return <LoadingChartSection />;
   }
 
-  if (!data.length || !isSuccess) {
+  if (!chartData.data.length || !isSuccess) {
     return <EmptyChartSection />;
   }
 
   return (
     <AreaChart
-      series={series}
-      data={data}
-      yAxis={yAxis}
-      tooltip={tooltip}
+      series={chartData.series}
+      data={chartData.data}
+      xAxis={{
+        dataKey: 'month',
+        type: 'number',
+        domain: ['dataMin', 'dataMax'],
+        tickFormatter: (value: number) =>
+          formatDateMMYY(value, {
+            timeZone: filter.timezone,
+            hour12: false,
+            hour: 'numeric',
+          }),
+      }}
+      yAxis={{
+        tickFormatter: (value: number) => `${value}%`,
+      }}
+      tooltip={{
+        formatter: (value: number | string | Array<number | string>) => [
+          `${String(value)}%`,
+          'Success Percentage',
+        ],
+        labelFormatter: (value: number) =>
+          formatExtendedDate(value, {
+            timeZone: filter.timezone,
+            hour12: false,
+          }),
+      }}
       sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1, ...sx }}
     />
   );

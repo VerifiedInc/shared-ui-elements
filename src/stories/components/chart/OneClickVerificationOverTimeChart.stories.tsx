@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
 import { OneClickVerificationOverTimeChart } from '../../../components/chart/OneClickVerificationOverTimeChart/OneClickVerificationOverTimeChart';
-import type { AreaSeriesChartData } from '../../../components/chart/AreaChart';
+import { mapOneClickVerificationTimeSeriesData } from '../../../components/chart/OneClickVerificationOverTimeChart/OneClickVerificationOverTimeChart.map';
 
 const meta = {
   title: 'components/chart/OneClickVerificationOverTimeChart',
@@ -30,50 +30,134 @@ const meta = {
 } satisfies Meta<typeof OneClickVerificationOverTimeChart>;
 
 /**
- * OneClickVerificationOverTimeChart displays verification percentage over time as an area chart.
- * Values represent percentages (0–100). Use the yAxis and tooltip props to customize formatting.
+ * OneClickVerificationOverTimeChart displays verification success percentage over time as an area chart.
+ * Values represent percentages calculated as (delivered / verified) * 100.
  */
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockData = [
-  { date: '2024-12-18 00:35', verificationRate: 12.3 },
-  { date: '2024-12-18 01:05', verificationRate: 34.7 },
-  { date: '2024-12-19 03:08', verificationRate: 8.1 },
-  { date: '2024-12-19 03:09', verificationRate: 52.4 },
-  { date: '2024-12-19 03:11', verificationRate: 27.9 },
-  { date: '2024-12-19 03:14', verificationRate: 61.5 },
-  { date: '2024-12-19 04:08', verificationRate: 43.2 },
-  { date: '2024-12-19 04:09', verificationRate: 19.6 },
-  { date: '2024-12-23 17:14', verificationRate: 55.8 },
-  { date: '2024-12-23 18:26', verificationRate: 38.1 },
+const rawData = [
+  {
+    brandUuid: 'brand-uuid-disney',
+    brandName: 'Disney',
+    interval: [
+      {
+        date: '2024-12-18T00:35:00.000Z',
+        oneClickVerificationCreated: 100,
+        oneClickVerificationDelivered: 45,
+        oneClickVerificationVerified: 80,
+        oneClickVerificationFailed: 5,
+        oneClickVerificationSending: 3,
+        oneClickVerificationUndelivered: 2,
+        oneClickVerificationExpired: 10,
+      },
+      {
+        date: '2024-12-18T01:05:00.000Z',
+        oneClickVerificationCreated: 120,
+        oneClickVerificationDelivered: 82,
+        oneClickVerificationVerified: 95,
+        oneClickVerificationFailed: 8,
+        oneClickVerificationSending: 2,
+        oneClickVerificationUndelivered: 5,
+        oneClickVerificationExpired: 10,
+      },
+      {
+        date: '2024-12-19T03:08:00.000Z',
+        oneClickVerificationCreated: 80,
+        oneClickVerificationDelivered: 20,
+        oneClickVerificationVerified: 60,
+        oneClickVerificationFailed: 10,
+        oneClickVerificationSending: 1,
+        oneClickVerificationUndelivered: 4,
+        oneClickVerificationExpired: 5,
+      },
+      {
+        date: '2024-12-19T03:09:00.000Z',
+        oneClickVerificationCreated: 150,
+        oneClickVerificationDelivered: 95,
+        oneClickVerificationVerified: 130,
+        oneClickVerificationFailed: 3,
+        oneClickVerificationSending: 5,
+        oneClickVerificationUndelivered: 2,
+        oneClickVerificationExpired: 10,
+      },
+      {
+        date: '2024-12-19T03:11:00.000Z',
+        oneClickVerificationCreated: 90,
+        oneClickVerificationDelivered: 60,
+        oneClickVerificationVerified: 72,
+        oneClickVerificationFailed: 6,
+        oneClickVerificationSending: 4,
+        oneClickVerificationUndelivered: 3,
+        oneClickVerificationExpired: 5,
+      },
+      {
+        date: '2024-12-19T03:14:00.000Z',
+        oneClickVerificationCreated: 200,
+        oneClickVerificationDelivered: 30,
+        oneClickVerificationVerified: 175,
+        oneClickVerificationFailed: 5,
+        oneClickVerificationSending: 8,
+        oneClickVerificationUndelivered: 2,
+        oneClickVerificationExpired: 10,
+      },
+      {
+        date: '2024-12-19T04:08:00.000Z',
+        oneClickVerificationCreated: 110,
+        oneClickVerificationDelivered: 70,
+        oneClickVerificationVerified: 88,
+        oneClickVerificationFailed: 7,
+        oneClickVerificationSending: 2,
+        oneClickVerificationUndelivered: 3,
+        oneClickVerificationExpired: 10,
+      },
+      {
+        date: '2024-12-19T04:09:00.000Z',
+        oneClickVerificationCreated: 60,
+        oneClickVerificationDelivered: 40,
+        oneClickVerificationVerified: 45,
+        oneClickVerificationFailed: 8,
+        oneClickVerificationSending: 1,
+        oneClickVerificationUndelivered: 6,
+        oneClickVerificationExpired: 0,
+      },
+      {
+        date: '2024-12-23T17:14:00.000Z',
+        oneClickVerificationCreated: 170,
+        oneClickVerificationDelivered: 110,
+        oneClickVerificationVerified: 150,
+        oneClickVerificationFailed: 4,
+        oneClickVerificationSending: 3,
+        oneClickVerificationUndelivered: 3,
+        oneClickVerificationExpired: 10,
+      },
+      {
+        date: '2024-12-23T18:26:00.000Z',
+        oneClickVerificationCreated: 130,
+        oneClickVerificationDelivered: 55,
+        oneClickVerificationVerified: 105,
+        oneClickVerificationFailed: 9,
+        oneClickVerificationSending: 6,
+        oneClickVerificationUndelivered: 5,
+        oneClickVerificationExpired: 5,
+      },
+    ],
+  },
 ];
 
-const series: AreaSeriesChartData[] = [
-  { key: 'Verification Rate', dataKey: 'verificationRate', color: '#f97316' },
-];
+const chartData = mapOneClickVerificationTimeSeriesData(rawData);
 
 /**
- * Default story showing OneClick verification rate percentage over time.
+ * Default story showing OneClick verification success percentage over time.
  */
 export const Default: Story = {
   args: {
-    data: mockData,
-    series,
-    yAxis: { tickFormatter: (value: number) => `${value}%` },
-    tooltip: {
-      formatter: (value: number | string | Array<number | string>) => [
-        `${value}%`,
-        'Success Rate',
-      ],
-    },
+    chartData,
     isLoading: false,
     isSuccess: true,
     isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: {},
   },
 };
 
@@ -82,14 +166,11 @@ export const Default: Story = {
  */
 export const Loading: Story = {
   args: {
-    data: [],
-    series,
+    chartData: { data: [], series: [] },
     isLoading: true,
     isSuccess: false,
     isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: {},
   },
 };
 
@@ -98,14 +179,11 @@ export const Loading: Story = {
  */
 export const Empty: Story = {
   args: {
-    data: [],
-    series,
+    chartData: { data: [], series: [] },
     isLoading: false,
     isSuccess: false,
     isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: {},
   },
 };
 
@@ -114,13 +192,10 @@ export const Empty: Story = {
  */
 export const Fetching: Story = {
   args: {
-    data: mockData,
-    series,
+    chartData,
     isLoading: false,
     isSuccess: true,
     isFetching: true,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: {},
   },
 };
