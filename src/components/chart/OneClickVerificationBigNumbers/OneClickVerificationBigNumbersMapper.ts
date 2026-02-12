@@ -12,8 +12,13 @@ export const defaultMetrics: OneClickVerificationOverallMetrics = {
 
 export interface OneClickVerificationBigNumbersChartData {
   interval?: Array<{
+    oneClickVerificationCreated: number;
     oneClickVerificationDelivered: number;
     oneClickVerificationVerified: number;
+    oneClickVerificationFailed: number;
+    oneClickVerificationSending: number;
+    oneClickVerificationUndelivered: number;
+    oneClickVerificationExpired: number;
     date: string | number;
     [key: string]: any;
   }>;
