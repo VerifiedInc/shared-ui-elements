@@ -15,6 +15,12 @@ const meta = {
     },
   },
   tags: ['autodocs'],
+  argTypes: {
+    colors: {
+      description:
+        'Override default slice colors. Keys: `created`, `delivered`, `verified`, `failed`, `sending`, `undelivered`, `expired`.',
+    },
+  },
 } satisfies Meta<typeof OneClickVerificationPieChart>;
 
 export default meta;

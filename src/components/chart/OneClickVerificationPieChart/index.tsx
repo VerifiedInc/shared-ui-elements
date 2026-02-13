@@ -28,6 +28,10 @@ export interface OneClickVerificationPieChartData {
 
 export interface OneClickVerificationPieChartProps {
   data: OneClickVerificationPieChartData;
+  /**
+   * Override default slice colors. Keys: `created`, `delivered`, `verified`, `failed`, `sending`, `undelivered`, `expired`.
+   * @example { verified: '#0dbc3d', failed: '#eb0d28', expired: '#F5D328' }
+   */
   colors?: OneClickVerificationPieChartColors;
   isLoading: boolean;
   isFetching: boolean;
@@ -38,11 +42,11 @@ export interface OneClickVerificationPieChartProps {
 const SLICE_CONFIG = {
   created: { name: 'Created', color: '#90caf9' },
   delivered: { name: 'Delivered', color: '#42a5f5' },
-  verified: { name: 'Verified', color: '#66bb6a' },
-  failed: { name: 'Failed', color: '#ef5350' },
+  verified: { name: 'Verified', color: '#0dbc3d' },
+  failed: { name: 'Failed', color: '#eb0d28' },
   sending: { name: 'Sending', color: '#ab47bc' },
   undelivered: { name: 'Undelivered', color: '#ff7043' },
-  expired: { name: 'Expired', color: '#ffa726' },
+  expired: { name: 'Expired', color: '#F5D328' },
 } as const;
 
 export function OneClickVerificationPieChart({
