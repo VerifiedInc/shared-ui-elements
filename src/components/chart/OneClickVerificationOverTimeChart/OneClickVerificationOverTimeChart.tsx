@@ -46,7 +46,7 @@ export function OneClickVerificationOverTimeChart({
   }
   return (
     <SeriesChart
-      label={label ?? 'OneClick Verification Over Time'}
+      label={label ?? 'Delivered Over Time'}
       data={data}
       filter={filter}
       showUuid
