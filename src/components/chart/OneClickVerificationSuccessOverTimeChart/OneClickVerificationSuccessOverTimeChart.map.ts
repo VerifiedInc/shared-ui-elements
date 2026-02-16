@@ -18,6 +18,24 @@ export interface OneClickVerificationSuccessChartData {
   brandName: string;
 }
 
+const calculatePercentage = (
+  entry: OneClickVerificationSuccessIntervalEntry,
+): number => {
+  const {
+    oneClickVerificationVerified: verified,
+    oneClickVerificationExpired: expired,
+    oneClickVerificationFailed: failed,
+  } = entry;
+
+  const total = verified + expired + failed;
+
+  if (total === 0) {
+    return 0;
+  }
+
+  return Math.round((verified / total) * 100);
+};
+
 export function mapOneClickVerificationSuccessTimeSeriesData(
   data: OneClickVerificationSuccessChartData[],
 ): ReturnType<typeof mapAreaChartData> {
@@ -27,14 +45,6 @@ export function mapOneClickVerificationSuccessTimeSeriesData(
     key: brand.brandName,
     dataKey: brand.brandUuid,
   }));
-
-  const calculatePercentage = (delivered: number, verified: number): number => {
-    if (verified === 0) {
-      return 0;
-    }
-
-    return (delivered / verified) * 100;
-  };
 
   for (const brand of data) {
     if (!brand.interval) {
@@ -48,12 +58,7 @@ export function mapOneClickVerificationSuccessTimeSeriesData(
 
       dateMap.set(timestamp, record);
 
-      const percentage = calculatePercentage(
-        entry.oneClickVerificationDelivered,
-        entry.oneClickVerificationVerified,
-      );
-
-      record[brand.brandUuid] = Math.round(percentage);
+      record[brand.brandUuid] = calculatePercentage(entry);
     }
   }
 
