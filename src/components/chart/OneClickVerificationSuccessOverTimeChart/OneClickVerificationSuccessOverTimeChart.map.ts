@@ -53,7 +53,7 @@ export function mapOneClickVerificationSuccessTimeSeriesData(
         entry.oneClickVerificationVerified,
       );
 
-      record[brand.brandUuid] = Math.round(percentage * 100) / 100;
+      record[brand.brandUuid] = Math.round(percentage);
     }
   }
 
