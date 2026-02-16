@@ -26,17 +26,34 @@ export interface AreaSeriesChartData {
 }
 
 interface AreaChartProps {
+  /**
+   * Chart data points. Each object should include the x-axis key and one key per series.
+   * @example [{ month: 'Jan', revenue: 4000, costs: 2400 }, { month: 'Feb', revenue: 3000, costs: 1398 }]
+   */
   data: Array<Record<string, number | string>>;
+  /**
+   * Series to render. Each entry maps a `dataKey` from `data` to an area on the chart.
+   * @example [{ key: 'Revenue', dataKey: 'revenue', color: '#8884d8' }]
+   */
   series: AreaSeriesChartData[];
+  /** Fallback color for series without a `color`. Defaults to the theme's primary color. */
   color?: string;
+  /** Override props for the XAxis component. Merged with default axis config. */
   xAxis?: ComponentProps<typeof XAxis>;
+  /** Override props for the YAxis component. Merged with default axis config. */
   yAxis?: ComponentProps<typeof YAxis>;
+  /** Override props for the Tooltip component. */
   tooltip?: ComponentProps<typeof Tooltip>;
+  /** Override props applied to every Area element in the chart. */
   area?: ComponentProps<typeof Area>;
+  /** Reference lines to highlight specific values or thresholds. */
   referenceLines?: Array<ComponentProps<typeof ReferenceLine>>;
+  /** Shaded reference areas to highlight specific ranges. */
   referenceAreas?: Array<ComponentProps<typeof ReferenceArea>>;
   sx?: SxProps;
+  /** Enable chart animation. @default false */
   isAnimationActive?: boolean;
+  /** Curve interpolation type. @default 'monotone' */
   areaType?: CurveType;
 }
 
