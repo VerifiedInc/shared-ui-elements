@@ -10,17 +10,11 @@ const meta = {
     docs: {
       description: {
         component:
-          'A donut chart displaying OneClick verification outcomes. Pass only the keys you need.',
+          'A donut chart displaying OneClick verification outcomes.',
       },
     },
   },
   tags: ['autodocs'],
-  argTypes: {
-    colors: {
-      description:
-        'Override default slice colors. Keys: `created`, `delivered`, `verified`, `failed`, `sending`, `undelivered`, `expired`.',
-    },
-  },
 } satisfies Meta<typeof OneClickVerificationPieChart>;
 
 export default meta;
@@ -28,11 +22,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    data: {
-      verified: 7788,
-      expired: 1506,
-      failed: 1003,
-    },
+    data: [
+      { name: 'Verified', value: 7788, color: '#0dbc3d' },
+      { name: 'Expired', value: 1506, color: '#F5D328' },
+      { name: 'Failed', value: 1003, color: '#eb0d28' },
+    ],
     isLoading: false,
     isFetching: false,
     isSuccess: true,
@@ -45,22 +39,22 @@ export const Default: Story = {
 export const WithAllStatuses: Story = {
   args: {
     ...Default.args,
-    data: {
-      created: 12000,
-      delivered: 10500,
-      verified: 7788,
-      failed: 1003,
-      sending: 200,
-      undelivered: 350,
-      expired: 1506,
-    },
+    data: [
+      { name: 'Created', value: 12000, color: '#90caf9' },
+      { name: 'Delivered', value: 10500, color: '#42a5f5' },
+      { name: 'Verified', value: 7788, color: '#0dbc3d' },
+      { name: 'Failed', value: 1003, color: '#eb0d28' },
+      { name: 'Sending', value: 200, color: '#ab47bc' },
+      { name: 'Undelivered', value: 350, color: '#ff7043' },
+      { name: 'Expired', value: 1506, color: '#F5D328' },
+    ],
   },
 };
 
 export const Loading: Story = {
   args: {
     ...Default.args,
-    data: {},
+    data: [],
     isLoading: true,
     isSuccess: false,
   },
@@ -69,7 +63,7 @@ export const Loading: Story = {
 export const Empty: Story = {
   args: {
     ...Default.args,
-    data: {},
+    data: [],
     isLoading: false,
     isSuccess: true,
   },
