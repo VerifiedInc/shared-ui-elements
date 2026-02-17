@@ -1,84 +1,71 @@
 import React from 'react';
-import type { SxProps } from '@mui/material';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
-import type { BrandFilter } from '../../BrandFilterInput';
-import { AreaChart, type AreaSeriesChartData } from '../AreaChart';
-import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
+import { SeriesPercentageChart } from '../SeriesPercentageChart';
+import { useStyle } from '../styles';
 
-const styles = {
-  chartWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    height: 500,
-  },
-} as const;
-
-export interface OneClickVerificationSuccessOverTimeChartData {
-  data: Array<Record<string, number | string>>;
-  series: AreaSeriesChartData[];
+export interface OneClickVerificationChartData {
+  uuid: string;
+  name?: string;
+  color?: string;
+  integrationType?: string;
+  chartData: Array<{
+    date: string;
+    verificationPercentage: number;
+    verificationTotal: number;
+  }>;
 }
 
-export interface OneClickVerificationSuccessOverTimeChartProps {
-  chartData: OneClickVerificationSuccessOverTimeChartData;
+interface OneClickVerificationPercentageChartProps {
+  data: OneClickVerificationChartData[];
   isLoading: boolean;
-  isSuccess: boolean;
   isFetching: boolean;
-  filter: {
-    timezone?: string;
-    brands?: BrandFilter[];
-  };
-  sx?: SxProps;
+  isSuccess: boolean;
+  filter?: any;
+  sx?: any;
 }
 
 export function OneClickVerificationSuccessOverTimeChart({
-  chartData,
+  data,
   isLoading,
   isFetching,
   isSuccess,
   filter,
   sx,
-}: Readonly<OneClickVerificationSuccessOverTimeChartProps>): React.ReactNode {
-  if (!chartData.data.length && isLoading) {
+}: Readonly<OneClickVerificationPercentageChartProps>): React.ReactNode {
+  const style = useStyle();
+
+  const KEY_VALUES = {
+    verificationTotal: {
+      key: 'verificationTotal',
+      name: 'Total',
+      isTotal: true,
+    },
+    verificationPercentage: {
+      key: 'verificationPercentage',
+      name: 'Percentage',
+    },
+  };
+
+  if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
 
-  if (!chartData.data.length || !isSuccess) {
+  if (!data.length || !data[0]?.chartData?.length || !isSuccess) {
     return <EmptyChartSection />;
   }
 
   return (
-    <AreaChart
-      series={chartData.series}
-      data={chartData.data}
-      xAxis={{
-        dataKey: 'month',
-        type: 'number',
-        domain: ['dataMin', 'dataMax'],
-        tickFormatter: (value: number) =>
-          formatDateMMYY(value, {
-            timeZone: filter.timezone,
-            hour12: false,
-            hour: 'numeric',
-          }),
+    <SeriesPercentageChart
+      data={data}
+      keyValues={Object.values(KEY_VALUES)}
+      filter={filter}
+      sx={{
+        ...style.smallChartWrapper,
+        opacity: isFetching ? 0.4 : 1,
+        ...sx,
       }}
-      yAxis={{
-        tickFormatter: (value: number) => `${value}%`,
-      }}
-      tooltip={{
-        formatter: (value: number | string | Array<number | string>) => [
-          `${String(value)}%`,
-          'Success Percentage',
-        ],
-        labelFormatter: (value: number) =>
-          formatExtendedDate(value, {
-            timeZone: filter.timezone,
-            hour12: false,
-          }),
-      }}
-      sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1, ...sx }}
     />
   );
 }

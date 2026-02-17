@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickVerificationSuccessOverTimeChart } from '../../../components/chart/OneClickVerificationSuccessOverTimeChart/OneClickVerificationSuccessOverTimeChart';
-import { mapOneClickVerificationSuccessTimeSeriesData } from '../../../components/chart/OneClickVerificationSuccessOverTimeChart/OneClickVerificationSuccessOverTimeChart.map';
+import {
+  OneClickVerificationSuccessOverTimeChart,
+  type OneClickVerificationChartData,
+} from '../../../components/chart/OneClickVerificationSuccessOverTimeChart/OneClickVerificationSuccessOverTimeChart';
 
 const meta = {
   title: 'components/chart/OneClickVerificationSuccessOverTimeChart',
@@ -30,130 +32,106 @@ const meta = {
 } satisfies Meta<typeof OneClickVerificationSuccessOverTimeChart>;
 
 /**
- * OneClickVerificationSuccessOverTimeChart displays verification success percentage over time as an area chart.
- * Values represent percentages calculated as (delivered / verified) * 100.
+ * OneClickVerificationSuccessOverTimeChart displays verification success percentage over time as a line chart.
+ * Values represent percentages calculated as (verified / (verified + expired + failed)) * 100.
  */
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const rawData = [
+const singleSeriesData: OneClickVerificationChartData[] = [
   {
-    brandUuid: 'brand-uuid-disney',
-    brandName: 'Disney',
-    interval: [
-      {
-        date: '2024-12-18T00:35:00.000Z',
-        oneClickVerificationCreated: 100,
-        oneClickVerificationDelivered: 45,
-        oneClickVerificationVerified: 80,
-        oneClickVerificationFailed: 5,
-        oneClickVerificationSending: 3,
-        oneClickVerificationUndelivered: 2,
-        oneClickVerificationExpired: 10,
-      },
-      {
-        date: '2024-12-18T01:05:00.000Z',
-        oneClickVerificationCreated: 120,
-        oneClickVerificationDelivered: 82,
-        oneClickVerificationVerified: 95,
-        oneClickVerificationFailed: 8,
-        oneClickVerificationSending: 2,
-        oneClickVerificationUndelivered: 5,
-        oneClickVerificationExpired: 10,
-      },
-      {
-        date: '2024-12-19T03:08:00.000Z',
-        oneClickVerificationCreated: 80,
-        oneClickVerificationDelivered: 20,
-        oneClickVerificationVerified: 60,
-        oneClickVerificationFailed: 10,
-        oneClickVerificationSending: 1,
-        oneClickVerificationUndelivered: 4,
-        oneClickVerificationExpired: 5,
-      },
-      {
-        date: '2024-12-19T03:09:00.000Z',
-        oneClickVerificationCreated: 150,
-        oneClickVerificationDelivered: 95,
-        oneClickVerificationVerified: 130,
-        oneClickVerificationFailed: 3,
-        oneClickVerificationSending: 5,
-        oneClickVerificationUndelivered: 2,
-        oneClickVerificationExpired: 10,
-      },
-      {
-        date: '2024-12-19T03:11:00.000Z',
-        oneClickVerificationCreated: 90,
-        oneClickVerificationDelivered: 60,
-        oneClickVerificationVerified: 72,
-        oneClickVerificationFailed: 6,
-        oneClickVerificationSending: 4,
-        oneClickVerificationUndelivered: 3,
-        oneClickVerificationExpired: 5,
-      },
-      {
-        date: '2024-12-19T03:14:00.000Z',
-        oneClickVerificationCreated: 200,
-        oneClickVerificationDelivered: 30,
-        oneClickVerificationVerified: 175,
-        oneClickVerificationFailed: 5,
-        oneClickVerificationSending: 8,
-        oneClickVerificationUndelivered: 2,
-        oneClickVerificationExpired: 10,
-      },
-      {
-        date: '2024-12-19T04:08:00.000Z',
-        oneClickVerificationCreated: 110,
-        oneClickVerificationDelivered: 70,
-        oneClickVerificationVerified: 88,
-        oneClickVerificationFailed: 7,
-        oneClickVerificationSending: 2,
-        oneClickVerificationUndelivered: 3,
-        oneClickVerificationExpired: 10,
-      },
-      {
-        date: '2024-12-19T04:09:00.000Z',
-        oneClickVerificationCreated: 60,
-        oneClickVerificationDelivered: 40,
-        oneClickVerificationVerified: 45,
-        oneClickVerificationFailed: 8,
-        oneClickVerificationSending: 1,
-        oneClickVerificationUndelivered: 6,
-        oneClickVerificationExpired: 0,
-      },
-      {
-        date: '2024-12-23T17:14:00.000Z',
-        oneClickVerificationCreated: 170,
-        oneClickVerificationDelivered: 110,
-        oneClickVerificationVerified: 150,
-        oneClickVerificationFailed: 4,
-        oneClickVerificationSending: 3,
-        oneClickVerificationUndelivered: 3,
-        oneClickVerificationExpired: 10,
-      },
-      {
-        date: '2024-12-23T18:26:00.000Z',
-        oneClickVerificationCreated: 130,
-        oneClickVerificationDelivered: 55,
-        oneClickVerificationVerified: 105,
-        oneClickVerificationFailed: 9,
-        oneClickVerificationSending: 6,
-        oneClickVerificationUndelivered: 5,
-        oneClickVerificationExpired: 5,
-      },
+    uuid: 'brand-uuid-disney',
+    name: 'Disney',
+    color: '#1E88E5',
+    chartData: [
+      { date: '2024-12-18T00:35:00.000Z', verificationPercentage: 80, verificationTotal: 95 },
+      { date: '2024-12-18T01:05:00.000Z', verificationPercentage: 95, verificationTotal: 113 },
+      { date: '2024-12-19T03:08:00.000Z', verificationPercentage: 60, verificationTotal: 75 },
+      { date: '2024-12-19T03:09:00.000Z', verificationPercentage: 130, verificationTotal: 143 },
+      { date: '2024-12-19T03:11:00.000Z', verificationPercentage: 72, verificationTotal: 83 },
+      { date: '2024-12-19T03:14:00.000Z', verificationPercentage: 175, verificationTotal: 190 },
+      { date: '2024-12-19T04:08:00.000Z', verificationPercentage: 88, verificationTotal: 105 },
+      { date: '2024-12-19T04:09:00.000Z', verificationPercentage: 45, verificationTotal: 53 },
+      { date: '2024-12-23T17:14:00.000Z', verificationPercentage: 150, verificationTotal: 164 },
+      { date: '2024-12-23T18:26:00.000Z', verificationPercentage: 105, verificationTotal: 119 },
     ],
   },
 ];
 
-const chartData = mapOneClickVerificationSuccessTimeSeriesData(rawData);
+const multipleSeriesData: OneClickVerificationChartData[] = [
+  {
+    uuid: 'brand-uuid-disney',
+    name: 'Disney',
+    color: '#1E88E5',
+    chartData: [
+      { date: '2024-12-18T00:35:00.000Z', verificationPercentage: 80, verificationTotal: 95 },
+      { date: '2024-12-18T01:05:00.000Z', verificationPercentage: 95, verificationTotal: 113 },
+      { date: '2024-12-19T03:08:00.000Z', verificationPercentage: 60, verificationTotal: 75 },
+      { date: '2024-12-19T03:09:00.000Z', verificationPercentage: 130, verificationTotal: 143 },
+      { date: '2024-12-19T03:11:00.000Z', verificationPercentage: 72, verificationTotal: 83 },
+      { date: '2024-12-19T03:14:00.000Z', verificationPercentage: 175, verificationTotal: 190 },
+      { date: '2024-12-19T04:08:00.000Z', verificationPercentage: 88, verificationTotal: 105 },
+      { date: '2024-12-19T04:09:00.000Z', verificationPercentage: 45, verificationTotal: 53 },
+      { date: '2024-12-23T17:14:00.000Z', verificationPercentage: 150, verificationTotal: 164 },
+      { date: '2024-12-23T18:26:00.000Z', verificationPercentage: 105, verificationTotal: 119 },
+    ],
+  },
+  {
+    uuid: 'brand-uuid-spotify',
+    name: 'Spotify',
+    color: '#1DB954',
+    chartData: [
+      { date: '2024-12-18T00:35:00.000Z', verificationPercentage: 65, verificationTotal: 90 },
+      { date: '2024-12-18T01:05:00.000Z', verificationPercentage: 70, verificationTotal: 90 },
+      { date: '2024-12-19T03:08:00.000Z', verificationPercentage: 52, verificationTotal: 80 },
+      { date: '2024-12-19T03:09:00.000Z', verificationPercentage: 98, verificationTotal: 120 },
+      { date: '2024-12-19T03:11:00.000Z', verificationPercentage: 57, verificationTotal: 75 },
+      { date: '2024-12-19T03:14:00.000Z', verificationPercentage: 132, verificationTotal: 150 },
+      { date: '2024-12-19T04:08:00.000Z', verificationPercentage: 71, verificationTotal: 90 },
+      { date: '2024-12-19T04:09:00.000Z', verificationPercentage: 37, verificationTotal: 50 },
+      { date: '2024-12-23T17:14:00.000Z', verificationPercentage: 119, verificationTotal: 140 },
+      { date: '2024-12-23T18:26:00.000Z', verificationPercentage: 81, verificationTotal: 100 },
+    ],
+  },
+  {
+    uuid: 'brand-uuid-netflix',
+    name: 'Netflix',
+    color: '#E50914',
+    chartData: [
+      { date: '2024-12-18T00:35:00.000Z', verificationPercentage: 190, verificationTotal: 200 },
+      { date: '2024-12-18T01:05:00.000Z', verificationPercentage: 138, verificationTotal: 150 },
+      { date: '2024-12-19T03:08:00.000Z', verificationPercentage: 110, verificationTotal: 125 },
+      { date: '2024-12-19T03:09:00.000Z', verificationPercentage: 173, verificationTotal: 180 },
+      { date: '2024-12-19T03:11:00.000Z', verificationPercentage: 93, verificationTotal: 100 },
+      { date: '2024-12-19T03:14:00.000Z', verificationPercentage: 214, verificationTotal: 220 },
+      { date: '2024-12-19T04:08:00.000Z', verificationPercentage: 109, verificationTotal: 120 },
+      { date: '2024-12-19T04:09:00.000Z', verificationPercentage: 63, verificationTotal: 70 },
+      { date: '2024-12-23T17:14:00.000Z', verificationPercentage: 175, verificationTotal: 185 },
+      { date: '2024-12-23T18:26:00.000Z', verificationPercentage: 130, verificationTotal: 140 },
+    ],
+  },
+];
 
 /**
- * Default story showing OneClick verification success percentage over time.
+ * Default story showing OneClick verification success percentage over time for a single brand.
  */
 export const Default: Story = {
   args: {
-    chartData,
+    data: singleSeriesData,
+    isLoading: false,
+    isSuccess: true,
+    isFetching: false,
+    filter: {},
+  },
+};
+
+/**
+ * Multiple series story showing OneClick verification success percentage over time for multiple brands.
+ */
+export const MultipleSeries: Story = {
+  args: {
+    data: multipleSeriesData,
     isLoading: false,
     isSuccess: true,
     isFetching: false,
@@ -166,7 +144,7 @@ export const Default: Story = {
  */
 export const Loading: Story = {
   args: {
-    chartData: { data: [], series: [] },
+    data: [],
     isLoading: true,
     isSuccess: false,
     isFetching: false,
@@ -179,7 +157,7 @@ export const Loading: Story = {
  */
 export const Empty: Story = {
   args: {
-    chartData: { data: [], series: [] },
+    data: [],
     isLoading: false,
     isSuccess: false,
     isFetching: false,
@@ -192,7 +170,7 @@ export const Empty: Story = {
  */
 export const Fetching: Story = {
   args: {
-    chartData,
+    data: singleSeriesData,
     isLoading: false,
     isSuccess: true,
     isFetching: true,

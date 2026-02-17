@@ -1,4 +1,9 @@
-import { mapAreaChartData } from '../AreaChart/AreaChart.map';
+import {
+  mapSeriesTimeSeriesData,
+  type MapSeriesTimeSeriesDataOptions,
+} from '../SeriesChart';
+
+import type { OneClickVerificationChartData } from './OneClickVerificationSuccessOverTimeChart';
 
 export interface OneClickVerificationSuccessIntervalEntry {
   oneClickVerificationCreated: number;
@@ -9,61 +14,71 @@ export interface OneClickVerificationSuccessIntervalEntry {
   oneClickVerificationUndelivered: number;
   oneClickVerificationExpired: number;
   date: string | number;
-  [key: string]: any;
 }
 
-export interface OneClickVerificationSuccessChartData {
-  interval?: OneClickVerificationSuccessIntervalEntry[];
-  brandUuid: string;
-  brandName: string;
+export interface MapOneClickVerificationSuccessTimeSeriesDataOptions
+  extends MapSeriesTimeSeriesDataOptions {
+  data: Array<{
+    interval?: OneClickVerificationSuccessIntervalEntry[];
+    brandUuid: string;
+    brandName: string;
+  }>;
 }
-
-const calculatePercentage = (
-  entry: OneClickVerificationSuccessIntervalEntry,
-): number => {
-  const {
-    oneClickVerificationVerified: verified,
-    oneClickVerificationExpired: expired,
-    oneClickVerificationFailed: failed,
-  } = entry;
-
-  const total = verified + expired + failed;
-
-  if (total === 0) {
-    return 0;
-  }
-
-  return Math.round((verified / total) * 100);
-};
 
 export function mapOneClickVerificationSuccessTimeSeriesData(
-  data: OneClickVerificationSuccessChartData[],
-): ReturnType<typeof mapAreaChartData> {
-  const dateMap = new Map<string | number, Record<string, number | string>>();
+  options: MapOneClickVerificationSuccessTimeSeriesDataOptions,
+): OneClickVerificationChartData[] {
+  const calculatePercentage = (
+    entry: OneClickVerificationSuccessIntervalEntry,
+  ) => {
+    const {
+      oneClickVerificationVerified: verified,
+      oneClickVerificationExpired: expired,
+      oneClickVerificationFailed: failed,
+    } = entry;
 
-  const seriesConfig = data.map((brand) => ({
-    key: brand.brandName,
-    dataKey: brand.brandUuid,
-  }));
+    const total = verified + expired + failed;
 
-  for (const brand of data) {
-    if (!brand.interval) {
-      continue;
-    }
+    return total > 0 ? Math.round((verified / total) * 100) : 0;
+  };
 
-    for (const entry of brand.interval) {
-      const timestamp = new Date(entry.date).getTime();
-      const existing = dateMap.get(timestamp);
-      const record = existing ?? { month: timestamp };
+  const enrichedOptions = {
+    ...options,
+    data: options.data.map((brand) => ({
+      ...brand,
+      interval: brand.interval?.map((entry) => ({
+        ...entry,
+        verificationPercentage: calculatePercentage(entry),
+        verificationTotal: 100,
+      })),
+    })),
+  };
 
-      dateMap.set(timestamp, record);
+  const verifiedSeries = mapSeriesTimeSeriesData({
+    ...enrichedOptions,
+    keyValue: 'verificationPercentage',
+  });
 
-      record[brand.brandUuid] = calculatePercentage(entry);
-    }
-  }
+  const totalSeries = mapSeriesTimeSeriesData({
+    ...enrichedOptions,
+    keyValue: 'verificationTotal',
+  });
 
-  return mapAreaChartData({
-    data: Array.from(dateMap.values()),
-    seriesConfig,
+  return verifiedSeries.map((series) => {
+    const total = totalSeries.find((s) => s.uuid === series.uuid);
+
+    return {
+      ...series,
+      chartData: series.chartData.map((point: any) => {
+        const totalPoint = total?.chartData.find(
+          (p: any) => p.date === point.date,
+        );
+        return {
+          date: point.date,
+          verificationPercentage: point.value,
+          verificationTotal: totalPoint?.value ?? 0,
+        };
+      }),
+    };
   });
 }
