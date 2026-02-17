@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickVerificationOverTimeChart } from '../../../components/chart/OneClickVerificationOverTimeChart/OneClickVerificationOverTimeChart';
-import { mapOneClickVerificationTimeSeriesData } from '../../../components/chart/OneClickVerificationOverTimeChart/OneClickVerificationOverTimeChart.map';
+import { OneClickVerificationSmsOverTimeChart } from '../../../components/chart/OneClickVerificationSmsOverTimeChart/OneClickVerificationSmsOverTimeChart';
+import { mapOneClickVerificationAreaSeriesData } from '../../../components/chart/OneClickVerificationSmsOverTimeChart/OneClickVerificationSmsOverTimeChart.map';
 
 const meta = {
-  title: 'components/chart/OneClickVerificationOverTimeChart',
-  component: OneClickVerificationOverTimeChart,
+  title: 'components/chart/OneClickVerificationSmsOverTimeChart',
+  component: OneClickVerificationSmsOverTimeChart,
   parameters: {
     layout: 'centered',
   },
@@ -27,67 +27,12 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickVerificationOverTimeChart>;
-
-/**
- * OneClickVerificationOverTimeChart displays time series data for OneClick verification metrics over time, grouped by keyword.
- * Each series represents a unique keyword across all brands, showing aggregated OneClick verification metrics.
- * It supports data keys like 'oneClickVerificationCreated', 'oneClickVerificationDelivered', etc.
- */
+} satisfies Meta<typeof OneClickVerificationSmsOverTimeChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Mock brands data for the mapper
-const mockBrands = [
-  {
-    name: 'Moomoo',
-    value: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-    _raw: {
-      brandUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-      brandName: 'Moomoo',
-      customerUuid: '11111111-1111-1111-1111-111111111111',
-      integrationType: 'hosted',
-      additionalData: { primaryColor: '#2196f3' },
-    },
-  },
-  {
-    name: 'ClickMe',
-    value: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
-    _raw: {
-      brandUuid: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
-      brandName: 'ClickMe',
-      customerUuid: '22222222-2222-2222-2222-222222222222',
-      integrationType: 'hosted',
-      additionalData: { primaryColor: '#f44336' },
-    },
-  },
-  {
-    name: 'AHA',
-    value: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
-    _raw: {
-      brandUuid: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
-      brandName: 'AHA',
-      customerUuid: '33333333-3333-3333-3333-333333333333',
-      integrationType: 'hosted',
-      additionalData: { primaryColor: '#4caf50' },
-    },
-  },
-  {
-    name: 'Wellness Co',
-    value: 'd4e5f6a7-b8c9-0123-defa-234567890123',
-    _raw: {
-      brandUuid: 'd4e5f6a7-b8c9-0123-defa-234567890123',
-      brandName: 'Wellness Co',
-      customerUuid: '44444444-4444-4444-4444-444444444444',
-      integrationType: 'hosted',
-      additionalData: { primaryColor: '#9c27b0' },
-    },
-  },
-];
-
-// Mock raw data in the format expected by the mapper
-const mockRawOneClickVerificationData = [
+const mockRawData = [
   {
     brandUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     brandName: 'Moomoo',
@@ -191,112 +136,6 @@ const mockRawOneClickVerificationData = [
         oneClickVerificationSending: 1,
         oneClickVerificationUndelivered: 1,
         oneClickVerificationExpired: 4,
-      },
-    ],
-  },
-  {
-    brandUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-    brandName: 'Moomoo',
-    interval: [
-      {
-        date: '2024-12-23T18:26:00Z',
-        oneClickVerificationCreated: 32,
-        oneClickVerificationDelivered: 29,
-        oneClickVerificationVerified: 27,
-        oneClickVerificationFailed: 1,
-        oneClickVerificationSending: 0,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 3,
-      },
-      {
-        date: '2024-12-23T17:14:00Z',
-        oneClickVerificationCreated: 28,
-        oneClickVerificationDelivered: 25,
-        oneClickVerificationVerified: 23,
-        oneClickVerificationFailed: 1,
-        oneClickVerificationSending: 0,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 3,
-      },
-      {
-        date: '2024-12-19T04:09:00Z',
-        oneClickVerificationCreated: 45,
-        oneClickVerificationDelivered: 42,
-        oneClickVerificationVerified: 39,
-        oneClickVerificationFailed: 1,
-        oneClickVerificationSending: 1,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 3,
-      },
-      {
-        date: '2024-12-19T04:08:00Z',
-        oneClickVerificationCreated: 39,
-        oneClickVerificationDelivered: 36,
-        oneClickVerificationVerified: 33,
-        oneClickVerificationFailed: 1,
-        oneClickVerificationSending: 1,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 3,
-      },
-      {
-        date: '2024-12-19T03:14:00Z',
-        oneClickVerificationCreated: 51,
-        oneClickVerificationDelivered: 47,
-        oneClickVerificationVerified: 44,
-        oneClickVerificationFailed: 2,
-        oneClickVerificationSending: 0,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 4,
-      },
-      {
-        date: '2024-12-19T03:11:00Z',
-        oneClickVerificationCreated: 33,
-        oneClickVerificationDelivered: 30,
-        oneClickVerificationVerified: 28,
-        oneClickVerificationFailed: 1,
-        oneClickVerificationSending: 0,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 3,
-      },
-      {
-        date: '2024-12-19T03:09:00Z',
-        oneClickVerificationCreated: 47,
-        oneClickVerificationDelivered: 43,
-        oneClickVerificationVerified: 40,
-        oneClickVerificationFailed: 1,
-        oneClickVerificationSending: 1,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 4,
-      },
-      {
-        date: '2024-12-19T03:08:00Z',
-        oneClickVerificationCreated: 42,
-        oneClickVerificationDelivered: 38,
-        oneClickVerificationVerified: 35,
-        oneClickVerificationFailed: 2,
-        oneClickVerificationSending: 0,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 4,
-      },
-      {
-        date: '2024-12-18T01:05:40Z',
-        oneClickVerificationCreated: 56,
-        oneClickVerificationDelivered: 52,
-        oneClickVerificationVerified: 48,
-        oneClickVerificationFailed: 2,
-        oneClickVerificationSending: 1,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 4,
-      },
-      {
-        date: '2024-12-18T00:35:40Z',
-        oneClickVerificationCreated: 37,
-        oneClickVerificationDelivered: 34,
-        oneClickVerificationVerified: 31,
-        oneClickVerificationFailed: 1,
-        oneClickVerificationSending: 1,
-        oneClickVerificationUndelivered: 1,
-        oneClickVerificationExpired: 3,
       },
     ],
   },
@@ -514,175 +353,70 @@ const mockRawOneClickVerificationData = [
   },
 ];
 
-/**
- * Default story showing OneClick verification created data over time grouped by keywords.
- * This represents the number of times OneClick verification events have been created across all brands.
- * Data is aggregated by keyword, showing combined metrics from multiple brands using the same keyword.
- */
-export const Created: Story = {
+const chartData = mapOneClickVerificationAreaSeriesData({
+  data: mockRawData,
+});
+
+export const Default: Story = {
   args: {
-    label: 'Keywords Created',
-    data: mapOneClickVerificationTimeSeriesData({
-      colorMap: new Map(),
-      brands: mockBrands,
-      data: mockRawOneClickVerificationData,
-      keyValue: 'oneClickVerificationCreated',
-      filterOutZeroValues: false,
-    }),
+    label: 'SMS Over Time',
+    data: chartData.data,
+    series: chartData.series,
     isLoading: false,
     isSuccess: true,
     isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: { timezone: 'UTC' },
   },
 };
 
-/**
- * Story showing OneClick verification delivered data over time grouped by keywords.
- * This represents the number of OneClick verification events that were delivered.
- */
-export const Delivered: Story = {
-  args: {
-    label: 'Keywords Delivered',
-    data: mapOneClickVerificationTimeSeriesData({
-      colorMap: new Map(),
-      brands: mockBrands,
-      data: mockRawOneClickVerificationData,
-      keyValue: 'oneClickVerificationDelivered',
-      filterOutZeroValues: false,
-    }),
-    isLoading: false,
-    isSuccess: true,
-    isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
-  },
-};
-
-/**
- * Story showing OneClick verification verified data over time grouped by keywords.
- * This represents the number of OneClick verification events that were successfully verified.
- */
-export const Verified: Story = {
-  args: {
-    label: 'Keywords Verified',
-    data: mapOneClickVerificationTimeSeriesData({
-      colorMap: new Map(),
-      brands: mockBrands,
-      data: mockRawOneClickVerificationData,
-      keyValue: 'oneClickVerificationVerified',
-      filterOutZeroValues: false,
-    }),
-    isLoading: false,
-    isSuccess: true,
-    isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
-  },
-};
-
-/**
- * Loading state story showing the loading spinner while data is being fetched.
- */
 export const Loading: Story = {
   args: {
-    label: 'Keywords Created',
+    label: 'SMS Over Time',
     data: [],
+    series: [],
     isLoading: true,
     isSuccess: false,
     isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: { timezone: 'UTC' },
   },
 };
 
-/**
- * Empty state story showing what happens when no data is available or the request fails.
- */
 export const Empty: Story = {
   args: {
-    label: 'Keywords Created',
+    label: 'SMS Over Time',
     data: [],
+    series: [],
     isLoading: false,
     isSuccess: false,
     isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: { timezone: 'UTC' },
   },
 };
 
-/**
- * Fetching state story showing the chart with reduced opacity while new data is being loaded.
- * This happens when the chart is refreshing data in the background.
- */
 export const Fetching: Story = {
   args: {
-    label: 'Keywords Created',
-    data: mapOneClickVerificationTimeSeriesData({
-      colorMap: new Map(),
-      brands: mockBrands,
-      data: mockRawOneClickVerificationData,
-      keyValue: 'oneClickVerificationCreated',
-      filterOutZeroValues: false,
-    }),
+    label: 'SMS Over Time',
+    data: chartData.data,
+    series: chartData.series,
     isLoading: false,
     isSuccess: true,
     isFetching: true,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: { timezone: 'UTC' },
   },
 };
 
-/**
- * Single keyword story showing OneClick verification data for just one keyword.
- * Useful for focused analysis of a specific keyword's OneClick verification performance across brands.
- */
-export const SingleKeyword: Story = {
-  args: {
-    label: 'Keywords Created',
-    data: mapOneClickVerificationTimeSeriesData({
-      colorMap: new Map(),
-      brands: [mockBrands[0], mockBrands[2]],
-      data: mockRawOneClickVerificationData.filter(
-        (item) => item.brandName === 'Moomoo' || item.brandName === 'AHA',
-      ),
-      keyValue: 'oneClickVerificationCreated',
-      filterOutZeroValues: false,
-    }),
-    isLoading: false,
-    isSuccess: true,
-    isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
-  },
-};
+const singleBrandData = mapOneClickVerificationAreaSeriesData({
+  data: mockRawData.filter((item) => item.brandName === 'Moomoo'),
+});
 
-/**
- * Story demonstrating filtering out zero values from the chart data.
- * This is useful when you want to hide periods with no activity.
- */
-export const FilterZeroValues: Story = {
+export const SingleBrand: Story = {
   args: {
-    label: 'Keywords Created (Zero Values Filtered)',
-    data: mapOneClickVerificationTimeSeriesData({
-      colorMap: new Map(),
-      brands: mockBrands,
-      data: mockRawOneClickVerificationData,
-      keyValue: 'oneClickVerificationCreated',
-      filterOutZeroValues: true,
-    }),
+    label: 'SMS Over Time',
+    data: singleBrandData.data,
+    series: singleBrandData.series,
     isLoading: false,
     isSuccess: true,
     isFetching: false,
-    filter: {
-      timezone: 'UTC',
-    },
+    filter: { timezone: 'UTC' },
   },
 };

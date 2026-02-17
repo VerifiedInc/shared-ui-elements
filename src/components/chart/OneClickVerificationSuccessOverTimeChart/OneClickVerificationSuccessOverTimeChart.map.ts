@@ -25,7 +25,13 @@ export interface MapOneClickVerificationSuccessTimeSeriesDataOptions
   }>;
 }
 
-export function mapOneClickVerificationSuccessTimeSeriesData(
+export function mapOneClickVerificationTimeSeriesData(
+  options: MapOneClickVerificationSuccessTimeSeriesDataOptions,
+): ReturnType<typeof mapSeriesTimeSeriesData> {
+  return mapSeriesTimeSeriesData(options);
+}
+
+export function mapOneClickVerificationSuccessOverTimeChartData(
   options: MapOneClickVerificationSuccessTimeSeriesDataOptions,
 ): OneClickVerificationChartData[] {
   const calculatePercentage = (
