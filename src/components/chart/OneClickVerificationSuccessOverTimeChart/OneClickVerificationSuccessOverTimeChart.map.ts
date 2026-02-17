@@ -25,12 +25,6 @@ export interface MapOneClickVerificationSuccessTimeSeriesDataOptions
   }>;
 }
 
-export function mapOneClickVerificationTimeSeriesData(
-  options: MapOneClickVerificationSuccessTimeSeriesDataOptions,
-): ReturnType<typeof mapSeriesTimeSeriesData> {
-  return mapSeriesTimeSeriesData(options);
-}
-
 export function mapOneClickVerificationSuccessOverTimeChartData(
   options: MapOneClickVerificationSuccessTimeSeriesDataOptions,
 ): OneClickVerificationChartData[] {
