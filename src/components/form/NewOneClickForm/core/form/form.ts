@@ -31,4 +31,13 @@ export class Form {
   get isDisabled() {
     return Object.values(this.fields).every((field) => field.isDisabled);
   }
+
+  get values() {
+    return Object.fromEntries(
+      Object.values(this.fields).map((field) => [
+        field.schema.key,
+        field.value,
+      ]),
+    );
+  }
 }

@@ -268,6 +268,7 @@ const CredentialForm: React.FC = () => {
   const handleSubmit = async (form: Form) => {
     console.log('Form submitted with form instance:', form);
     console.log('Form to create/patch:', toCreatePatchCredentials(form));
+    console.log('Form values:', form.values);
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
