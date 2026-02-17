@@ -268,7 +268,7 @@ function AddHealthInsuranceForm({
                   </Typography>
                 </>
               }
-              placeholder='Search providers...'
+              placeholder='Search...'
               size='small'
               InputLabelProps={{
                 shrink: true,
@@ -613,7 +613,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
           textAlign: 'left',
         }}
       >
-        Partially hidden for your privacy
+        Member IDs are partially hidden for privacy
       </Typography>
 
       {field?.allowUserInput && (
