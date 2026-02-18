@@ -17,7 +17,7 @@ const styles = {
   },
 } as const;
 
-export interface OneClickVerificationSmsOverTimeChartProps {
+export interface OneClickVerificationEventsOverTimeChartProps {
   label?: string;
   data: Array<Record<string, number | string>>;
   series: AreaSeriesChartData[];
@@ -31,7 +31,7 @@ export interface OneClickVerificationSmsOverTimeChartProps {
   sx?: SxProps;
 }
 
-export function OneClickVerificationSmsOverTimeChart({
+export function OneClickVerificationEventsOverTimeChart({
   label,
   data,
   series,
@@ -40,7 +40,7 @@ export function OneClickVerificationSmsOverTimeChart({
   isSuccess,
   filter,
   sx,
-}: Readonly<OneClickVerificationSmsOverTimeChartProps>): React.ReactNode {
+}: Readonly<OneClickVerificationEventsOverTimeChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
 
   if (!data.length && isLoading) {
