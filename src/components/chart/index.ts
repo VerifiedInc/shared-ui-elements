@@ -23,5 +23,5 @@ export * from './OneClickHealthOverTimeChart';
 export * from './OneClickHealthBigNumbers';
 export * from './OneClickHealthPercentageChart';
 export * from './OneClickVerificationBigNumbers';
-export * from './OneClickVerificationSmsOverTimeChart';
+export * from './OneClickVerificationEventsOverTimeChart';
 export * from './OneClickVerificationSuccessOverTimeChart';
