@@ -237,6 +237,97 @@ describe('Form', () => {
       });
     });
 
+    describe('values', () => {
+      test('returns an object keyed by field schema key with corresponding values', () => {
+        const form = new FormBuilder().createFromCredentialAndRequests(
+          [
+            makeCredential({
+              type: 'ssn',
+              value: { ssn: '123456789' },
+            }),
+            makeCredential({
+              type: 'sex',
+              value: { sex: 'Male' },
+            }),
+          ],
+          [
+            makeCredentialRequest({
+              type: 'SsnCredential',
+            }),
+            makeCredentialRequest({
+              type: 'SexCredential',
+            }),
+          ],
+        );
+
+        expect(form.values).toEqual({
+          ssn: '123456789',
+          sex: 'Male',
+        });
+      });
+
+      test('returns empty values when no credentials are provided', () => {
+        const form = new FormBuilder().createFromCredentialAndRequests(
+          [],
+          [
+            makeCredentialRequest({
+              type: 'SsnCredential',
+            }),
+          ],
+        );
+
+        expect(form.values).toEqual({
+          ssn: '',
+        });
+      });
+
+      test('reflects updated field values', () => {
+        const form = new FormBuilder().createFromCredentialAndRequests(
+          [
+            makeCredential({
+              type: 'ssn',
+              value: { ssn: '123456789' },
+            }),
+          ],
+          [
+            makeCredentialRequest({
+              type: 'SsnCredential',
+            }),
+          ],
+        );
+
+        form.fields.ssn.value = '987654321';
+
+        expect(form.values).toEqual({
+          ssn: '987654321',
+        });
+      });
+
+      test('returns composite field values', () => {
+        const form = new FormBuilder().createFromCredentialAndRequests(
+          [
+            makeCredential({
+              type: 'fullName',
+              value: { firstName: 'John', lastName: 'Doe' },
+            }),
+          ],
+          [
+            makeCredentialRequest({
+              type: 'FullNameCredential',
+              children: [
+                makeCredentialRequest({ type: 'FirstNameCredential' }),
+                makeCredentialRequest({ type: 'LastNameCredential' }),
+              ],
+            }),
+          ],
+        );
+
+        expect(form.values).toEqual({
+          fullName: { firstName: 'John', lastName: 'Doe' },
+        });
+      });
+    });
+
     describe('isDisabled', () => {
       test('all fields are empty', () => {
         const form = new FormBuilder().createFromCredentialAndRequests(
