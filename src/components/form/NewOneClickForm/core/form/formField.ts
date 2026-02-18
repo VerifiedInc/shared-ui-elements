@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 
 import { type FieldValueDefinitions } from '../declarations';
 import { type BaseFieldDefinition } from '../fields';
@@ -215,7 +215,7 @@ export class FormField<
     ) {
       return Object.values(this.children).some((child) => child.isDirty);
     }
-    return this._value !== this._defaultValue;
+    return !isEqual(this._value, this._defaultValue);
   }
 
   get errors(): { error: any; childrenErrors: Record<string, any> } | null {

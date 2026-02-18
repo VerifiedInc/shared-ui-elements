@@ -12,6 +12,7 @@ import {
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
   const [key, setKey] = useState(0);
+  console.log({ form });
 
   useEffect(() => {
     setKey((prev) => prev + 1);
@@ -368,6 +369,9 @@ const CredentialForm: React.FC = () => {
           options={{
             features: {
               datePickerClickOutsideBoundaryElement: document.body,
+              // editMode: {
+              //   hide: true,
+              // },
             },
             servicePaths: {
               googlePlacesAutocompletePlaces: async (
@@ -415,6 +419,47 @@ const CredentialForm: React.FC = () => {
                 }
 
                 return response.json();
+              },
+              oneClickHealthProviderPayers: async (params) => {
+                const allProviders = [
+                  {
+                    verifiedId: 'V9980890',
+                    name: 'Aetna',
+                    logoUrl:
+                      'https://renatozupo.com.br/storage/unnamed-768x768.jpg',
+                  },
+                  {
+                    verifiedId: 'V989089',
+                    name: 'Anthem Blue Cross Blue Shield',
+                    logoUrl:
+                      'http://s3.localhost.localstack.cloud:4566/1-click/health/payers/890dabde-a4de-49fa-8f37-5093702a54c6.png',
+                  },
+                  {
+                    verifiedId: 'V4352321',
+                    name: 'Blue Cross Blue Shield',
+                  },
+                  { verifiedId: 'V9483759', name: 'Cigna' },
+                  { verifiedId: 'V57459834', name: 'Humana' },
+                  { verifiedId: 'V32567324', name: 'Kaiser Permanente' },
+                  { verifiedId: 'V58943751', name: 'Medicaid' },
+                  { verifiedId: 'V098765', name: 'Medicare' },
+                  { verifiedId: 'V09876543', name: 'UnitedHealthcare' },
+                  { verifiedId: 'V567898765', name: 'WellCare' },
+                ];
+
+                await new Promise((resolve) => setTimeout(resolve, 500));
+
+                let filtered = allProviders;
+                if (params?.search) {
+                  const search = params.search.toLowerCase();
+                  filtered = allProviders.filter((p) =>
+                    p.name.toLowerCase().includes(search),
+                  );
+                }
+
+                const skip = params?.skip ?? 0;
+                const limit = params?.limit ?? 20;
+                return filtered.slice(skip, skip + limit);
               },
             },
           }}
@@ -506,6 +551,30 @@ const mockCredentials = [
         zipCode: '10001',
       },
     },
+  },
+  {
+    uuid: 'health-insurance-id-1234',
+    type: 'healthInsurance',
+    value: [
+      {
+        id: 174,
+        memberId: 'AC****02',
+        payer: {
+          verifiedId: 'V123123',
+          name: 'Aviato Health Insurance Of California',
+          logoUrl:
+            'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
+        },
+      },
+      {
+        id: 175,
+        memberId: 'XY****99',
+        payer: {
+          verifiedId: 'V123321',
+          name: 'Blue Cross Blue Shield',
+        },
+      },
+    ],
   },
 ];
 
@@ -599,8 +668,8 @@ const mockCredentialRequests = [
     description: 'Your legal SSN',
   },
   {
-    allowUserInput: true,
-    mandatory: 'no',
+    allowUserInput: false,
+    mandatory: 'if_available',
     multi: false,
     type: 'SexCredential',
     description: 'Your birth sex',
@@ -677,6 +746,12 @@ const mockCredentialRequests = [
         ],
       },
     ],
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'if_available',
+    type: 'HealthInsuranceCredential',
+    description: 'Your health insurance information',
   },
 ];
 
