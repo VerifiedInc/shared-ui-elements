@@ -2,6 +2,7 @@ import { type ComponentProps, type ReactElement } from 'react';
 import { Box, useTheme, type SxProps } from '@mui/material';
 import {
   Bar,
+  Cell,
   CartesianGrid,
   ComposedChart,
   ReferenceArea,
@@ -27,6 +28,11 @@ interface Series {
 interface SimpleBarChartProps {
   data: Array<Record<string, number | string>>;
   series: Series[];
+  /**
+   * 'vertical' (default): bars grow upward, category on X axis.
+   * 'horizontal': bars grow rightward, category on Y axis.
+   */
+  layout?: 'vertical' | 'horizontal';
   xAxis?: ComponentProps<typeof XAxis>;
   yAxis?: ComponentProps<typeof YAxis>;
   tooltip?: ComponentProps<typeof Tooltip>;
@@ -39,6 +45,7 @@ interface SimpleBarChartProps {
 export function SimpleBarChart({
   data,
   series,
+  layout = 'vertical',
   xAxis,
   yAxis,
   tooltip,
@@ -52,13 +59,36 @@ export function SimpleBarChart({
   const filterOnlyBack = (reference: any): boolean => !reference.isFront;
   const filterOnlyFront = (reference: any): boolean => !!reference.isFront;
 
+  const isHorizontal = layout === 'horizontal';
+
+  const resolvedXAxisProps = isHorizontal
+    ? { type: 'number' as const, hide: true, ...xAxis }
+    : { ...xAxisDefaultProps, ...xAxis };
+
+  const resolvedYAxisProps = isHorizontal
+    ? {
+        type: 'category' as const,
+        tickLine: false,
+        axisLine: false,
+        width: 120,
+        ...yAxis,
+      }
+    : { ...yAxisDefaultProps, ...yAxis };
+
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
-        <ComposedChart data={data} {...chartDefaultProps}>
-          <CartesianGrid strokeDasharray='3 3' vertical={false} />
-          <XAxis {...xAxisDefaultProps} {...xAxis} />
-          <YAxis {...yAxisDefaultProps} {...yAxis} />
+        <ComposedChart
+          data={data}
+          layout={isHorizontal ? 'vertical' : 'horizontal'}
+          {...chartDefaultProps}
+        >
+          <CartesianGrid
+            strokeDasharray='3 3'
+            {...(isHorizontal ? { horizontal: false } : { vertical: false })}
+          />
+          <XAxis {...resolvedXAxisProps} />
+          <YAxis {...resolvedYAxisProps} />
           <Tooltip
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
             {...tooltip}
@@ -82,7 +112,15 @@ export function SimpleBarChart({
               stackId='stack'
               isAnimationActive={false}
               {...(bar as any)}
-            />
+            >
+              {data.some((d) => d.color) &&
+                data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={(entry.color as string) ?? serie.color}
+                  />
+                ))}
+            </Bar>
           ))}
           {referenceLines
             ?.filter(filterOnlyFront)
