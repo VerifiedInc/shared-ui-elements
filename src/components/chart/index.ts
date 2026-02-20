@@ -25,3 +25,4 @@ export * from './OneClickHealthPercentageChart';
 export * from './OneClickVerificationBigNumbers';
 export * from './OneClickVerificationEventsOverTimeChart';
 export * from './OneClickVerificationSuccessOverTimeChart';
+export * from './FunnelChart';
