@@ -26,9 +26,9 @@ export function OneClickVerificationBigNumbers({
   return (
     <Stack direction='row' spacing={3}>
       <BigNumber
-        label='Total Delivered'
-        value={metrics.totalDelivered}
-        initialValue={metrics.totalDelivered}
+        label='Total Created'
+        value={metrics.totalCreated}
+        initialValue={metrics.totalCreated}
         map={formatNumberRounded}
       />
 
