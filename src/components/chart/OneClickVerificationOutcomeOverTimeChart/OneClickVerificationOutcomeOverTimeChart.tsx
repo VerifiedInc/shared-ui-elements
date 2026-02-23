@@ -70,8 +70,8 @@ export function OneClickVerificationOutcomeOverTimeChart({
           }}
           size='small'
         >
-          <ToggleButton value='absolute'>#</ToggleButton>
-          <ToggleButton value='percent'>%</ToggleButton>
+          <ToggleButton value='absolute'>Numbers</ToggleButton>
+          <ToggleButton value='percent'>Percentages</ToggleButton>
         </ToggleButtonGroup>
       </Box>
       <AreaChart
