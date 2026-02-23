@@ -1,3 +1,10 @@
+import type { OneClickVerificationBrandData } from '../oneClickVerification.types';
+
+export type {
+  OneClickVerificationIntervalEntry,
+  OneClickVerificationBrandData,
+} from '../oneClickVerification.types';
+
 export interface OneClickVerificationOverallMetrics {
   totalDelivered: number;
   totalVerified: number;
@@ -10,24 +17,12 @@ export const defaultMetrics: OneClickVerificationOverallMetrics = {
   successRate: 0,
 };
 
-export interface OneClickVerificationBigNumbersChartData {
-  interval?: Array<{
-    oneClickVerificationCreated: number;
-    oneClickVerificationDelivered: number;
-    oneClickVerificationVerified: number;
-    oneClickVerificationFailed: number;
-    oneClickVerificationSending: number;
-    oneClickVerificationUndelivered: number;
-    oneClickVerificationExpired: number;
-    date: string | number;
-    [key: string]: any;
-  }>;
-  brandUuid: string;
-  brandName: string;
-}
+/** @deprecated Use {@link OneClickVerificationBrandData} from the shared chart types. */
+export type OneClickVerificationBigNumbersChartData =
+  OneClickVerificationBrandData;
 
 export function calculateOneClickVerificationMetrics(
-  data: OneClickVerificationBigNumbersChartData[],
+  data: OneClickVerificationBrandData[],
 ): OneClickVerificationOverallMetrics {
   if (!data?.length) return defaultMetrics;
 

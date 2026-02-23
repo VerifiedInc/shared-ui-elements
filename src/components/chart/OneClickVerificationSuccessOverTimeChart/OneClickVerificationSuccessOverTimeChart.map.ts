@@ -4,33 +4,24 @@ import {
 } from '../SeriesChart';
 
 import type { OneClickVerificationChartData } from './OneClickVerificationSuccessOverTimeChart';
+import type {
+  OneClickVerificationBrandData,
+  OneClickVerificationIntervalEntry,
+} from '../oneClickVerification.types';
 
-export interface OneClickVerificationSuccessIntervalEntry {
-  oneClickVerificationCreated: number;
-  oneClickVerificationDelivered: number;
-  oneClickVerificationVerified: number;
-  oneClickVerificationFailed: number;
-  oneClickVerificationSending: number;
-  oneClickVerificationUndelivered: number;
-  oneClickVerificationExpired: number;
-  date: string | number;
-}
+/** @deprecated Use {@link OneClickVerificationIntervalEntry} from the shared chart types. */
+export type OneClickVerificationSuccessIntervalEntry =
+  OneClickVerificationIntervalEntry;
 
 export interface MapOneClickVerificationSuccessTimeSeriesDataOptions
   extends MapSeriesTimeSeriesDataOptions {
-  data: Array<{
-    interval?: OneClickVerificationSuccessIntervalEntry[];
-    brandUuid: string;
-    brandName: string;
-  }>;
+  data: OneClickVerificationBrandData[];
 }
 
 export function mapOneClickVerificationSuccessOverTimeChartData(
   options: MapOneClickVerificationSuccessTimeSeriesDataOptions,
 ): OneClickVerificationChartData[] {
-  const calculatePercentage = (
-    entry: OneClickVerificationSuccessIntervalEntry,
-  ) => {
+  const calculatePercentage = (entry: OneClickVerificationIntervalEntry) => {
     const {
       oneClickVerificationVerified: verified,
       oneClickVerificationExpired: expired,

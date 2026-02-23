@@ -1,19 +1,16 @@
 import { mapAreaChartData } from '../AreaChart/AreaChart.map';
 import type { AreaSeriesChartData } from '../AreaChart';
 import type { BrandFilter } from '../../BrandFilterInput';
+import type { OneClickVerificationBrandData } from '../oneClickVerification.types';
+
+export type {
+  OneClickVerificationIntervalEntry,
+  OneClickVerificationBrandData,
+} from '../oneClickVerification.types';
 
 export interface MapOneClickVerificationEventsOverTimeChartDataOptions {
   brands?: BrandFilter[];
-  data: Array<{
-    interval?: Array<{
-      oneClickVerificationDelivered: number;
-      oneClickVerificationVerified: number;
-      date: string | number;
-      [key: string]: any;
-    }>;
-    brandUuid: string;
-    brandName: string;
-  }>;
+  data: OneClickVerificationBrandData[];
 }
 
 export interface OneClickVerificationEventsAreaChartData {
