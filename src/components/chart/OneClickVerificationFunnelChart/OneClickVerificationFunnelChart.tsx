@@ -7,15 +7,7 @@ import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { FunnelChart } from '../FunnelChart';
 import type { OneClickVerificationFunnelStepData } from './OneClickVerificationFunnelChart.map';
-
-const styles = {
-  chartWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    height: 500,
-  },
-} as const;
+import { useStyle } from '../styles';
 
 /** Progressive lighten amounts from lightest (index 0 = Created) to base (index 3 = Verified). */
 const SHADE_AMOUNTS = [40, 25, 10, 0] as const;
@@ -35,6 +27,7 @@ export function OneClickVerificationFunnelChart({
   isSuccess,
   sx,
 }: Readonly<OneClickVerificationFunnelChartProps>): ReactNode {
+  const style = useStyle();
   const theme = useTheme();
 
   if (!data.length && isLoading) {
@@ -147,7 +140,11 @@ export function OneClickVerificationFunnelChart({
       data={funnelData}
       insideLabel={{ content: InsideLabel, dataKey: 'value' }}
       outsideLabel={{ content: RightLabel }}
-      sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1, ...sx }}
+      sx={{
+        ...style.regularChartWrapper,
+        opacity: isFetching ? 0.4 : 1,
+        ...sx,
+      }}
     />
   );
 }
