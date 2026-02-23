@@ -38,6 +38,8 @@ export type OneClickFormContext = {
   options: OneClickFormOptions;
   editMode: boolean;
   setEditMode: (editMode: boolean) => void;
+  userInitiatedEdit: boolean;
+  setUserInitiatedEdit: (value: boolean) => void;
 };
 
 const Context = createContext<OneClickFormContext | null>(null);
@@ -53,6 +55,7 @@ export function OneClickFormProvider({
 }: OneClickFormProviderProps) {
   const formContext = useForm();
   const [editMode, setEditMode] = useState(!formContext.state.form.isValid);
+  const [userInitiatedEdit, setUserInitiatedEdit] = useState(false);
 
   // Configure a React Query client to handle requests client side only,
   // it supports SSR as well but is not the focus.
@@ -78,8 +81,17 @@ export function OneClickFormProvider({
       options,
       editMode,
       setEditMode,
+      userInitiatedEdit,
+      setUserInitiatedEdit,
     }),
-    [formContext, options, editMode, setEditMode],
+    [
+      formContext,
+      options,
+      editMode,
+      setEditMode,
+      userInitiatedEdit,
+      setUserInitiatedEdit,
+    ],
   );
 
   return (

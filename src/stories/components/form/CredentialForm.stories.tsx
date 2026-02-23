@@ -553,28 +553,50 @@ const mockCredentials = [
     },
   },
   {
+    uuid: 'drivers-license-id-1236',
+    type: 'driversLicense',
+    value: {
+      documentNumber: '123456781',
+      issuanceState: 'NY',
+      issuanceDate: '1754049600000',
+      expirationDate: '1765800000000',
+      address: {
+        line1: '123 Main Street',
+        line2: 'Apt 1A',
+        city: 'California',
+        state: 'CA',
+        country: 'US',
+        zipCode: '10001',
+      },
+    },
+  },
+  {
     uuid: 'health-insurance-id-1234',
     type: 'healthInsurance',
-    value: [
-      {
-        id: 174,
-        memberId: 'AC****02',
-        payer: {
-          verifiedId: 'V123123',
-          name: 'Aviato Health Insurance Of California',
-          logoUrl:
-            'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
-        },
+    value: {
+      id: 174,
+      memberId: 'AC****02',
+      payer: {
+        verifiedId: 'V123123',
+        name: 'Aviato Health Insurance Of California',
+        logoUrl:
+          'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
       },
-      {
-        id: 175,
-        memberId: 'XY****99',
-        payer: {
-          verifiedId: 'V123321',
-          name: 'Blue Cross Blue Shield',
-        },
+    },
+  },
+  {
+    uuid: 'health-insurance-id-1235',
+    type: 'healthInsurance',
+    value: {
+      id: 176,
+      memberId: 'AC****03',
+      payer: {
+        verifiedId: 'V123124',
+        name: 'Blue Shield of California',
+        logoUrl:
+          'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
       },
-    ],
+    },
   },
 ];
 
@@ -751,7 +773,7 @@ const mockCredentialRequests = [
     allowUserInput: true,
     mandatory: 'if_available',
     type: 'HealthInsuranceCredential',
-    description: 'Your health insurance information',
+    description: 'Choose the right insurance plan',
   },
 ];
 

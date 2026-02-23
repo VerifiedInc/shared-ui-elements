@@ -11,16 +11,14 @@ import { makeCredential, makeCredentialRequest } from '../../../../utils/form';
 const setupCredential = () => {
   return makeCredential({
     type: 'healthInsurance',
-    value: [
-      {
-        id: 174,
-        memberId: 'AC****02',
-        payer: {
-          verifiedId: 'V123456789',
-          name: 'Aviato Health Insurance Of California',
-        },
+    value: {
+      id: 174,
+      memberId: 'AC****02',
+      payer: {
+        verifiedId: 'V123456789',
+        name: 'Aviato Health Insurance Of California',
       },
-    ],
+    },
   });
 };
 
@@ -56,17 +54,13 @@ describe('health insurance', () => {
         const field = form.fields
           .healthInsurance as FormField<'healthInsurance'>;
 
-        field.value = [
-          ...field.value,
-          {
-            selected: true,
-            memberId: 'ACDE321',
-            payer: {
-              verifiedId: 'V123456789',
-              name: 'Custom Health Insurance',
-            },
+        field.value = {
+          memberId: 'ACDE321',
+          payer: {
+            verifiedId: 'V123456789',
+            name: 'Custom Health Insurance',
           },
-        ];
+        };
         expect(field.isValid).toBe(true);
       });
     });
@@ -75,7 +69,7 @@ describe('health insurance', () => {
         test('field without memberId is invalid', () => {
           const field = form.fields
             .healthInsurance as FormField<'healthInsurance'>;
-          field.value[0].memberId = '';
+          field.value.memberId = '';
           expect(field.isValid).toBe(false);
         });
       });
@@ -83,13 +77,13 @@ describe('health insurance', () => {
         test('field without verifiedId is invalid', () => {
           const field = form.fields
             .healthInsurance as FormField<'healthInsurance'>;
-          field.value[0].payer.verifiedId = '';
+          field.value.payer.verifiedId = '';
           expect(field.isValid).toBe(false);
         });
         test('field without verifiedId pattern is invalid', () => {
           const field = form.fields
             .healthInsurance as FormField<'healthInsurance'>;
-          field.value[0].payer.verifiedId = 'A123';
+          field.value.payer.verifiedId = 'A123';
           expect(field.isValid).toBe(false);
         });
       });

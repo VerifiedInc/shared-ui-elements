@@ -1,6 +1,6 @@
 import { ComponentType } from 'react';
 import { Box, Button, Stack } from '@mui/material';
-import { Edit } from '@mui/icons-material';
+import { ArrowBack, Edit } from '@mui/icons-material';
 
 import { FormContextValue } from '../core/form.context';
 
@@ -12,16 +12,20 @@ type OneClickFormContentProps = {
   FooterComponent?: ComponentType<{ form: FormContextValue }>;
 };
 
-function RenderReadonlyMode() {
+function FormButtons() {
   const context = useOneClickForm();
-  const shouldRenderEditButton =
+  const canEdit =
     !context.options.features.editMode?.hide &&
     !context.formContext.state.form?.isDisabled;
 
+  const buttonSx = {
+    position: 'absolute',
+    zIndex: 1,
+  } as const;
+
   return (
     <>
-      <ReadonlyFields />
-      {shouldRenderEditButton && (
+      {canEdit && !context.editMode && (
         <Button
           aria-controls='credentials-region'
           variant='text'
@@ -29,20 +33,47 @@ function RenderReadonlyMode() {
           color='neutral'
           startIcon={<Edit aria-hidden='true' />}
           sx={{
-            position: 'absolute',
-            top: 4,
+            ...buttonSx,
+            top: 0,
             right: 0,
-            zIndex: 1,
+            transform: 'translateY(calc(-100% - 16px))',
           }}
           onClick={() => {
             context.setEditMode(true);
+            context.setUserInitiatedEdit(true);
           }}
         >
           Edit
         </Button>
       )}
+      {context.editMode && context.userInitiatedEdit && (
+        <Button
+          aria-controls='credentials-region'
+          variant='text'
+          size='small'
+          color='neutral'
+          startIcon={<ArrowBack aria-hidden='true' />}
+          sx={{
+            ...buttonSx,
+            top: 0,
+            left: 0,
+            transform: 'translateY(calc(-100% - 16px))',
+          }}
+          onClick={() => {
+            context.formContext.resetForm();
+            context.setEditMode(false);
+            context.setUserInitiatedEdit(false);
+          }}
+        >
+          Back
+        </Button>
+      )}
     </>
   );
+}
+
+function RenderReadonlyMode() {
+  return <ReadonlyFields />;
 }
 
 function RenderEditMode() {
@@ -89,6 +120,7 @@ export function OneClickFormContent({
         alignItems='center'
         sx={{ flex: 1, width: '100%' }}
       >
+        <FormButtons />
         <>{context.editMode ? <RenderEditMode /> : <RenderReadonlyMode />}</>
       </Box>
       {FooterComponent && <FooterComponent form={context.formContext} />}

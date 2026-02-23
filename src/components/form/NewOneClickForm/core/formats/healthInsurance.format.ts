@@ -38,8 +38,6 @@ export const maskMemberId = (memberId: string): string => {
 };
 
 export const healthInsuranceFormat = (value: HealthInsuranceValue) => {
-  return value
-    .filter((item) => item.payer?.name && item.memberId)
-    .map((item) => `${item.payer.name}-${maskMemberId(item.memberId)}`)
-    .join(',');
+  if (!value?.payer?.name || !value?.memberId) return null;
+  return `${value.payer.name}-${maskMemberId(value.memberId)}`;
 };

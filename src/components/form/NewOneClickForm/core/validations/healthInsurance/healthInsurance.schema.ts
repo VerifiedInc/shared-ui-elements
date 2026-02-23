@@ -3,9 +3,8 @@ import { z } from 'zod';
 import { memberIdSchema } from './memberId.schema';
 import { payerNameSchema } from './payerName.schema';
 
-const healthInsuranceItemSchema = z.object({
+export const healthInsuranceSchema = z.object({
   id: z.number().optional(),
-  selected: z.boolean(),
   memberId: memberIdSchema,
   payer: z.object({
     verifiedId: z.string().regex(/^V\d+$/),
@@ -13,7 +12,5 @@ const healthInsuranceItemSchema = z.object({
     logoUrl: z.string().url().optional(),
   }),
 });
-
-export const healthInsuranceSchema = z.array(healthInsuranceItemSchema);
 
 export type HealthInsuranceValue = z.infer<typeof healthInsuranceSchema>;

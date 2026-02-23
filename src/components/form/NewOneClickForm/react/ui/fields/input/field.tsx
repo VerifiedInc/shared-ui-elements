@@ -18,7 +18,7 @@ import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
 import { DateInputField } from './date.field';
-import { HealthInsuranceField } from '../readonly/healthInsurance.field';
+import { HealthInsuranceInputField } from './healthInsurance.field';
 
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
@@ -54,7 +54,7 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
       <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
         <FieldSectionTitle fieldKey={fieldKey} />
         <FieldSectionContent spacing={1.25}>
-          <HealthInsuranceField fieldKey={fieldKey} />
+          <HealthInsuranceInputField fieldKey={fieldKey} />
         </FieldSectionContent>
       </FieldRowContainer>
     );
