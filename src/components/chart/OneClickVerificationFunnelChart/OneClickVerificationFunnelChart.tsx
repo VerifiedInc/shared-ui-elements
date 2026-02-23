@@ -81,6 +81,15 @@ export function OneClickVerificationFunnelChart({
     // Ensure all labels are centralized by the first (largest) one
     if (index === 0) centerXRef.current = x + width / 2;
     const fill = funnelData[index]?.fill ?? base;
+
+    // When the segment is narrower than this threshold the label overflows
+    // onto the white background — switch to a dark colour so it stays legible.
+    const MIN_FILL_WIDTH = 60;
+    const textColor =
+      width >= MIN_FILL_WIDTH
+        ? contrastColor(fill)
+        : theme.palette.text.primary;
+
     return (
       <text
         x={centerXRef.current}
@@ -89,7 +98,7 @@ export function OneClickVerificationFunnelChart({
         dominantBaseline='middle'
         fontSize={14}
         fontWeight={600}
-        fill={contrastColor(fill)}
+        fill={textColor}
       >
         {Number(value).toLocaleString()}
       </text>
