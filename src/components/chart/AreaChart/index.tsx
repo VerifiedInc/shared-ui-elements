@@ -55,6 +55,8 @@ interface AreaChartProps {
   isAnimationActive?: boolean;
   /** Curve interpolation type. @default 'monotone' */
   areaType?: CurveType;
+  /** Stack mode for areas. 'none' renders independent areas; 'stack' stacks by count; 'expand' normalizes to 100%. @default 'none' */
+  stackMode?: 'none' | 'stack' | 'expand';
 }
 
 export function AreaChart({
@@ -70,6 +72,7 @@ export function AreaChart({
   sx,
   isAnimationActive = false,
   areaType = 'monotone',
+  stackMode = 'none',
 }: AreaChartProps): ReactElement {
   const theme = useTheme();
   const defaultColor = color ?? theme.palette.primary.main;
@@ -77,7 +80,11 @@ export function AreaChart({
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
-        <RechartsAreaChart data={data} {...chartDefaultProps}>
+        <RechartsAreaChart
+          data={data}
+          stackOffset={stackMode === 'expand' ? 'expand' : undefined}
+          {...chartDefaultProps}
+        >
           <defs>
             {series.map((serie, idx) => {
               const safeId = `gradient-${idx}`;
@@ -119,10 +126,12 @@ export function AreaChart({
                 name={serie.key}
                 dataKey={serie.dataKey}
                 fill={`url(#${safeId})`}
+                fillOpacity={stackMode !== 'none' ? 1 : 0.6}
                 stroke={color}
                 strokeWidth={2}
                 type={areaType}
                 isAnimationActive={isAnimationActive}
+                stackId={stackMode !== 'none' ? 'stack' : undefined}
                 {...(area as any)}
               />
             );
