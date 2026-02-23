@@ -59,7 +59,7 @@ export function FunnelChart({
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
         <RechartsFunnelChart
-          margin={{ top: 10, right: 120, left: 10, bottom: 10, ...margin }}
+          margin={{ top: 10, right: 90, left: 0, bottom: 10, ...margin }}
         >
           <Funnel
             dataKey={dataKey}
