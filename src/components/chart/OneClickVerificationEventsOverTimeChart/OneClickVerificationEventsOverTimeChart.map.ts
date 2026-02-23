@@ -2,7 +2,7 @@ import { mapAreaChartData } from '../AreaChart/AreaChart.map';
 import type { AreaSeriesChartData } from '../AreaChart';
 import type { BrandFilter } from '../../BrandFilterInput';
 
-export interface MapOneClickVerificationSmsOverTimeChartDataOptions {
+export interface MapOneClickVerificationEventsOverTimeChartDataOptions {
   brands?: BrandFilter[];
   data: Array<{
     interval?: Array<{
@@ -16,21 +16,21 @@ export interface MapOneClickVerificationSmsOverTimeChartDataOptions {
   }>;
 }
 
-export interface OneClickVerificationSmsAreaChartData {
+export interface OneClickVerificationEventsAreaChartData {
   series: AreaSeriesChartData[];
   data: Array<Record<string, number | string>>;
 }
 
 /**
- * Maps raw OneClick verification SMS time series data into a format suitable for AreaChart.
+ * Maps raw OneClick verification events time series data into a format suitable for AreaChart.
  * Aggregates delivered and verified counts across all brands by date.
  *
  * @param options Configuration options for mapping the data
  * @returns Formatted data ready for the AreaChart component
  */
 export function mapOneClickVerificationAreaSeriesData(
-  options: MapOneClickVerificationSmsOverTimeChartDataOptions,
-): OneClickVerificationSmsAreaChartData {
+  options: MapOneClickVerificationEventsOverTimeChartDataOptions,
+): OneClickVerificationEventsAreaChartData {
   const dateMap = new Map<number, Record<string, number | string>>();
   const brandUuids = options.brands
     ? new Set(options.brands.map((b) => b._raw.brandUuid))
@@ -67,12 +67,12 @@ export function mapOneClickVerificationAreaSeriesData(
     data: aggregatedData,
     seriesConfig: [
       {
-        key: 'Delivered',
+        key: 'SMS Delivered',
         dataKey: 'oneClickVerificationDelivered',
         color: '#0dbc3d',
       },
       {
-        key: 'Verified',
+        key: 'Phone Numbers Verified',
         dataKey: 'oneClickVerificationVerified',
         color: '#6366f1',
       },

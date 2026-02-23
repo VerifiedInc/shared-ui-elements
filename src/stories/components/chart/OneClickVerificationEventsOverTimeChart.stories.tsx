@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickVerificationSmsOverTimeChart } from '../../../components/chart/OneClickVerificationSmsOverTimeChart/OneClickVerificationSmsOverTimeChart';
-import { mapOneClickVerificationAreaSeriesData } from '../../../components/chart/OneClickVerificationSmsOverTimeChart/OneClickVerificationSmsOverTimeChart.map';
+import {
+  OneClickVerificationEventsOverTimeChart,
+  mapOneClickVerificationAreaSeriesData,
+} from '../../../components/chart';
 
 const meta = {
-  title: 'components/chart/OneClickVerificationSmsOverTimeChart',
-  component: OneClickVerificationSmsOverTimeChart,
+  title: 'components/chart/OneClickVerificationEventsOverTimeChart',
+  component: OneClickVerificationEventsOverTimeChart,
   parameters: {
     layout: 'centered',
   },
@@ -27,7 +29,7 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickVerificationSmsOverTimeChart>;
+} satisfies Meta<typeof OneClickVerificationEventsOverTimeChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -359,7 +361,7 @@ const chartData = mapOneClickVerificationAreaSeriesData({
 
 export const Default: Story = {
   args: {
-    label: 'SMS Over Time',
+    label: 'Events Over Time',
     data: chartData.data,
     series: chartData.series,
     isLoading: false,
@@ -371,7 +373,7 @@ export const Default: Story = {
 
 export const Loading: Story = {
   args: {
-    label: 'SMS Over Time',
+    label: 'Events Over Time',
     data: [],
     series: [],
     isLoading: true,
@@ -383,7 +385,7 @@ export const Loading: Story = {
 
 export const Empty: Story = {
   args: {
-    label: 'SMS Over Time',
+    label: 'Events Over Time',
     data: [],
     series: [],
     isLoading: false,
@@ -395,28 +397,12 @@ export const Empty: Story = {
 
 export const Fetching: Story = {
   args: {
-    label: 'SMS Over Time',
+    label: 'Events Over Time',
     data: chartData.data,
     series: chartData.series,
     isLoading: false,
     isSuccess: true,
     isFetching: true,
-    filter: { timezone: 'UTC' },
-  },
-};
-
-const singleBrandData = mapOneClickVerificationAreaSeriesData({
-  data: mockRawData.filter((item) => item.brandName === 'Moomoo'),
-});
-
-export const SingleBrand: Story = {
-  args: {
-    label: 'SMS Over Time',
-    data: singleBrandData.data,
-    series: singleBrandData.series,
-    isLoading: false,
-    isSuccess: true,
-    isFetching: false,
     filter: { timezone: 'UTC' },
   },
 };
