@@ -53,7 +53,14 @@ export function OneClickVerificationOutcomeOverTimeChart({
   const stackMode = mode === 'absolute' ? 'stack' : 'expand';
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        height: style.regularChartWrapper.height,
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <ToggleButtonGroup
           value={mode}
@@ -124,7 +131,10 @@ export function OneClickVerificationOutcomeOverTimeChart({
             }),
         }}
         sx={{
-          ...style.smallChartWrapper,
+          ...style.regularChartWrapper,
+          height: 'unset',
+          flex: 1,
+          minHeight: 0,
           opacity: isFetching ? 0.4 : 1,
           ...sx,
         }}

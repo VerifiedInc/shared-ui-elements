@@ -18,11 +18,11 @@ const meta = {
         direction='row'
         sx={{
           width: 900,
-          height: 400,
+          height: 500,
           p: 2,
         }}
       >
-        <Box sx={{ flex: 1, minHeight: 300 }}>
+        <Box sx={{ flex: 1, minHeight: 500 }}>
           <Story />
         </Box>
       </Stack>
