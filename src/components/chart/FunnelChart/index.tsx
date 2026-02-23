@@ -28,6 +28,8 @@ interface FunnelChartProps {
   outsideLabel?: ComponentProps<typeof LabelList>;
   /** Override props applied to the Funnel element. */
   funnel?: Omit<ComponentProps<typeof Funnel>, 'data' | 'dataKey'>;
+  /** Override the chart margin. Merged over the default `{ top: 10, right: 160, left: 10, bottom: 10 }`. */
+  margin?: { top?: number; right?: number; left?: number; bottom?: number };
   sx?: SxProps;
   /** Enable chart animation. @default false */
   isAnimationActive?: boolean;
@@ -41,6 +43,7 @@ export function FunnelChart({
   insideLabel,
   outsideLabel,
   funnel,
+  margin,
   sx,
   isAnimationActive = false,
 }: FunnelChartProps): ReactElement {
@@ -56,7 +59,7 @@ export function FunnelChart({
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
         <RechartsFunnelChart
-          margin={{ top: 10, right: 160, left: 10, bottom: 10 }}
+          margin={{ top: 10, right: 120, left: 10, bottom: 10, ...margin }}
         >
           <Funnel
             dataKey={dataKey}
