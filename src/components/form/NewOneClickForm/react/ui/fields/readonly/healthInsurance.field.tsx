@@ -131,7 +131,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
       }}
     >
       {variants.map((variant) => {
-        const item = variant.value as HealthInsuranceValue;
+        const item = variant.value;
         const payerName = item?.payer?.name ?? '-';
         const memberId = item?.memberId ? maskMemberId(item.memberId) : '-';
 
@@ -163,7 +163,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
               >
                 {item?.payer?.name?.[0]?.toUpperCase()}
               </Avatar>
-              <Stack>
+              <Stack sx={{ textAlign: 'left' }}>
                 <Typography variant='body2' fontWeight={500}>
                   {payerName}
                 </Typography>
