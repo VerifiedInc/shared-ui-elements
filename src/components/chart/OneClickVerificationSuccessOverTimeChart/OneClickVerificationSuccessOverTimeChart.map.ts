@@ -33,13 +33,10 @@ export function mapOneClickVerificationSuccessOverTimeChartData(
   ) => {
     const {
       oneClickVerificationVerified: verified,
-      oneClickVerificationExpired: expired,
-      oneClickVerificationFailed: failed,
+      oneClickVerificationCreated: created,
     } = entry;
 
-    const total = verified + expired + failed;
-
-    return total > 0 ? Math.round((verified / total) * 100) : 0;
+    return created > 0 ? Math.round((verified / created) * 100) : 0;
   };
 
   const enrichedOptions = {
