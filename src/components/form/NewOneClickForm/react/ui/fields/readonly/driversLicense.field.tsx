@@ -78,7 +78,9 @@ export function DriversLicenseField({ fieldKey }: { fieldKey: string }) {
             onClick={(e) => e.stopPropagation()}
             sx={menuStyle}
           >
-            {label}
+            <Typography variant='body1' fontWeight={500}>
+              {label}
+            </Typography>
           </MenuItem>
         );
       })}

@@ -163,8 +163,8 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
               >
                 {item?.payer?.name?.[0]?.toUpperCase()}
               </Avatar>
-              <Stack sx={{ textAlign: 'left' }}>
-                <Typography variant='body2' fontWeight={500}>
+              <Stack sx={{ alignItems: 'flex-start', textAlign: 'left' }}>
+                <Typography variant='body1' fontWeight={500}>
                   {payerName}
                 </Typography>
                 <Typography variant='caption' color='text.secondary'>
