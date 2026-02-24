@@ -1,11 +1,11 @@
 export interface OneClickVerificationOverallMetrics {
-  totalDelivered: number;
+  totalCreated: number;
   totalVerified: number;
   successRate: number;
 }
 
 export const defaultMetrics: OneClickVerificationOverallMetrics = {
-  totalDelivered: 0,
+  totalCreated: 0,
   totalVerified: 0,
   successRate: 0,
 };
@@ -31,14 +31,14 @@ export function calculateOneClickVerificationMetrics(
 ): OneClickVerificationOverallMetrics {
   if (!data?.length) return defaultMetrics;
 
-  let totalDelivered = 0;
+  let totalCreated = 0;
   let totalVerified = 0;
 
   data.forEach((brand) => {
     if (brand.interval?.length) {
       // Calculate totals from interval data for each brand
-      const brandTotalDelivered = brand.interval.reduce(
-        (sum, interval) => sum + (interval.oneClickVerificationDelivered || 0),
+      const brandTotalCreated = brand.interval.reduce(
+        (sum, interval) => sum + (interval.oneClickVerificationCreated || 0),
         0,
       );
 
@@ -48,15 +48,15 @@ export function calculateOneClickVerificationMetrics(
       );
 
       // Sum up across all brands
-      totalDelivered += brandTotalDelivered;
+      totalCreated += brandTotalCreated;
       totalVerified += brandTotalVerified;
     }
   });
 
-  const successRate = totalDelivered > 0 ? totalVerified / totalDelivered : 0;
+  const successRate = totalCreated > 0 ? totalVerified / totalCreated : 0;
 
   return {
-    totalDelivered,
+    totalCreated,
     totalVerified,
     successRate: isNaN(successRate) ? 0 : successRate,
   };

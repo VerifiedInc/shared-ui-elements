@@ -45,52 +45,52 @@ const mockOneClickVerificationBigNumbersData = [
     interval: [
       {
         date: '2024-12-23T18:26:00Z',
-        oneClickVerificationDelivered: 45,
+        oneClickVerificationCreated: 45,
         oneClickVerificationVerified: 41,
       },
       {
         date: '2024-12-23T17:14:00Z',
-        oneClickVerificationDelivered: 52,
+        oneClickVerificationCreated: 52,
         oneClickVerificationVerified: 48,
       },
       {
         date: '2024-12-19T04:09:00Z',
-        oneClickVerificationDelivered: 38,
+        oneClickVerificationCreated: 38,
         oneClickVerificationVerified: 35,
       },
       {
         date: '2024-12-19T04:08:00Z',
-        oneClickVerificationDelivered: 61,
+        oneClickVerificationCreated: 61,
         oneClickVerificationVerified: 57,
       },
       {
         date: '2024-12-19T03:14:00Z',
-        oneClickVerificationDelivered: 43,
+        oneClickVerificationCreated: 43,
         oneClickVerificationVerified: 39,
       },
       {
         date: '2024-12-19T03:11:00Z',
-        oneClickVerificationDelivered: 55,
+        oneClickVerificationCreated: 55,
         oneClickVerificationVerified: 51,
       },
       {
         date: '2024-12-19T03:09:00Z',
-        oneClickVerificationDelivered: 49,
+        oneClickVerificationCreated: 49,
         oneClickVerificationVerified: 45,
       },
       {
         date: '2024-12-19T03:08:00Z',
-        oneClickVerificationDelivered: 67,
+        oneClickVerificationCreated: 67,
         oneClickVerificationVerified: 62,
       },
       {
         date: '2024-12-18T01:05:40Z',
-        oneClickVerificationDelivered: 41,
+        oneClickVerificationCreated: 41,
         oneClickVerificationVerified: 38,
       },
       {
         date: '2024-12-18T00:35:40Z',
-        oneClickVerificationDelivered: 58,
+        oneClickVerificationCreated: 58,
         oneClickVerificationVerified: 54,
       },
     ],
@@ -101,52 +101,52 @@ const mockOneClickVerificationBigNumbersData = [
     interval: [
       {
         date: '2024-12-23T18:26:00Z',
-        oneClickVerificationDelivered: 32,
+        oneClickVerificationCreated: 32,
         oneClickVerificationVerified: 29,
       },
       {
         date: '2024-12-23T17:14:00Z',
-        oneClickVerificationDelivered: 28,
+        oneClickVerificationCreated: 28,
         oneClickVerificationVerified: 25,
       },
       {
         date: '2024-12-19T04:09:00Z',
-        oneClickVerificationDelivered: 45,
+        oneClickVerificationCreated: 45,
         oneClickVerificationVerified: 42,
       },
       {
         date: '2024-12-19T04:08:00Z',
-        oneClickVerificationDelivered: 39,
+        oneClickVerificationCreated: 39,
         oneClickVerificationVerified: 36,
       },
       {
         date: '2024-12-19T03:14:00Z',
-        oneClickVerificationDelivered: 51,
+        oneClickVerificationCreated: 51,
         oneClickVerificationVerified: 47,
       },
       {
         date: '2024-12-19T03:11:00Z',
-        oneClickVerificationDelivered: 33,
+        oneClickVerificationCreated: 33,
         oneClickVerificationVerified: 30,
       },
       {
         date: '2024-12-19T03:09:00Z',
-        oneClickVerificationDelivered: 47,
+        oneClickVerificationCreated: 47,
         oneClickVerificationVerified: 43,
       },
       {
         date: '2024-12-19T03:08:00Z',
-        oneClickVerificationDelivered: 42,
+        oneClickVerificationCreated: 42,
         oneClickVerificationVerified: 38,
       },
       {
         date: '2024-12-18T01:05:40Z',
-        oneClickVerificationDelivered: 56,
+        oneClickVerificationCreated: 56,
         oneClickVerificationVerified: 52,
       },
       {
         date: '2024-12-18T00:35:40Z',
-        oneClickVerificationDelivered: 37,
+        oneClickVerificationCreated: 37,
         oneClickVerificationVerified: 34,
       },
     ],
@@ -157,52 +157,52 @@ const mockOneClickVerificationBigNumbersData = [
     interval: [
       {
         date: '2024-12-23T18:26:00Z',
-        oneClickVerificationDelivered: 63,
+        oneClickVerificationCreated: 63,
         oneClickVerificationVerified: 59,
       },
       {
         date: '2024-12-23T17:14:00Z',
-        oneClickVerificationDelivered: 71,
+        oneClickVerificationCreated: 71,
         oneClickVerificationVerified: 67,
       },
       {
         date: '2024-12-19T04:09:00Z',
-        oneClickVerificationDelivered: 58,
+        oneClickVerificationCreated: 58,
         oneClickVerificationVerified: 54,
       },
       {
         date: '2024-12-19T04:08:00Z',
-        oneClickVerificationDelivered: 74,
+        oneClickVerificationCreated: 74,
         oneClickVerificationVerified: 70,
       },
       {
         date: '2024-12-19T03:14:00Z',
-        oneClickVerificationDelivered: 69,
+        oneClickVerificationCreated: 69,
         oneClickVerificationVerified: 65,
       },
       {
         date: '2024-12-19T03:11:00Z',
-        oneClickVerificationDelivered: 65,
+        oneClickVerificationCreated: 65,
         oneClickVerificationVerified: 61,
       },
       {
         date: '2024-12-19T03:09:00Z',
-        oneClickVerificationDelivered: 77,
+        oneClickVerificationCreated: 77,
         oneClickVerificationVerified: 73,
       },
       {
         date: '2024-12-19T03:08:00Z',
-        oneClickVerificationDelivered: 62,
+        oneClickVerificationCreated: 62,
         oneClickVerificationVerified: 58,
       },
       {
         date: '2024-12-18T01:05:40Z',
-        oneClickVerificationDelivered: 80,
+        oneClickVerificationCreated: 80,
         oneClickVerificationVerified: 76,
       },
       {
         date: '2024-12-18T00:35:40Z',
-        oneClickVerificationDelivered: 68,
+        oneClickVerificationCreated: 68,
         oneClickVerificationVerified: 64,
       },
     ],
@@ -213,52 +213,52 @@ const mockOneClickVerificationBigNumbersData = [
     interval: [
       {
         date: '2024-12-23T18:26:00Z',
-        oneClickVerificationDelivered: 25,
+        oneClickVerificationCreated: 25,
         oneClickVerificationVerified: 23,
       },
       {
         date: '2024-12-23T17:14:00Z',
-        oneClickVerificationDelivered: 31,
+        oneClickVerificationCreated: 31,
         oneClickVerificationVerified: 28,
       },
       {
         date: '2024-12-19T04:09:00Z',
-        oneClickVerificationDelivered: 22,
+        oneClickVerificationCreated: 22,
         oneClickVerificationVerified: 20,
       },
       {
         date: '2024-12-19T04:08:00Z',
-        oneClickVerificationDelivered: 35,
+        oneClickVerificationCreated: 35,
         oneClickVerificationVerified: 32,
       },
       {
         date: '2024-12-19T03:14:00Z',
-        oneClickVerificationDelivered: 28,
+        oneClickVerificationCreated: 28,
         oneClickVerificationVerified: 26,
       },
       {
         date: '2024-12-19T03:11:00Z',
-        oneClickVerificationDelivered: 24,
+        oneClickVerificationCreated: 24,
         oneClickVerificationVerified: 22,
       },
       {
         date: '2024-12-19T03:09:00Z',
-        oneClickVerificationDelivered: 30,
+        oneClickVerificationCreated: 30,
         oneClickVerificationVerified: 27,
       },
       {
         date: '2024-12-19T03:08:00Z',
-        oneClickVerificationDelivered: 26,
+        oneClickVerificationCreated: 26,
         oneClickVerificationVerified: 24,
       },
       {
         date: '2024-12-18T01:05:40Z',
-        oneClickVerificationDelivered: 33,
+        oneClickVerificationCreated: 33,
         oneClickVerificationVerified: 30,
       },
       {
         date: '2024-12-18T00:35:40Z',
-        oneClickVerificationDelivered: 21,
+        oneClickVerificationCreated: 21,
         oneClickVerificationVerified: 19,
       },
     ],
@@ -272,7 +272,7 @@ const mockOneClickVerificationBigNumbersData = [
  */
 export const Default: Story = {
   args: {
-    chartData: mockOneClickVerificationBigNumbersData,
+    chartData: mockOneClickVerificationBigNumbersData as any,
     isLoading: false,
   },
 };
@@ -305,7 +305,7 @@ export const Empty: Story = {
  */
 export const SingleBrand: Story = {
   args: {
-    chartData: [mockOneClickVerificationBigNumbersData[0]],
+    chartData: [mockOneClickVerificationBigNumbersData[0] as any],
     isLoading: false,
   },
 };
@@ -320,10 +320,10 @@ export const HighVolume: Story = {
       ...brand,
       interval: brand.interval.map((item) => ({
         ...item,
-        oneClickVerificationDelivered: item.oneClickVerificationDelivered * 10,
+        oneClickVerificationCreated: item.oneClickVerificationCreated * 10,
         oneClickVerificationVerified: item.oneClickVerificationVerified * 8,
       })),
-    })),
+    })) as any,
     isLoading: false,
   },
 };
@@ -338,12 +338,12 @@ export const LowSuccessRate: Story = {
       ...brand,
       interval: brand.interval.map((item) => ({
         ...item,
-        oneClickVerificationDelivered: item.oneClickVerificationDelivered,
+        oneClickVerificationCreated: item.oneClickVerificationCreated,
         oneClickVerificationVerified: Math.floor(
           item.oneClickVerificationVerified * 0.3,
         ),
       })),
-    })),
+    })) as any,
     isLoading: false,
   },
 };
