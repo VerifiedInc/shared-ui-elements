@@ -52,27 +52,37 @@ export default defineConfig({
         'utils/wrapPromise': resolvePath('src/utils/wrapPromise/index.ts'),
       },
       formats: ['es'],
-      fileName: (format, entryName) => {
-        if (entryName === 'index') {
-          return `${entryName}.mjs`;
-        }
-        return `${entryName}/index.mjs`;
-      },
     },
     rollupOptions: {
       external: (id) => {
-        const peerDeps = Object.keys(pkg.peerDependencies || {});
-        return peerDeps.some((dep) => id === dep || id.startsWith(`${dep}/`));
+        const externalDeps = [
+          ...Object.keys(pkg.peerDependencies || {}),
+          ...Object.keys(pkg.dependencies || {}),
+        ];
+        return externalDeps.some(
+          (dep) => id === dep || id.startsWith(`${dep}/`),
+        );
       },
       output: {
-        chunkFileNames: 'shared/[name]-[hash].mjs',
-        // Preserve module structure and ensure proper React key handling
-        preserveModules: false,
-        // Ensure components aren't unnecessarily duplicated
-        manualChunks: undefined,
+        // Each source file gets its own output file so consumers can
+        // tree-shake individual components (e.g. drop ExportToPdfButton
+        // and its react-to-pdf dynamic import when not used).
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        // Named entries (index, components, utils/phone, …) keep the
+        // /index.mjs convention expected by package.json exports.
+        // Every other preserved module file uses its source path + .mjs.
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.isEntry) {
+            if (chunkInfo.name === 'index') return 'index.mjs';
+            return `${chunkInfo.name}/index.mjs`;
+          }
+          return `${chunkInfo.name}.mjs`;
+        },
       },
     },
   },
+  publicDir: false,
   esbuild: {
     legalComments: 'none',
   },
