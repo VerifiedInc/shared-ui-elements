@@ -1,4 +1,10 @@
-import React, { useRef, type ReactElement, type ReactNode } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
 import { contrastColor, lighten } from '../../../utils/color';
@@ -30,6 +36,23 @@ export function OneClickVerificationFunnelChart({
   const style = useStyle();
   const theme = useTheme();
 
+  /**
+   * Due to our data anomalies, when a lower section is wider than the upper one
+   * we have to calculate the widest segment's pixel positions to derive the actual center.
+   * We capture them during render and put to state in a single batched pass.
+   */
+  const [centerX, setCenterX] = useState(0);
+  const [rightEdgeX, setRightEdgeX] = useState(0);
+  const centerXRef = useRef(0);
+  const rightEdgeXRef = useRef(0);
+
+  useEffect(() => {
+    const nextCenter = centerXRef.current;
+    const nextRight = rightEdgeXRef.current;
+    if (nextCenter !== 0 && nextCenter !== centerX) setCenterX(nextCenter);
+    if (nextRight !== 0 && nextRight !== rightEdgeX) setRightEdgeX(nextRight);
+  });
+
   if (!data.length && isLoading) {
     return <LoadingChartSection />;
   }
@@ -52,8 +75,6 @@ export function OneClickVerificationFunnelChart({
   }
 
   const base = theme.palette.primary.main;
-  const centerXRef = useRef(0);
-  const rightEdgeRef = useRef(0);
 
   // Build funnel data: recalculate drop-off against previous VISIBLE step
   const funnelData = visibleWithIndex.map(({ step, originalIndex }, i) => {
@@ -74,12 +95,22 @@ export function OneClickVerificationFunnelChart({
     };
   });
 
+  const widestIndex = funnelData.reduce(
+    (maxIdx, step, i) => (step.value > funnelData[maxIdx].value ? i : maxIdx),
+    0,
+  );
+
   function InsideLabel(props: any): ReactElement | null {
     const { x, y, width, height, value, index } = props;
     if (value == null) return null;
 
-    // Ensure all labels are centralized by the first (largest) one
-    if (index === 0) centerXRef.current = x + width / 2;
+    // Record the widest segment's center and right edge so the effect can
+    // commit both to state. On the corrective re-render all labels are aligned.
+    if (index === widestIndex) {
+      centerXRef.current = x + width / 2;
+      rightEdgeXRef.current = x + width;
+    }
+
     const fill = funnelData[index]?.fill ?? base;
 
     // When the segment is narrower than this threshold the label overflows
@@ -92,7 +123,7 @@ export function OneClickVerificationFunnelChart({
 
     return (
       <text
-        x={centerXRef.current}
+        x={centerX || x + width / 2}
         y={y + height / 2}
         textAnchor='middle'
         dominantBaseline='middle'
@@ -110,9 +141,7 @@ export function OneClickVerificationFunnelChart({
     const step = funnelData[index];
     if (!step) return null;
 
-    // Ensure all labels are centralized by the first (largest) one
-    if (index === 0) rightEdgeRef.current = x + width;
-    const labelX = rightEdgeRef.current + 8;
+    const labelX = (rightEdgeX || x + width) + 8;
     const hasDropOff = step.dropOffPercent !== null && step.dropOffPercent > 0;
     const centerY = y + height / 2;
 
