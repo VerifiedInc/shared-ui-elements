@@ -1,16 +1,17 @@
 import React, { type ReactElement, type ReactNode } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
-import { contrastColor, lighten } from '../../../utils/color';
+import { mix } from '../../../utils/color';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { FunnelChart } from '../FunnelChart';
 import type { OneClickVerificationFunnelStepData } from './OneClickVerificationFunnelChart.map';
 import { useStyle } from '../styles';
+import { lightGreen, lightGrey } from '../../../../src/styles/';
 
-/** Progressive lighten amounts from lightest (index 0 = Created) to base (index 3 = Verified). */
-const SHADE_AMOUNTS = [40, 25, 10, 0] as const;
+/** Total number of funnel steps — used to compute gradient ratios. */
+const TOTAL_STEPS = 4;
 
 /** Subset of props recharts passes to a LabelList `content` function inside a Funnel. */
 interface FunnelLabelProps {
@@ -53,6 +54,11 @@ export function OneClickVerificationFunnelChart({
     return <EmptyChartSection />;
   }
 
+  // "Verified" is the last step — a funnel without any verified events is meaningless.
+  if (data[data.length - 1]?.value === 0) {
+    return <EmptyChartSection />;
+  }
+
   // Filter zero-value steps and preserve original index for colour mapping
   const visibleWithIndex = data
     .map((step, originalIndex) => ({ step, originalIndex }))
@@ -62,7 +68,10 @@ export function OneClickVerificationFunnelChart({
     return <EmptyChartSection />;
   }
 
-  const base = theme.palette.primary.main;
+  // const gray = theme.palette.grey[400];
+  // const green = theme.palette.primary.main;
+  const gray = lightGrey;
+  const green = lightGreen;
 
   // Build funnel data: recalculate drop-off against previous VISIBLE step
   const funnelData = visibleWithIndex.map(({ step, originalIndex }, i) => {
@@ -75,11 +84,15 @@ export function OneClickVerificationFunnelChart({
       dropOffPercent = percent > 0 ? percent : null;
     }
 
+    // Gradient from gray (top) to green (bottom), tied to the step's
+    // original position so each step keeps a consistent colour.
+    const ratio = (originalIndex / (TOTAL_STEPS - 1)) * 100;
+
     return {
       name: step.name,
       value: step.value,
       dropOffPercent,
-      fill: lighten(base, SHADE_AMOUNTS[originalIndex]),
+      fill: mix(gray, green, ratio),
     };
   });
 
@@ -102,20 +115,10 @@ export function OneClickVerificationFunnelChart({
    */
 
   function InsideLabel(props: object): ReactElement | null {
-    const { y, width, height, value, index, viewBox } =
-      props as FunnelLabelProps;
+    const { y, height, value, viewBox } = props as FunnelLabelProps;
     if (value == null) return null;
 
     const cx = viewBox.x + viewBox.width / 2;
-    const fill = funnelData[index]?.fill ?? base;
-
-    // When the segment is narrower than this threshold the label overflows
-    // onto the white background — switch to a dark colour so it stays legible.
-    const MIN_FILL_WIDTH = 60;
-    const textColor =
-      width >= MIN_FILL_WIDTH
-        ? contrastColor(fill)
-        : theme.palette.text.primary;
 
     return (
       <text
@@ -125,7 +128,7 @@ export function OneClickVerificationFunnelChart({
         dominantBaseline='middle'
         fontSize={14}
         fontWeight={600}
-        fill={textColor}
+        fill={theme.palette.text.primary}
       >
         {Number(value).toLocaleString()}
       </text>
