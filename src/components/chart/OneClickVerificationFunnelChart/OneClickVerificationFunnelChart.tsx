@@ -1,13 +1,12 @@
 import React, { type ReactElement, type ReactNode } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
-import { mix } from '../../../utils/color';
-
 import { EmptyChartSection } from '../EmptyChartSection';
-import { LoadingChartSection } from '../LoadingChartSection';
 import { FunnelChart } from '../FunnelChart';
+import { LoadingChartSection } from '../LoadingChartSection';
 import type { OneClickVerificationFunnelStepData } from './OneClickVerificationFunnelChart.map';
 import { useStyle } from '../styles';
+import { mix } from '../../../utils/color';
 import { lightGreen, lightGrey } from '../../../../src/styles/';
 
 /** Total number of funnel steps — used to compute gradient ratios. */
