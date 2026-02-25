@@ -42,6 +42,17 @@ export const contrastColor = (color: string, alpha: number = 1) => {
 };
 
 /**
+ * Mixes two colors together.
+ * @param color1 The first color.
+ * @param color2 The second color.
+ * @param amount How much of `color2` to mix in (0 = all color1, 100 = all color2).
+ * @returns The blended color.
+ */
+export const mix = (color1: string, color2: string, amount: number) => {
+  return tinycolor.mix(color1, color2, amount).toHexString();
+};
+
+/**
  * Get the color theme from a primary color. Used in the demo.
  * @param primaryColor The primary color.
  * @returns The color theme.

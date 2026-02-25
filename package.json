@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "8.20.1-local123324",
+  "version": "8.21.3",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "sideEffects": false,
@@ -120,6 +120,7 @@
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
+    "date-fns": ">=3.6.0",
     "@dotlottie/react-player": "^1.6.19",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
