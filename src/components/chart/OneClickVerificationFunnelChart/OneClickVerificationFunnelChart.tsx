@@ -67,11 +67,6 @@ export function OneClickVerificationFunnelChart({
     return <EmptyChartSection />;
   }
 
-  // const gray = theme.palette.grey[400];
-  // const green = theme.palette.primary.main;
-  const gray = lightGrey;
-  const green = lightGreen;
-
   // Build funnel data: recalculate drop-off against previous VISIBLE step
   const funnelData = visibleWithIndex.map(({ step, originalIndex }, i) => {
     const prevVisible = i > 0 ? visibleWithIndex[i - 1].step : null;
@@ -91,7 +86,7 @@ export function OneClickVerificationFunnelChart({
       name: step.name,
       value: step.value,
       dropOffPercent,
-      fill: mix(gray, green, ratio),
+      fill: mix(lightGrey, lightGreen, ratio),
     };
   });
 
