@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  type ReactElement,
-  type ReactNode,
-} from 'react';
+import React, { type ReactElement, type ReactNode } from 'react';
 import { useTheme, type SxProps } from '@mui/material';
 
 import { contrastColor, lighten } from '../../../utils/color';
@@ -17,6 +11,17 @@ import { useStyle } from '../styles';
 
 /** Progressive lighten amounts from lightest (index 0 = Created) to base (index 3 = Verified). */
 const SHADE_AMOUNTS = [40, 25, 10, 0] as const;
+
+/** Subset of props recharts passes to a LabelList `content` function inside a Funnel. */
+interface FunnelLabelProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  value: number;
+  index: number;
+  viewBox: { x: number; y: number; width: number; height: number };
+}
 
 export interface OneClickVerificationFunnelChartProps {
   data: OneClickVerificationFunnelStepData[];
@@ -35,23 +40,6 @@ export function OneClickVerificationFunnelChart({
 }: Readonly<OneClickVerificationFunnelChartProps>): ReactNode {
   const style = useStyle();
   const theme = useTheme();
-
-  /**
-   * Due to our data anomalies, when a lower section is wider than the upper one
-   * we have to calculate the widest segment's pixel positions to derive the actual center.
-   * We capture them during render and put to state in a single batched pass.
-   */
-  const [centerX, setCenterX] = useState(0);
-  const [rightEdgeX, setRightEdgeX] = useState(0);
-  const centerXRef = useRef(0);
-  const rightEdgeXRef = useRef(0);
-
-  useEffect(() => {
-    const nextCenter = centerXRef.current;
-    const nextRight = rightEdgeXRef.current;
-    if (nextCenter !== 0 && nextCenter !== centerX) setCenterX(nextCenter);
-    if (nextRight !== 0 && nextRight !== rightEdgeX) setRightEdgeX(nextRight);
-  });
 
   if (!data.length && isLoading) {
     return <LoadingChartSection />;
@@ -95,22 +83,30 @@ export function OneClickVerificationFunnelChart({
     };
   });
 
-  const widestIndex = funnelData.reduce(
-    (maxIdx, step, i) => (step.value > funnelData[maxIdx].value ? i : maxIdx),
-    0,
-  );
+  const maxValue =
+    funnelData[
+      funnelData.reduce(
+        (maxIdx, step, i) =>
+          step.value > funnelData[maxIdx].value ? i : maxIdx,
+        0,
+      )
+    ].value;
 
-  function InsideLabel(props: any): ReactElement | null {
-    const { x, y, width, height, value, index } = props;
+  /**
+   * Recharts internally computes a `labelViewBox` for each funnel segment
+   * whose center (`viewBox.x + viewBox.width / 2`) is always the chart's
+   * true horizontal centre — regardless of whether the funnel is monotonic.
+   *
+   * From that centre we can also derive the widest segment's right edge
+   * algebraically:  `cx + (cx - x) * maxValue / segmentValue`
+   */
+
+  function InsideLabel(props: object): ReactElement | null {
+    const { y, width, height, value, index, viewBox } =
+      props as FunnelLabelProps;
     if (value == null) return null;
 
-    // Record the widest segment's center and right edge so the effect can
-    // commit both to state. On the corrective re-render all labels are aligned.
-    if (index === widestIndex) {
-      centerXRef.current = x + width / 2;
-      rightEdgeXRef.current = x + width;
-    }
-
+    const cx = viewBox.x + viewBox.width / 2;
     const fill = funnelData[index]?.fill ?? base;
 
     // When the segment is narrower than this threshold the label overflows
@@ -123,7 +119,7 @@ export function OneClickVerificationFunnelChart({
 
     return (
       <text
-        x={centerX || x + width / 2}
+        x={cx}
         y={y + height / 2}
         textAnchor='middle'
         dominantBaseline='middle'
@@ -136,12 +132,15 @@ export function OneClickVerificationFunnelChart({
     );
   }
 
-  function RightLabel(props: any): ReactElement | null {
-    const { x, y, width, height, index } = props;
+  function RightLabel(props: object): ReactElement | null {
+    const { x, y, height, index, viewBox } = props as FunnelLabelProps;
     const step = funnelData[index];
     if (!step) return null;
 
-    const labelX = (rightEdgeX || x + width) + 8;
+    // Derive the widest segment's right edge from any segment's geometry.
+    const cx = viewBox.x + viewBox.width / 2;
+    const labelX = cx + ((cx - x) * maxValue) / step.value + 8;
+
     const hasDropOff = step.dropOffPercent !== null && step.dropOffPercent > 0;
     const centerY = y + height / 2;
 
