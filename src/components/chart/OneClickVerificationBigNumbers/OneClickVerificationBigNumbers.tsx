@@ -1,50 +1,23 @@
-import { Stack } from '@mui/material';
-import { BigNumber } from '..';
-import {
-  formatNumberRounded,
-  formatPercentage,
-} from '../../../utils/number/formatters';
+import { OverviewBigNumbers } from '../OverviewBigNumbers';
 import {
   calculateOneClickVerificationMetrics,
-  defaultMetrics,
-  OneClickVerificationBigNumbersChartData,
+  OneClickVerificationBrandData,
 } from './OneClickVerificationBigNumbersMapper';
 
 export interface OneClickVerificationBigNumbersProps {
-  chartData: OneClickVerificationBigNumbersChartData[];
+  chartData: OneClickVerificationBrandData[];
   isLoading: boolean;
 }
 
 export function OneClickVerificationBigNumbers({
   chartData,
   isLoading = true,
-}: Readonly<OneClickVerificationBigNumbersProps>): React.ReactNode {
-  const metrics = isLoading
-    ? defaultMetrics
-    : calculateOneClickVerificationMetrics(chartData);
-
+}: Readonly<OneClickVerificationBigNumbersProps>) {
   return (
-    <Stack direction='row' spacing={3}>
-      <BigNumber
-        label='Total Created'
-        value={metrics.totalCreated}
-        initialValue={metrics.totalCreated}
-        map={formatNumberRounded}
-      />
-
-      <BigNumber
-        label='Total Verified'
-        value={metrics.totalVerified}
-        initialValue={metrics.totalVerified}
-        map={formatNumberRounded}
-      />
-
-      <BigNumber
-        label='Success Rate'
-        value={metrics.successRate}
-        initialValue={metrics.successRate}
-        map={formatPercentage}
-      />
-    </Stack>
+    <OverviewBigNumbers
+      metrics={calculateOneClickVerificationMetrics(chartData)}
+      isLoading={isLoading}
+      hideTotalCost
+    />
   );
 }

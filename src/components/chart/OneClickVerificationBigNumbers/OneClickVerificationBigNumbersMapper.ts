@@ -1,58 +1,54 @@
 import type { OneClickVerificationBrandData } from '../oneClickVerification.types';
 
+import {
+  OverviewMetrics,
+  defaultOverviewMetrics,
+} from '../OverviewBigNumbers/OverviewBigNumbers.types';
+
 export type {
   OneClickVerificationIntervalEntry,
   OneClickVerificationBrandData,
 } from '../oneClickVerification.types';
 
-export interface OneClickVerificationOverallMetrics {
-  totalCreated: number;
-  totalVerified: number;
-  successRate: number;
-}
-
-export const defaultMetrics: OneClickVerificationOverallMetrics = {
-  totalCreated: 0,
-  totalVerified: 0,
-  successRate: 0,
-};
+/** @deprecated Use {@link OverviewMetrics} from OverviewBigNumbers. */
+export type OneClickVerificationOverallMetrics = OverviewMetrics;
 
 /** @deprecated Use {@link OneClickVerificationBrandData} from the shared chart types. */
 export type OneClickVerificationBigNumbersChartData =
   OneClickVerificationBrandData;
 
+export const defaultMetrics = defaultOverviewMetrics;
+
 export function calculateOneClickVerificationMetrics(
   data: OneClickVerificationBrandData[],
-): OneClickVerificationOverallMetrics {
+): OverviewMetrics {
   if (!data?.length) return defaultMetrics;
 
-  let totalCreated = 0;
-  let totalVerified = 0;
+  let started = 0;
+  let succeeded = 0;
 
   data.forEach((brand) => {
     if (brand.interval?.length) {
-      // Calculate totals from interval data for each brand
-      const brandTotalCreated = brand.interval.reduce(
+      const brandStarted = brand.interval.reduce(
         (sum, interval) => sum + (interval.oneClickVerificationCreated || 0),
         0,
       );
 
-      const brandTotalVerified = brand.interval.reduce(
+      const brandSucceeded = brand.interval.reduce(
         (sum, interval) => sum + (interval.oneClickVerificationVerified || 0),
         0,
       );
 
-      // Sum up across all brands
-      totalCreated += brandTotalCreated;
-      totalVerified += brandTotalVerified;
+      started += brandStarted;
+      succeeded += brandSucceeded;
     }
   });
 
-  const successRate = totalCreated > 0 ? totalVerified / totalCreated : 0;
+  const successRate = started > 0 ? succeeded / started : 0;
 
   return {
-    totalCreated,
-    totalVerified,
+    started,
+    succeeded,
     successRate: isNaN(successRate) ? 0 : successRate,
   };
 }
