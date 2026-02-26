@@ -52,6 +52,6 @@ export function calculateSignupMetrics(
     started,
     succeeded,
     totalCost,
-    successRate: isNaN(successRate) ? 0 : successRate,
+    successRate,
   };
 }
