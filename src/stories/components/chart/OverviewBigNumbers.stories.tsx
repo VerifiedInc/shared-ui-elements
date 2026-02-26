@@ -101,23 +101,6 @@ export const HideTotalCost: Story = {
 };
 
 /**
- * Custom labels — overridden startedLabel and succeededLabel.
- */
-export const CustomLabels: Story = {
-  args: {
-    metrics: {
-      started: 800,
-      succeeded: 720,
-      totalCost: 3200,
-      successRate: 0.9,
-    },
-    isLoading: false,
-    startedLabel: 'Total Sent',
-    succeededLabel: 'Total Verified',
-  },
-};
-
-/**
  * No cost in metrics — totalCost omitted, cost card shows $0.00.
  */
 export const NoCostInMetrics: Story = {

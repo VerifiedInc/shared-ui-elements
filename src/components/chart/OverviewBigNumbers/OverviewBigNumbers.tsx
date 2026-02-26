@@ -15,29 +15,25 @@ export interface OverviewBigNumbersProps {
   metrics: OverviewMetrics;
   isLoading?: boolean;
   hideTotalCost?: boolean;
-  startedLabel?: string;
-  succeededLabel?: string;
 }
 
 export function OverviewBigNumbers({
   metrics,
   isLoading = false,
   hideTotalCost = false,
-  startedLabel = 'Started',
-  succeededLabel = 'Succeeded',
 }: Readonly<OverviewBigNumbersProps>) {
   const displayMetrics = isLoading ? defaultOverviewMetrics : metrics;
 
   return (
     <Stack direction='row' spacing={3}>
       <BigNumber
-        label={startedLabel}
+        label='Started'
         value={displayMetrics.started}
         initialValue={displayMetrics.started}
         map={formatNumberRounded}
       />
       <BigNumber
-        label={succeededLabel}
+        label='Succeeded'
         value={displayMetrics.succeeded}
         initialValue={displayMetrics.succeeded}
         map={formatNumberRounded}

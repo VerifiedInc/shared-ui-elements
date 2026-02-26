@@ -3,9 +3,6 @@ import {
   defaultOverviewMetrics,
 } from '../OverviewBigNumbers/OverviewBigNumbers.types';
 
-/** @deprecated Use {@link OverviewMetrics} from OverviewBigNumbers. */
-export type OneClickHealthOverallMetrics = OverviewMetrics;
-
 export const defaultMetrics = defaultOverviewMetrics;
 
 export interface OneClickHealthBigNumbersChartData {
