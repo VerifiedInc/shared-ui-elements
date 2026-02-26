@@ -1,4 +1,7 @@
-import { OverviewBigNumbers } from '../OverviewBigNumbers';
+import {
+  defaultOverviewMetrics,
+  OverviewBigNumbers,
+} from '../OverviewBigNumbers';
 import {
   calculateTTSMetrics,
   TTSBigNumbersChartData,
@@ -17,7 +20,9 @@ export function TTSBigNumbers({
 }: Readonly<TTSBigNumbersProps>) {
   return (
     <OverviewBigNumbers
-      metrics={calculateTTSMetrics(chartData)}
+      metrics={
+        isLoading ? defaultOverviewMetrics : calculateTTSMetrics(chartData)
+      }
       isLoading={isLoading}
       hideTotalCost={hideTotalCost}
     />

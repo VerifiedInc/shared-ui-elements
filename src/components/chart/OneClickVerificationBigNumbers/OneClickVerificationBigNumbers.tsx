@@ -1,4 +1,7 @@
-import { OverviewBigNumbers } from '../OverviewBigNumbers';
+import {
+  defaultOverviewMetrics,
+  OverviewBigNumbers,
+} from '../OverviewBigNumbers';
 import {
   calculateOneClickVerificationMetrics,
   OneClickVerificationBrandData,
@@ -15,7 +18,11 @@ export function OneClickVerificationBigNumbers({
 }: Readonly<OneClickVerificationBigNumbersProps>) {
   return (
     <OverviewBigNumbers
-      metrics={calculateOneClickVerificationMetrics(chartData)}
+      metrics={
+        isLoading
+          ? defaultOverviewMetrics
+          : calculateOneClickVerificationMetrics(chartData)
+      }
       isLoading={isLoading}
       hideTotalCost
     />

@@ -1,4 +1,7 @@
-import { OverviewBigNumbers } from '../OverviewBigNumbers';
+import {
+  defaultOverviewMetrics,
+  OverviewBigNumbers,
+} from '../OverviewBigNumbers';
 import {
   calculateSignupMetrics,
   SignupBigNumbersChartData,
@@ -17,7 +20,9 @@ export function SignupBigNumbers({
 }: Readonly<SignupBigNumbersProps>) {
   return (
     <OverviewBigNumbers
-      metrics={calculateSignupMetrics(chartData)}
+      metrics={
+        isLoading ? defaultOverviewMetrics : calculateSignupMetrics(chartData)
+      }
       isLoading={isLoading}
       hideTotalCost={hideTotalCost}
     />

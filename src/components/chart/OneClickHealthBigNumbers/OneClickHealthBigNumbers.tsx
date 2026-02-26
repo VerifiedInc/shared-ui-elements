@@ -1,4 +1,7 @@
-import { OverviewBigNumbers } from '../OverviewBigNumbers';
+import {
+  defaultOverviewMetrics,
+  OverviewBigNumbers,
+} from '../OverviewBigNumbers';
 import {
   calculateOneClickHealthMetrics,
   OneClickHealthBigNumbersChartData,
@@ -17,7 +20,11 @@ export function OneClickHealthBigNumbers({
 }: Readonly<OneClickHealthBigNumbersProps>) {
   return (
     <OverviewBigNumbers
-      metrics={calculateOneClickHealthMetrics(chartData)}
+      metrics={
+        isLoading
+          ? defaultOverviewMetrics
+          : calculateOneClickHealthMetrics(chartData)
+      }
       isLoading={isLoading}
       hideTotalCost={hideTotalCost}
     />
