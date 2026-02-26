@@ -19,7 +19,7 @@ export interface OverviewBigNumbersProps {
 
 export function OverviewBigNumbers({
   metrics,
-  isLoading = false,
+  isLoading = true,
   hideTotalCost = false,
 }: Readonly<OverviewBigNumbersProps>) {
   const displayMetrics = isLoading ? defaultOverviewMetrics : metrics;
