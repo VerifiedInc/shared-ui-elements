@@ -26,6 +26,7 @@ export function calculateOneClickVerificationMetrics(
 
   let started = 0;
   let succeeded = 0;
+  const totalCost = 0; // Not available for this product yet, always 0
 
   data.forEach((brand) => {
     if (brand.interval?.length) {
@@ -49,6 +50,7 @@ export function calculateOneClickVerificationMetrics(
   return {
     started,
     succeeded,
+    totalCost,
     successRate: isNaN(successRate) ? 0 : successRate,
   };
 }
