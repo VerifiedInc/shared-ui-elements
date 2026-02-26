@@ -16,6 +16,7 @@ export * from './MonthlySignupsOverviewTable';
 export * from './LoadingChartSection';
 export * from './EmptyChartSection';
 export * from './MetricLastUpdated';
+export * from './OverviewBigNumbers';
 export * from './SignupBigNumbers';
 export * from './TTSOverTimeChart';
 export * from './TTSBigNumbers';
