@@ -27,5 +27,6 @@ export * from './OneClickVerificationEventsOverTimeChart';
 export * from './OneClickVerificationSuccessOverTimeChart';
 export * from './FunnelChart';
 export * from './OneClickVerificationFunnelChart';
+export * from './OutcomeOverTimeChart';
 export * from './OneClickVerificationOutcomeOverTimeChart';
 export * from './oneClickVerification.types';
