@@ -29,4 +29,5 @@ export * from './FunnelChart';
 export * from './OneClickVerificationFunnelChart';
 export * from './OutcomeOverTimeChart';
 export * from './OneClickVerificationOutcomeOverTimeChart';
+export * from './OneClickHealthOutcomeOverTimeChart';
 export * from './oneClickVerification.types';
