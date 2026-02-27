@@ -1,11 +1,4 @@
-import {
-  Avatar,
-  Box,
-  MenuItem,
-  Stack,
-  SxProps,
-  Typography,
-} from '@mui/material';
+import { Avatar, MenuItem, Stack, SxProps, Typography } from '@mui/material';
 
 import { maskMemberId } from '../../../../core/formats';
 import { HealthInsuranceValue } from '../../../../core/validations';
