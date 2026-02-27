@@ -15,6 +15,7 @@ import {
   documentNumber,
   issuanceState,
 } from './driversLicense';
+import { healthInsurance, memberId, payer, payerName } from './healthInsurance';
 import { ssn } from './ssn';
 import { phone } from './phone';
 import { sex } from './sex';
@@ -43,6 +44,11 @@ export const fields = {
   issuanceState,
   issuanceDate,
   expirationDate,
+  // Health Insurance
+  healthInsurance,
+  memberId,
+  payer,
+  payerName,
   // Others
   ssn,
   phone,

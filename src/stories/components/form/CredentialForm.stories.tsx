@@ -11,12 +11,6 @@ import {
 } from '../../../components/form/NewOneClickForm';
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
-  const [key, setKey] = useState(0);
-
-  useEffect(() => {
-    setKey((prev) => prev + 1);
-  }, [form]);
-
   return (
     <Portal
       container={document.querySelector(
@@ -368,6 +362,9 @@ const CredentialForm: React.FC = () => {
           options={{
             features: {
               datePickerClickOutsideBoundaryElement: document.body,
+              // editMode: {
+              //   hide: true,
+              // },
             },
             servicePaths: {
               googlePlacesAutocompletePlaces: async (
@@ -415,6 +412,28 @@ const CredentialForm: React.FC = () => {
                 }
 
                 return response.json();
+              },
+              oneClickHealthProviderPayers: async (params) => {
+                const query = new URLSearchParams({ $paginate: 'true' });
+                if (params?.search) query.set('$search', params.search);
+                if (params?.limit !== undefined)
+                  query.set('$limit', params.limit.toString());
+                if (params?.skip !== undefined)
+                  query.set('$skip', params.skip.toString());
+
+                const response = await fetch(
+                  `http://localhost:3010/payers?${query}`,
+                );
+
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                return (result.data || []).map((payer: any) => ({
+                  ...payer,
+                  logoUrl: payer.logoUrl || undefined,
+                }));
               },
             },
           }}
@@ -504,6 +523,52 @@ const mockCredentials = [
         state: 'CA',
         country: 'US',
         zipCode: '10001',
+      },
+    },
+  },
+  {
+    uuid: 'drivers-license-id-1236',
+    type: 'driversLicense',
+    value: {
+      documentNumber: '123456781',
+      issuanceState: 'NY',
+      issuanceDate: '1754049600000',
+      expirationDate: '1765800000000',
+      address: {
+        line1: '123 Main Street',
+        line2: 'Apt 1A',
+        city: 'California',
+        state: 'CA',
+        country: 'US',
+        zipCode: '10001',
+      },
+    },
+  },
+  {
+    uuid: 'health-insurance-id-1234',
+    type: 'healthInsurance',
+    value: {
+      id: 174,
+      memberId: 'AC****02',
+      payer: {
+        verifiedId: 'V123123',
+        name: 'Aviato Health Insurance Of California',
+        logoUrl:
+          'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
+      },
+    },
+  },
+  {
+    uuid: 'health-insurance-id-1235',
+    type: 'healthInsurance',
+    value: {
+      id: 176,
+      memberId: 'AC****03',
+      payer: {
+        verifiedId: 'V123124',
+        name: 'Blue Shield of California',
+        logoUrl:
+          'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
       },
     },
   },
@@ -599,8 +664,8 @@ const mockCredentialRequests = [
     description: 'Your legal SSN',
   },
   {
-    allowUserInput: true,
-    mandatory: 'no',
+    allowUserInput: false,
+    mandatory: 'if_available',
     multi: false,
     type: 'SexCredential',
     description: 'Your birth sex',
@@ -677,6 +742,12 @@ const mockCredentialRequests = [
         ],
       },
     ],
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'if_available',
+    type: 'HealthInsuranceCredential',
+    description: 'Choose the right insurance plan',
   },
 ];
 

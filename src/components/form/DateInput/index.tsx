@@ -16,13 +16,19 @@ import {
   type TextFieldProps,
 } from '@mui/material';
 import { CalendarToday } from '@mui/icons-material';
-import DatePicker from 'react-datepicker';
+import ReactDatePickerImport from 'react-datepicker';
 
 import { useOnClickOutside } from '../../../hooks';
 import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 import { masks } from '../../../utils/masks';
 
 import { InputMask, InputMaskProps } from '../InputMask';
+
+// CJS/ESM interop: some bundlers don't unwrap the module default when resolving
+// the externalized react-datepicker CJS build, returning the exports object
+// instead of the class. This guard handles both cases safely.
+const DatePicker: typeof ReactDatePickerImport =
+  (ReactDatePickerImport as any).default ?? ReactDatePickerImport;
 
 interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   label?: ReactNode;

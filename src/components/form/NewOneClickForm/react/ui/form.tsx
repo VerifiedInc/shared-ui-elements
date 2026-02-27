@@ -5,6 +5,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 import type { Credential, CredentialRequest } from '../../types';
 import { Form, FormBuilder } from '../../core/form';
+import { toDomainCredentials } from '../../core/internal/mappers';
 
 import { type FormContextValue, FormProvider } from '../core/form.context';
 
@@ -30,7 +31,7 @@ export function NewOneClickForm({
   const form = useMemo(() => {
     const formBuilder = new FormBuilder();
     return formBuilder.createFromCredentialAndRequests(
-      credentials,
+      toDomainCredentials(credentials),
       credentialRequests,
     );
   }, [credentials, credentialRequests]);

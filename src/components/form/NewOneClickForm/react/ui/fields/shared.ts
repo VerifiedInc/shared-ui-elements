@@ -65,7 +65,10 @@ export function getAutoCompleteAttributeValue(key: string) {
 export const getFieldValue = (field: FormField) => {
   // Ignore composite fields except address
   if (typeof field.value === 'object') {
-    if (field.schema.key !== credentialKeys.address) {
+    if (
+      field.schema.key !== credentialKeys.address &&
+      field.schema.key !== credentialKeys.healthInsurance
+    ) {
       return;
     }
   }

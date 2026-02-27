@@ -5,14 +5,13 @@ import { useFormField } from '../../core/field.hook';
 import { makeAttributes } from './shared';
 import { useOneClickForm } from '../form.context';
 
-export function FieldLabel({
-  fieldKey,
+export function FieldLabelBase({
+  label,
   sx,
 }: {
-  fieldKey: string;
+  label?: string;
   sx?: SxProps;
 }) {
-  const { fieldProps } = useFormField({ key: fieldKey });
   return (
     <Stack
       sx={{
@@ -38,10 +37,24 @@ export function FieldLabel({
           letterSpacing: 1,
         }}
       >
-        {fieldProps.label}
+        {label}
       </Typography>
     </Stack>
   );
+}
+
+export function FieldLabel({
+  fieldKey,
+  label: labelOverride,
+  sx,
+}: {
+  fieldKey: string;
+  label?: string;
+  sx?: SxProps;
+}) {
+  const { fieldProps } = useFormField({ key: fieldKey });
+  const label = labelOverride ?? fieldProps.label;
+  return <FieldLabelBase label={label} sx={sx} />;
 }
 
 export function FieldValue({ fieldKey }: { fieldKey: string }) {
@@ -67,11 +80,7 @@ export function FieldValue({ fieldKey }: { fieldKey: string }) {
   );
 }
 
-export function FieldDescription({ fieldKey }: { fieldKey: string }) {
-  const { fieldProps } = useFormField({ key: fieldKey });
-
-  if (!fieldProps.description) return null;
-
+export function FieldDescriptionBase({ description }: { description: string }) {
   return (
     <Typography
       variant='body1'
@@ -85,9 +94,24 @@ export function FieldDescription({ fieldKey }: { fieldKey: string }) {
         textAlign: 'left',
       }}
     >
-      {fieldProps.description}
+      {description}
     </Typography>
   );
+}
+
+export function FieldDescription({
+  fieldKey,
+  description: descriptionOverride,
+}: {
+  fieldKey: string;
+  description?: string;
+}) {
+  const { fieldProps } = useFormField({ key: fieldKey });
+  const description = descriptionOverride ?? fieldProps.description;
+
+  if (!description) return null;
+
+  return <FieldDescriptionBase description={description} />;
 }
 
 export function FieldRowContainer({
@@ -136,11 +160,17 @@ export function FieldRow({
   );
 }
 
-export function FieldSectionTitle({ fieldKey }: { fieldKey: string }) {
+export function FieldSectionTitle({
+  fieldKey,
+  description,
+}: {
+  fieldKey: string;
+  description?: string;
+}) {
   return (
     <Stack>
       <FieldLabel fieldKey={fieldKey} sx={{ width: '100%', mt: 0 }} />
-      <FieldDescription fieldKey={fieldKey} />
+      <FieldDescription fieldKey={fieldKey} description={description} />
     </Stack>
   );
 }

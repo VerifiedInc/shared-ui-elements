@@ -33,11 +33,15 @@ export class FormBuilder {
         requestObj = request;
 
         // If it's a composite field without children, expand it automatically
+        // Exception: some composite fields (like healthInsurance) should remain as single fields
         if (!requestObj.children) {
           const fieldKey = requestObj.type.replace(/Credential$/, '');
           const requestType = (fieldKey.charAt(0).toLowerCase() +
             fieldKey.slice(1)) as keyof typeof fields;
           const fieldSchema = fields[requestType];
+
+          // List of composite fields that should NOT be auto-expanded
+          const singleFieldComposites = ['healthInsurance'];
 
           if (
             fieldSchema &&
@@ -45,7 +49,8 @@ export class FormBuilder {
               fieldInputTypes.composite &&
             'children' in fieldSchema &&
             'defaultOrder' in fieldSchema.characteristics &&
-            fieldSchema.characteristics.defaultOrder
+            fieldSchema.characteristics.defaultOrder &&
+            !singleFieldComposites.includes(requestType)
           ) {
             // Expand the composite field
             const expandedRequest = this.expandCredentialType(requestObj.type);
