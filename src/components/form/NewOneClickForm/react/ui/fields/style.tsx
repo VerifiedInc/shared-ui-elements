@@ -99,12 +99,19 @@ export function FieldDescriptionBase({ description }: { description: string }) {
   );
 }
 
-export function FieldDescription({ fieldKey }: { fieldKey: string }) {
+export function FieldDescription({
+  fieldKey,
+  description: descriptionOverride,
+}: {
+  fieldKey: string;
+  description?: string;
+}) {
   const { fieldProps } = useFormField({ key: fieldKey });
+  const description = descriptionOverride ?? fieldProps.description;
 
-  if (!fieldProps.description) return null;
+  if (!description) return null;
 
-  return <FieldDescriptionBase description={fieldProps.description} />;
+  return <FieldDescriptionBase description={description} />;
 }
 
 export function FieldRowContainer({
@@ -153,11 +160,17 @@ export function FieldRow({
   );
 }
 
-export function FieldSectionTitle({ fieldKey }: { fieldKey: string }) {
+export function FieldSectionTitle({
+  fieldKey,
+  description,
+}: {
+  fieldKey: string;
+  description?: string;
+}) {
   return (
     <Stack>
       <FieldLabel fieldKey={fieldKey} sx={{ width: '100%', mt: 0 }} />
-      <FieldDescription fieldKey={fieldKey} />
+      <FieldDescription fieldKey={fieldKey} description={description} />
     </Stack>
   );
 }

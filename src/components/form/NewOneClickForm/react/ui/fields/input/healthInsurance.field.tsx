@@ -204,6 +204,7 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
           <TextField
             {...params}
             label={<RequiredLabel>Insurer</RequiredLabel>}
+            helperText='The company that provides your health insurance'
             placeholder='Search...'
             size='small'
             InputLabelProps={{ shrink: true }}
@@ -233,6 +234,7 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
         disabled={field.isDisabled}
         value={item.memberId}
         onChange={(e) => updateItem({ memberId: e.target.value })}
+        helperText='From your health insurance ID card'
         InputProps={
           {
             'data-mask-me': true,

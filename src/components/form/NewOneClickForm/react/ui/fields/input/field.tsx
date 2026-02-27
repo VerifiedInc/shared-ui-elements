@@ -52,7 +52,10 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
   if (field?.schema?.key === credentialKeys.healthInsurance) {
     return (
       <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
-        <FieldSectionTitle fieldKey={fieldKey} />
+        <FieldSectionTitle
+          fieldKey={fieldKey}
+          description='Enter your insurance info:'
+        />
         <FieldSectionContent spacing={1.25}>
           <HealthInsuranceInputField fieldKey={fieldKey} />
         </FieldSectionContent>
