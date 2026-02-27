@@ -7,7 +7,6 @@ export interface OneClickSignupOutcomeIntervalEntry {
   date: string | number;
   oneClickCreated: number;
   oneClickSuccess: number;
-  [key: string]: any;
 }
 
 export interface OneClickSignupOutcomeBrandData {

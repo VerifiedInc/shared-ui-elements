@@ -8,7 +8,6 @@ export interface OneClickHealthOutcomeIntervalEntry {
   oneClickHealthSucceeded: number;
   oneClickHealthPartial: number;
   oneClickHealthFailed: number;
-  [key: string]: any;
 }
 
 export interface OneClickHealthOutcomeBrandData {
