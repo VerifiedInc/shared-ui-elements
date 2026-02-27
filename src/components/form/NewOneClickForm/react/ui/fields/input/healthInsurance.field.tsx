@@ -3,7 +3,6 @@ import {
   Autocomplete,
   Avatar,
   Box,
-  CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
@@ -35,7 +34,7 @@ function useHealthInsuranceProviders(search: string) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const skipRef = useRef(0);
 
-  const { isFetching } = useQuery({
+  const { isLoading: isFetching } = useQuery({
     queryKey: ['insurance-providers', debouncedSearch],
     queryFn: async ({ signal }) => {
       const result = await options.servicePaths.oneClickHealthProviderPayers?.(
@@ -212,14 +211,7 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
               {
                 ...params.InputProps,
                 'data-mask-me': true,
-                endAdornment: (
-                  <>
-                    {isLoading ? (
-                      <CircularProgress color='primary' size={20} />
-                    ) : null}
-                    {params.InputProps.endAdornment}
-                  </>
-                ),
+                endAdornment: params.InputProps.endAdornment,
               } as any
             }
           />

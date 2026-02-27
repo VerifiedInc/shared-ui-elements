@@ -421,45 +421,26 @@ const CredentialForm: React.FC = () => {
                 return response.json();
               },
               oneClickHealthProviderPayers: async (params) => {
-                const allProviders = [
-                  {
-                    verifiedId: 'V9980890',
-                    name: 'Aetna',
-                    logoUrl:
-                      'https://renatozupo.com.br/storage/unnamed-768x768.jpg',
-                  },
-                  {
-                    verifiedId: 'V989089',
-                    name: 'Anthem Blue Cross Blue Shield',
-                    logoUrl:
-                      'http://s3.localhost.localstack.cloud:4566/1-click/health/payers/890dabde-a4de-49fa-8f37-5093702a54c6.png',
-                  },
-                  {
-                    verifiedId: 'V4352321',
-                    name: 'Blue Cross Blue Shield',
-                  },
-                  { verifiedId: 'V9483759', name: 'Cigna' },
-                  { verifiedId: 'V57459834', name: 'Humana' },
-                  { verifiedId: 'V32567324', name: 'Kaiser Permanente' },
-                  { verifiedId: 'V58943751', name: 'Medicaid' },
-                  { verifiedId: 'V098765', name: 'Medicare' },
-                  { verifiedId: 'V09876543', name: 'UnitedHealthcare' },
-                  { verifiedId: 'V567898765', name: 'WellCare' },
-                ];
+                const query = new URLSearchParams({ $paginate: 'true' });
+                if (params?.search) query.set('$search', params.search);
+                if (params?.limit !== undefined)
+                  query.set('$limit', params.limit.toString());
+                if (params?.skip !== undefined)
+                  query.set('$skip', params.skip.toString());
 
-                await new Promise((resolve) => setTimeout(resolve, 500));
+                const response = await fetch(
+                  `http://localhost:3010/payers?${query}`,
+                );
 
-                let filtered = allProviders;
-                if (params?.search) {
-                  const search = params.search.toLowerCase();
-                  filtered = allProviders.filter((p) =>
-                    p.name.toLowerCase().includes(search),
-                  );
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const skip = params?.skip ?? 0;
-                const limit = params?.limit ?? 20;
-                return filtered.slice(skip, skip + limit);
+                const result = await response.json();
+                return (result.data || []).map((payer: any) => ({
+                  ...payer,
+                  logoUrl: payer.logoUrl || undefined,
+                }));
               },
             },
           }}
