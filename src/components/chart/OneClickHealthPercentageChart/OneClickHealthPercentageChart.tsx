@@ -25,6 +25,10 @@ interface OneClickHealthPercentageChartProps {
   sx?: any;
 }
 
+/**
+ * @deprecated Use {@link OneClickHealthSynchronizedMetricsChart} instead.
+ * This component will be removed in a future version.
+ */
 export function OneClickHealthPercentageChart({
   data,
   isLoading,
