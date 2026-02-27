@@ -1,4 +1,11 @@
-import { Avatar, MenuItem, Stack, SxProps, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  MenuItem,
+  Stack,
+  SxProps,
+  Typography,
+} from '@mui/material';
 
 import { maskMemberId } from '../../../../core/formats';
 import { HealthInsuranceValue } from '../../../../core/validations';
@@ -14,7 +21,6 @@ import {
 import { VariantSelectField } from './variantSelect.field';
 
 const LOGO_SIZE = 48;
-const LOGO_SPACING = 12; // spacing between logo and text columns (spacing={1.5} = 12px)
 
 const fieldInputDisabledStyle: SxProps = {
   pointerEvents: 'auto',
@@ -22,9 +28,9 @@ const fieldInputDisabledStyle: SxProps = {
 
 function InsuranceRows({ item }: { item: HealthInsuranceValue }) {
   return (
-    <Stack spacing={1.5} py={1}>
+    <Stack py={1}>
       {/* INSURER row */}
-      <Stack direction='row' spacing={1.5}>
+      <Stack direction='row' sx={{ flex: 1 }} spacing={1.5}>
         <Avatar
           draggable={false}
           src={item.payer?.logoUrl ?? ''}
@@ -45,41 +51,45 @@ function InsuranceRows({ item }: { item: HealthInsuranceValue }) {
         >
           {item.payer?.name?.[0]?.toUpperCase()}
         </Avatar>
-        {/* Label + value matching FieldRow alignment */}
-        <Stack direction='row' sx={{ flex: 1 }}>
-          <FieldLabelBase label='Insurer' />
-          <Typography
-            data-mask-me
-            variant='body1'
-            sx={{
-              fontSize: 20,
-              fontWeight: 300,
-              wordBreak: 'break-word',
-              textAlign: 'left',
-            }}
-          >
-            {item.payer?.name}
-          </Typography>
-        </Stack>
-      </Stack>
+        <Stack direction='column' spacing={1.5}>
+          <Stack direction='row' spacing={1.5}>
+            {/* Label + value matching FieldRow alignment */}
+            <Stack direction='row' sx={{ flex: 1 }}>
+              <FieldLabelBase label='Insurer' />
+              <Typography
+                data-mask-me
+                variant='body1'
+                sx={{
+                  fontSize: 20,
+                  fontWeight: 300,
+                  wordBreak: 'break-word',
+                  textAlign: 'left',
+                }}
+              >
+                {item.payer?.name}
+              </Typography>
+            </Stack>
+          </Stack>
 
-      {/* MEMBER ID row — indented past logo to align with text */}
-      <Stack direction='row' sx={{ pl: `${LOGO_SIZE + LOGO_SPACING}px` }}>
-        <FieldLabelBase label='Member ID' />
-        <Stack>
-          <Typography
-            data-mask-me
-            variant='body1'
-            sx={{
-              fontSize: 20,
-              fontWeight: 300,
-              wordBreak: 'break-word',
-              textAlign: 'left',
-            }}
-          >
-            {maskMemberId(item.memberId)}
-          </Typography>
-          <FieldDescriptionBase description='Hidden for privacy' />
+          {/* MEMBER ID row — indented past logo to align with text */}
+          <Stack direction='row'>
+            <FieldLabelBase label='Member ID' />
+            <Stack>
+              <Typography
+                data-mask-me
+                variant='body1'
+                sx={{
+                  fontSize: 20,
+                  fontWeight: 300,
+                  wordBreak: 'break-word',
+                  textAlign: 'left',
+                }}
+              >
+                {maskMemberId(item.memberId)}
+              </Typography>
+              <FieldDescriptionBase description='Hidden for privacy' />
+            </Stack>
+          </Stack>
         </Stack>
       </Stack>
     </Stack>
