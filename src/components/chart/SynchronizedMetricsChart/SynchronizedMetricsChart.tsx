@@ -191,11 +191,15 @@ export function SynchronizedMetricsChart({
     [totalBrands],
   );
 
-  const legendPayload = startedData.map((b) => ({
-    value: b.name,
-    color: b.color,
-    payload: { name: b.uuid },
-  }));
+  const legendPayload = useMemo(
+    () =>
+      startedData.map((b) => ({
+        value: b.name,
+        color: b.color,
+        payload: { name: b.uuid },
+      })),
+    [startedData],
+  );
 
   if (noData && isLoading) {
     return <LoadingChartSection />;

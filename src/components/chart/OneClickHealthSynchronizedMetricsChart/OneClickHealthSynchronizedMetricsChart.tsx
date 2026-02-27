@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { SxProps } from '@mui/material';
 
 import { SynchronizedMetricsChart } from '../SynchronizedMetricsChart';
@@ -30,13 +30,17 @@ export function OneClickHealthSynchronizedMetricsChart({
   colorMap,
   sx,
 }: Readonly<OneClickHealthSynchronizedMetricsChartProps>): React.ReactNode {
-  const { started, succeeded, percentage } = isLoading
-    ? { started: [], succeeded: [], percentage: [] }
-    : mapOneClickHealthSynchronizedData({
-        brands: filter.brands,
-        colorMap,
-        data: chartData,
-      });
+  const { started, succeeded, percentage } = useMemo(
+    () =>
+      isLoading
+        ? { started: [], succeeded: [], percentage: [] }
+        : mapOneClickHealthSynchronizedData({
+            brands: filter.brands,
+            colorMap,
+            data: chartData,
+          }),
+    [isLoading, filter.brands, colorMap, chartData],
+  );
 
   return (
     <SynchronizedMetricsChart
