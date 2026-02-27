@@ -10,12 +10,15 @@ import { credentialKeys, fieldInputTypes } from '../../../../core/fields';
 
 import { useFormField } from '../../../core/field.hook';
 
+import { useOneClickForm } from '../../form.context';
+
 import { getAutoCompleteAttributeValue } from '../shared';
 
 import { FieldLabel } from './label';
 import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function DateInputField({ fieldKey }: { fieldKey: string }) {
+  const { options } = useOneClickForm();
   const { field, setValue } = useFormField<'birthDate'>({ key: fieldKey });
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [localValue, setLocalValue] = useState<string>(
@@ -93,6 +96,9 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
           field.errorMessage?.length ? field.errorMessage : field?.description
         }
         placeholder={field.schema.characteristics.placeholder}
+        pickerClickOutsideBoundaryElement={
+          options.features.datePickerClickOutsideBoundaryElement
+        }
         pickerDefaultSelectedDate={new Date('08/01/1989')}
         minDate={minDateForPicker}
         maxDate={maxDateForPicker}
