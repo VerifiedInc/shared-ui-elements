@@ -51,6 +51,8 @@ export function mapOneClickSignupOutcomeOverTimeChartData(
       const success = Number(item.oneClickSuccess || 0);
       const created = Number(item.oneClickCreated || 0);
       entry.oneClickSuccess = (entry.oneClickSuccess as number) + success;
+      // The API doesn't return the number of failed attempts, we'll derive from success for now
+      // the implication is: anything that is not a success is a fail (this is implied elsewhere too)
       entry.oneClickFailed =
         (entry.oneClickFailed as number) + Math.max(0, created - success);
     }
