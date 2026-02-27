@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickOutcomeOverTimeChart } from '../../../components/chart';
+import { OneClickSignupOutcomeOverTimeChart } from '../../../components/chart';
 
 const meta = {
-  title: 'components/chart/OneClickOutcomeOverTimeChart',
-  component: OneClickOutcomeOverTimeChart,
+  title: 'components/chart/OneClickSignupOutcomeOverTimeChart',
+  component: OneClickSignupOutcomeOverTimeChart,
   parameters: {
     layout: 'centered',
   },
@@ -26,7 +26,7 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickOutcomeOverTimeChart>;
+} satisfies Meta<typeof OneClickSignupOutcomeOverTimeChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

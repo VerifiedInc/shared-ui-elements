@@ -3,32 +3,32 @@ import type { AreaSeriesChartData } from '../AreaChart';
 import type { BrandFilter } from '../../BrandFilterInput';
 import { green, red } from '../../../styles/colors';
 
-export interface OneClickOutcomeIntervalEntry {
+export interface OneClickSignupOutcomeIntervalEntry {
   date: string | number;
   oneClickCreated: number;
   oneClickSuccess: number;
   [key: string]: any;
 }
 
-export interface OneClickOutcomeBrandData {
+export interface OneClickSignupOutcomeBrandData {
   brandUuid: string;
   brandName: string;
-  interval?: OneClickOutcomeIntervalEntry[];
+  interval?: OneClickSignupOutcomeIntervalEntry[];
 }
 
-export interface MapOneClickOutcomeOverTimeChartDataOptions {
+export interface MapOneClickSignupOutcomeOverTimeChartDataOptions {
   brands?: BrandFilter[];
-  data: OneClickOutcomeBrandData[];
+  data: OneClickSignupOutcomeBrandData[];
 }
 
-export interface OneClickOutcomeChartData {
+export interface OneClickSignupOutcomeChartData {
   series: AreaSeriesChartData[];
   data: Array<Record<string, number | string>>;
 }
 
-export function mapOneClickOutcomeOverTimeChartData(
-  options: MapOneClickOutcomeOverTimeChartDataOptions,
-): OneClickOutcomeChartData {
+export function mapOneClickSignupOutcomeOverTimeChartData(
+  options: MapOneClickSignupOutcomeOverTimeChartDataOptions,
+): OneClickSignupOutcomeChartData {
   const dateMap = new Map<number, Record<string, number | string>>();
   const brandUuids = options.brands
     ? new Set(options.brands.map((b) => b._raw.brandUuid))

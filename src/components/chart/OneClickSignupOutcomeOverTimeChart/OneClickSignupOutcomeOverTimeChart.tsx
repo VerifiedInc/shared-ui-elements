@@ -3,13 +3,13 @@ import type { SxProps } from '@mui/material';
 
 import { OutcomeOverTimeChart } from '../OutcomeOverTimeChart';
 import {
-  mapOneClickOutcomeOverTimeChartData,
-  type OneClickOutcomeBrandData,
-} from './OneClickOutcomeOverTimeChart.map';
+  mapOneClickSignupOutcomeOverTimeChartData,
+  type OneClickSignupOutcomeBrandData,
+} from './OneClickSignupOutcomeOverTimeChart.map';
 import type { BrandFilter } from '../../BrandFilterInput';
 
-export interface OneClickOutcomeOverTimeChartProps {
-  chartData: OneClickOutcomeBrandData[];
+export interface OneClickSignupOutcomeOverTimeChartProps {
+  chartData: OneClickSignupOutcomeBrandData[];
   isLoading: boolean;
   isSuccess: boolean;
   isFetching: boolean;
@@ -20,14 +20,14 @@ export interface OneClickOutcomeOverTimeChartProps {
   sx?: SxProps;
 }
 
-export function OneClickOutcomeOverTimeChart({
+export function OneClickSignupOutcomeOverTimeChart({
   chartData,
   isLoading = true,
   ...rest
-}: Readonly<OneClickOutcomeOverTimeChartProps>): React.ReactNode {
+}: Readonly<OneClickSignupOutcomeOverTimeChartProps>): React.ReactNode {
   const { series, data } = isLoading
     ? { series: [], data: [] }
-    : mapOneClickOutcomeOverTimeChartData({
+    : mapOneClickSignupOutcomeOverTimeChartData({
         brands: rest.filter.brands,
         data: chartData,
       });
