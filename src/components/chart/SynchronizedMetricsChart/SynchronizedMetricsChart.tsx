@@ -167,14 +167,6 @@ export function SynchronizedMetricsChart({
     [percentageData],
   );
 
-  if (noData && isLoading) {
-    return <LoadingChartSection />;
-  }
-
-  if (noData || !isSuccess) {
-    return <EmptyChartSection />;
-  }
-
   const totalBrands = startedData.length;
 
   const handleToggle = useCallback(
@@ -204,6 +196,14 @@ export function SynchronizedMetricsChart({
     color: b.color,
     payload: { name: b.uuid },
   }));
+
+  if (noData && isLoading) {
+    return <LoadingChartSection />;
+  }
+
+  if (noData || !isSuccess) {
+    return <EmptyChartSection />;
+  }
 
   return (
     <Stack sx={{ width: '100%', ...sx }}>
