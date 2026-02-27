@@ -1,6 +1,7 @@
 import type { SxProps } from '@mui/material';
 
 import type { SeriesChartData } from '../SeriesChart';
+import { BrandFilter } from '../../../components/BrandFilterInput';
 
 export interface SynchronizedMappedData {
   started: SeriesChartData[];
@@ -17,6 +18,7 @@ export interface SynchronizedMetricsChartProps {
   isFetching: boolean;
   filter: {
     timezone?: string;
+    brands: BrandFilter[];
   };
   sx?: SxProps;
 }

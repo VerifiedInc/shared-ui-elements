@@ -34,7 +34,7 @@ const CHART_HEIGHT = 200;
 function mergeChartData(
   seriesData: SeriesChartData[],
 ): Array<Record<string, number>> {
-  const dateMap = new Map<number, Record<string, number>>();
+  const dateMap = new Map<number, Record<string, number> & { date: number }>();
 
   for (const series of seriesData) {
     for (const point of series.chartData) {
