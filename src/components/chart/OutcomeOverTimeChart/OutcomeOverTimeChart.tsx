@@ -14,6 +14,8 @@ import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 import type { BrandFilter } from '../../BrandFilterInput';
 
+export type { AreaSeriesChartData } from '../AreaChart';
+
 type ViewMode = 'absolute' | 'percent';
 
 export interface OutcomeOverTimeChartProps {
