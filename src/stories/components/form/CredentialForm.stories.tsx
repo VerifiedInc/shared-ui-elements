@@ -11,13 +11,6 @@ import {
 } from '../../../components/form/NewOneClickForm';
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
-  const [key, setKey] = useState(0);
-  console.log({ form });
-
-  useEffect(() => {
-    setKey((prev) => prev + 1);
-  }, [form]);
-
   return (
     <Portal
       container={document.querySelector(
