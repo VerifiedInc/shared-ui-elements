@@ -55,13 +55,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: (id) => {
-        const externalDeps = [
-          ...Object.keys(pkg.peerDependencies || {}),
-          ...Object.keys(pkg.dependencies || {}),
-        ];
-        return externalDeps.some(
-          (dep) => id === dep || id.startsWith(`${dep}/`),
-        );
+        const peerDeps = Object.keys(pkg.peerDependencies || {});
+        return peerDeps.some((dep) => id === dep || id.startsWith(`${dep}/`));
       },
       output: {
         // Each source file gets its own output file so consumers can
