@@ -2,7 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickHealthSynchronizedMetricsChart } from '../../../components/chart/OneClickHealthSynchronizedMetricsChart/OneClickHealthSynchronizedMetricsChart';
+import { OneClickHealthSynchronizedMetricsChart } from '../../../components/chart';
 
 const meta = {
   title: 'components/chart/OneClickHealthSynchronizedMetricsChart',
