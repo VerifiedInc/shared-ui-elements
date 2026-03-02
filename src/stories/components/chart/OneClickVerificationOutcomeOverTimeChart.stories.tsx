@@ -1,10 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import {
-  OneClickVerificationOutcomeOverTimeChart,
-  mapOneClickVerificationOutcomeOverTimeChartData,
-} from '../../../components/chart';
+import { OneClickVerificationOutcomeOverTimeChart } from '../../../components/chart';
 
 const meta = {
   title: 'components/chart/OneClickVerificationOutcomeOverTimeChart',
@@ -183,14 +180,9 @@ const mockRawData = [
   },
 ];
 
-const chartData = mapOneClickVerificationOutcomeOverTimeChartData({
-  data: mockRawData,
-});
-
 export const Default: Story = {
   args: {
-    data: chartData.data,
-    series: chartData.series,
+    chartData: mockRawData,
     isLoading: false,
     isSuccess: true,
     isFetching: false,
@@ -200,8 +192,7 @@ export const Default: Story = {
 
 export const Loading: Story = {
   args: {
-    data: [],
-    series: [],
+    chartData: [],
     isLoading: true,
     isSuccess: false,
     isFetching: false,
@@ -211,8 +202,7 @@ export const Loading: Story = {
 
 export const Empty: Story = {
   args: {
-    data: [],
-    series: [],
+    chartData: [],
     isLoading: false,
     isSuccess: false,
     isFetching: false,
@@ -222,8 +212,7 @@ export const Empty: Story = {
 
 export const Fetching: Story = {
   args: {
-    data: chartData.data,
-    series: chartData.series,
+    chartData: mockRawData,
     isLoading: false,
     isSuccess: true,
     isFetching: true,
