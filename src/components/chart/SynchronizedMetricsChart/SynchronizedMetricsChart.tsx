@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Stack, Typography, useTheme } from '@mui/material';
 import {
   AreaChart as RechartsAreaChart,
@@ -14,7 +14,7 @@ import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
-import { SimpleLegend, type Payload } from '../SimpleLegend';
+import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
 import {
   chartDefaultProps,
   xAxisDefaultProps,
@@ -54,7 +54,6 @@ interface SubChartProps {
   title: string;
   mergedData: Array<Record<string, number>>;
   brands: SeriesChartData[];
-  hiddenBrands: Set<string>;
   timezone: string;
   tooltipFormatter?: (value: number | string) => string;
   yAxisTickFormatter?: (value: number) => string;
@@ -65,14 +64,12 @@ function SubChart({
   title,
   mergedData,
   brands,
-  hiddenBrands,
   timezone,
   tooltipFormatter,
   yAxisTickFormatter,
   yAxisDomain,
 }: SubChartProps): React.ReactNode {
   const theme = useTheme();
-  const visibleBrands = brands.filter((b) => !hiddenBrands.has(b.uuid));
 
   return (
     <Stack>
@@ -119,7 +116,7 @@ function SubChart({
             }
             itemSorter={(item) => -Number(item?.value ?? 0)}
           />
-          {visibleBrands.map((brand) => (
+          {brands.map((brand) => (
             <Area
               key={brand.uuid}
               dataKey={brand.uuid}
@@ -148,7 +145,6 @@ export function SynchronizedMetricsChart({
   filter,
   sx,
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
-  const [hiddenBrands, setHiddenBrands] = useState<Set<string>>(new Set());
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
 
   const noData =
@@ -167,36 +163,14 @@ export function SynchronizedMetricsChart({
     [percentageData],
   );
 
-  const totalBrands = startedData.length;
-
-  const handleToggle = useCallback(
-    (payload: Payload) => {
-      setHiddenBrands((prev) => {
-        const isCurrentlyHidden = prev.has(payload.name);
-
-        // Prevent hiding the last visible brand
-        if (!isCurrentlyHidden && totalBrands - prev.size <= 1) {
-          return prev;
-        }
-
-        const next = new Set(prev);
-        if (isCurrentlyHidden) {
-          next.delete(payload.name);
-        } else {
-          next.add(payload.name);
-        }
-        return next;
-      });
-    },
-    [totalBrands],
-  );
-
   const legendPayload = useMemo(
     () =>
       startedData.map((b) => ({
+        uuid: b.uuid,
         value: b.name,
         color: b.color,
-        payload: { name: b.uuid },
+        dataKey: b.uuid,
+        integrationType: b.description,
       })),
     [startedData],
   );
@@ -216,31 +190,24 @@ export function SynchronizedMetricsChart({
           title='Started Over Time'
           mergedData={mergedStarted}
           brands={startedData}
-          hiddenBrands={hiddenBrands}
           timezone={timezone}
         />
         <SubChart
           title='Succeeded Over Time'
           mergedData={mergedSucceeded}
           brands={succeededData}
-          hiddenBrands={hiddenBrands}
           timezone={timezone}
         />
         <SubChart
           title='Success Percentage Over Time'
           mergedData={mergedPercentage}
           brands={percentageData}
-          hiddenBrands={hiddenBrands}
           timezone={timezone}
           tooltipFormatter={(value) => `${Number(value).toFixed(1)}%`}
           yAxisTickFormatter={(value) => `${Number(value).toFixed(0)}%`}
           yAxisDomain={['auto', 'auto']}
         />
-        <SimpleLegend
-          payload={legendPayload}
-          hiddenItems={hiddenBrands}
-          onToggle={handleToggle}
-        />
+        <SeriesPercentageChartLegend payload={legendPayload} />
       </Stack>
     </Stack>
   );
