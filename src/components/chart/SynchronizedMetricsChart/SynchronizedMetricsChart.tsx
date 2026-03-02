@@ -136,9 +136,7 @@ function SubChart({
 }
 
 export function SynchronizedMetricsChart({
-  startedData,
-  succeededData,
-  percentageData,
+  subCharts,
   isLoading,
   isSuccess,
   isFetching,
@@ -147,32 +145,23 @@ export function SynchronizedMetricsChart({
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
 
-  const noData =
-    !startedData.length && !succeededData.length && !percentageData.length;
+  const noData = subCharts.every((sc) => sc.data.length === 0);
 
-  const mergedStarted = useMemo(
-    () => mergeChartData(startedData),
-    [startedData],
-  );
-  const mergedSucceeded = useMemo(
-    () => mergeChartData(succeededData),
-    [succeededData],
-  );
-  const mergedPercentage = useMemo(
-    () => mergeChartData(percentageData),
-    [percentageData],
+  const mergedSubCharts = useMemo(
+    () => subCharts.map((sc) => mergeChartData(sc.data)),
+    [subCharts],
   );
 
   const legendPayload = useMemo(
     () =>
-      startedData.map((b) => ({
+      subCharts[0].data.map((b) => ({
         uuid: b.uuid,
         value: b.name,
         color: b.color,
         dataKey: b.uuid,
         integrationType: b.description,
       })),
-    [startedData],
+    [subCharts],
   );
 
   if (noData && isLoading) {
@@ -186,27 +175,18 @@ export function SynchronizedMetricsChart({
   return (
     <Stack sx={{ width: '100%', ...sx }}>
       <Stack sx={{ opacity: isFetching ? 0.4 : 1, gap: 2 }}>
-        <SubChart
-          title='Started Over Time'
-          mergedData={mergedStarted}
-          brands={startedData}
-          timezone={timezone}
-        />
-        <SubChart
-          title='Succeeded Over Time'
-          mergedData={mergedSucceeded}
-          brands={succeededData}
-          timezone={timezone}
-        />
-        <SubChart
-          title='Success Percentage Over Time'
-          mergedData={mergedPercentage}
-          brands={percentageData}
-          timezone={timezone}
-          tooltipFormatter={(value) => `${Number(value).toFixed(1)}%`}
-          yAxisTickFormatter={(value) => `${Number(value).toFixed(0)}%`}
-          yAxisDomain={['auto', 'auto']}
-        />
+        {subCharts.map((sc, i) => (
+          <SubChart
+            key={sc.title}
+            title={sc.title}
+            mergedData={mergedSubCharts[i]}
+            brands={sc.data}
+            timezone={timezone}
+            tooltipFormatter={sc.tooltipFormatter}
+            yAxisTickFormatter={sc.yAxisTickFormatter}
+            yAxisDomain={sc.yAxisDomain}
+          />
+        ))}
         <SeriesPercentageChartLegend payload={legendPayload} />
       </Stack>
     </Stack>

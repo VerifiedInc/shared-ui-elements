@@ -3,6 +3,14 @@ import type { SxProps } from '@mui/material';
 import type { SeriesChartData } from '../SeriesChart';
 import { BrandFilter } from '../../../components/BrandFilterInput';
 
+export interface SubChartConfig {
+  title: string;
+  data: SeriesChartData[];
+  tooltipFormatter?: (value: number | string) => string;
+  yAxisTickFormatter?: (value: number) => string;
+  yAxisDomain?: [number | string, number | string];
+}
+
 export interface SynchronizedMappedData {
   started: SeriesChartData[];
   succeeded: SeriesChartData[];
@@ -10,9 +18,7 @@ export interface SynchronizedMappedData {
 }
 
 export interface SynchronizedMetricsChartProps {
-  startedData: SeriesChartData[];
-  succeededData: SeriesChartData[];
-  percentageData: SeriesChartData[];
+  subCharts: [SubChartConfig, ...SubChartConfig[]];
   isLoading: boolean;
   isSuccess: boolean;
   isFetching: boolean;
