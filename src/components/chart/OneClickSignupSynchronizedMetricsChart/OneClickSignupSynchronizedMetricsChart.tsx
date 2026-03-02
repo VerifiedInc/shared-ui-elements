@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import type { SxProps } from '@mui/material';
 
 import { SynchronizedMetricsChart } from '../SynchronizedMetricsChart';
+import type { SubChartConfig } from '../SynchronizedMetricsChart';
 import {
   mapOneClickSignupSynchronizedData,
   type OneClickSignupSynchronizedBrandData,
@@ -30,23 +31,32 @@ export function OneClickSignupSynchronizedMetricsChart({
   colorMap,
   sx,
 }: Readonly<OneClickSignupSynchronizedMetricsChartProps>): React.ReactNode {
-  const { started, succeeded, percentage } = useMemo(
-    () =>
-      isLoading
-        ? { started: [], succeeded: [], percentage: [] }
-        : mapOneClickSignupSynchronizedData({
-            brands: filter.brands,
-            colorMap,
-            data: chartData,
-          }),
-    [isLoading, filter.brands, colorMap, chartData],
-  );
+  const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
+    if (isLoading) {
+      return [{ title: 'Started Over Time', data: [] }];
+    }
+    const { started, succeeded, percentage } =
+      mapOneClickSignupSynchronizedData({
+        brands: filter.brands,
+        colorMap,
+        data: chartData,
+      });
+    return [
+      { title: 'Started Over Time', data: started },
+      { title: 'Succeeded Over Time', data: succeeded },
+      {
+        title: 'Success Percentage Over Time',
+        data: percentage,
+        tooltipFormatter: (v) => `${Number(v).toFixed(1)}%`,
+        yAxisTickFormatter: (v) => `${Number(v).toFixed(0)}%`,
+        yAxisDomain: ['auto', 'auto'],
+      },
+    ];
+  }, [isLoading, filter.brands, colorMap, chartData]);
 
   return (
     <SynchronizedMetricsChart
-      startedData={started}
-      succeededData={succeeded}
-      percentageData={percentage}
+      subCharts={subCharts}
       isLoading={isLoading}
       isSuccess={isSuccess}
       isFetching={isFetching}
