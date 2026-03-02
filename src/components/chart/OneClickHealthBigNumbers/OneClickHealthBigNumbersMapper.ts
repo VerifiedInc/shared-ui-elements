@@ -1,16 +1,9 @@
-export interface OneClickHealthOverallMetrics {
-  total: number;
-  success: number;
-  totalCost: number;
-  successRate: number;
-}
+import {
+  OverviewMetrics,
+  defaultOverviewMetrics,
+} from '../OverviewBigNumbers/OverviewBigNumbers.types';
 
-export const defaultMetrics: OneClickHealthOverallMetrics = {
-  total: 0,
-  success: 0,
-  totalCost: 0,
-  successRate: 0,
-};
+export const defaultMetrics = defaultOverviewMetrics;
 
 export interface OneClickHealthBigNumbersChartData {
   interval?: Array<{
@@ -25,41 +18,36 @@ export interface OneClickHealthBigNumbersChartData {
 
 export function calculateOneClickHealthMetrics(
   data: OneClickHealthBigNumbersChartData[],
-): OneClickHealthOverallMetrics {
+): OverviewMetrics {
   if (!data?.length) return defaultMetrics;
 
-  let totalCreated = 0;
-  let totalSuccess = 0;
-  const totalCost = 0;
+  let started = 0;
+  let succeeded = 0;
+  const totalCost = 0; // Not available for this product yet, always 0
 
   data.forEach((brand) => {
     if (brand.interval?.length) {
-      // Calculate totals from interval data for each brand
-      const brandTotalCreated = brand.interval.reduce(
+      const brandStarted = brand.interval.reduce(
         (sum, interval) => sum + (interval.oneClickHealthCreated || 0),
         0,
       );
 
-      const brandTotalSuccess = brand.interval.reduce(
+      const brandSucceeded = brand.interval.reduce(
         (sum, interval) => sum + (interval.oneClickHealthSucceeded || 0),
         0,
       );
 
-      // Sum up across all brands
-      totalCreated += brandTotalCreated;
-      totalSuccess += brandTotalSuccess;
-
-      // Note: totalCost calculation removed as it's not available in interval data
-      // If cost data becomes available in intervals, it can be added here
+      started += brandStarted;
+      succeeded += brandSucceeded;
     }
   });
 
-  const successRate = totalCreated > 0 ? totalSuccess / totalCreated : 0;
+  const successRate = started > 0 ? succeeded / started : 0;
 
   return {
-    total: totalCreated,
-    success: totalSuccess,
-    totalCost, // Will be 0 since cost data is not available in intervals
-    successRate: isNaN(successRate) ? 0 : successRate,
+    started,
+    succeeded,
+    totalCost,
+    successRate,
   };
 }

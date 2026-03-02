@@ -1,16 +1,12 @@
-export interface SignupMetrics {
-  totalSignups: number;
-  totalSuccess: number;
-  totalCost: number;
-  successRate: number;
-}
+import {
+  OverviewMetrics,
+  defaultOverviewMetrics,
+} from '../OverviewBigNumbers/OverviewBigNumbers.types';
 
-export const defaultMetrics: SignupMetrics = {
-  totalSignups: 0,
-  totalSuccess: 0,
-  totalCost: 0,
-  successRate: 0,
-};
+/** @deprecated Use {@link OverviewMetrics} from OverviewBigNumbers. */
+export type SignupMetrics = OverviewMetrics;
+
+export const defaultMetrics = defaultOverviewMetrics;
 
 export interface SignupBigNumbersChartData {
   interval?: Array<{
@@ -30,15 +26,15 @@ export interface SignupBigNumbersChartData {
 
 export function calculateSignupMetrics(
   data: SignupBigNumbersChartData[],
-): SignupMetrics {
+): OverviewMetrics {
   if (!data?.length) return defaultMetrics;
 
-  const totalSignups = data.reduce(
+  const started = data.reduce(
     (sum, brand) => sum + (brand.overall.oneClickCreated || 0),
     0,
   );
 
-  const totalSuccess = data.reduce(
+  const succeeded = data.reduce(
     (sum, brand) => sum + (brand.overall.oneClickSuccess || 0),
     0,
   );
@@ -50,12 +46,12 @@ export function calculateSignupMetrics(
     return sum + cost;
   }, 0);
 
-  const successRate = totalSuccess / totalSignups;
+  const successRate = started > 0 ? succeeded / started : 0;
 
   return {
-    totalSignups,
-    totalSuccess,
+    started,
+    succeeded,
     totalCost,
-    successRate: isNaN(successRate) ? 0 : successRate,
+    successRate,
   };
 }
