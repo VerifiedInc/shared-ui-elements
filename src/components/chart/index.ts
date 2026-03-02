@@ -30,6 +30,7 @@ export * from './FunnelChart';
 export * from './OneClickVerificationFunnelChart';
 export * from './OutcomeOverTimeChart';
 export * from './OneClickVerificationOutcomeOverTimeChart';
+export * from './OneClickVerificationDeliveryChart';
 export * from './OneClickVerificationConversionChart';
 export * from './OneClickHealthOutcomeOverTimeChart';
 export * from './OneClickSignupOutcomeOverTimeChart';
