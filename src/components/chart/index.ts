@@ -33,3 +33,6 @@ export * from './OneClickVerificationOutcomeOverTimeChart';
 export * from './OneClickHealthOutcomeOverTimeChart';
 export * from './OneClickSignupOutcomeOverTimeChart';
 export * from './oneClickVerification.types';
+export * from './SynchronizedMetricsChart';
+export * from './OneClickSignupSynchronizedMetricsChart';
+export * from './OneClickHealthSynchronizedMetricsChart';

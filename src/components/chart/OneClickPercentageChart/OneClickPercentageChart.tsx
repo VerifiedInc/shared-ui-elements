@@ -25,6 +25,10 @@ interface OneClickPercentageChartProps {
   sx?: any;
 }
 
+/**
+ * @deprecated Use {@link OneClickSignupSynchronizedMetricsChart} instead.
+ * This component will be removed in a future version.
+ */
 export function OneClickPercentageChart({
   data,
   isLoading,

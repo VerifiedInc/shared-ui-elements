@@ -28,6 +28,10 @@ export interface OneClickHealthOverTimeChartProps {
   sx?: SxProps;
 }
 
+/**
+ * @deprecated Use {@link OneClickHealthSynchronizedMetricsChart} instead.
+ * This component will be removed in a future version.
+ */
 export function OneClickHealthOverTimeChart({
   label,
   data,

@@ -24,6 +24,10 @@ export interface OneClickOverTimeChartProps {
   };
 }
 
+/**
+ * @deprecated Use {@link OneClickSignupSynchronizedMetricsChart} instead.
+ * This component will be removed in a future version.
+ */
 export function OneClickOverTimeChart({
   data,
   isLoading,
