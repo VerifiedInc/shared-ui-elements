@@ -156,6 +156,8 @@ export function mapSeriesTimeSeriesData(
       description: keyword ? '' : getIntegrationType(brandIntegrationType),
       color: getColor({ keyword, brandColor, brandUuid }),
       chartData,
+      brandUuid: keyword ? brandUuid : undefined,
+      brandName: keyword ? brandName : undefined,
     }),
   );
 
