@@ -19,6 +19,7 @@ export interface OneClickSignupSynchronizedMetricsChartProps {
     brands: BrandFilter[];
   };
   colorMap: Map<string, string>;
+  syncId?: string;
   sx?: SxProps;
 }
 
@@ -29,6 +30,7 @@ export function OneClickSignupSynchronizedMetricsChart({
   isFetching,
   filter,
   colorMap,
+  syncId,
   sx,
 }: Readonly<OneClickSignupSynchronizedMetricsChartProps>): React.ReactNode {
   const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
@@ -57,6 +59,7 @@ export function OneClickSignupSynchronizedMetricsChart({
   return (
     <SynchronizedMetricsChart
       subCharts={subCharts}
+      syncId={syncId}
       isLoading={isLoading}
       isSuccess={isSuccess}
       isFetching={isFetching}

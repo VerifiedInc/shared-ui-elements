@@ -1,7 +1,7 @@
 import { mapAreaChartData } from '../AreaChart/AreaChart.map';
 import type { AreaSeriesChartData } from '../AreaChart';
 import type { BrandFilter } from '../../BrandFilterInput';
-import { green, red } from '../../../styles/colors';
+import { blue, green } from '../../../styles/colors';
 
 export interface OneClickSignupOutcomeIntervalEntry {
   date: string | number;
@@ -9,25 +9,25 @@ export interface OneClickSignupOutcomeIntervalEntry {
   oneClickSuccess: number;
 }
 
-export interface OneClickSignupOutcomeBrandData {
+export interface OneClickSignupConversionBrandData {
   brandUuid: string;
   brandName: string;
   interval?: OneClickSignupOutcomeIntervalEntry[];
 }
 
-export interface MapOneClickSignupOutcomeOverTimeChartDataOptions {
+export interface MapOneClickSignupConversionChartDataOptions {
   brands?: BrandFilter[];
-  data: OneClickSignupOutcomeBrandData[];
+  data: OneClickSignupConversionBrandData[];
 }
 
-export interface OneClickSignupOutcomeChartData {
+export interface OneClickSignupConversionChartData {
   series: AreaSeriesChartData[];
   data: Array<Record<string, number | string>>;
 }
 
-export function mapOneClickSignupOutcomeOverTimeChartData(
-  options: MapOneClickSignupOutcomeOverTimeChartDataOptions,
-): OneClickSignupOutcomeChartData {
+export function mapOneClickSignupConversionChartData(
+  options: MapOneClickSignupConversionChartDataOptions,
+): OneClickSignupConversionChartData {
   const dateMap = new Map<number, Record<string, number | string>>();
   const brandUuids = options.brands
     ? new Set(options.brands.map((b) => b._raw.brandUuid))
@@ -41,19 +41,16 @@ export function mapOneClickSignupOutcomeOverTimeChartData(
       if (!dateMap.has(date)) {
         dateMap.set(date, {
           date,
+          oneClickCreated: 0,
           oneClickSuccess: 0,
-          oneClickFailed: 0,
         });
       }
       const entry = dateMap.get(date);
       if (!entry) continue;
-      const success = Number(item.oneClickSuccess || 0);
-      const created = Number(item.oneClickCreated || 0);
-      entry.oneClickSuccess = (entry.oneClickSuccess as number) + success;
-      // The API doesn't return the number of failed attempts, we'll derive from success for now
-      // the implication is: anything that is not a success is a fail (this is implied elsewhere too)
-      entry.oneClickFailed =
-        (entry.oneClickFailed as number) + Math.max(0, created - success);
+      entry.oneClickCreated =
+        (entry.oneClickCreated as number) + Number(item.oneClickCreated || 0);
+      entry.oneClickSuccess =
+        (entry.oneClickSuccess as number) + Number(item.oneClickSuccess || 0);
     }
   }
 
@@ -65,14 +62,14 @@ export function mapOneClickSignupOutcomeOverTimeChartData(
     data: aggregatedData,
     seriesConfig: [
       {
+        key: 'Started',
+        dataKey: 'oneClickCreated',
+        color: blue,
+      },
+      {
         key: 'Succeeded',
         dataKey: 'oneClickSuccess',
         color: green,
-      },
-      {
-        key: 'Failed',
-        dataKey: 'oneClickFailed',
-        color: red,
       },
     ],
   });

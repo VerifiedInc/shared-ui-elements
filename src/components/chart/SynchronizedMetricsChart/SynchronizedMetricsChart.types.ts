@@ -19,6 +19,7 @@ export interface SynchronizedMappedData {
 
 export interface SynchronizedMetricsChartProps {
   subCharts: [SubChartConfig, ...SubChartConfig[]];
+  syncId?: string;
   isLoading: boolean;
   isSuccess: boolean;
   isFetching: boolean;
