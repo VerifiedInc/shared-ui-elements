@@ -38,3 +38,4 @@ export * from './oneClickVerification.types';
 export * from './SynchronizedMetricsChart';
 export * from './OneClickSignupSynchronizedMetricsChart';
 export * from './OneClickHealthSynchronizedMetricsChart';
+export * from './OneClickVerificationConversionSynchronizedMetricsChart';
