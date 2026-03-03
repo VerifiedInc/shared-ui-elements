@@ -17,6 +17,7 @@ export interface OneClickVerificationDeliverySynchronizedMetricsChartProps {
     brands: BrandFilter[];
   };
   colorMap: Map<string, string>;
+  syncId?: string;
   sx?: SxProps;
 }
 
@@ -27,6 +28,7 @@ export function OneClickVerificationDeliverySynchronizedMetricsChart({
   isFetching,
   filter,
   colorMap,
+  syncId,
   sx,
 }: Readonly<OneClickVerificationDeliverySynchronizedMetricsChartProps>): React.ReactNode {
   const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
@@ -49,6 +51,7 @@ export function OneClickVerificationDeliverySynchronizedMetricsChart({
   return (
     <SynchronizedMetricsChart
       subCharts={subCharts}
+      syncId={syncId}
       isLoading={isLoading}
       isSuccess={isSuccess}
       isFetching={isFetching}

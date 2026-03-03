@@ -55,6 +55,7 @@ interface SubChartProps {
   mergedData: Array<Record<string, number>>;
   brands: SeriesChartData[];
   timezone: string;
+  syncId: string;
   tooltipFormatter?: (value: number | string) => string;
   yAxisTickFormatter?: (value: number) => string;
   yAxisDomain?: [number | string, number | string];
@@ -65,6 +66,7 @@ function SubChart({
   mergedData,
   brands,
   timezone,
+  syncId,
   tooltipFormatter,
   yAxisTickFormatter,
   yAxisDomain,
@@ -79,7 +81,7 @@ function SubChart({
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <RechartsAreaChart
           data={mergedData}
-          syncId={SYNC_ID}
+          syncId={syncId}
           margin={chartDefaultProps.margin}
         >
           <CartesianGrid vertical={false} />
@@ -137,6 +139,7 @@ function SubChart({
 
 export function SynchronizedMetricsChart({
   subCharts,
+  syncId = SYNC_ID,
   isLoading,
   isSuccess,
   isFetching,
@@ -182,6 +185,7 @@ export function SynchronizedMetricsChart({
             mergedData={mergedSubCharts[i]}
             brands={sc.data}
             timezone={timezone}
+            syncId={syncId}
             tooltipFormatter={sc.tooltipFormatter}
             yAxisTickFormatter={sc.yAxisTickFormatter}
             yAxisDomain={sc.yAxisDomain}

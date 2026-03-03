@@ -19,6 +19,7 @@ export interface OneClickHealthSynchronizedMetricsChartProps {
     brands: BrandFilter[];
   };
   colorMap: Map<string, string>;
+  syncId?: string;
   sx?: SxProps;
 }
 
@@ -29,6 +30,7 @@ export function OneClickHealthSynchronizedMetricsChart({
   isFetching,
   filter,
   colorMap,
+  syncId,
   sx,
 }: Readonly<OneClickHealthSynchronizedMetricsChartProps>): React.ReactNode {
   const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
@@ -57,6 +59,7 @@ export function OneClickHealthSynchronizedMetricsChart({
   return (
     <SynchronizedMetricsChart
       subCharts={subCharts}
+      syncId={syncId}
       isLoading={isLoading}
       isSuccess={isSuccess}
       isFetching={isFetching}
