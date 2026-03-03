@@ -1,34 +1,33 @@
 import { mapAreaChartData } from '../AreaChart/AreaChart.map';
 import type { AreaSeriesChartData } from '../AreaChart';
 import type { BrandFilter } from '../../BrandFilterInput';
-import { green, yellow, red } from '../../../styles/colors';
+import { blue, green } from '../../../styles/colors';
 
-export interface OneClickHealthOutcomeIntervalEntry {
+export interface OneClickHealthConversionIntervalEntry {
   date: string | number;
+  oneClickHealthCreated: number;
   oneClickHealthSucceeded: number;
-  oneClickHealthPartial: number;
-  oneClickHealthFailed: number;
 }
 
-export interface OneClickHealthOutcomeBrandData {
+export interface OneClickHealthConversionBrandData {
   brandUuid: string;
   brandName: string;
-  interval?: OneClickHealthOutcomeIntervalEntry[];
+  interval?: OneClickHealthConversionIntervalEntry[];
 }
 
-export interface MapOneClickHealthOutcomeOverTimeChartDataOptions {
+export interface MapOneClickHealthConversionChartDataOptions {
   brands?: BrandFilter[];
-  data: OneClickHealthOutcomeBrandData[];
+  data: OneClickHealthConversionBrandData[];
 }
 
-export interface OneClickHealthOutcomeChartData {
+export interface OneClickHealthConversionChartData {
   series: AreaSeriesChartData[];
   data: Array<Record<string, number | string>>;
 }
 
-export function mapOneClickHealthOutcomeOverTimeChartData(
-  options: MapOneClickHealthOutcomeOverTimeChartDataOptions,
-): OneClickHealthOutcomeChartData {
+export function mapOneClickHealthConversionChartData(
+  options: MapOneClickHealthConversionChartDataOptions,
+): OneClickHealthConversionChartData {
   const dateMap = new Map<number, Record<string, number | string>>();
   const brandUuids = options.brands
     ? new Set(options.brands.map((b) => b._raw.brandUuid))
@@ -42,22 +41,18 @@ export function mapOneClickHealthOutcomeOverTimeChartData(
       if (!dateMap.has(date)) {
         dateMap.set(date, {
           date,
+          oneClickHealthCreated: 0,
           oneClickHealthSucceeded: 0,
-          oneClickHealthPartial: 0,
-          oneClickHealthFailed: 0,
         });
       }
       const entry = dateMap.get(date);
       if (!entry) continue;
+      entry.oneClickHealthCreated =
+        (entry.oneClickHealthCreated as number) +
+        Number(item.oneClickHealthCreated || 0);
       entry.oneClickHealthSucceeded =
         (entry.oneClickHealthSucceeded as number) +
         Number(item.oneClickHealthSucceeded || 0);
-      entry.oneClickHealthPartial =
-        (entry.oneClickHealthPartial as number) +
-        Number(item.oneClickHealthPartial || 0);
-      entry.oneClickHealthFailed =
-        (entry.oneClickHealthFailed as number) +
-        Number(item.oneClickHealthFailed || 0);
     }
   }
 
@@ -69,19 +64,14 @@ export function mapOneClickHealthOutcomeOverTimeChartData(
     data: aggregatedData,
     seriesConfig: [
       {
+        key: 'Started',
+        dataKey: 'oneClickHealthCreated',
+        color: blue,
+      },
+      {
         key: 'Succeeded',
         dataKey: 'oneClickHealthSucceeded',
         color: green,
-      },
-      {
-        key: 'Partial',
-        dataKey: 'oneClickHealthPartial',
-        color: yellow,
-      },
-      {
-        key: 'Failed',
-        dataKey: 'oneClickHealthFailed',
-        color: red,
       },
     ],
   });

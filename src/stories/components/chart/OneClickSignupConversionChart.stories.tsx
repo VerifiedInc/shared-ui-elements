@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickHealthOutcomeOverTimeChart } from '../../../components/chart';
+import { OneClickSignupConversionChart } from '../../../components/chart';
 
 const meta = {
-  title: 'components/chart/OneClickHealthOutcomeOverTimeChart',
-  component: OneClickHealthOutcomeOverTimeChart,
+  title: 'components/chart/OneClickSignupConversionChart',
+  component: OneClickSignupConversionChart,
   parameters: {
     layout: 'centered',
   },
@@ -26,7 +26,7 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickHealthOutcomeOverTimeChart>;
+} satisfies Meta<typeof OneClickSignupConversionChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -38,87 +38,73 @@ const mockRawData = [
     interval: [
       {
         date: '2026-01-10T12:00:00Z',
-        oneClickHealthSucceeded: 180,
-        oneClickHealthPartial: 25,
-        oneClickHealthFailed: 10,
+        oneClickCreated: 225,
+        oneClickSuccess: 190,
       },
       {
         date: '2026-01-11T12:00:00Z',
-        oneClickHealthSucceeded: 195,
-        oneClickHealthPartial: 28,
-        oneClickHealthFailed: 12,
+        oneClickCreated: 240,
+        oneClickSuccess: 205,
       },
       {
         date: '2026-01-12T12:00:00Z',
-        oneClickHealthSucceeded: 170,
-        oneClickHealthPartial: 22,
-        oneClickHealthFailed: 8,
+        oneClickCreated: 215,
+        oneClickSuccess: 180,
       },
       {
         date: '2026-01-13T12:00:00Z',
-        oneClickHealthSucceeded: 160,
-        oneClickHealthPartial: 30,
-        oneClickHealthFailed: 15,
+        oneClickCreated: 205,
+        oneClickSuccess: 160,
       },
       {
         date: '2026-01-14T12:00:00Z',
-        oneClickHealthSucceeded: 140,
-        oneClickHealthPartial: 35,
-        oneClickHealthFailed: 20,
+        oneClickCreated: 185,
+        oneClickSuccess: 130,
       },
       {
         date: '2026-01-15T12:00:00Z',
-        oneClickHealthSucceeded: 120,
-        oneClickHealthPartial: 40,
-        oneClickHealthFailed: 25,
+        oneClickCreated: 165,
+        oneClickSuccess: 100,
       },
       {
         date: '2026-01-16T12:00:00Z',
-        oneClickHealthSucceeded: 115,
-        oneClickHealthPartial: 38,
-        oneClickHealthFailed: 22,
+        oneClickCreated: 160,
+        oneClickSuccess: 90,
       },
       {
         date: '2026-01-17T12:00:00Z',
-        oneClickHealthSucceeded: 135,
-        oneClickHealthPartial: 32,
-        oneClickHealthFailed: 18,
+        oneClickCreated: 180,
+        oneClickSuccess: 120,
       },
       {
         date: '2026-01-18T12:00:00Z',
-        oneClickHealthSucceeded: 155,
-        oneClickHealthPartial: 28,
-        oneClickHealthFailed: 14,
+        oneClickCreated: 200,
+        oneClickSuccess: 155,
       },
       {
         date: '2026-01-19T12:00:00Z',
-        oneClickHealthSucceeded: 175,
-        oneClickHealthPartial: 24,
-        oneClickHealthFailed: 11,
+        oneClickCreated: 215,
+        oneClickSuccess: 178,
       },
       {
         date: '2026-01-20T12:00:00Z',
-        oneClickHealthSucceeded: 190,
-        oneClickHealthPartial: 20,
-        oneClickHealthFailed: 9,
+        oneClickCreated: 230,
+        oneClickSuccess: 198,
       },
       {
         date: '2026-01-21T12:00:00Z',
-        oneClickHealthSucceeded: 200,
-        oneClickHealthPartial: 22,
-        oneClickHealthFailed: 10,
+        oneClickCreated: 245,
+        oneClickSuccess: 215,
       },
       {
         date: '2026-01-22T12:00:00Z',
-        oneClickHealthSucceeded: 195,
-        oneClickHealthPartial: 18,
-        oneClickHealthFailed: 8,
+        oneClickCreated: 235,
+        oneClickSuccess: 208,
       },
       {
         date: '2026-01-23T12:00:00Z',
-        oneClickHealthSucceeded: 210,
-        oneClickHealthPartial: 20,
-        oneClickHealthFailed: 9,
+        oneClickCreated: 250,
+        oneClickSuccess: 222,
       },
     ],
   },

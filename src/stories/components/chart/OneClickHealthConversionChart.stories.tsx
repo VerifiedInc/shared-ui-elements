@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickSignupOutcomeOverTimeChart } from '../../../components/chart';
+import { OneClickHealthConversionChart } from '../../../components/chart';
 
 const meta = {
-  title: 'components/chart/OneClickSignupOutcomeOverTimeChart',
-  component: OneClickSignupOutcomeOverTimeChart,
+  title: 'components/chart/OneClickHealthConversionChart',
+  component: OneClickHealthConversionChart,
   parameters: {
     layout: 'centered',
   },
@@ -26,7 +26,7 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickSignupOutcomeOverTimeChart>;
+} satisfies Meta<typeof OneClickHealthConversionChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -38,73 +38,73 @@ const mockRawData = [
     interval: [
       {
         date: '2026-01-10T12:00:00Z',
-        oneClickCreated: 225,
-        oneClickSuccess: 190,
+        oneClickHealthCreated: 215,
+        oneClickHealthSucceeded: 180,
       },
       {
         date: '2026-01-11T12:00:00Z',
-        oneClickCreated: 240,
-        oneClickSuccess: 205,
+        oneClickHealthCreated: 235,
+        oneClickHealthSucceeded: 195,
       },
       {
         date: '2026-01-12T12:00:00Z',
-        oneClickCreated: 215,
-        oneClickSuccess: 180,
+        oneClickHealthCreated: 200,
+        oneClickHealthSucceeded: 170,
       },
       {
         date: '2026-01-13T12:00:00Z',
-        oneClickCreated: 205,
-        oneClickSuccess: 160,
+        oneClickHealthCreated: 205,
+        oneClickHealthSucceeded: 160,
       },
       {
         date: '2026-01-14T12:00:00Z',
-        oneClickCreated: 185,
-        oneClickSuccess: 130,
+        oneClickHealthCreated: 195,
+        oneClickHealthSucceeded: 140,
       },
       {
         date: '2026-01-15T12:00:00Z',
-        oneClickCreated: 165,
-        oneClickSuccess: 100,
+        oneClickHealthCreated: 185,
+        oneClickHealthSucceeded: 120,
       },
       {
         date: '2026-01-16T12:00:00Z',
-        oneClickCreated: 160,
-        oneClickSuccess: 90,
+        oneClickHealthCreated: 175,
+        oneClickHealthSucceeded: 115,
       },
       {
         date: '2026-01-17T12:00:00Z',
-        oneClickCreated: 180,
-        oneClickSuccess: 120,
+        oneClickHealthCreated: 185,
+        oneClickHealthSucceeded: 135,
       },
       {
         date: '2026-01-18T12:00:00Z',
-        oneClickCreated: 200,
-        oneClickSuccess: 155,
+        oneClickHealthCreated: 197,
+        oneClickHealthSucceeded: 155,
       },
       {
         date: '2026-01-19T12:00:00Z',
-        oneClickCreated: 215,
-        oneClickSuccess: 178,
+        oneClickHealthCreated: 210,
+        oneClickHealthSucceeded: 175,
       },
       {
         date: '2026-01-20T12:00:00Z',
-        oneClickCreated: 230,
-        oneClickSuccess: 198,
+        oneClickHealthCreated: 219,
+        oneClickHealthSucceeded: 190,
       },
       {
         date: '2026-01-21T12:00:00Z',
-        oneClickCreated: 245,
-        oneClickSuccess: 215,
+        oneClickHealthCreated: 232,
+        oneClickHealthSucceeded: 200,
       },
       {
         date: '2026-01-22T12:00:00Z',
-        oneClickCreated: 235,
-        oneClickSuccess: 208,
+        oneClickHealthCreated: 221,
+        oneClickHealthSucceeded: 195,
       },
       {
         date: '2026-01-23T12:00:00Z',
-        oneClickCreated: 250,
-        oneClickSuccess: 222,
+        oneClickHealthCreated: 239,
+        oneClickHealthSucceeded: 210,
       },
     ],
   },
