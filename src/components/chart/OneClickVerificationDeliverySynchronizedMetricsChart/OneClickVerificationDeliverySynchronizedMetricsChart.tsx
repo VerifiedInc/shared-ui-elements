@@ -3,14 +3,12 @@ import type { SxProps } from '@mui/material';
 
 import { SynchronizedMetricsChart } from '../SynchronizedMetricsChart';
 import type { SubChartConfig } from '../SynchronizedMetricsChart';
-import {
-  mapOneClickSignupSynchronizedData,
-  type OneClickSignupSynchronizedBrandData,
-} from './OneClickSignupSynchronizedMetricsChart.map';
+import { mapOneClickVerificationDeliverySynchronizedData } from './OneClickVerificationDeliverySynchronizedMetricsChart.map';
+import type { OneClickVerificationBrandData } from '../oneClickVerification.types';
 import type { BrandFilter } from '../../BrandFilterInput';
 
-export interface OneClickSignupSynchronizedMetricsChartProps {
-  chartData: OneClickSignupSynchronizedBrandData[];
+export interface OneClickVerificationDeliverySynchronizedMetricsChartProps {
+  chartData: OneClickVerificationBrandData[];
   isLoading?: boolean;
   isSuccess: boolean;
   isFetching: boolean;
@@ -22,7 +20,7 @@ export interface OneClickSignupSynchronizedMetricsChartProps {
   sx?: SxProps;
 }
 
-export function OneClickSignupSynchronizedMetricsChart({
+export function OneClickVerificationDeliverySynchronizedMetricsChart({
   chartData,
   isLoading = true,
   isSuccess,
@@ -30,27 +28,21 @@ export function OneClickSignupSynchronizedMetricsChart({
   filter,
   colorMap,
   sx,
-}: Readonly<OneClickSignupSynchronizedMetricsChartProps>): React.ReactNode {
+}: Readonly<OneClickVerificationDeliverySynchronizedMetricsChartProps>): React.ReactNode {
   const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
     if (isLoading) {
-      return [{ title: 'Started Over Time', data: [] }];
+      return [{ title: 'SMS Sent Over Time', data: [] }];
     }
-    const { started, succeeded, percentage } =
-      mapOneClickSignupSynchronizedData({
+    const { sent, delivered } = mapOneClickVerificationDeliverySynchronizedData(
+      {
         brands: filter.brands,
         colorMap,
         data: chartData,
-      });
-    return [
-      { title: 'Started Over Time', data: started },
-      { title: 'Succeeded Over Time', data: succeeded },
-      {
-        title: 'Success Percentage Over Time',
-        data: percentage,
-        tooltipFormatter: (v) => `${Number(v).toFixed(1)}%`,
-        yAxisTickFormatter: (v) => `${Number(v).toFixed(0)}%`,
-        yAxisDomain: ['auto', 'auto'],
       },
+    );
+    return [
+      { title: 'SMS Sent Over Time', data: sent },
+      { title: 'SMS Delivered Over Time', data: delivered },
     ];
   }, [isLoading, filter.brands, colorMap, chartData]);
 

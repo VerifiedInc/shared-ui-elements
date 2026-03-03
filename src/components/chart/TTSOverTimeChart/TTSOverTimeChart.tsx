@@ -26,6 +26,7 @@ export interface TTSOverTimeChartProps {
     brands?: BrandFilter[];
   };
   sx?: SxProps;
+  showLegend?: boolean;
 }
 
 export function TTSOverTimeChart({
@@ -36,6 +37,7 @@ export function TTSOverTimeChart({
   isSuccess,
   filter,
   sx,
+  showLegend,
 }: Readonly<TTSOverTimeChartProps>): React.ReactNode {
   if (!data.length && isLoading) {
     return <LoadingChartSection />;
@@ -49,7 +51,8 @@ export function TTSOverTimeChart({
       label={label ?? 'TTS Over Time'}
       data={data}
       filter={filter}
-      showUuid={false}
+      showUuid={true}
+      showLegend={showLegend}
       sx={{ ...styles.chartWrapper, opacity: isFetching ? 0.4 : 1, ...sx }}
     />
   );

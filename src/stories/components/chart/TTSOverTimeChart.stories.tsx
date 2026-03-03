@@ -180,6 +180,7 @@ export const TTSSent: Story = {
     filter: {
       timezone: 'UTC',
     },
+    showLegend: true,
   },
 };
 
@@ -205,6 +206,7 @@ export const TTSVerified: Story = {
     filter: {
       timezone: 'UTC',
     },
+    showLegend: true,
   },
 };
 

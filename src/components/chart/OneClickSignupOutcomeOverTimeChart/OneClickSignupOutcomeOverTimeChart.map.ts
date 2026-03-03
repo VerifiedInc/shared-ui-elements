@@ -65,7 +65,7 @@ export function mapOneClickSignupOutcomeOverTimeChartData(
     data: aggregatedData,
     seriesConfig: [
       {
-        key: 'Success',
+        key: 'Succeeded',
         dataKey: 'oneClickSuccess',
         color: green,
       },

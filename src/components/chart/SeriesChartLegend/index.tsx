@@ -105,6 +105,9 @@ function EntryBlock({
           </Stack>
         </Typography>
         <Typography variant='body1'>{entry.value}</Typography>
+        {entry.payload.brandName && (
+          <Typography variant='body2'>{entry.payload.brandName}</Typography>
+        )}
         {entry.payload.description && (
           <Typography variant='body2'>{entry.payload.description}</Typography>
         )}

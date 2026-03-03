@@ -28,6 +28,8 @@ export interface SeriesChartData {
   description?: string;
   color: string;
   chartData: ChartDataPoint[];
+  brandUuid?: string;
+  brandName?: string;
 }
 
 interface SeriesChartProps {
@@ -36,6 +38,7 @@ interface SeriesChartProps {
   filter: { timezone?: string };
   sx?: SxProps;
   showUuid?: boolean;
+  showLegend?: boolean;
 }
 
 export function SeriesChart(props: SeriesChartProps): ReactElement {
@@ -103,13 +106,16 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
             }
             itemSorter={(item) => -Number(item?.value ?? 0)}
           />
-          <Legend content={<SeriesChartLegend showUuid={props.showUuid} />} />
+          {props.showLegend !== false && (
+            <Legend content={<SeriesChartLegend showUuid={props.showUuid} />} />
+          )}
           {props.data.map((value) => {
             return (
               <Line
                 {...{
-                  uuid: value.uuid,
+                  uuid: value.brandUuid ?? value.uuid,
                   description: value.description,
+                  brandName: value.brandName,
                 }}
                 key={value.uuid}
                 name={value.name}
