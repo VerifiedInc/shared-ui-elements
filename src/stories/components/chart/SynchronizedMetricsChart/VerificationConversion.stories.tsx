@@ -2,12 +2,11 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickVerificationDeliverySynchronizedMetricsChart } from '../../../components/chart';
+import { SynchronizedMetricsChart } from '../../../../components/chart';
 
 const meta = {
-  title:
-    'components/chart/OneClickVerificationDeliverySynchronizedMetricsChart',
-  component: OneClickVerificationDeliverySynchronizedMetricsChart,
+  title: 'components/chart/SynchronizedMetricsChart/VerificationConversion',
+  component: SynchronizedMetricsChart,
   parameters: {
     layout: 'centered',
   },
@@ -17,18 +16,18 @@ const meta = {
         direction='row'
         sx={{
           width: 900,
-          height: 600,
+          height: 800,
           p: 2,
         }}
       >
-        <Box sx={{ flex: 1, minHeight: 600 }}>
+        <Box sx={{ flex: 1, minHeight: 800 }}>
           <Story />
         </Box>
       </Stack>
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickVerificationDeliverySynchronizedMetricsChart>;
+} satisfies Meta<typeof SynchronizedMetricsChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -184,9 +183,26 @@ const mockRawData = [
   },
 ];
 
+const subChartConfig = [
+  { title: 'Started', dataKey: 'oneClickVerificationCreated' },
+  { title: 'Succeeded', dataKey: 'oneClickVerificationVerified' },
+  {
+    title: 'Success Percentage',
+    percentageOf: {
+      numerator: 'oneClickVerificationVerified',
+      denominator: 'oneClickVerificationCreated',
+    },
+    tooltipFormatter: (v: number | string) => `${Number(v).toFixed(1)}%`,
+    yAxisTickFormatter: (v: number) => `${Number(v).toFixed(0)}%`,
+    yAxisDomain: ['auto', 'auto'] as [string, string],
+  },
+] as const;
+
 export const Default: Story = {
   args: {
     chartData: mockRawData,
+    subChartConfig,
+    colorMap: new Map(),
     isLoading: false,
     isSuccess: true,
     isFetching: false,
@@ -194,13 +210,14 @@ export const Default: Story = {
       timezone: 'UTC',
       brands: mockBrands,
     },
-    colorMap: new Map(),
   },
 };
 
 export const Loading: Story = {
   args: {
     chartData: [],
+    subChartConfig,
+    colorMap: new Map(),
     isLoading: true,
     isSuccess: false,
     isFetching: false,
@@ -208,13 +225,14 @@ export const Loading: Story = {
       timezone: 'UTC',
       brands: mockBrands,
     },
-    colorMap: new Map(),
   },
 };
 
 export const Empty: Story = {
   args: {
     chartData: [],
+    subChartConfig,
+    colorMap: new Map(),
     isLoading: false,
     isSuccess: true,
     isFetching: false,
@@ -222,7 +240,6 @@ export const Empty: Story = {
       timezone: 'UTC',
       brands: mockBrands,
     },
-    colorMap: new Map(),
   },
 };
 
