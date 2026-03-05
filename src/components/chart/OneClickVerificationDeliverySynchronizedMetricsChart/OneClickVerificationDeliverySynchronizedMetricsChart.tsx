@@ -33,7 +33,7 @@ export function OneClickVerificationDeliverySynchronizedMetricsChart({
 }: Readonly<OneClickVerificationDeliverySynchronizedMetricsChartProps>): React.ReactNode {
   const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
     if (isLoading) {
-      return [{ title: 'SMS Sent', data: [] }];
+      return [{ title: 'Sent', data: [] }];
     }
     const { sent, delivered } = mapOneClickVerificationDeliverySynchronizedData(
       {
@@ -43,8 +43,8 @@ export function OneClickVerificationDeliverySynchronizedMetricsChart({
       },
     );
     return [
-      { title: 'SMS Sent', data: sent },
-      { title: 'SMS Delivered', data: delivered },
+      { title: 'Sent', data: sent },
+      { title: 'Delivered', data: delivered },
     ];
   }, [isLoading, filter.brands, colorMap, chartData]);
 
