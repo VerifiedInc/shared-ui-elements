@@ -35,7 +35,7 @@ export function OneClickSignupSynchronizedMetricsChart({
 }: Readonly<OneClickSignupSynchronizedMetricsChartProps>): React.ReactNode {
   const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
     if (isLoading) {
-      return [{ title: 'Started Over Time', data: [] }];
+      return [{ title: 'Started', data: [] }];
     }
     const { started, succeeded, percentage } =
       mapOneClickSignupSynchronizedData({
@@ -44,10 +44,10 @@ export function OneClickSignupSynchronizedMetricsChart({
         data: chartData,
       });
     return [
-      { title: 'Started Over Time', data: started },
-      { title: 'Succeeded Over Time', data: succeeded },
+      { title: 'Started', data: started },
+      { title: 'Succeeded', data: succeeded },
       {
-        title: 'Success Percentage Over Time',
+        title: 'Success Percentage',
         data: percentage,
         tooltipFormatter: (v) => `${Number(v).toFixed(1)}%`,
         yAxisTickFormatter: (v) => `${Number(v).toFixed(0)}%`,

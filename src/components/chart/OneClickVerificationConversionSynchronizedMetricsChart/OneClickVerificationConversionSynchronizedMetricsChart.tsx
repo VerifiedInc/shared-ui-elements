@@ -33,7 +33,7 @@ export function OneClickVerificationConversionSynchronizedMetricsChart({
 }: Readonly<OneClickVerificationConversionSynchronizedMetricsChartProps>): React.ReactNode {
   const subCharts = useMemo((): [SubChartConfig, ...SubChartConfig[]] => {
     if (isLoading) {
-      return [{ title: 'Verifications Started Over Time', data: [] }];
+      return [{ title: 'Verifications Started', data: [] }];
     }
     const { started, succeeded, percentage } =
       mapOneClickVerificationConversionSynchronizedData({
@@ -42,10 +42,10 @@ export function OneClickVerificationConversionSynchronizedMetricsChart({
         data: chartData,
       });
     return [
-      { title: 'Verifications Started Over Time', data: started },
-      { title: 'Verifications Succeeded Over Time', data: succeeded },
+      { title: 'Verifications Started', data: started },
+      { title: 'Verifications Succeeded', data: succeeded },
       {
-        title: 'Verification Success Percentage Over Time',
+        title: 'Verification Success Percentage',
         data: percentage,
         tooltipFormatter: (v) => `${Number(v).toFixed(1)}%`,
         yAxisTickFormatter: (v) => `${Number(v).toFixed(0)}%`,

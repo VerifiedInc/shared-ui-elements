@@ -50,7 +50,7 @@ export function OneClickHealthOverTimeChart({
   }
   return (
     <SeriesChart
-      label={label ?? 'OneClick Health Over Time'}
+      label={label ?? 'OneClick Health'}
       data={data}
       filter={filter}
       showUuid
