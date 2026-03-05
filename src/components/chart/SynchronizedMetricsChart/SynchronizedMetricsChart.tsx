@@ -21,7 +21,11 @@ import {
   yAxisDefaultProps,
 } from '../shared';
 import type { SeriesChartData } from '../SeriesChart';
-import type { SynchronizedMetricsChartProps } from './SynchronizedMetricsChart.types';
+import type {
+  SubChartConfig,
+  SynchronizedMetricsChartProps,
+} from './SynchronizedMetricsChart.types';
+import { mapSynchronizedSubCharts } from './SynchronizedMetricsChart.map';
 
 const SYNC_ID = 'synchronized-metrics';
 const CHART_HEIGHT = 200;
@@ -139,6 +143,9 @@ function SubChart({
 
 export function SynchronizedMetricsChart({
   subCharts,
+  chartData,
+  subChartConfig,
+  colorMap,
   syncId = SYNC_ID,
   isLoading,
   isSuccess,
@@ -148,23 +155,34 @@ export function SynchronizedMetricsChart({
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
 
-  const noData = subCharts.every((sc) => sc.data.length === 0);
+  const resolvedSubCharts: readonly [SubChartConfig, ...SubChartConfig[]] =
+    chartData
+      ? mapSynchronizedSubCharts({
+          chartData,
+          subChartConfig: subChartConfig!,
+          brands: filter.brands,
+          colorMap: colorMap!,
+          isLoading,
+        })
+      : subCharts!;
+
+  const noData = resolvedSubCharts.every((sc) => sc.data.length === 0);
 
   const mergedSubCharts = useMemo(
-    () => subCharts.map((sc) => mergeChartData(sc.data)),
-    [subCharts],
+    () => resolvedSubCharts.map((sc) => mergeChartData(sc.data)),
+    [resolvedSubCharts],
   );
 
   const legendPayload = useMemo(
     () =>
-      subCharts[0].data.map((b) => ({
+      resolvedSubCharts[0].data.map((b) => ({
         uuid: b.uuid,
         value: b.name,
         color: b.color,
         dataKey: b.uuid,
         integrationType: b.description,
       })),
-    [subCharts],
+    [resolvedSubCharts],
   );
 
   if (noData && isLoading) {
@@ -178,7 +196,7 @@ export function SynchronizedMetricsChart({
   return (
     <Stack sx={{ width: '100%', ...sx }}>
       <Stack sx={{ opacity: isFetching ? 0.4 : 1, gap: 2 }}>
-        {subCharts.map((sc, i) => (
+        {resolvedSubCharts.map((sc, i) => (
           <SubChart
             key={sc.title}
             title={sc.title}
