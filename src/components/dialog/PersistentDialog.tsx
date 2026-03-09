@@ -1,6 +1,6 @@
-import CloseIcon from '@mui/icons-material/Close';
-import { IconButton, Portal } from '@mui/material';
 import React, { useEffect, useRef } from 'react';
+import { Close as CloseIcon } from '@mui/icons-material';
+import { IconButton, Portal } from '@mui/material';
 
 /**
  * A dialog that mounts regardless of the modal state.
