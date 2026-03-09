@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { Stack, Typography, useTheme } from '@mui/material';
 import {
-  AreaChart as RechartsAreaChart,
-  Area,
+  LineChart as RechartsLineChart,
+  Line,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -79,11 +79,11 @@ function SubChart({
 
   return (
     <Stack>
-      <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
+      <Typography variant='h5' sx={{ mb: 0.5, fontSize: '1.15rem' }}>
         {title}
       </Typography>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
-        <RechartsAreaChart
+        <RechartsLineChart
           data={mergedData}
           syncId={syncId}
           margin={chartDefaultProps.margin}
@@ -123,19 +123,18 @@ function SubChart({
             itemSorter={(item) => -Number(item?.value ?? 0)}
           />
           {brands.map((brand) => (
-            <Area
+            <Line
               key={brand.uuid}
               dataKey={brand.uuid}
               name={brand.name}
               stroke={brand.color}
-              fill={brand.color}
-              fillOpacity={0.1}
               type='monotone'
               strokeWidth={2}
               isAnimationActive={false}
+              dot={false}
             />
           ))}
-        </RechartsAreaChart>
+        </RechartsLineChart>
       </ResponsiveContainer>
     </Stack>
   );
