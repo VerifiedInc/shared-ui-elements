@@ -31,7 +31,3 @@ export * from './OneClickVerificationFunnelChart';
 export * from './ConversionOverTimeChart';
 export * from './oneClickVerification.types';
 export * from './SynchronizedMetricsChart';
-export * from './OneClickSignupSynchronizedMetricsChart';
-export * from './OneClickHealthSynchronizedMetricsChart';
-export * from './OneClickVerificationConversionSynchronizedMetricsChart';
-export * from './OneClickVerificationDeliverySynchronizedMetricsChart';

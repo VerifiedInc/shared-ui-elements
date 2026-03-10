@@ -2,12 +2,11 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickVerificationConversionSynchronizedMetricsChart } from '../../../components/chart';
+import { SynchronizedMetricsChart } from '../../../../components/chart';
 
 const meta = {
-  title:
-    'components/chart/OneClickVerificationConversionSynchronizedMetricsChart',
-  component: OneClickVerificationConversionSynchronizedMetricsChart,
+  title: 'components/chart/SynchronizedMetricsChart/VerificationDelivery',
+  component: SynchronizedMetricsChart,
   parameters: {
     layout: 'centered',
   },
@@ -17,18 +16,18 @@ const meta = {
         direction='row'
         sx={{
           width: 900,
-          height: 800,
+          height: 600,
           p: 2,
         }}
       >
-        <Box sx={{ flex: 1, minHeight: 800 }}>
+        <Box sx={{ flex: 1, minHeight: 600 }}>
           <Story />
         </Box>
       </Stack>
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickVerificationConversionSynchronizedMetricsChart>;
+} satisfies Meta<typeof SynchronizedMetricsChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -184,9 +183,16 @@ const mockRawData = [
   },
 ];
 
+const subChartConfig = [
+  { title: 'Sent', dataKey: 'oneClickVerificationSending' },
+  { title: 'Delivered', dataKey: 'oneClickVerificationDelivered' },
+] as const;
+
 export const Default: Story = {
   args: {
     chartData: mockRawData,
+    subChartConfig,
+    colorMap: new Map(),
     isLoading: false,
     isSuccess: true,
     isFetching: false,
@@ -194,13 +200,14 @@ export const Default: Story = {
       timezone: 'UTC',
       brands: mockBrands,
     },
-    colorMap: new Map(),
   },
 };
 
 export const Loading: Story = {
   args: {
     chartData: [],
+    subChartConfig,
+    colorMap: new Map(),
     isLoading: true,
     isSuccess: false,
     isFetching: false,
@@ -208,13 +215,14 @@ export const Loading: Story = {
       timezone: 'UTC',
       brands: mockBrands,
     },
-    colorMap: new Map(),
   },
 };
 
 export const Empty: Story = {
   args: {
     chartData: [],
+    subChartConfig,
+    colorMap: new Map(),
     isLoading: false,
     isSuccess: true,
     isFetching: false,
@@ -222,7 +230,6 @@ export const Empty: Story = {
       timezone: 'UTC',
       brands: mockBrands,
     },
-    colorMap: new Map(),
   },
 };
 
