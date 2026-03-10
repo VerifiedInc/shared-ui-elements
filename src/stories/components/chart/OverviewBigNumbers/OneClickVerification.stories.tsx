@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickVerificationBigNumbers } from '../../../components/chart';
+import { OverviewBigNumbers } from '../../../../components/chart';
+import type { BrandIntervalData } from '../../../../components/chart';
 
 const meta = {
-  title: 'components/chart/OneClickVerificationBigNumbers',
-  component: OneClickVerificationBigNumbers,
+  title: 'components/chart/OverviewBigNumbers/OneClickVerification',
+  component: OverviewBigNumbers,
   parameters: {
     layout: 'centered',
   },
@@ -26,19 +27,19 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickVerificationBigNumbers>;
-
-/**
- * OneClickVerificationBigNumbers displays key metrics for OneClick verification in a big number format.
- * It shows total delivered, total verified, and success rate calculated from the provided data.
- * The component aggregates data across all brands to provide overall OneClick verification metrics.
- */
+  args: {
+    metricsConfig: {
+      startedKey: 'oneClickVerificationCreated',
+      succeededKey: 'oneClickVerificationVerified',
+    },
+    hideTotalCost: true,
+  },
+} satisfies Meta<typeof OverviewBigNumbers>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Mock data in the format expected by OneClickVerificationBigNumbers
-const mockOneClickVerificationBigNumbersData = [
+const mockOneClickVerificationData: BrandIntervalData[] = [
   {
     brandUuid: 'moomoo-uuid',
     brandName: 'Moomoo',
@@ -265,22 +266,13 @@ const mockOneClickVerificationBigNumbersData = [
   },
 ];
 
-/**
- * Default story showing OneClick verification big numbers with aggregated metrics.
- * This displays the total delivered, total verified, and success rate across all brands.
- * The data is calculated from the interval data for each brand.
- */
 export const Default: Story = {
   args: {
-    chartData: mockOneClickVerificationBigNumbersData as any,
+    chartData: mockOneClickVerificationData,
     isLoading: false,
   },
 };
 
-/**
- * Loading state story showing the big numbers in loading state.
- * All values will show as 0 while the loading indicator is active.
- */
 export const Loading: Story = {
   args: {
     chartData: [],
@@ -288,62 +280,9 @@ export const Loading: Story = {
   },
 };
 
-/**
- * Empty state story showing what happens when no data is available.
- * All metrics will display as 0 when there's no data to calculate from.
- */
 export const Empty: Story = {
   args: {
     chartData: [],
-    isLoading: false,
-  },
-};
-
-/**
- * Single brand story showing OneClick verification metrics for just one brand.
- * Useful for focused analysis of a specific brand's verification performance.
- */
-export const SingleBrand: Story = {
-  args: {
-    chartData: [mockOneClickVerificationBigNumbersData[0] as any],
-    isLoading: false,
-  },
-};
-
-/**
- * High volume story demonstrating the component with larger numbers.
- * This shows how the formatting handles bigger values.
- */
-export const HighVolume: Story = {
-  args: {
-    chartData: mockOneClickVerificationBigNumbersData.map((brand) => ({
-      ...brand,
-      interval: brand.interval.map((item) => ({
-        ...item,
-        oneClickVerificationCreated: item.oneClickVerificationCreated * 10,
-        oneClickVerificationVerified: item.oneClickVerificationVerified * 8,
-      })),
-    })) as any,
-    isLoading: false,
-  },
-};
-
-/**
- * Low success rate story showing poor performance metrics.
- * This demonstrates how the component displays when success rates are low.
- */
-export const LowSuccessRate: Story = {
-  args: {
-    chartData: mockOneClickVerificationBigNumbersData.map((brand) => ({
-      ...brand,
-      interval: brand.interval.map((item) => ({
-        ...item,
-        oneClickVerificationCreated: item.oneClickVerificationCreated,
-        oneClickVerificationVerified: Math.floor(
-          item.oneClickVerificationVerified * 0.3,
-        ),
-      })),
-    })) as any,
     isLoading: false,
   },
 };

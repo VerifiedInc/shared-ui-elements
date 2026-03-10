@@ -1,12 +1,12 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { TTSBigNumbers } from '../../../components/chart';
+import { OverviewBigNumbers } from '../../../../components/chart';
+import type { BrandIntervalData } from '../../../../components/chart';
 
 const meta = {
-  title: 'components/chart/TTSBigNumbers',
-  component: TTSBigNumbers,
+  title: 'components/chart/OverviewBigNumbers/TTS',
+  component: OverviewBigNumbers,
   parameters: {
     layout: 'centered',
   },
@@ -27,19 +27,19 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof TTSBigNumbers>;
-
-/**
- * TTSBigNumbers displays key metrics for Text-to-Speech (TTS) campaigns in a big number format.
- * It shows total signups, finished signups, total cost, and success rate calculated from the provided data.
- * The component aggregates data across all brands and keywords to provide overall campaign performance metrics.
- */
+  args: {
+    metricsConfig: {
+      startedKey: 'ttsSent',
+      succeededKey: 'ttsVerified',
+    },
+    hideTotalCost: true,
+  },
+} satisfies Meta<typeof OverviewBigNumbers>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Mock data in the format expected by TTSBigNumbers (using the same structure as TTSOverTimeChart)
-const mockTTSBigNumbersData = [
+const mockTTSData: BrandIntervalData[] = [
   {
     brandUuid: 'moomoo-uuid',
     brandName: 'Moomoo',
@@ -57,7 +57,7 @@ const mockTTSBigNumbersData = [
     ],
   },
   {
-    brandUuid: 'moomoo-uuid',
+    brandUuid: 'clickme-uuid',
     brandName: 'ClickMe',
     interval: [
       { date: '2024-12-23T18:26:00Z', ttsSent: 32, ttsVerified: 29 },
@@ -106,101 +106,23 @@ const mockTTSBigNumbersData = [
   },
 ];
 
-/**
- * Default story showing TTS big numbers with aggregated metrics.
- * This displays the total signups, finished signups, and success rate across all brands.
- * The data is calculated from the interval data for each brand.
- */
 export const Default: Story = {
   args: {
-    chartData: mockTTSBigNumbersData,
+    chartData: mockTTSData,
     isLoading: false,
-    hideTotalCost: false,
   },
 };
 
-/**
- * Loading state story showing the big numbers in loading state.
- * All values will show as 0 while the loading indicator is active.
- */
 export const Loading: Story = {
   args: {
     chartData: [],
     isLoading: true,
-    hideTotalCost: false,
   },
 };
 
-/**
- * Empty state story showing what happens when no data is available.
- * All metrics will display as 0 when there's no data to calculate from.
- */
 export const Empty: Story = {
   args: {
     chartData: [],
     isLoading: false,
-    hideTotalCost: false,
-  },
-};
-
-/**
- * Story with total cost hidden.
- * This is useful when cost information is not relevant or should not be displayed.
- */
-export const HideTotalCost: Story = {
-  args: {
-    chartData: mockTTSBigNumbersData,
-    isLoading: false,
-    hideTotalCost: true,
-  },
-};
-
-/**
- * Single brand story showing TTS metrics for just one brand.
- * Useful for focused analysis of a specific brand's TTS performance.
- */
-export const SingleBrand: Story = {
-  args: {
-    chartData: [mockTTSBigNumbersData[0]], // Only Moomoo brand
-    isLoading: false,
-    hideTotalCost: false,
-  },
-};
-
-/**
- * High volume story demonstrating the component with larger numbers.
- * This shows how the formatting handles bigger values.
- */
-export const HighVolume: Story = {
-  args: {
-    chartData: mockTTSBigNumbersData.map((brand) => ({
-      ...brand,
-      interval: brand.interval.map((item) => ({
-        ...item,
-        ttsSent: item.ttsSent * 10, // 10x the volume
-        ttsVerified: item.ttsVerified * 8, // Slightly lower success rate
-      })),
-    })),
-    isLoading: false,
-    hideTotalCost: false,
-  },
-};
-
-/**
- * Low success rate story showing poor performance metrics.
- * This demonstrates how the component displays when verification rates are low.
- */
-export const LowSuccessRate: Story = {
-  args: {
-    chartData: mockTTSBigNumbersData.map((brand) => ({
-      ...brand,
-      interval: brand.interval.map((item) => ({
-        ...item,
-        ttsSent: item.ttsSent,
-        ttsVerified: Math.floor(item.ttsVerified * 0.3), // Only 30% success rate
-      })),
-    })),
-    isLoading: false,
-    hideTotalCost: false,
   },
 };

@@ -1,12 +1,12 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickHealthBigNumbers } from '../../../components/chart/OneClickHealthBigNumbers/OneClickHealthBigNumbers';
+import { OverviewBigNumbers } from '../../../../components/chart';
+import type { BrandIntervalData } from '../../../../components/chart';
 
 const meta = {
-  title: 'components/chart/OneClickHealthBigNumbers',
-  component: OneClickHealthBigNumbers,
+  title: 'components/chart/OverviewBigNumbers/OneClickHealth',
+  component: OverviewBigNumbers,
   parameters: {
     layout: 'centered',
   },
@@ -27,19 +27,19 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickHealthBigNumbers>;
-
-/**
- * OneClickHealthBigNumbers displays key metrics for OneClick health in a big number format.
- * It shows total created, total success, total cost, and success rate calculated from the provided data.
- * The component aggregates data across all brands to provide overall OneClick performance metrics.
- */
+  args: {
+    metricsConfig: {
+      startedKey: 'oneClickHealthCreated',
+      succeededKey: 'oneClickHealthSucceeded',
+    },
+    hideTotalCost: true,
+  },
+} satisfies Meta<typeof OverviewBigNumbers>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Mock data in the format expected by OneClickHealthBigNumbers
-const mockOneClickHealthBigNumbersData = [
+const mockOneClickHealthData: BrandIntervalData[] = [
   {
     brandUuid: 'moomoo-uuid',
     brandName: 'Moomoo',
@@ -266,101 +266,23 @@ const mockOneClickHealthBigNumbersData = [
   },
 ];
 
-/**
- * Default story showing OneClick health big numbers with aggregated metrics.
- * This displays the total created, total success, and success rate across all brands.
- * The data is calculated from the interval data for each brand.
- */
 export const Default: Story = {
   args: {
-    chartData: mockOneClickHealthBigNumbersData,
+    chartData: mockOneClickHealthData,
     isLoading: false,
-    hideTotalCost: false,
   },
 };
 
-/**
- * Loading state story showing the big numbers in loading state.
- * All values will show as 0 while the loading indicator is active.
- */
 export const Loading: Story = {
   args: {
     chartData: [],
     isLoading: true,
-    hideTotalCost: false,
   },
 };
 
-/**
- * Empty state story showing what happens when no data is available.
- * All metrics will display as 0 when there's no data to calculate from.
- */
 export const Empty: Story = {
   args: {
     chartData: [],
     isLoading: false,
-    hideTotalCost: false,
-  },
-};
-
-/**
- * Story with total cost hidden.
- * This is useful when cost information is not relevant or should not be displayed.
- */
-export const HideTotalCost: Story = {
-  args: {
-    chartData: mockOneClickHealthBigNumbersData,
-    isLoading: false,
-    hideTotalCost: true,
-  },
-};
-
-/**
- * Single brand story showing OneClick health metrics for just one brand.
- * Useful for focused analysis of a specific brand's OneClick performance.
- */
-export const SingleBrand: Story = {
-  args: {
-    chartData: [mockOneClickHealthBigNumbersData[0]], // Only Moomoo brand
-    isLoading: false,
-    hideTotalCost: false,
-  },
-};
-
-/**
- * High volume story demonstrating the component with larger numbers.
- * This shows how the formatting handles bigger values.
- */
-export const HighVolume: Story = {
-  args: {
-    chartData: mockOneClickHealthBigNumbersData.map((brand) => ({
-      ...brand,
-      interval: brand.interval.map((item) => ({
-        ...item,
-        oneClickHealthCreated: item.oneClickHealthCreated * 10, // 10x the volume
-        oneClickHealthSucceeded: item.oneClickHealthSucceeded * 8, // Slightly lower success rate
-      })),
-    })),
-    isLoading: false,
-    hideTotalCost: false,
-  },
-};
-
-/**
- * Low success rate story showing poor performance metrics.
- * This demonstrates how the component displays when success rates are low.
- */
-export const LowSuccessRate: Story = {
-  args: {
-    chartData: mockOneClickHealthBigNumbersData.map((brand) => ({
-      ...brand,
-      interval: brand.interval.map((item) => ({
-        ...item,
-        oneClickHealthCreated: item.oneClickHealthCreated,
-        oneClickHealthSucceeded: Math.floor(item.oneClickHealthSucceeded * 0.3), // Only 30% success rate
-      })),
-    })),
-    isLoading: false,
-    hideTotalCost: false,
   },
 };
