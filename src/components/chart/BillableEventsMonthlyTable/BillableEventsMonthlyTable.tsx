@@ -12,7 +12,6 @@ import React, { useMemo } from 'react';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
-import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 import {
   BILLABLE_PRODUCTS,
   type BillableEventColumn,
@@ -27,7 +26,7 @@ const DIRECT_KEYS = ['month', 'brand', 'integrationType'];
 
 export const BillableEventsMonthlyTable: React.FC<
   BillableEventsMonthlyTableProps
-> = ({ data, isLoading, isFetching, product, timezone = DEFAULT_TIMEZONE }) => {
+> = ({ data, isLoading, isFetching, product }) => {
   const { sortKey, sortDir, handleSort, sortedData } =
     useBillableSort<BillableEventsMonthlyTableRow>(data, DIRECT_KEYS, 'month');
 
@@ -86,7 +85,7 @@ export const BillableEventsMonthlyTable: React.FC<
                 {new Date(row.month).toLocaleDateString(undefined, {
                   month: 'short',
                   year: 'numeric',
-                  timeZone: timezone,
+                  timeZone: 'UTC',
                 })}
               </TableCell>
               <TableCell>{row.brand}</TableCell>

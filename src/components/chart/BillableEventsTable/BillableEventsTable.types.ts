@@ -106,5 +106,4 @@ export type BillableEventsMonthlyTableProps = {
   isLoading: boolean;
   isFetching: boolean;
   product: BillableProduct;
-  timezone?: string;
 };
