@@ -13,6 +13,8 @@ export * from './SimpleLegend';
 export * from './OneClickPercentageChart';
 export * from './OneClickOverTimeChart';
 export * from './MonthlySignupsOverviewTable';
+export * from './BillableEventsTable';
+export * from './BillableEventsMonthlyTable';
 export * from './LoadingChartSection';
 export * from './EmptyChartSection';
 export * from './MetricLastUpdated';

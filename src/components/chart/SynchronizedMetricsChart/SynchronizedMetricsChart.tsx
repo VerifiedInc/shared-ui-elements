@@ -175,11 +175,12 @@ export function SynchronizedMetricsChart({
   const legendPayload = useMemo(
     () =>
       resolvedSubCharts[0].data.map((b) => ({
-        uuid: b.uuid,
+        uuid: b.brandUuid ?? b.uuid,
         value: b.name,
         color: b.color,
         dataKey: b.uuid,
-        integrationType: b.description,
+        integrationType: b.description || undefined,
+        brandName: b.brandName,
       })),
     [resolvedSubCharts],
   );
