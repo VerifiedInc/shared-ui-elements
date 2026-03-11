@@ -22,7 +22,6 @@ import {
 import { useBillableSort } from './useBillableSort.hook';
 import { white } from '../../../styles';
 
-const EMPTY_CHAR = '';
 const DIRECT_KEYS = ['brand', 'integrationType'];
 
 export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
@@ -103,7 +102,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
               <TableCell>{row.integrationType}</TableCell>
               {allColumns.map((col: BillableEventColumn) => (
                 <TableCell key={col.key} align='right'>
-                  {row.metrics[col.key] || EMPTY_CHAR}
+                  {row.metrics[col.key] ?? 0}
                 </TableCell>
               ))}
             </TableRow>
