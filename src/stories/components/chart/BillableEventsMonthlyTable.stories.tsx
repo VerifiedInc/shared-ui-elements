@@ -1,10 +1,10 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { BillableEventsMonthlyTable } from '../../../components/chart/BillableEventsMonthlyTable';
+import { BillableEventsProductTable } from '../../../components/chart/BillableEventsProductTable';
 import { BillableProduct } from '../../../components/chart/BillableEventsTable/BillableEventsTable.types';
 
-const meta: Meta<typeof BillableEventsMonthlyTable> = {
-  title: 'Components/chart/BillableEventsMonthlyTable',
-  component: BillableEventsMonthlyTable,
+const meta: Meta<typeof BillableEventsProductTable> = {
+  title: 'Components/chart/BillableEventsProductTable',
+  component: BillableEventsProductTable,
   parameters: {
     layout: 'fullscreen',
   },
@@ -12,52 +12,56 @@ const meta: Meta<typeof BillableEventsMonthlyTable> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof BillableEventsMonthlyTable>;
+type Story = StoryObj<typeof BillableEventsProductTable>;
 
-const makeMonthlyMockData = (metricKeys: Record<string, number[]>) => {
-  const months = ['2026-01-01T00:00:00.000Z', '2026-02-01T00:00:00.000Z'];
-  const brands = [
-    { brandUuid: '101', brand: 'Hooli Health', integrationType: 'SDK' },
-    { brandUuid: '102', brand: 'Pied Piper', integrationType: 'API' },
-    { brandUuid: '103', brand: 'Aviato', integrationType: 'SEMI HOSTED' },
-  ];
-
-  return brands.flatMap((brand, bIdx) =>
-    months.map((month, mIdx) => ({
-      month,
-      ...brand,
-      metrics: Object.fromEntries(
-        Object.entries(metricKeys).map(([key, values]) => [
-          key,
-          values[bIdx * 2 + mIdx],
-        ]),
-      ),
-    })),
-  );
-};
-
-const ttsData = makeMonthlyMockData({
-  tts_smsKeywordsReceived: [4, 6, 12, 15, 0, 1],
-  tts_verificationsSucceeded: [3, 5, 10, 13, 0, 0],
-});
-
-const verifyData = makeMonthlyMockData({
-  verify_smsSent: [3, 4, 8, 10, 1, 2],
-  verify_verificationsSucceeded: [2, 3, 7, 9, 1, 1],
-});
-
-const signupData = makeMonthlyMockData({
-  signup_autofillsSucceeded: [5, 7, 15, 18, 30, 35],
-  signup_riskSignals: [5, 3, 2, 1, 8, 6],
-});
-
-const healthData = makeMonthlyMockData({
-  health_autofillsStarted: [5, 8, 20, 25, 0, 3],
-});
+const mockData = [
+  {
+    brandUuid: '101',
+    brand: 'Hooli Health',
+    integrationType: 'SDK',
+    metrics: {
+      tts_smsKeywordsReceived: 10,
+      tts_verificationsSucceeded: 8,
+      verify_smsSent: 7,
+      verify_verificationsSucceeded: 5,
+      signup_autofillsSucceeded: 12,
+      signup_riskSignals: 8,
+      health_autofillsStarted: 13,
+    },
+  },
+  {
+    brandUuid: '102',
+    brand: 'Pied Piper',
+    integrationType: 'API',
+    metrics: {
+      tts_smsKeywordsReceived: 27,
+      tts_verificationsSucceeded: 23,
+      verify_smsSent: 18,
+      verify_verificationsSucceeded: 16,
+      signup_autofillsSucceeded: 33,
+      signup_riskSignals: 3,
+      health_autofillsStarted: 45,
+    },
+  },
+  {
+    brandUuid: '103',
+    brand: 'Aviato',
+    integrationType: 'SEMI HOSTED',
+    metrics: {
+      tts_smsKeywordsReceived: 1,
+      tts_verificationsSucceeded: 0,
+      verify_smsSent: 3,
+      verify_verificationsSucceeded: 2,
+      signup_autofillsSucceeded: 65,
+      signup_riskSignals: 14,
+      health_autofillsStarted: 3,
+    },
+  },
+];
 
 export const TextToSignup: Story = {
   args: {
-    data: ttsData,
+    data: mockData,
     isLoading: false,
     isFetching: false,
     product: BillableProduct.TEXT_TO_SIGNUP,
@@ -66,7 +70,7 @@ export const TextToSignup: Story = {
 
 export const OneClickVerify: Story = {
   args: {
-    data: verifyData,
+    data: mockData,
     isLoading: false,
     isFetching: false,
     product: BillableProduct.ONE_CLICK_VERIFY,
@@ -75,7 +79,7 @@ export const OneClickVerify: Story = {
 
 export const OneClickSignup: Story = {
   args: {
-    data: signupData,
+    data: mockData,
     isLoading: false,
     isFetching: false,
     product: BillableProduct.ONE_CLICK_SIGNUP,
@@ -84,7 +88,7 @@ export const OneClickSignup: Story = {
 
 export const OneClickHealth: Story = {
   args: {
-    data: healthData,
+    data: mockData,
     isLoading: false,
     isFetching: false,
     product: BillableProduct.ONE_CLICK_HEALTH,

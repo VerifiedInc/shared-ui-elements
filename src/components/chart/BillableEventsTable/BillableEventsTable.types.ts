@@ -94,16 +94,8 @@ export type BillableEventsTableProps = {
   onSortedDataChange?: (sortedData: BillableEventsTableRow[]) => void;
 };
 
-export type BillableEventsMonthlyTableRow = {
-  month: string;
-  brandUuid: string;
-  brand: string;
-  integrationType: string;
-  metrics: Record<string, number>;
-};
-
-export type BillableEventsMonthlyTableProps = {
-  data: BillableEventsMonthlyTableRow[];
+export type BillableEventsProductTableProps = {
+  data: BillableEventsTableRow[];
   isLoading: boolean;
   isFetching: boolean;
   product: BillableProduct;

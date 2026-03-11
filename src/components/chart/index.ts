@@ -14,7 +14,7 @@ export * from './OneClickPercentageChart';
 export * from './OneClickOverTimeChart';
 export * from './MonthlySignupsOverviewTable';
 export * from './BillableEventsTable';
-export * from './BillableEventsMonthlyTable';
+export * from './BillableEventsProductTable';
 export * from './LoadingChartSection';
 export * from './EmptyChartSection';
 export * from './MetricLastUpdated';

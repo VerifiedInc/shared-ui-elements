@@ -15,19 +15,19 @@ import { LoadingChartSection } from '../LoadingChartSection';
 import {
   BILLABLE_PRODUCTS,
   type BillableEventColumn,
-  type BillableEventsMonthlyTableProps,
-  type BillableEventsMonthlyTableRow,
+  type BillableEventsProductTableProps,
+  type BillableEventsTableRow,
 } from '../BillableEventsTable/BillableEventsTable.types';
 import { useBillableSort } from '../BillableEventsTable/useBillableSort.hook';
 import { white } from '../../../styles';
 
-const DIRECT_KEYS = ['month', 'brand', 'integrationType'];
+const DIRECT_KEYS = ['brand', 'integrationType'];
 
-export const BillableEventsMonthlyTable: React.FC<
-  BillableEventsMonthlyTableProps
+export const BillableEventsProductTable: React.FC<
+  BillableEventsProductTableProps
 > = ({ data, isLoading, isFetching, product }) => {
   const { sortKey, sortDir, handleSort, sortedData } =
-    useBillableSort<BillableEventsMonthlyTableRow>(data, DIRECT_KEYS, 'month');
+    useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
 
   const productConfig = useMemo(() => {
     return BILLABLE_PRODUCTS.find((p) => p.product === product);
@@ -65,7 +65,6 @@ export const BillableEventsMonthlyTable: React.FC<
       <Table sx={{ backgroundColor: white }}>
         <TableHead>
           <TableRow>
-            <TableCell>{sortLabel('month', 'Month')}</TableCell>
             <TableCell>{sortLabel('brand', 'Brand')}</TableCell>
             <TableCell>
               {sortLabel('integrationType', 'Integration Type')}
@@ -78,15 +77,8 @@ export const BillableEventsMonthlyTable: React.FC<
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedData.map((row: BillableEventsMonthlyTableRow) => (
-            <TableRow key={`${row.brandUuid}-${row.month}`}>
-              <TableCell>
-                {new Date(row.month).toLocaleDateString(undefined, {
-                  month: 'short',
-                  year: 'numeric',
-                  timeZone: 'UTC',
-                })}
-              </TableCell>
+          {sortedData.map((row: BillableEventsTableRow) => (
+            <TableRow key={row.brandUuid}>
               <TableCell>{row.brand}</TableCell>
               <TableCell>{row.integrationType}</TableCell>
               {columns.map((col: BillableEventColumn) => (
