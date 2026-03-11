@@ -34,6 +34,11 @@ interface OTPInputProps {
    * ID of the element that labels this component (for accessibility)
    */
   ariaLabelledBy?: string;
+  /**
+   * When true, adds data attributes to prevent password managers and autofill apps from interacting with the inputs.
+   * @default false
+   */
+  disableAutoFillApps?: boolean;
 }
 
 export type OTPInputInstance = Readonly<{
@@ -154,9 +159,16 @@ function OTPInputComponent(
         pattern: '[0-9]*',
         autoCorrect: 'off',
         autoCapitalize: 'off',
+        ...(props.disableAutoFillApps && {
+          'data-op-ignore': true,
+          'data-lpignore': true,
+          'data-form-type': 'other',
+          'data-bwignore': true,
+          'data-protonpass-ignore': true,
+        }),
       },
     }),
-    [],
+    [props.disableAutoFillApps],
   );
 
   const handleChange = useCallback(
