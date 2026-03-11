@@ -8,7 +8,7 @@ import {
   TableRow,
   TableSortLabel,
 } from '@mui/material';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -29,9 +29,14 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   isLoading,
   isFetching,
   visibleProducts,
+  onSortedDataChange,
 }) => {
   const { sortKey, sortDir, handleSort, sortedData } =
     useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
+
+  useEffect(() => {
+    onSortedDataChange?.(sortedData);
+  }, [sortedData, onSortedDataChange]);
 
   const activeProducts = useMemo(() => {
     const products = visibleProducts ?? Object.values(BillableProduct);

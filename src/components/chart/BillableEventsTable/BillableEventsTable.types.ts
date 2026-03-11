@@ -91,6 +91,7 @@ export type BillableEventsTableProps = {
   isLoading: boolean;
   isFetching: boolean;
   visibleProducts?: BillableProduct[];
+  onSortedDataChange?: (sortedData: BillableEventsTableRow[]) => void;
 };
 
 export type BillableEventsMonthlyTableRow = {
