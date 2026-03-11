@@ -30,7 +30,7 @@ export type SynchronizedSubChartConfig =
       yAxisDomain?: [number | string, number | string];
     };
 
-export interface SynchronizedMetricsChartProps {
+type SynchronizedMetricsChartBaseProps = {
   syncId?: string;
   isLoading: boolean;
   isSuccess: boolean;
@@ -40,13 +40,25 @@ export interface SynchronizedMetricsChartProps {
     brands: BrandFilter[];
   };
   sx?: SxProps;
-  // Legacy path: caller provides pre-mapped subCharts
-  subCharts?: readonly [SubChartConfig, ...SubChartConfig[]];
-  // New path: caller provides raw data + field config
-  chartData?: BrandIntervalData[];
-  subChartConfig?: readonly [
-    SynchronizedSubChartConfig,
-    ...SynchronizedSubChartConfig[],
-  ];
-  colorMap?: Map<string, string>;
-}
+};
+
+export type SynchronizedMetricsChartProps = SynchronizedMetricsChartBaseProps &
+  (
+    | {
+        // Legacy path: caller provides pre-mapped subCharts
+        subCharts: readonly [SubChartConfig, ...SubChartConfig[]];
+        chartData?: never;
+        subChartConfig?: never;
+        colorMap?: never;
+      }
+    | {
+        // New path: caller provides raw data + field config
+        subCharts?: never;
+        chartData: BrandIntervalData[];
+        subChartConfig: readonly [
+          SynchronizedSubChartConfig,
+          ...SynchronizedSubChartConfig[],
+        ];
+        colorMap: Map<string, string>;
+      }
+  );

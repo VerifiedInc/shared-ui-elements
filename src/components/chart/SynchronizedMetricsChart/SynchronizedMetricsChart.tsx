@@ -158,12 +158,12 @@ export function SynchronizedMetricsChart({
     chartData
       ? mapSynchronizedSubCharts({
           chartData,
-          subChartConfig: subChartConfig!,
+          subChartConfig,
           brands: filter.brands,
-          colorMap: colorMap!,
+          colorMap,
           isLoading,
         })
-      : subCharts!;
+      : subCharts;
 
   const noData = resolvedSubCharts.every((sc) => sc.data.length === 0);
 

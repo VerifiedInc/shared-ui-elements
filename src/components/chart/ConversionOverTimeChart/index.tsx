@@ -45,12 +45,12 @@ function mapBrandIntervalData({
     if (brandUuids && !brandUuids.has(brand.brandUuid)) continue;
     for (const item of brand.interval ?? []) {
       const date = +new Date(item.date);
-      if (!dateMap.has(date)) {
-        const entry: Record<string, number | string> = { date };
+      let entry = dateMap.get(date);
+      if (!entry) {
+        entry = { date };
         for (const s of seriesConfig) entry[s.dataKey] = 0;
         dateMap.set(date, entry);
       }
-      const entry = dateMap.get(date)!;
       for (const s of seriesConfig) {
         entry[s.dataKey] =
           (entry[s.dataKey] as number) + Number(item[s.dataKey] || 0);
