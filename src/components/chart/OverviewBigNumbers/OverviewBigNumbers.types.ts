@@ -1,3 +1,5 @@
+import type { SxProps } from '@mui/material';
+
 /**
  * Normalized metrics for product overview BigNumber cards.
  * Used by OverviewBigNumbers and all product-specific BigNumber wrappers.
@@ -17,3 +19,13 @@ export const defaultOverviewMetrics: OverviewMetrics = {
   totalCost: 0,
   successRate: 0,
 };
+
+export interface OverviewBigNumbersMetricsConfig {
+  startedKey: string;
+  succeededKey: string;
+}
+
+export interface BigNumberCardOverride {
+  label?: string;
+  sx?: SxProps;
+}

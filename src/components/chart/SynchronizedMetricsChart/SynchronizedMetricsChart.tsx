@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { Stack, Typography, useTheme } from '@mui/material';
 import {
-  AreaChart as RechartsAreaChart,
-  Area,
+  LineChart as RechartsLineChart,
+  Line,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -21,7 +21,11 @@ import {
   yAxisDefaultProps,
 } from '../shared';
 import type { SeriesChartData } from '../SeriesChart';
-import type { SynchronizedMetricsChartProps } from './SynchronizedMetricsChart.types';
+import type {
+  SubChartConfig,
+  SynchronizedMetricsChartProps,
+} from './SynchronizedMetricsChart.types';
+import { mapSynchronizedSubCharts } from './SynchronizedMetricsChart.map';
 
 const SYNC_ID = 'synchronized-metrics';
 const CHART_HEIGHT = 200;
@@ -75,11 +79,11 @@ function SubChart({
 
   return (
     <Stack>
-      <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
+      <Typography variant='h5' sx={{ mb: 0.5, fontSize: '1.15rem' }}>
         {title}
       </Typography>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
-        <RechartsAreaChart
+        <RechartsLineChart
           data={mergedData}
           syncId={syncId}
           margin={chartDefaultProps.margin}
@@ -119,19 +123,18 @@ function SubChart({
             itemSorter={(item) => -Number(item?.value ?? 0)}
           />
           {brands.map((brand) => (
-            <Area
+            <Line
               key={brand.uuid}
               dataKey={brand.uuid}
               name={brand.name}
               stroke={brand.color}
-              fill={brand.color}
-              fillOpacity={0.1}
               type='monotone'
               strokeWidth={2}
               isAnimationActive={false}
+              dot={false}
             />
           ))}
-        </RechartsAreaChart>
+        </RechartsLineChart>
       </ResponsiveContainer>
     </Stack>
   );
@@ -139,6 +142,9 @@ function SubChart({
 
 export function SynchronizedMetricsChart({
   subCharts,
+  chartData,
+  subChartConfig,
+  colorMap,
   syncId = SYNC_ID,
   isLoading,
   isSuccess,
@@ -148,23 +154,35 @@ export function SynchronizedMetricsChart({
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
 
-  const noData = subCharts.every((sc) => sc.data.length === 0);
+  const resolvedSubCharts: readonly [SubChartConfig, ...SubChartConfig[]] =
+    chartData
+      ? mapSynchronizedSubCharts({
+          chartData,
+          subChartConfig,
+          brands: filter.brands,
+          colorMap,
+          isLoading,
+        })
+      : subCharts;
+
+  const noData = resolvedSubCharts.every((sc) => sc.data.length === 0);
 
   const mergedSubCharts = useMemo(
-    () => subCharts.map((sc) => mergeChartData(sc.data)),
-    [subCharts],
+    () => resolvedSubCharts.map((sc) => mergeChartData(sc.data)),
+    [resolvedSubCharts],
   );
 
   const legendPayload = useMemo(
     () =>
-      subCharts[0].data.map((b) => ({
-        uuid: b.uuid,
+      resolvedSubCharts[0].data.map((b) => ({
+        uuid: b.brandUuid ?? b.uuid,
         value: b.name,
         color: b.color,
         dataKey: b.uuid,
-        integrationType: b.description,
+        integrationType: b.description ?? undefined,
+        brandName: b.brandName,
       })),
-    [subCharts],
+    [resolvedSubCharts],
   );
 
   if (noData && isLoading) {
@@ -178,7 +196,7 @@ export function SynchronizedMetricsChart({
   return (
     <Stack sx={{ width: '100%', ...sx }}>
       <Stack sx={{ opacity: isFetching ? 0.4 : 1, gap: 2 }}>
-        {subCharts.map((sc, i) => (
+        {resolvedSubCharts.map((sc, i) => (
           <SubChart
             key={sc.title}
             title={sc.title}

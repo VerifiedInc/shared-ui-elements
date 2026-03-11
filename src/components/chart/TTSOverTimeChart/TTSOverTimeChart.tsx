@@ -48,7 +48,7 @@ export function TTSOverTimeChart({
   }
   return (
     <SeriesChart
-      label={label ?? 'TTS Over Time'}
+      label={label ?? 'Text to Signup'}
       data={data}
       filter={filter}
       showUuid={true}

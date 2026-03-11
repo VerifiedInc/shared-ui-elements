@@ -21,27 +21,22 @@ const PopperComponent = function PopperComponent(
   );
 };
 
-/**
- * Props for the TimezoneInput component.
- */
-interface TimezoneInputProps {
-  /**
-   * The currently selected timezone code.
-   * This should be a valid IANA timezone identifier (e.g., 'America/New_York', 'Europe/London').
-   * The value must match one of the timezone codes from the timezones.json file.
-   */
-  value: string;
-
-  /**
-   * Callback fired when the timezone selection changes.
-   * @param value - The new timezone code selected by the user
-   */
-  onChange: (value: string) => void;
-}
+type TimezoneInputProps =
+  | {
+      value: string;
+      onChange: (value: string) => void;
+      disabled?: false;
+    }
+  | {
+      value: string;
+      onChange?: never;
+      disabled: true;
+    };
 
 export function TimezoneInput({
   value,
   onChange,
+  disabled,
 }: TimezoneInputProps): ReactElement {
   const options = useMemo(() => {
     return timezones.map((timezone) => ({
@@ -61,6 +56,7 @@ export function TimezoneInput({
       <Autocomplete
         disablePortal
         disableClearable
+        disabled={disabled}
         value={selected}
         options={options}
         getOptionLabel={(option) => option.label.replace(/_/gm, ' ')}
@@ -82,7 +78,7 @@ export function TimezoneInput({
         onChange={(e, newValue) => {
           if (!newValue) return;
 
-          onChange(newValue.tzCode);
+          onChange?.(newValue.tzCode);
         }}
         sx={{
           width: 166,

@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { OneClickVerificationOutcomeOverTimeChart } from '../../../components/chart';
+import { ConversionOverTimeChart } from '../../../components/chart';
+import { green, yellow, red } from '../../../styles/colors';
 
 const meta = {
   title: 'components/chart/OneClickVerificationOutcomeOverTimeChart',
-  component: OneClickVerificationOutcomeOverTimeChart,
+  component: ConversionOverTimeChart,
   parameters: {
     layout: 'centered',
   },
@@ -26,10 +27,16 @@ const meta = {
     ),
   ],
   tags: ['autodocs'],
-} satisfies Meta<typeof OneClickVerificationOutcomeOverTimeChart>;
+} satisfies Meta<typeof ConversionOverTimeChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+const seriesConfig = [
+  { key: 'Verified', dataKey: 'oneClickVerificationVerified', color: green },
+  { key: 'Expired', dataKey: 'oneClickVerificationExpired', color: yellow },
+  { key: 'Failed', dataKey: 'oneClickVerificationFailed', color: red },
+];
 
 const mockRawData = [
   {
@@ -183,6 +190,8 @@ const mockRawData = [
 export const Default: Story = {
   args: {
     chartData: mockRawData,
+    seriesConfig,
+    stackMode: 'stack',
     isLoading: false,
     isSuccess: true,
     isFetching: false,
@@ -193,6 +202,8 @@ export const Default: Story = {
 export const Loading: Story = {
   args: {
     chartData: [],
+    seriesConfig,
+    stackMode: 'stack',
     isLoading: true,
     isSuccess: false,
     isFetching: false,
@@ -203,6 +214,8 @@ export const Loading: Story = {
 export const Empty: Story = {
   args: {
     chartData: [],
+    seriesConfig,
+    stackMode: 'stack',
     isLoading: false,
     isSuccess: false,
     isFetching: false,
@@ -213,9 +226,23 @@ export const Empty: Story = {
 export const Fetching: Story = {
   args: {
     chartData: mockRawData,
+    seriesConfig,
+    stackMode: 'stack',
     isLoading: false,
     isSuccess: true,
     isFetching: true,
+    filter: { timezone: 'UTC' },
+  },
+};
+
+export const StackModeNone: Story = {
+  args: {
+    chartData: mockRawData,
+    seriesConfig,
+    stackMode: 'none',
+    isLoading: false,
+    isSuccess: true,
+    isFetching: false,
     filter: { timezone: 'UTC' },
   },
 };

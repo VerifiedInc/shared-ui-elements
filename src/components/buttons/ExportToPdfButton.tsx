@@ -14,11 +14,13 @@ export interface ExportToPdfButtonProps extends IconButtonProps {
   targetId: string | React.RefObject<HTMLElement>;
   filename?: string;
   children?: React.ReactNode;
+  resolution?: number;
 }
 
 export const ExportToPdfButton: React.FC<ExportToPdfButtonProps> = ({
   targetId,
   filename = 'file',
+  resolution,
   sx,
   ...buttonProps
 }) => {
@@ -43,6 +45,7 @@ export const ExportToPdfButton: React.FC<ExportToPdfButtonProps> = ({
                 {
                   filename: `${filename}.pdf`,
                   page: { margin: 10 },
+                  ...(resolution !== undefined ? { resolution } : {}),
                 },
               );
             })
@@ -55,7 +58,7 @@ export const ExportToPdfButton: React.FC<ExportToPdfButtonProps> = ({
         }
       }, 600); // Small delay to ensure UI updates first, otherwise it blocks the loading animation
     });
-  }, [filename, targetId]);
+  }, [filename, targetId, resolution]);
 
   return (
     <span>
