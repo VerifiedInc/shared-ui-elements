@@ -1,8 +1,8 @@
 import type { BrandIntervalData } from '../ConversionOverTimeChart';
-import type { OverviewBigNumbersMetricsConfig } from './OverviewBigNumbers.types';
 import {
   type OverviewMetrics,
   defaultOverviewMetrics,
+  OverviewBigNumbersMetricsConfig,
 } from './OverviewBigNumbers.types';
 
 export function mapOverviewMetrics(

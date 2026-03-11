@@ -179,7 +179,7 @@ export function SynchronizedMetricsChart({
         value: b.name,
         color: b.color,
         dataKey: b.uuid,
-        integrationType: b.description || undefined,
+        integrationType: b.description ?? undefined,
         brandName: b.brandName,
       })),
     [resolvedSubCharts],

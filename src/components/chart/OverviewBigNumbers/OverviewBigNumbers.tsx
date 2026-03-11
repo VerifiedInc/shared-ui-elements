@@ -11,11 +11,9 @@ import {
 import type { BrandIntervalData } from '../ConversionOverTimeChart';
 import {
   type OverviewMetrics,
-  defaultOverviewMetrics,
-} from './OverviewBigNumbers.types';
-import type {
-  OverviewBigNumbersMetricsConfig,
   BigNumberCardOverride,
+  defaultOverviewMetrics,
+  OverviewBigNumbersMetricsConfig,
 } from './OverviewBigNumbers.types';
 import { mapOverviewMetrics } from './OverviewBigNumbers.map';
 
