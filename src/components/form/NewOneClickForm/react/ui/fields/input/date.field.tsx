@@ -103,6 +103,7 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
         minDate={minDateForPicker}
         maxDate={maxDateForPicker}
         disabled={field.isDisabled}
+        redactYear={isDob && options.features.field?.dob?.redactYear}
         InputProps={{
           'data-mask-me': true,
           endAdornment: (

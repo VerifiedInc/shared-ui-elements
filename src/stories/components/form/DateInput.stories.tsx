@@ -29,6 +29,7 @@ const meta = {
   argTypes: {
     size: { control: 'select', options: ['small', 'medium'] },
     value: { control: 'text' },
+    redactYear: { control: 'boolean' },
   },
 } satisfies Meta<typeof DateInput>;
 
@@ -76,6 +77,22 @@ export const CustomDefaultSelectedDatePicker: Story = {
     helperText: 'Helper text',
     pickerInputOverflow: true,
     pickerDefaultSelectedDate: new Date('08/01/1989'),
+  },
+  argTypes: {},
+};
+
+export const RedactYear: Story = {
+  args: {
+    name: 'date',
+    label: 'Date of Birth',
+    onChange: fn(),
+    disabled: false,
+    error: false,
+    size: 'small',
+    helperText: 'MM/DD/YYYY',
+    pickerInputOverflow: true,
+    redactYear: true,
+    value: '03/15/1990',
   },
   argTypes: {},
 };
