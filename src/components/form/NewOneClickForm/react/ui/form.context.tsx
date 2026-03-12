@@ -10,6 +10,12 @@ type OneClickOptionFeatures = {
   editMode?: {
     hide?: boolean;
   };
+  field?: {
+    dob?: {
+      /** When true, masks the year portion of the DOB field as ••••. */
+      redactYear?: boolean;
+    };
+  };
 };
 
 type OneClickOptionServicePaths = {

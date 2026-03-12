@@ -1,5 +1,6 @@
 import { credentialKeys, fieldInputTypes } from '../../../core/fields';
 import { FormField } from '../../../core/form';
+import type { OneClickFormOptions } from '../form.context';
 
 /**
  * Makes attributes for a field.
@@ -10,10 +11,12 @@ export const makeAttributes = ({
   userPrivacyEnabled,
   field,
   fieldKey,
+  options,
 }: {
   userPrivacyEnabled?: boolean;
   field: FormField | undefined;
   fieldKey: string;
+  options: OneClickFormOptions;
 }) => {
   const attributes = {
     role: 'region',
@@ -22,12 +25,14 @@ export const makeAttributes = ({
       field?.schema.characteristics.inputType === fieldInputTypes.composite
         ? `data-field-composite-${fieldKey}`
         : `data-field-atomic-${fieldKey}`,
-    'data-verified-sdk-field-value': undefined,
+    'data-verified-sdk-field-value': undefined as ReturnType<
+      typeof getFieldValue
+    >,
   };
 
   if (!userPrivacyEnabled) {
     attributes['data-verified-sdk-field-value'] = field
-      ? getFieldValue(field)
+      ? getFieldValue(field, options)
       : undefined;
   }
   return attributes;
@@ -62,7 +67,10 @@ export function getAutoCompleteAttributeValue(key: string) {
  * @param field The field to get the value from.
  * @returns The value or display value of the field.
  */
-export const getFieldValue = (field: FormField) => {
+export const getFieldValue = (
+  field: FormField,
+  options: OneClickFormOptions,
+) => {
   // Ignore composite fields except address
   if (typeof field.value === 'object') {
     if (
@@ -84,5 +92,26 @@ export const getFieldValue = (field: FormField) => {
     return field.value;
   }
 
-  return field.displayValue;
+  return getFieldDisplayValue(field, options);
+};
+
+/**
+ * Get the display value for a field, applying feature-flag-driven
+ * transformations (e.g. year redaction for DOB).
+ */
+export const getFieldDisplayValue = (
+  field: FormField,
+  options: OneClickFormOptions,
+): string | null => {
+  const displayValue = field.displayValue;
+
+  if (
+    options.features.field?.dob?.redactYear &&
+    field.schema.key === credentialKeys.birthDate &&
+    typeof displayValue === 'string'
+  ) {
+    return displayValue.replace(/\/\d{4}$/, '/••••');
+  }
+
+  return displayValue;
 };

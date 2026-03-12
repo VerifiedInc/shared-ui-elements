@@ -2,7 +2,7 @@ import { Stack, Typography, SxProps } from '@mui/material';
 
 import { useFormField } from '../../core/field.hook';
 
-import { makeAttributes } from './shared';
+import { getFieldDisplayValue, makeAttributes } from './shared';
 import { useOneClickForm } from '../form.context';
 
 export function FieldLabelBase({
@@ -59,8 +59,11 @@ export function FieldLabel({
 
 export function FieldValue({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
+  const { options } = useOneClickForm();
 
   if (!field) return null;
+
+  const displayValue = getFieldDisplayValue(field, options);
 
   return (
     <Typography
@@ -75,7 +78,8 @@ export function FieldValue({ fieldKey }: { fieldKey: string }) {
         } as any
       }
     >
-      {field?.displayValue || (!field?.isRequired ? '-' : null)}
+      {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
+      {displayValue || (!field?.isRequired ? '-' : null)}
     </Typography>
   );
 }
@@ -129,6 +133,7 @@ export function FieldRowContainer({
     userPrivacyEnabled: formContext.options.features.enableUserPrivacy,
     field,
     fieldKey,
+    options: formContext.options,
   });
 
   return (

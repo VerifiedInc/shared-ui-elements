@@ -31,6 +31,8 @@ export interface InputMaskProps {
   beforeMaskedStateChange?: (options: BeforeMaskedStateChangeOptions) => void;
   // Placeholder to cover unfilled parts of the mask, null to remove the default "_" placeholder.
   maskPlaceholder?: string | null;
+  // Focus event handler.
+  onFocus?: () => void;
   // Whether mask prefix and placeholder should be displayed when input is empty and has no focus.
   alwaysShowMask?: boolean;
   disabled?: boolean;

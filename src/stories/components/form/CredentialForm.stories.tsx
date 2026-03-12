@@ -365,6 +365,11 @@ const CredentialForm: React.FC = () => {
               // editMode: {
               //   hide: true,
               // },
+              field: {
+                dob: {
+                  redactYear: true,
+                },
+              },
             },
             servicePaths: {
               googlePlacesAutocompletePlaces: async (

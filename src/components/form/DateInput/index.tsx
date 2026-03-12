@@ -23,6 +23,7 @@ import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 import { masks } from '../../../utils/masks';
 
 import { InputMask, InputMaskProps } from '../InputMask';
+import { ChangeEvent, TextMaskCustom } from '../TextMaskCustom';
 
 // CJS/ESM interop: some bundlers don't unwrap the module default when resolving
 // the externalized react-datepicker CJS build, returning the exports object
@@ -45,6 +46,7 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
   InputProps?: TextFieldProps['InputProps'] & {
     'data-mask-me'?: boolean;
   };
+  redactYear?: boolean;
 }
 
 const GhostInput = forwardRef(function RenderInput(
@@ -215,6 +217,7 @@ function DateInputComponent(
     inputMaskProps,
     minDate,
     maxDate,
+    redactYear = false,
     ...props
   }: Readonly<DateInputProps>,
   ref: any,
@@ -235,6 +238,92 @@ function DateInputComponent(
     }
   };
 
+  const pickerAdornment = (
+    <>
+      {!redactYear && (
+        <Picker
+          onChange={handleChange}
+          value={value}
+          overflow={pickerInputOverflow}
+          clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
+          defaultSelectedDate={pickerDefaultSelectedDate}
+          minDate={minDate}
+          maxDate={maxDate}
+          disabled={disabled}
+        />
+      )}
+      {props.InputProps?.endAdornment}
+    </>
+  );
+
+  const textFieldSx = {
+    flex: 1,
+    '& input': {
+      boxShadow: 'none!important',
+      border: 'none!important',
+      letterSpacing: '1px',
+    },
+  };
+
+  // When redactYear is enabled, use TextMaskCustom (imask) with displayChar
+  // to show the year as ••••, exactly like the SSN input. If the user removes
+  // characters, the entire value is cleared so they re-enter from scratch.
+  if (redactYear) {
+    return (
+      <TextField
+        label={label}
+        error={error}
+        helperText={helperText}
+        fullWidth
+        {...props}
+        autoComplete='bday'
+        inputRef={ref}
+        value={value?.replace(/-/g, '') ?? ''}
+        onChange={
+          ((e, nativeEvent) => {
+            if (!nativeEvent) return;
+            const currentValue = value?.replace(/\//g, '') ?? '';
+            const newValue = e.target.value.replace(/\//g, '');
+            // If the user is removing characters, clear the field
+            if (newValue.length < currentValue.length) {
+              onChange?.('');
+              if (!isControlled) setInternalValue('');
+              return;
+            }
+            onChange?.(e.target.value);
+            if (!isControlled) setInternalValue(e.target.value);
+          }) as ChangeEvent
+        }
+        onBlur={onBlur as any}
+        disabled={disabled}
+        placeholder='__/__/____'
+        inputProps={{
+          ...props.inputProps,
+          useOnComplete: false,
+          unmask: false,
+          lazy: true,
+          mask: '00/00/YYYY',
+          definitions: {
+            Y: {
+              mask: /[0-9•]/,
+              displayChar: '•',
+            },
+          },
+          placeholderChar: '_',
+          inputMode: 'numeric',
+          overwrite: false,
+          tabIndex: 0,
+        }}
+        InputProps={{
+          ...props.InputProps,
+          inputComponent: TextMaskCustom as any,
+          endAdornment: pickerAdornment,
+        }}
+        sx={textFieldSx}
+      />
+    );
+  }
+
   const textFieldStyle: TextFieldProps = {
     label,
     error,
@@ -253,21 +342,7 @@ function DateInputComponent(
     },
     InputProps: {
       ...props.InputProps,
-      endAdornment: (
-        <>
-          <Picker
-            onChange={handleChange}
-            value={value}
-            overflow={pickerInputOverflow}
-            clickOutsideBoundaryElement={pickerClickOutsideBoundaryElement}
-            defaultSelectedDate={pickerDefaultSelectedDate}
-            minDate={minDate}
-            maxDate={maxDate}
-            disabled={disabled}
-          />
-          {props.InputProps?.endAdornment}
-        </>
-      ),
+      endAdornment: pickerAdornment,
     },
   };
 
@@ -285,14 +360,7 @@ function DateInputComponent(
         {...textFieldStyle}
         inputRef={ref}
         fullWidth
-        sx={{
-          flex: 1,
-          '& input': {
-            boxShadow: 'none!important',
-            border: 'none!important',
-            letterSpacing: '1px',
-          },
-        }}
+        sx={textFieldSx}
       />
     </InputMask>
   );
