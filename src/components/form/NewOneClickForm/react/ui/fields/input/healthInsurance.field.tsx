@@ -182,7 +182,7 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
           <Box component='li' {...props} key={option.verifiedId}>
             <Stack direction='row' spacing={1.5} alignItems='center'>
               <Avatar
-                src={option.logoUrl}
+                src={option.logoUrl ?? undefined}
                 alt={option.name[0]?.toUpperCase()}
                 sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
                 slotProps={{
