@@ -165,7 +165,7 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
             });
           } else {
             updateItem({
-              payer: { name: '', logoUrl: '', verifiedId: '' },
+              payer: { name: '', logoUrl: undefined, verifiedId: '' },
               memberId: '',
             });
           }
