@@ -9,7 +9,7 @@ export const healthInsuranceSchema = z.object({
   payer: z.object({
     verifiedId: z.string().regex(/^V\d+$/),
     name: payerNameSchema,
-    logoUrl: z.string().url().optional(),
+    logoUrl: z.string().url().nullish(),
   }),
 });
 
