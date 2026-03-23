@@ -558,21 +558,7 @@ const mockCredentials = [
       payer: {
         verifiedId: 'V123123',
         name: 'Aviato Health Insurance Of California',
-        logoUrl: null,
-      },
-    },
-  },
-  {
-    uuid: 'health-insurance-id-1235',
-    type: 'healthInsurance',
-    value: {
-      id: 176,
-      memberId: 'AC****03',
-      payer: {
-        verifiedId: 'V123124',
-        name: 'Blue Shield of California',
-        logoUrl:
-          'https://cdn.jornaldebrasilia.com.br/wp-content/uploads/2022/02/14120224/biscoito-recheado-classic-nestle-140g-eb8.png',
+        logoUrl: '',
       },
     },
   },
