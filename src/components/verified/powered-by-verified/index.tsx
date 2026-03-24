@@ -59,7 +59,7 @@ export function PoweredByVerified({
           ...props.sx,
         }}
       >
-        <title>Powered by Verified / green</title>
+        <title>Powered by Verified</title>
         <g
           id='Templates-(for-examples-in-Dashboard)'
           stroke='none'
