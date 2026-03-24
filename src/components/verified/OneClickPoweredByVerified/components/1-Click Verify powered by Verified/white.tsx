@@ -14,7 +14,7 @@ export function White(props: Props) {
       version='1.1'
       sx={props.sx}
     >
-      <title>1-Click Verify powered by Verified / white</title>
+      <title>1-Click Verify powered by Verified</title>
       <g
         id='1-Click-Verify-powered-by-Verified-/-white'
         stroke='none'

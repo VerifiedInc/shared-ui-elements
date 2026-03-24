@@ -14,7 +14,7 @@ export function Black(props: Props) {
       version='1.1'
       sx={props.sx}
     >
-      <title>1-Click Login powered by Verified / black</title>
+      <title>1-Click Login powered by Verified</title>
       <g
         id='1-Click-Login-powered-by-Verified-/-black'
         stroke='none'

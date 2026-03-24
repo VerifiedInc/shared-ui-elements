@@ -14,7 +14,7 @@ export function BlackGreen(props: Props) {
       version='1.1'
       sx={props.sx}
     >
-      <title>1-Click Login powered by Verified / black and green</title>
+      <title>1-Click Login powered by Verified</title>
       <g
         id='1-Click-Login-powered-by-Verified-/-green'
         stroke='none'

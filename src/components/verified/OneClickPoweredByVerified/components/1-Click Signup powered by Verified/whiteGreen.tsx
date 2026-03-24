@@ -14,7 +14,7 @@ export function WhiteGreen(props: Props) {
       version='1.1'
       sx={props.sx}
     >
-      <title>1-Click Signup powered by Verified / white and green</title>
+      <title>1-Click Signup powered by Verified</title>
       <g
         id='1-Click-Signup-powered-by-Verified-/-white-and-green'
         stroke='none'
