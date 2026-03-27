@@ -46,7 +46,7 @@ const mockData = [
   {
     brandUuid: '103',
     brand: 'Aviato',
-    integrationType: 'SEMI HOSTED',
+    integrationType: 'Semi-Hosted',
     metrics: {
       tts_smsKeywordsReceived: 0,
       tts_verificationsSucceeded: 0,

@@ -4,6 +4,24 @@ import {
   type BillableEventsTableRow,
 } from './BillableEventsTable.types';
 
+/**
+ * Maps raw or pre-mapped integration type values to display labels.
+ * Handles both raw core-service values (e.g. "hosted") and values
+ * already mapped by backend services (e.g. "SDK", "API").
+ */
+const INTEGRATION_TYPE_DISPLAY: Record<string, string> = {
+  hosted: 'SDK',
+  'non-hosted': 'API',
+  'semi-hosted': 'Semi-Hosted',
+  sdk: 'SDK',
+  api: 'API',
+};
+
+export function formatIntegrationType(type?: string): string {
+  if (!type) return '';
+  return INTEGRATION_TYPE_DISPLAY[type.toLowerCase()] ?? type;
+}
+
 type Brand = {
   brandUuid: string;
   brandName: string;
@@ -71,7 +89,7 @@ export const mapBillableEventsTableData = ({
       return {
         brandUuid,
         brand: brand.brandName,
-        integrationType: brand.integrationType?.toLocaleUpperCase(),
+        integrationType: formatIntegrationType(brand.integrationType),
         metrics: brandMetrics.get(brandUuid) ?? {},
       };
     })
