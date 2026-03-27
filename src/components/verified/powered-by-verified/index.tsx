@@ -49,7 +49,8 @@ export function PoweredByVerified({
     >
       <Box
         component='svg'
-        width='351px'
+        width='100%'
+        maxWidth='350px'
         viewBox='0 0 351 41'
         {...props}
         sx={{
