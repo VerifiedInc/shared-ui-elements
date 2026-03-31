@@ -1,3 +1,6 @@
+import React from 'react';
+import { ChartData } from '../BillableEventsProductTable';
+
 export enum BillableProduct {
   TEXT_TO_SIGNUP = 'TEXT_TO_SIGNUP',
   ONE_CLICK_VERIFY = 'ONE_CLICK_VERIFY',
@@ -84,6 +87,7 @@ export type BillableEventsTableRow = {
   brand: string;
   integrationType: string;
   metrics: Record<string, number>;
+  raw: ChartData;
 };
 
 export type BillableEventsTableProps = {
@@ -92,6 +96,10 @@ export type BillableEventsTableProps = {
   isFetching: boolean;
   visibleProducts?: BillableProduct[];
   onSortedDataChange?: (sortedData: BillableEventsTableRow[]) => void;
+  columnSlots?: Record<
+    string,
+    (row: BillableEventsTableRow) => React.ReactNode
+  >;
 };
 
 export type BillableEventsProductTableProps = {
@@ -99,4 +107,8 @@ export type BillableEventsProductTableProps = {
   isLoading: boolean;
   isFetching: boolean;
   product: BillableProduct;
+  columnSlots?: Record<
+    string,
+    (row: BillableEventsTableRow) => React.ReactNode
+  >;
 };

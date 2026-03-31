@@ -1,6 +1,10 @@
+import { Chip } from '@mui/material';
 import { Meta, StoryObj } from '@storybook/react';
-import { BillableEventsTable } from '../../../components/chart/BillableEventsTable';
-import { BillableProduct } from '../../../components/chart/BillableEventsTable/BillableEventsTable.types';
+import {
+  BillableEventsTable,
+  BillableEventsTableRow,
+  BillableProduct,
+} from '../../../components/chart/BillableEventsTable';
 
 const meta: Meta<typeof BillableEventsTable> = {
   title: 'Components/chart/BillableEventsTable',
@@ -14,11 +18,12 @@ const meta: Meta<typeof BillableEventsTable> = {
 export default meta;
 type Story = StoryObj<typeof BillableEventsTable>;
 
-const mockData = [
+const mockData: BillableEventsTableRow[] = [
   {
     brandUuid: '101',
     brand: 'Hooli Health',
     integrationType: 'SDK',
+    raw: { brandUuid: '101', brandName: 'Hooli Health', overall: {} },
     metrics: {
       tts_smsKeywordsReceived: 4,
       tts_verificationsSucceeded: 3,
@@ -33,6 +38,7 @@ const mockData = [
     brandUuid: '102',
     brand: 'Pied Piper',
     integrationType: 'API',
+    raw: { brandUuid: '102', brandName: 'Pied Piper', overall: {} },
     metrics: {
       tts_smsKeywordsReceived: 12,
       tts_verificationsSucceeded: 10,
@@ -47,6 +53,7 @@ const mockData = [
     brandUuid: '103',
     brand: 'Aviato',
     integrationType: 'Semi-Hosted',
+    raw: { brandUuid: '103', brandName: 'Aviato', overall: {} },
     metrics: {
       tts_smsKeywordsReceived: 0,
       tts_verificationsSucceeded: 0,
@@ -85,6 +92,32 @@ export const TwoProducts: Story = {
       BillableProduct.TEXT_TO_SIGNUP,
       BillableProduct.ONE_CLICK_VERIFY,
     ],
+  },
+};
+
+export const WithColumnSlots: Story = {
+  args: {
+    data: mockData,
+    isLoading: false,
+    isFetching: false,
+    columnSlots: {
+      signup_autofillsSucceeded: (row: BillableEventsTableRow) => (
+        <Chip
+          label={row.metrics.signup_autofillsSucceeded}
+          color={
+            row.metrics.signup_autofillsSucceeded > 10 ? 'success' : 'default'
+          }
+          size='small'
+        />
+      ),
+      signup_riskSignals: (row: BillableEventsTableRow) => (
+        <Chip
+          label={row.metrics.signup_riskSignals}
+          color={row.metrics.signup_riskSignals > 5 ? 'warning' : 'default'}
+          size='small'
+        />
+      ),
+    },
   },
 };
 

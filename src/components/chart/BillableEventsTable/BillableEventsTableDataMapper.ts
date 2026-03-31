@@ -50,7 +50,7 @@ export const mapBillableEventsTableData = ({
   brands,
 }: MapBillableEventsTableDataParams): BillableEventsTableRow[] => {
   const brandMetrics = new Map<string, Record<string, number>>();
-  const brandsWithData = new Set<string>();
+  const brandsWithData = new Map<string, ChartData>();
 
   for (const { product, data } of productDataSets) {
     const productConfig = BILLABLE_PRODUCTS.find((p) => p.product === product);
@@ -74,15 +74,15 @@ export const mapBillableEventsTableData = ({
       const hasNonZero = productConfig.columns.some(
         (col) => (existing[col.key] ?? 0) > 0,
       );
-      if (hasNonZero) {
-        brandsWithData.add(brandData.brandUuid);
+      if (hasNonZero && !brandsWithData.has(brandData.brandUuid)) {
+        brandsWithData.set(brandData.brandUuid, brandData);
       }
       brandMetrics.set(brandData.brandUuid, existing);
     }
   }
 
-  return Array.from(brandsWithData)
-    .map((brandUuid) => {
+  return Array.from(brandsWithData.entries())
+    .map(([brandUuid, raw]) => {
       const brand = brands.find((b) => b.brandUuid === brandUuid);
       if (!brand) return null;
 
@@ -91,6 +91,7 @@ export const mapBillableEventsTableData = ({
         brand: brand.brandName,
         integrationType: formatIntegrationType(brand.integrationType),
         metrics: brandMetrics.get(brandUuid) ?? {},
+        raw,
       };
     })
     .filter((row): row is BillableEventsTableRow => row !== null);

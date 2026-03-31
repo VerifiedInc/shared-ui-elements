@@ -11,7 +11,7 @@ type Brand = {
   integrationType: string;
 };
 
-type ChartData = {
+export type ChartData = {
   brandUuid: string;
   brandName: string;
   interval?: Array<Record<string, number | string>>;
@@ -56,6 +56,7 @@ export const mapBillableEventsProductTableData = ({
         brand: brand.brandName,
         integrationType: formatIntegrationType(brand.integrationType),
         metrics,
+        raw: brandData,
       });
     }
   }
