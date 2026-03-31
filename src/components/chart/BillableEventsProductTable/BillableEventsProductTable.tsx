@@ -25,7 +25,7 @@ const DIRECT_KEYS = ['brand', 'integrationType'];
 
 export const BillableEventsProductTable: React.FC<
   BillableEventsProductTableProps
-> = ({ data, isLoading, isFetching, product }) => {
+> = ({ data, isLoading, isFetching, product, columnSlots }) => {
   const { sortKey, sortDir, handleSort, sortedData } =
     useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
 
@@ -83,7 +83,9 @@ export const BillableEventsProductTable: React.FC<
               <TableCell>{row.integrationType}</TableCell>
               {columns.map((col: BillableEventColumn) => (
                 <TableCell key={col.key} align='right'>
-                  {row.metrics[col.key] ?? 0}
+                  {columnSlots?.[col.key]
+                    ? columnSlots[col.key](row)
+                    : (row.metrics[col.key] ?? 0)}
                 </TableCell>
               ))}
             </TableRow>
