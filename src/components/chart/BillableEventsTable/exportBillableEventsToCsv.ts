@@ -16,12 +16,17 @@ interface ExportBillableEventsToCsvOptions {
   data: BillableEventsTableRow[];
   visibleProducts?: BillableProduct[];
   filename?: string;
+  columnValueOverrides?: Record<
+    string,
+    (value: number, row: BillableEventsTableRow) => string
+  >;
 }
 
 export function exportBillableEventsToCsv({
   data,
   visibleProducts,
   filename = 'billable-events',
+  columnValueOverrides,
 }: ExportBillableEventsToCsvOptions): void {
   const products = visibleProducts ?? Object.values(BillableProduct);
   const activeProducts = BILLABLE_PRODUCTS.filter((p) =>
@@ -55,7 +60,11 @@ export function exportBillableEventsToCsv({
       escapeCsvValue(row.integrationType),
     ];
     for (const col of allColumns) {
-      csvRow.push(String(row.metrics[col.key] ?? 0));
+      const value = row.metrics[col.key] ?? 0;
+      const override = columnValueOverrides?.[col.key];
+      csvRow.push(
+        override ? escapeCsvValue(override(value, row)) : String(value),
+      );
     }
     rows.push(csvRow.join(','));
   }
