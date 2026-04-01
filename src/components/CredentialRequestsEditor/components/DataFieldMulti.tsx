@@ -46,7 +46,7 @@ export function DataFieldMulti({
       }}
     >
       <RadioGroup
-        value={multi.field.value ?? false}
+        value={multi.field.value ?? true}
         onChange={(_, value) => {
           if (isFeatureDisabled) return;
 
@@ -57,6 +57,7 @@ export function DataFieldMulti({
         }}
       >
         <RadioOption
+          isDefault
           value={true}
           title='Yes'
           description='Multiple values will be included if available'
@@ -69,7 +70,6 @@ export function DataFieldMulti({
           disabled={isFeatureDisabled}
         />
         <RadioOption
-          isDefault
           value={false}
           title='No'
           description="Multiple values won't be included"
