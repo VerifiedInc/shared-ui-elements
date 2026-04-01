@@ -16,7 +16,7 @@ interface ExportBillableEventsToCsvOptions {
   data: BillableEventsTableRow[];
   visibleProducts?: BillableProduct[];
   filename?: string;
-  columnValueOverrides?: Record<
+  columnFormatters?: Record<
     string,
     (value: number, row: BillableEventsTableRow) => string
   >;
@@ -26,7 +26,7 @@ export function exportBillableEventsToCsv({
   data,
   visibleProducts,
   filename = 'billable-events',
-  columnValueOverrides,
+  columnFormatters,
 }: ExportBillableEventsToCsvOptions): void {
   const products = visibleProducts ?? Object.values(BillableProduct);
   const activeProducts = BILLABLE_PRODUCTS.filter((p) =>
@@ -61,9 +61,9 @@ export function exportBillableEventsToCsv({
     ];
     for (const col of allColumns) {
       const value = row.metrics[col.key] ?? 0;
-      const override = columnValueOverrides?.[col.key];
+      const formatter = columnFormatters?.[col.key];
       csvRow.push(
-        override ? escapeCsvValue(override(value, row)) : String(value),
+        formatter ? escapeCsvValue(formatter(value, row)) : String(value),
       );
     }
     rows.push(csvRow.join(','));
