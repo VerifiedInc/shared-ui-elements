@@ -1,0 +1,6 @@
+# Code Owners
+# GitHub will automatically request reviews from these owners when a pull request
+# modifies files matching the patterns below. This ensures that Dependabot PRs
+# (and all other PRs) are reviewed by the core development team.
+
+* @VerifiedInc/core-developers
