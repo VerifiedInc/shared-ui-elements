@@ -164,7 +164,8 @@ export const ExportToCsv: Story = {
             filename: 'billable-events-export',
             columnFormatters: {
               signup_autofillsSucceeded: (value) => `${value} signups`,
-              signup_riskSignals: (value) => (value > 5 ? 'High' : 'Low'),
+              signup_riskSignals: (value, row) =>
+                `${row.brand}: ${value > 5 ? 'High' : 'Low'}`,
             },
           })
         }
