@@ -1,9 +1,10 @@
-import { Chip } from '@mui/material';
+import { Button, Chip } from '@mui/material';
 import { Meta, StoryObj } from '@storybook/react';
 import {
   BillableEventsTable,
   BillableEventsTableRow,
   BillableProduct,
+  exportBillableEventsToCsv,
 } from '../../../components/chart/BillableEventsTable';
 
 const meta: Meta<typeof BillableEventsTable> = {
@@ -143,4 +144,35 @@ export const Fetching: Story = {
     isLoading: false,
     isFetching: true,
   },
+};
+
+export const ExportToCsv: Story = {
+  args: {
+    data: mockData,
+    isLoading: false,
+    isFetching: false,
+  },
+  render: (args) => (
+    <>
+      <Button
+        variant='contained'
+        size='small'
+        sx={{ mb: 2 }}
+        onClick={() =>
+          exportBillableEventsToCsv({
+            data: mockData,
+            filename: 'billable-events-export',
+            columnFormatters: {
+              signup_autofillsSucceeded: (value) => `${value} signups`,
+              signup_riskSignals: (value, row) =>
+                `${row.brand}: ${value > 5 ? 'High' : 'Low'}`,
+            },
+          })
+        }
+      >
+        Export CSV
+      </Button>
+      <BillableEventsTable {...args} />
+    </>
+  ),
 };
