@@ -1,6 +1,7 @@
 import {
   BILLABLE_PRODUCTS,
   BillableProduct,
+  type BillableEventColumn,
   type BillableEventsTableRow,
 } from './BillableEventsTable.types';
 
@@ -16,6 +17,7 @@ interface ExportBillableEventsToCsvOptions {
   data: BillableEventsTableRow[];
   visibleProducts?: BillableProduct[];
   filename?: string;
+  topLevelColumns?: BillableEventColumn[];
   columnFormatters?: Record<
     string,
     (value: number, row: BillableEventsTableRow) => string
@@ -26,21 +28,29 @@ export function exportBillableEventsToCsv({
   data,
   visibleProducts,
   filename = 'billable-events',
+  topLevelColumns = [],
   columnFormatters,
 }: ExportBillableEventsToCsvOptions): void {
   const products = visibleProducts ?? Object.values(BillableProduct);
   const activeProducts = BILLABLE_PRODUCTS.filter((p) =>
     products.includes(p.product),
   );
-  const allColumns = activeProducts.flatMap((p) => p.columns);
+  const topLevelKeys = new Set(topLevelColumns.map((c) => c.key));
+  const allColumns = activeProducts
+    .flatMap((p) => p.columns)
+    .filter((c) => !topLevelKeys.has(c.key));
 
   const rows: string[] = [];
 
   // Row 1: Product group header
-  const groupHeader = ['', ''];
+  const groupHeader = ['', '', ...topLevelColumns.map(() => '')];
   for (const product of activeProducts) {
+    const visibleCount = product.columns.filter(
+      (c) => !topLevelKeys.has(c.key),
+    ).length;
+    if (visibleCount === 0) continue;
     groupHeader.push(escapeCsvValue(product.label));
-    for (let i = 1; i < product.columns.length; i++) {
+    for (let i = 1; i < visibleCount; i++) {
       groupHeader.push('');
     }
   }
@@ -48,6 +58,9 @@ export function exportBillableEventsToCsv({
 
   // Row 2: Column header
   const columnHeader = ['Brand', 'Integration Type'];
+  for (const col of topLevelColumns) {
+    columnHeader.push(escapeCsvValue(col.label));
+  }
   for (const col of allColumns) {
     columnHeader.push(escapeCsvValue(col.label));
   }
@@ -59,6 +72,13 @@ export function exportBillableEventsToCsv({
       escapeCsvValue(row.brand),
       escapeCsvValue(row.integrationType),
     ];
+    for (const col of topLevelColumns) {
+      const value = row.metrics[col.key] ?? 0;
+      const formatter = columnFormatters?.[col.key];
+      csvRow.push(
+        formatter ? escapeCsvValue(formatter(value, row)) : String(value),
+      );
+    }
     for (const col of allColumns) {
       const value = row.metrics[col.key] ?? 0;
       const formatter = columnFormatters?.[col.key];

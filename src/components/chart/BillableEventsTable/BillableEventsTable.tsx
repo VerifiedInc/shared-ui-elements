@@ -31,6 +31,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   visibleProducts,
   onSortedDataChange,
   columnSlots,
+  topLevelColumns = [],
 }) => {
   const { sortKey, sortDir, handleSort, sortedData } =
     useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
@@ -44,9 +45,16 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
     return BILLABLE_PRODUCTS.filter((p) => products.includes(p.product));
   }, [visibleProducts]);
 
+  const topLevelColumnKeys = useMemo(
+    () => new Set(topLevelColumns.map((c) => c.key)),
+    [topLevelColumns],
+  );
+
   const allColumns = useMemo(() => {
-    return activeProducts.flatMap((p) => p.columns);
-  }, [activeProducts]);
+    return activeProducts
+      .flatMap((p) => p.columns)
+      .filter((c) => !topLevelColumnKeys.has(c.key));
+  }, [activeProducts, topLevelColumnKeys]);
 
   const sortLabel = (
     key: string,
@@ -81,16 +89,27 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
             <TableCell rowSpan={2}>
               {sortLabel('integrationType', 'Integration Type')}
             </TableCell>
-            {activeProducts.map((product) => (
-              <TableCell
-                key={product.product}
-                colSpan={product.columns.length}
-                align='center'
-                sx={{ fontWeight: 'bold', borderBottom: 'none' }}
-              >
-                {product.label}
+            {topLevelColumns.map((col) => (
+              <TableCell key={col.key} rowSpan={2}>
+                {sortLabel(col.key, col.label)}
               </TableCell>
             ))}
+            {activeProducts.map((product) => {
+              const visibleCount = product.columns.filter(
+                (c) => !topLevelColumnKeys.has(c.key),
+              ).length;
+              if (visibleCount === 0) return null;
+              return (
+                <TableCell
+                  key={product.product}
+                  colSpan={visibleCount}
+                  align='center'
+                  sx={{ fontWeight: 'bold', borderBottom: 'none' }}
+                >
+                  {product.label}
+                </TableCell>
+              );
+            })}
           </TableRow>
           {/* Event column header row */}
           <TableRow>
@@ -106,6 +125,13 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
             <TableRow key={row.brandUuid}>
               <TableCell>{row.brand}</TableCell>
               <TableCell>{row.integrationType}</TableCell>
+              {topLevelColumns.map((col: BillableEventColumn) => (
+                <TableCell key={col.key}>
+                  {columnSlots?.[col.key]
+                    ? columnSlots[col.key](row)
+                    : (row.metrics[col.key] ?? 0)}
+                </TableCell>
+              ))}
               {allColumns.map((col: BillableEventColumn) => (
                 <TableCell key={col.key} align='right'>
                   {columnSlots?.[col.key]
