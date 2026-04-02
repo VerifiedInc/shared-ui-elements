@@ -6,6 +6,7 @@ import {
   BillableProduct,
   exportBillableEventsToCsv,
 } from '../../../components/chart/BillableEventsTable';
+import { BillableEventColumn } from '../../../components/chart/BillableEventsTable/BillableEventsTable.types';
 
 const meta: Meta<typeof BillableEventsTable> = {
   title: 'Components/chart/BillableEventsTable',
@@ -143,6 +144,34 @@ export const Fetching: Story = {
     data: mockData,
     isLoading: false,
     isFetching: true,
+  },
+};
+
+const riskSignalsLevelColumn: BillableEventColumn = {
+  key: 'signup_riskSignalsLevel',
+  label: 'Risk Signals',
+  metricKey: 'riskSignalOption',
+};
+
+export const WithTopLevelColumns: Story = {
+  args: {
+    data: mockData,
+    isLoading: false,
+    isFetching: false,
+    topLevelColumns: [riskSignalsLevelColumn],
+    columnSlots: {
+      signup_riskSignalsLevel: (row: BillableEventsTableRow) => (
+        <Chip
+          label={row.metrics.signup_riskSignalsLevel ?? 0}
+          color={
+            (row.metrics.signup_riskSignalsLevel ?? 0) > 5
+              ? 'warning'
+              : 'default'
+          }
+          size='small'
+        />
+      ),
+    },
   },
 };
 
