@@ -199,6 +199,8 @@ function TTSMagicButtonComponent(
 
         setMinifiedDataUrl(minifiedDataUrl);
 
+        if (!buttonRef.current) return;
+
         const dataUrl = await htmlToImage.toPng(buttonRef.current, {
           pixelRatio: 4,
         });
