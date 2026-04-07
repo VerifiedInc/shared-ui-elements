@@ -23,6 +23,7 @@ import { ContentCopy } from '@mui/icons-material';
 import { EmptyChartSection } from '../../chart/EmptyChartSection';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { useSnackbar } from '../../Snackbar';
+import { formatLogTimestamp } from '../../../utils/date';
 import type { LogEntry, LogsResponse } from '../types';
 import { LogDetailPanel } from './LogDetailPanel';
 import { useBidirectionalScroll } from '../../../hooks/useBidirectionalScroll';
@@ -49,8 +50,12 @@ function StatusDot({
   errorCode: string | null;
 }) {
   let color = 'grey.400';
-  if (errorCode || statusCode >= 400) color = 'error.main';
-  else if (statusCode >= 200 && statusCode < 300) color = 'success.main';
+
+  if (errorCode ?? statusCode >= 400) {
+    color = 'error.main';
+  } else if (statusCode >= 200 && statusCode < 300) {
+    color = 'success.main';
+  }
 
   return (
     <Box
@@ -90,13 +95,22 @@ function CopyButton({
 }
 
 function truncateUuid(uuid: string | null): string {
-  if (!uuid) return '—';
-  if (uuid.length <= 12) return uuid;
+  if (!uuid) {
+    return '—';
+  }
+
+  if (uuid.length <= 12) {
+    return uuid;
+  }
+
   return `${uuid.slice(0, 4)}…${uuid.slice(-4)}`;
 }
 
 function formatEvent(row: LogEntry): string {
-  if (row.source === 'sdk') return row.path;
+  if (row.source === 'sdk') {
+    return row.path;
+  }
+
   return `${row.method} /${row.path}`;
 }
 
@@ -125,19 +139,6 @@ function OverflowTooltip({ text }: { text: string }) {
       </Typography>
     </Tooltip>
   );
-}
-
-function formatLogTimestamp(date: string, timeZone = 'UTC'): string {
-  return new Date(date).toLocaleString('en-US', {
-    timeZone,
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    fractionalSecondDigits: 3,
-    hour12: false,
-  });
 }
 
 const ROW_HEIGHT_ESTIMATE = 48;

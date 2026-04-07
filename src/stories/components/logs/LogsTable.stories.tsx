@@ -28,7 +28,10 @@ const mockData: LogsResponse = {
       errorCode: null,
       errorMessage: null,
       source: 'api',
-      metadata: { requestBody: { phone: '+14155550001' }, responseBody: { token: 'tok_123' } },
+      metadata: {
+        requestBody: { phone: '+14155550001' },
+        responseBody: { token: 'tok_123' },
+      },
       eventTimestamp: '2026-04-07T10:00:00.000Z',
     },
     {
@@ -44,7 +47,10 @@ const mockData: LogsResponse = {
       errorCode: 'phone_number_invalid',
       errorMessage: 'The phone number provided is invalid.',
       source: 'api',
-      metadata: { requestBody: { phone: 'bad-number' }, responseBody: { error: 'phone_number_invalid' } },
+      metadata: {
+        requestBody: { phone: 'bad-number' },
+        responseBody: { error: 'phone_number_invalid' },
+      },
       eventTimestamp: '2026-04-07T10:01:00.000Z',
     },
     {
@@ -76,7 +82,10 @@ const mockData: LogsResponse = {
       errorCode: 'session_not_found',
       errorMessage: 'Session not found.',
       source: 'api',
-      metadata: { requestBody: null, responseBody: { error: 'session_not_found' } },
+      metadata: {
+        requestBody: null,
+        responseBody: { error: 'session_not_found' },
+      },
       eventTimestamp: '2026-04-07T10:03:00.000Z',
     },
   ],
@@ -109,7 +118,12 @@ export const Loading: Story = {
 
 export const Empty: Story = {
   args: {
-    data: { data: [], cursors: { older: null, newer: null }, hasOlder: false, hasNewer: false },
+    data: {
+      data: [],
+      cursors: { older: null, newer: null },
+      hasOlder: false,
+      hasNewer: false,
+    },
     isLoading: false,
     onLoadNewer: () => {},
     onLoadOlder: () => {},
