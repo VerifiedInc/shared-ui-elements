@@ -22,3 +22,4 @@ export * from './useStyledQRCode';
 export * from './text-to-signup';
 export * from './useNetworkType';
 export * from './metrics';
+export * from './useBidirectionalScroll';

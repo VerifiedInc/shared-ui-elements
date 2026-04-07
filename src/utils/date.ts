@@ -73,6 +73,24 @@ export const formatExtendedDate = (
   });
 };
 
+/**
+ * Formats a log entry timestamp with millisecond precision in a given timezone.
+ * @param date - ISO date string
+ * @param timeZone - IANA timezone string (default: 'UTC')
+ */
+export const formatLogTimestamp = (date: string, timeZone = 'UTC'): string => {
+  return new Date(date).toLocaleString('en-US', {
+    timeZone,
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    fractionalSecondDigits: 3,
+    hour12: false,
+  });
+};
+
 export const toUTCMilliseconds = (date: Date | number): number => {
   const dateState = typeof date === 'number' ? new Date(date) : date;
   return Date.UTC(
