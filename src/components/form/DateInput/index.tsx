@@ -188,6 +188,7 @@ const Picker = function RenderPicker({
         maxDate={maxDate}
         selected={selected}
         dropdownMode='select'
+        formatWeekDay={(day) => day.substring(0, 2)}
         onSelect={(date) => {
           const formattedDate = formatDate(date);
           if (formattedDate) {
