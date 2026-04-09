@@ -22,6 +22,8 @@ export type InternalMetricsReducer = {
   timezone: string;
   startDate: number; //  timestamp Date
   endDate: number; //  timestamp Date
+  zonedStartDate: string | null;
+  zonedEndDate: string | null;
 };
 
 export type MetricsReducer = {
@@ -32,12 +34,15 @@ export type MetricsReducer = {
   timezone: string;
   startDate: number; //  timestamp Date
   endDate: number; //  timestamp Date
+  zonedStartDate: string | null;
+  zonedEndDate: string | null;
 };
 
 type MetricsContext = {
   filter: MetricsReducer & {
     setInterval: (interval: MetricsIntervalType) => void;
     setDateRange: (startDate: number, endDate: number) => void;
+    setZonedDateRange: (zonedStartDate: string, zonedEndDate: string) => void;
     setBrands: (brands: BrandFilter[]) => void;
     setBrand: (brands: BrandFilter | undefined) => void;
     setMonthlyBillableBrands: (brands: BrandFilter[]) => void;
@@ -104,6 +109,8 @@ export function MetricsProvider(props: MetricsContextProps) {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       startDate: +startDate,
       endDate: +endDate,
+      zonedStartDate: null,
+      zonedEndDate: null,
     },
   );
 
@@ -173,6 +180,13 @@ export function MetricsProvider(props: MetricsContextProps) {
     [dispatch],
   );
 
+  const setZonedDateRange = useCallback(
+    (zonedStartDate: string, zonedEndDate: string) => {
+      dispatch({ zonedStartDate, zonedEndDate });
+    },
+    [dispatch],
+  );
+
   const stateMemo = useMemo(() => {
     if (!state) return state;
     return {
@@ -190,6 +204,7 @@ export function MetricsProvider(props: MetricsContextProps) {
         ...stateMemo,
         setInterval,
         setDateRange,
+        setZonedDateRange,
         setBrands,
         setBrand,
         setMonthlyBillableBrands,
@@ -200,6 +215,7 @@ export function MetricsProvider(props: MetricsContextProps) {
       stateMemo,
       setInterval,
       setDateRange,
+      setZonedDateRange,
       setBrands,
       setBrand,
       setMonthlyBillableBrands,
