@@ -68,7 +68,6 @@
     }
   },
   "scripts": {
-    "dev": "vite build --watch",
     "test": "npm run vitest",
     "vitest": "vitest --run",
     "lint": "npm run eslint && npm run prettier:check && npm run typecheck",
