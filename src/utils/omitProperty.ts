@@ -1,14 +1,17 @@
-import _ from 'lodash';
+import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
+import mapValues from 'lodash/mapValues';
+import omit from 'lodash/omit';
 
 export function omitProperties<T>(obj: T, propertiesToOmit: string[]): T {
-  if (_.isArray(obj)) {
+  if (isArray(obj)) {
     // If obj is an array, apply the function to each element
     return obj.map((item) => omitProperties(item, propertiesToOmit)) as T;
-  } else if (_.isObject(obj)) {
+  } else if (isObject(obj)) {
     // If obj is an object, omit the specified properties
-    let omittedObject: any = _.omit(obj, propertiesToOmit);
+    let omittedObject: any = omit(obj, propertiesToOmit);
     // Recursively apply the function to each property in the object
-    omittedObject = _.mapValues(omittedObject, (value) =>
+    omittedObject = mapValues(omittedObject, (value) =>
       omitProperties(value, propertiesToOmit),
     );
     return omittedObject as T;

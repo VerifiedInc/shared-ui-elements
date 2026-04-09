@@ -1,16 +1,14 @@
 import { useEffect, useMemo } from 'react';
-import _ from 'lodash';
+import map from 'lodash/map';
+import sortBy from 'lodash/sortBy';
 import { BrandFilter, Brands } from './types';
 
 export const toOption = (brands: Brands[]) => {
-  return _.chain(brands)
-    .mapValues((value) => ({
-      name: value.brandName,
-      value: value.brandUuid,
-      _raw: value,
-    }))
-    .toArray()
-    .value();
+  return brands.map((value) => ({
+    name: value.brandName,
+    value: value.brandUuid,
+    _raw: value,
+  }));
 };
 
 interface UseBrandFilterInputProps {
@@ -36,7 +34,7 @@ export function useBrandFilterInput({
 
   const brandOptions = useMemo(
     () =>
-      _.sortBy(toOption(groupedBrands), [
+      sortBy(toOption(groupedBrands), [
         // Sort by isLiveBrand property (if it exists) or fallback to live property
         (option) => !option._raw.isLiveBrand,
       ]),
@@ -59,7 +57,7 @@ export function useBrandFilterInput({
         return onChange?.(defaultBrands.slice(0, maximumSelectedBrands));
       }
 
-      const availableBrandValues = _.map(brandOptions, 'value');
+      const availableBrandValues = map(brandOptions, 'value');
       const isAllValuesIncluded = value.every((item: any) =>
         availableBrandValues.includes(item.value),
       );
@@ -76,7 +74,7 @@ export function useBrandFilterInput({
           return onChange?.(firstDefaultBrand);
         }
 
-        const availableBrandValues = _.map(brandOptions, 'value');
+        const availableBrandValues = map(brandOptions, 'value');
         const isValueIncluded =
           value && availableBrandValues.includes(value.value);
 
