@@ -1,4 +1,9 @@
-@charset "UTF-8";
+// Inlined from react-datepicker.css so every bundler (vite, webpack,
+// turbopack, esbuild) can import the stylesheet contents as a plain
+// string without needing loader plugins or Vite-specific ?inline syntax.
+// Edit this file directly when react-datepicker ships updated styles.
+
+export const reactDatepickerCss = `@charset "UTF-8";
 .react-datepicker__year-read-view--down-arrow,
 .react-datepicker__month-read-view--down-arrow,
 .react-datepicker__month-year-read-view--down-arrow,
@@ -950,3 +955,4 @@ select.react-datepicker__year-select {
 .react-datepicker__day:not([aria-disabled='true']):hover {
   color: #fff;
 }
+`;

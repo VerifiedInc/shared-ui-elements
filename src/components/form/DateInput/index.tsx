@@ -19,7 +19,7 @@ import { CalendarToday } from '@mui/icons-material';
 import ReactDatePickerImport from 'react-datepicker';
 
 import { useOnClickOutside } from '../../../hooks';
-import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
+import { reactDatepickerCss as pickerCSS } from '../../../styles/lib/react-datepicker';
 import { masks } from '../../../utils/masks';
 
 import { InputMask, InputMaskProps } from '../InputMask';
