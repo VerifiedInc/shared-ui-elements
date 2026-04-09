@@ -74,7 +74,7 @@
     "publish:prerelease": "npm version prerelease --preid=beta && npm publish --tag beta"
   },
   "dependencies": {
-    "react-datepicker": "^7.6.0"
+    "react-datepicker": "^8.0.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.27.1",
