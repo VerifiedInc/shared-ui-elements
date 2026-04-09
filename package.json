@@ -10,54 +10,65 @@
     "node": ">=20.10.0",
     "npm": ">=10.x.x"
   },
-  "main": "/dist/index.mjs",
-  "types": "/dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
     },
     "./components": {
       "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.mjs"
+      "import": "./dist/components/index.mjs",
+      "default": "./dist/components/index.mjs"
     },
     "./contexts": {
       "types": "./dist/contexts/index.d.ts",
-      "import": "./dist/contexts/index.mjs"
+      "import": "./dist/contexts/index.mjs",
+      "default": "./dist/contexts/index.mjs"
     },
     "./components/*": {
       "types": "./dist/components/*/index.d.ts",
-      "import": "./dist/components/*/index.mjs"
+      "import": "./dist/components/*/index.mjs",
+      "default": "./dist/components/*/index.mjs"
     },
     "./hooks": {
       "types": "./dist/hooks/index.d.ts",
-      "import": "./dist/hooks/index.mjs"
+      "import": "./dist/hooks/index.mjs",
+      "default": "./dist/hooks/index.mjs"
     },
     "./styles": {
       "types": "./dist/styles/index.d.ts",
-      "import": "./dist/styles/index.mjs"
+      "import": "./dist/styles/index.mjs",
+      "default": "./dist/styles/index.mjs"
     },
     "./validations": {
       "types": "./dist/validations/index.d.ts",
-      "import": "./dist/validations/index.mjs"
+      "import": "./dist/validations/index.mjs",
+      "default": "./dist/validations/index.mjs"
     },
     "./constants": {
       "types": "./dist/constants/index.d.ts",
-      "import": "./dist/constants/index.mjs"
+      "import": "./dist/constants/index.mjs",
+      "default": "./dist/constants/index.mjs"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
-      "import": "./dist/utils/index.mjs"
+      "import": "./dist/utils/index.mjs",
+      "default": "./dist/utils/index.mjs"
     },
     "./utils/*": {
       "types": "./dist/utils/*/index.d.ts",
-      "import": "./dist/utils/*/index.mjs"
+      "import": "./dist/utils/*/index.mjs",
+      "default": "./dist/utils/*/index.mjs"
     }
   },
   "scripts": {
+    "dev": "vite build --watch",
     "test": "npm run vitest",
     "vitest": "vitest --run",
     "lint": "npm run eslint && npm run prettier:check && npm run typecheck",
