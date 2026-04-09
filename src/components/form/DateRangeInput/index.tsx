@@ -7,13 +7,14 @@ import {
 } from 'react';
 import { Box, TextField } from '@mui/material';
 import DatePicker from 'react-datepicker';
-import { toZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 
 import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 
 import { useOnClickOutside } from '../../../hooks';
 
 import { useStyle } from './style';
+import { format } from 'date-fns';
 
 const Input = forwardRef(function RenderInput(props, ref) {
   return (
@@ -37,8 +38,8 @@ interface DateRangeInputProps {
   startDate?: Date | number;
   endDate?: Date | number;
   onChange: (startDate: number, endDate: number) => void;
-  /** Optional: called with Date objects adjusted to the given timeZone */
-  onChangeTz?: (startDate: Date, endDate: Date) => void;
+  /** Optional: called with ISO strings formatted in the given timeZone */
+  onChangeTz?: (startDate: string, endDate: string) => void;
   /** IANA time zone name (e.g. "America/New_York"). Omit for local time behavior. */
   timeZone?: string;
 }
@@ -106,11 +107,10 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
           // Pass UTC timestamps to onChange handler
           props.onChange(+start, +end);
 
-          // If timeZone and onChangeTz are provided, also call with tz-adjusted dates
+          // If timeZone and onChangeTz are provided, also call with tz-formatted strings
           if (props.timeZone && props.onChangeTz) {
-            const startTz = toZonedTime(start, props.timeZone);
-            const endTz = toZonedTime(end, props.timeZone);
-            props.onChangeTz(startTz, endTz);
+            const fmt = "yyyy-MM-dd'T'HH:mm:ssxxx";
+            props.onChangeTz(format(start, fmt), format(end, fmt));
           }
         }}
         customInput={<Input />}
