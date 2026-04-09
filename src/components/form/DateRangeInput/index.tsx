@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { Box, TextField } from '@mui/material';
 import DatePicker from 'react-datepicker';
+import { toZonedTime } from 'date-fns-tz';
 
 import pickerCSS from '../../../styles/lib/react-datepicker.css?inline=true';
 
@@ -36,6 +37,10 @@ interface DateRangeInputProps {
   startDate?: Date | number;
   endDate?: Date | number;
   onChange: (startDate: number, endDate: number) => void;
+  /** Optional: called with Date objects adjusted to the given timeZone */
+  onChangeTz?: (startDate: Date, endDate: Date) => void;
+  /** IANA time zone name (e.g. "America/New_York"). Omit for local time behavior. */
+  timeZone?: string;
 }
 
 export const DateRangeInput: FC<DateRangeInputProps> = (
@@ -75,12 +80,15 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
         showMonthDropdown
         scrollableYearDropdown={false}
         dateFormat='MM/dd/yyyy HH:mm:ss'
+        formatWeekDay={(day) => day.substring(0, 2)}
         startDate={startDate ?? undefined}
         endDate={endDate ?? undefined}
         // Set the minimum date to the 2023
         minDate={new Date(2023, 0, 1)}
         // Set the maximum date to the current date
         maxDate={new Date()}
+        // Pass timeZone to react-datepicker only when provided
+        {...(props.timeZone ? { timeZone: props.timeZone } : {})}
         onChange={([start, end], event) => {
           // Update local state to allow to change the date range
           setDateRange([start, end]);
@@ -97,6 +105,13 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
 
           // Pass UTC timestamps to onChange handler
           props.onChange(+start, +end);
+
+          // If timeZone and onChangeTz are provided, also call with tz-adjusted dates
+          if (props.timeZone && props.onChangeTz) {
+            const startTz = toZonedTime(start, props.timeZone);
+            const endTz = toZonedTime(end, props.timeZone);
+            props.onChangeTz(startTz, endTz);
+          }
         }}
         customInput={<Input />}
       />
