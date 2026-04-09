@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import sortBy from 'lodash/sortBy';
 
 import { stringToHashedColor } from '../../../utils/uuidColor';
 
@@ -162,8 +162,5 @@ export function mapSeriesTimeSeriesData(
   );
 
   // Sort by keyword name for consistent ordering
-  return _.chain(mappedData)
-    .sortBy((value) => value.name)
-    .toArray()
-    .value();
+  return sortBy(mappedData, (value) => value.name);
 }
