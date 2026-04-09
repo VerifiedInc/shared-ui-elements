@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import type { Virtualizer } from '@tanstack/react-virtual';
 
 interface UseBidirectionalScrollOptions {

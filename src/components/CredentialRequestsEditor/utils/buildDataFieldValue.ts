@@ -1,4 +1,6 @@
-import _ from 'lodash';
+import camelCase from 'lodash/camelCase';
+import lowerFirst from 'lodash/lowerFirst';
+import upperFirst from 'lodash/upperFirst';
 import { CredentialRequests } from '../types/form';
 import { MandatoryEnum } from '../types/mandatoryEnum';
 
@@ -9,12 +11,12 @@ import { fields } from '../../form/NewOneClickForm/core/fields';
  * Example: 'fullName' -> 'FullNameCredential'
  */
 function toCredentialType(fieldKey: string): string {
-  return _.upperFirst(_.camelCase(fromCredentialType(fieldKey))) + 'Credential';
+  return upperFirst(camelCase(fromCredentialType(fieldKey))) + 'Credential';
 }
 
 function fromCredentialType(credentialType: string): string {
   const withoutSuffix = credentialType.replace('Credential', '');
-  return _.lowerFirst(_.camelCase(withoutSuffix));
+  return lowerFirst(camelCase(withoutSuffix));
 }
 
 /**

@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { cloneDeep, isEqual } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 import { type FieldValueDefinitions } from '../declarations';
 import { type BaseFieldDefinition } from '../fields';
