@@ -7,14 +7,33 @@ import {
 } from 'react';
 import { Box, TextField } from '@mui/material';
 import DatePicker from 'react-datepicker';
-import { formatInTimeZone } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 import { reactDatepickerCss as pickerCSS } from '../../../styles/lib/react-datepicker';
 
 import { useOnClickOutside } from '../../../hooks';
 
+import { ISO_TZ_FORMAT } from '../../../constants/date';
+
 import { useStyle } from './style';
-import { format } from 'date-fns';
+
+function clampToDayBoundary(
+  date: Date,
+  boundary: 'start' | 'end',
+  timeZone?: string,
+): Date {
+  const hours = boundary === 'start' ? [0, 0, 0, 0] : [23, 59, 59, 999];
+
+  if (!timeZone) {
+    date.setHours(...(hours as [number, number, number, number]));
+    return date;
+  }
+
+  const zoned = toZonedTime(date, timeZone);
+  zoned.setHours(...(hours as [number, number, number, number]));
+
+  return fromZonedTime(zoned, timeZone);
+}
 
 const Input = forwardRef(function RenderInput(props, ref) {
   return (
@@ -87,7 +106,9 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
         // Set the minimum date to the 2023
         minDate={new Date(2023, 0, 1)}
         // Set the maximum date to the current date
-        maxDate={new Date()}
+        maxDate={
+          props.timeZone ? toZonedTime(new Date(), props.timeZone) : new Date()
+        }
         // Pass timeZone to react-datepicker only when provided
         {...(props.timeZone ? { timeZone: props.timeZone } : {})}
         onChange={([start, end], event) => {
@@ -96,21 +117,19 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
           // Update the global state to allow to filter the data
           if (!start || !end) return;
 
-          // If the date range is changed by the picker, set the start and end date to the beginning and end of the day.
+          // If the date range is changed by the picker, clamp to start/end of day
           if ((event?.target as HTMLElement)?.tagName !== 'INPUT') {
-            // Set the start date to the beginning of the day
-            start.setHours(0, 0, 0, 0);
-            // Set the end date to the end of the day
-            end.setHours(23, 59, 59, 999);
+            start = clampToDayBoundary(start, 'start', props.timeZone);
+            end = clampToDayBoundary(end, 'end', props.timeZone);
           }
 
-          // Pass UTC timestamps to onChange handler
           props.onChange(+start, +end);
 
-          // If timeZone and onChangeTz are provided, also call with tz-formatted strings
           if (props.timeZone && props.onChangeTz) {
-            const fmt = "yyyy-MM-dd'T'HH:mm:ssxxx";
-            props.onChangeTz(format(start, fmt), format(end, fmt));
+            props.onChangeTz(
+              formatInTimeZone(start, props.timeZone, ISO_TZ_FORMAT),
+              formatInTimeZone(end, props.timeZone, ISO_TZ_FORMAT),
+            );
           }
         }}
         customInput={<Input />}
