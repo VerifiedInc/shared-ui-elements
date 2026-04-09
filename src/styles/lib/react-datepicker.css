@@ -1,15 +1,4 @@
 @charset "UTF-8";
-.react-datepicker__sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
 .react-datepicker__year-read-view--down-arrow,
 .react-datepicker__month-read-view--down-arrow,
 .react-datepicker__month-year-read-view--down-arrow,
@@ -29,6 +18,19 @@
   padding: 0;
   border: 0;
   overflow: visible;
+}
+
+/* sr-only utility class for accessibility */
+.react-datepicker__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .react-datepicker {
@@ -67,17 +69,27 @@
   fill: #0dbc3d;
   color: #0dbc3d;
 }
+.react-datepicker-popper--header-middle[data-placement^='bottom']
+  .react-datepicker__triangle,
+.react-datepicker-popper--header-bottom[data-placement^='bottom']
+  .react-datepicker__triangle {
+  fill: #fff;
+  color: #fff;
+}
+.react-datepicker-popper--header-bottom[data-placement^='top']
+  .react-datepicker__triangle {
+  fill: #0dbc3d;
+  color: #0dbc3d;
+}
 
 .react-datepicker__header {
   text-align: center;
   color: #fff;
   background-color: #0dbc3d;
-  /* v8: day-names moved outside the header, so border moves to day-names row */
-  border-bottom: 1px solid #0dbc3d;
+  border-bottom: 1px solid #aeaeae;
   border-top-left-radius: 0.3rem;
   padding: 8px 0;
   position: relative;
-  overflow: visible;
 }
 .react-datepicker__header--time {
   padding-bottom: 8px;
@@ -87,8 +99,32 @@
 .react-datepicker__header--time:not(.react-datepicker__header--time--only) {
   border-top-left-radius: 0;
 }
-.react-datepicker__header:not(.react-datepicker__header--has-time-select) {
+.react-datepicker__header:not(
+    .react-datepicker__header--has-time-select,
+    .react-datepicker__header--middle,
+    .react-datepicker__header--bottom
+  ) {
   border-top-right-radius: 0.3rem;
+}
+.react-datepicker__header--middle {
+  border-top: 1px solid #aeaeae;
+  border-radius: 0;
+  margin-top: 4px;
+}
+.react-datepicker__header--bottom {
+  border-bottom: none;
+  border-top: 1px solid #aeaeae;
+  border-radius: 0 0 0.3rem 0.3rem;
+}
+
+.react-datepicker__header-wrapper {
+  position: relative;
+}
+.react-datepicker__header-wrapper
+  .react-datepicker__navigation--next--with-time:not(
+    .react-datepicker__navigation--next--with-today-button
+  ) {
+  right: 2px;
 }
 
 .react-datepicker__year-dropdown-container--select,
@@ -99,7 +135,6 @@
 .react-datepicker__month-year-dropdown-container--scroll {
   display: inline-block;
   margin: 0 15px;
-  overflow: visible;
 }
 
 .react-datepicker__current-month,
@@ -393,23 +428,16 @@ h2.react-datepicker__current-month {
 }
 
 .react-datepicker__day-names {
+  text-align: center;
   white-space: nowrap;
-  /* v8: day-names moved outside .react-datepicker__header into a sibling
-     div[role="rowgroup"]. Apply green background here directly instead of
-     relying on header inheritance, and drop the -8px offset that was only
-     needed when this row lived inside the header. */
-  background-color: #0dbc3d;
-  color: #fff;
-  margin-bottom: 0;
-  border-bottom: 1px solid #aeaeae;
+  margin-bottom: -8px;
 }
 
 .react-datepicker__week {
   white-space: nowrap;
 }
 
-.react-datepicker__header .react-datepicker__day-name,
-.react-datepicker__day-names .react-datepicker__day-name {
+.react-datepicker__header .react-datepicker__day-name {
   color: currentColor;
   font-weight: 600;
 }
@@ -424,12 +452,11 @@ h2.react-datepicker__current-month {
   text-align: center;
   margin: 0.166rem;
 }
-
-/* v8 fix: day names are now full words ("Sunday" etc.) instead of
-   abbreviations — truncate them to fit the fixed-width cells */
-.react-datepicker__day-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
+.react-datepicker__day-name--disabled,
+.react-datepicker__day--disabled,
+.react-datepicker__time-name--disabled {
+  cursor: default;
+  color: #ccc;
 }
 
 .react-datepicker__day:last-child:not(.react-datepicker__day--in-range) {
@@ -667,11 +694,9 @@ h2.react-datepicker__current-month {
   background-color: #0dbc3d;
   color: #000;
 }
-.react-datepicker__day-name--disabled,
 .react-datepicker__day--disabled,
 .react-datepicker__month-text--disabled,
 .react-datepicker__quarter-text--disabled,
-.react-datepicker__time-name--disabled,
 .react-datepicker__year-text--disabled {
   cursor: default;
   color: #ccc;
@@ -717,7 +742,7 @@ h2.react-datepicker__current-month {
   border: 1px solid transparent;
   border-radius: 0.3rem;
   position: relative;
-  /* v8: these are now <button> elements — reset native button styles */
+  /* v9: these are now <button> elements — reset native button styles */
   background: transparent;
   color: inherit;
   font: inherit;
@@ -989,4 +1014,8 @@ select.react-datepicker__year-select {
 .react-datepicker__day--selected,
 .react-datepicker__day:not([aria-disabled='true']):hover {
   color: #fff;
+}
+
+.react-datepicker-popper-offset {
+  margin-top: -0.7em;
 }
