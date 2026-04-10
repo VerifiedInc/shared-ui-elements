@@ -17,24 +17,6 @@ import { ISO_TZ_FORMAT } from '../../../constants/date';
 
 import { useStyle } from './style';
 
-function clampToDayBoundary(
-  date: Date,
-  boundary: 'start' | 'end',
-  timeZone?: string,
-): Date {
-  const hours = boundary === 'start' ? [0, 0, 0, 0] : [23, 59, 59, 999];
-
-  if (!timeZone) {
-    date.setHours(...(hours as [number, number, number, number]));
-    return date;
-  }
-
-  const zoned = toZonedTime(date, timeZone);
-  zoned.setHours(...(hours as [number, number, number, number]));
-
-  return fromZonedTime(zoned, timeZone);
-}
-
 const Input = forwardRef(function RenderInput(props, ref) {
   return (
     <TextField
@@ -105,30 +87,35 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
         endDate={endDate ?? undefined}
         // Set the minimum date to the 2023
         minDate={new Date(2023, 0, 1)}
-        // Set the maximum date to the current date
+        // Set the maximum date to the current date based on the target timezone
         maxDate={
           props.timeZone ? toZonedTime(new Date(), props.timeZone) : new Date()
         }
-        // Pass timeZone to react-datepicker only when provided
-        {...(props.timeZone ? { timeZone: props.timeZone } : {})}
         onChange={([start, end], event) => {
           // Update local state to allow to change the date range
           setDateRange([start, end]);
           // Update the global state to allow to filter the data
           if (!start || !end) return;
 
-          // If the date range is changed by the picker, clamp to start/end of day
+          // If the date range is changed by the picker, set the start and end date to the beginning and end of the day.
           if ((event?.target as HTMLElement)?.tagName !== 'INPUT') {
-            start = clampToDayBoundary(start, 'start', props.timeZone);
-            end = clampToDayBoundary(end, 'end', props.timeZone);
+            // Set the start date to the beginning of the day
+            start.setHours(0, 0, 0, 0);
+            // Set the end date to the end of the day
+            end.setHours(23, 59, 59, 999);
           }
 
+          // Pass UTC timestamps to onChange handler
           props.onChange(+start, +end);
 
           if (props.timeZone && props.onChangeTz) {
+            // Treat the selected wall-clock values as being in the target timezone
+            const startUtc = fromZonedTime(start, props.timeZone);
+            const endUtc = fromZonedTime(end, props.timeZone);
+
             props.onChangeTz(
-              formatInTimeZone(start, props.timeZone, ISO_TZ_FORMAT),
-              formatInTimeZone(end, props.timeZone, ISO_TZ_FORMAT),
+              formatInTimeZone(startUtc, props.timeZone, ISO_TZ_FORMAT),
+              formatInTimeZone(endUtc, props.timeZone, ISO_TZ_FORMAT),
             );
           }
         }}
