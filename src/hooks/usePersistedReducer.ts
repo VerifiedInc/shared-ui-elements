@@ -25,7 +25,7 @@ export function usePersistedReducer<R extends Reducer<any, any>, I>(
 
     if (persisted) {
       try {
-        return persisted;
+        return { ...initialState, ...persisted };
       } catch {
         return initialState;
       }

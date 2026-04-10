@@ -6,6 +6,9 @@ import {
   useMemo,
 } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
+
+import { ISO_TZ_FORMAT } from '../../constants/date';
 
 import {
   MetricsInterval,
@@ -22,6 +25,8 @@ export type InternalMetricsReducer = {
   timezone: string;
   startDate: number; //  timestamp Date
   endDate: number; //  timestamp Date
+  zonedStartDate: string | null;
+  zonedEndDate: string | null;
 };
 
 export type MetricsReducer = {
@@ -32,12 +37,15 @@ export type MetricsReducer = {
   timezone: string;
   startDate: number; //  timestamp Date
   endDate: number; //  timestamp Date
+  zonedStartDate: string | null;
+  zonedEndDate: string | null;
 };
 
 type MetricsContext = {
   filter: MetricsReducer & {
     setInterval: (interval: MetricsIntervalType) => void;
     setDateRange: (startDate: number, endDate: number) => void;
+    setZonedDateRange: (zonedStartDate: string, zonedEndDate: string) => void;
     setBrands: (brands: BrandFilter[]) => void;
     setBrand: (brands: BrandFilter | undefined) => void;
     setMonthlyBillableBrands: (brands: BrandFilter[]) => void;
@@ -104,6 +112,8 @@ export function MetricsProvider(props: MetricsContextProps) {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       startDate: +startDate,
       endDate: +endDate,
+      zonedStartDate: null,
+      zonedEndDate: null,
     },
   );
 
@@ -168,7 +178,38 @@ export function MetricsProvider(props: MetricsContextProps) {
 
   const setTimezone = useCallback(
     (timezone: string) => {
-      dispatch({ timezone });
+      const updates: Partial<InternalMetricsReducer> = { timezone };
+
+      if (state.zonedStartDate && state.zonedEndDate) {
+        const startWallClock = toZonedTime(
+          new Date(state.zonedStartDate),
+          state.timezone,
+        );
+        const endWallClock = toZonedTime(
+          new Date(state.zonedEndDate),
+          state.timezone,
+        );
+
+        updates.zonedStartDate = formatInTimeZone(
+          fromZonedTime(startWallClock, timezone),
+          timezone,
+          ISO_TZ_FORMAT,
+        );
+        updates.zonedEndDate = formatInTimeZone(
+          fromZonedTime(endWallClock, timezone),
+          timezone,
+          ISO_TZ_FORMAT,
+        );
+      }
+
+      dispatch(updates);
+    },
+    [dispatch, state.zonedStartDate, state.zonedEndDate, state.timezone],
+  );
+
+  const setZonedDateRange = useCallback(
+    (zonedStartDate: string, zonedEndDate: string) => {
+      dispatch({ zonedStartDate, zonedEndDate });
     },
     [dispatch],
   );
@@ -190,6 +231,7 @@ export function MetricsProvider(props: MetricsContextProps) {
         ...stateMemo,
         setInterval,
         setDateRange,
+        setZonedDateRange,
         setBrands,
         setBrand,
         setMonthlyBillableBrands,
@@ -200,6 +242,7 @@ export function MetricsProvider(props: MetricsContextProps) {
       stateMemo,
       setInterval,
       setDateRange,
+      setZonedDateRange,
       setBrands,
       setBrand,
       setMonthlyBillableBrands,
