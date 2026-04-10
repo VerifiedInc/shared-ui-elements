@@ -955,4 +955,9 @@ select.react-datepicker__year-select {
 .react-datepicker__day:not([aria-disabled='true']):hover {
   color: #fff;
 }
+
+.react-datepicker__month-read-view:hover .react-datepicker__month-read-view--down-arrow,
+.react-datepicker__year-read-view:hover .react-datepicker__year-read-view--down-arrow {
+  border-top-color: #008a01;
+}
 `;
