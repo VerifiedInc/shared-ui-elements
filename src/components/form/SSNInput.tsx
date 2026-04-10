@@ -52,7 +52,8 @@ export function SSNInput({
 
   const rawValue = value ?? '';
   const isRedacted = isRedactedValue(rawValue);
-  const canToggleVisibility = !isRedacted && rawValue.replace(/-/g, '').length > 0;
+  const canToggleVisibility =
+    !isRedacted && rawValue.replace(/-/g, '').length > 0;
   // Normalize * → • so imask accepts redacted characters via the X definition.
   const normalizedValue = normalizeRedactedValue(rawValue);
 
