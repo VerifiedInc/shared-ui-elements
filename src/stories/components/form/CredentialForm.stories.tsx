@@ -472,7 +472,7 @@ const mockCredentials = [
     uuid: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
     type: 'ssn',
     value: {
-      ssn: '000456789',
+      ssn: '•••-••-6789',
     },
   },
   {
