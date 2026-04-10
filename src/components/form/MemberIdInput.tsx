@@ -1,5 +1,12 @@
-import { useRef, type ReactNode } from 'react';
-import { Box, TextField, type TextFieldProps } from '@mui/material';
+import { useRef, useState, type ReactNode } from 'react';
+import {
+  Box,
+  IconButton,
+  InputAdornment,
+  TextField,
+  type TextFieldProps,
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 export type MemberIdInputProps = Omit<TextFieldProps, 'onChange'> & {
   onChange?: (event: { target: { value: string } }) => void;
@@ -43,13 +50,16 @@ export function MemberIdInput({
   // Cursor position captured in onKeyDown, used to reconstruct raw on insert/overwrite.
   const cursorRef = useRef<number>(0);
 
+  const [isVisible, setIsVisible] = useState(false);
+
   const rawValue = value ?? '';
   const isRedacted = isRedactedValue(rawValue);
+  const canToggleVisibility = !isRedacted && rawValue.length > 0;
   // "Actively typing" = the user set this value themselves (not loaded from outside).
   // Empty is always active so the field accepts fresh input naturally.
   const isActivelyTyping =
     !isRedacted && (rawValue === '' || lastPropagatedRef.current === rawValue);
-  const displayValue = buildDisplayValue(rawValue);
+  const displayValue = isVisible ? rawValue : buildDisplayValue(rawValue);
 
   function propagate(newRaw: string) {
     lastPropagatedRef.current = newRaw;
@@ -64,6 +74,12 @@ export function MemberIdInput({
         value={displayValue}
         placeholder={placeholder}
         onChange={(e) => {
+          // When visible, pass through directly — no masking logic needed.
+          if (isVisible) {
+            propagate(e.target.value);
+            return;
+          }
+
           const newDisplay = e.target.value;
           const prevRaw = lastPropagatedRef.current ?? '';
           const prevDisplay = buildDisplayValue(prevRaw);
@@ -106,6 +122,15 @@ export function MemberIdInput({
           onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
             cursorRef.current = e.currentTarget.selectionStart ?? 0;
 
+            // When visible, only handle backspace/delete for clear-all behavior.
+            if (isVisible) {
+              if (e.key === 'Backspace' || e.key === 'Delete') {
+                e.preventDefault();
+                if (rawValue !== '') propagate('');
+              }
+              return;
+            }
+
             // Backspace/Delete always clears the entire field.
             if (e.key === 'Backspace' || e.key === 'Delete') {
               e.preventDefault();
@@ -124,7 +149,28 @@ export function MemberIdInput({
         }}
         InputProps={{
           ...InputProps,
-          endAdornment: InputProps?.endAdornment,
+          endAdornment: (
+            <>
+              {canToggleVisibility && (
+                <InputAdornment position='end'>
+                  <IconButton
+                    aria-label={isVisible ? 'hide member id' : 'show member id'}
+                    edge='end'
+                    size='small'
+                    onClick={() => setIsVisible((prev) => !prev)}
+                    tabIndex={-1}
+                  >
+                    {isVisible ? (
+                      <VisibilityOff fontSize='small' />
+                    ) : (
+                      <Visibility fontSize='small' />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              )}
+              {InputProps?.endAdornment}
+            </>
+          ),
         }}
         fullWidth
       />
