@@ -1,5 +1,6 @@
 import { Typography } from '@mui/material';
-import { formatExtendedDate } from '../form/OneClickForm/utils/date';
+
+import { formatExtendedDate } from '../../utils/date';
 
 export function MetricLastUpdated({
   lastUpdated,
