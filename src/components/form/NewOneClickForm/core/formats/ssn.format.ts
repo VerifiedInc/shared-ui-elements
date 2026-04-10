@@ -1,3 +1,5 @@
 export const ssnFormat = (value: string) => {
-  return value.replace(/(\d{3})-?(\d{2})-?(\d{4})/, '•••-••-$3');
+  // Normalize asterisk-redacted values (***-**-6789) to bullet format
+  const normalized = value.replace(/\*/g, '•');
+  return normalized.replace(/(\d{3})-?(\d{2})-?(\d{4})/, '•••-••-$3');
 };
