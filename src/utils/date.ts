@@ -1,3 +1,5 @@
+export { formatInTimeZone } from 'date-fns-tz/formatInTimeZone';
+
 /**
  * Formats a timestamp into a pretty format of MM/DD/YYYY.
  * @param timestamp
