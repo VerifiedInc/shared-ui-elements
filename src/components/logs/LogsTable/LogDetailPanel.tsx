@@ -1,6 +1,7 @@
 import { Box, Paper, Stack, Typography } from '@mui/material';
 
 import type { LogEntry } from '../types';
+import { PRODUCT_LABELS } from '../constants';
 
 interface LogDetailPanelProps {
   log: LogEntry;
@@ -56,6 +57,7 @@ export function LogDetailPanel({ log }: LogDetailPanelProps) {
             <DetailField label='Session UUID' value={log.sessionUuid} />
           )}
           <DetailField label='Source' value={log.source} />
+          <DetailField label='Product' value={PRODUCT_LABELS[log.product]} />
           <DetailField
             label='Event Type'
             value={log.errorCode ? 'response_error' : 'request'}

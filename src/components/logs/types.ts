@@ -2,7 +2,7 @@ export interface LogEntry {
   brandUuid: string;
   phone: string | null;
   uuid: string | null;
-  product: 'signup' | 'verify';
+  product: 'signup' | 'verify' | 'health' | 'text-to-signup';
   sessionUuid: string | null;
   method: string;
   path: string;

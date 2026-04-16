@@ -25,6 +25,7 @@ import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { useSnackbar } from '../../Snackbar';
 import { formatLogTimestamp } from '../../../utils/date';
 import type { LogEntry, LogsResponse } from '../types';
+import { PRODUCT_LABELS } from '../constants';
 import { LogDetailPanel } from './LogDetailPanel';
 import { useBidirectionalScroll } from '../../../hooks/useBidirectionalScroll';
 
@@ -141,6 +142,34 @@ function OverflowTooltip({ text }: { text: string }) {
   );
 }
 
+function OverflowChip({
+  label,
+  ...chipProps
+}: { label: string } & Omit<React.ComponentProps<typeof Chip>, 'label'>) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflow, setOverflow] = useState(false);
+
+  useEffect(() => {
+    const labelEl = ref.current?.querySelector('.MuiChip-label');
+    if (labelEl) setOverflow(labelEl.scrollWidth > labelEl.clientWidth);
+  }, [label]);
+
+  return (
+    <Tooltip title={overflow ? label : ''} placement='top'>
+      <Chip
+        ref={ref}
+        label={label}
+        {...chipProps}
+        sx={{
+          ...chipProps.sx,
+          maxWidth: '100%',
+          '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' },
+        }}
+      />
+    </Tooltip>
+  );
+}
+
 const ROW_HEIGHT_ESTIMATE = 48;
 
 const MONO_SX = { fontFamily: 'monospace' } as const;
@@ -167,6 +196,7 @@ export function LogsTable({
       { label: 'Phone', width: 150 },
       { label: '1-Click UUID', width: 130 },
       { label: 'Source', width: 90 },
+      { label: 'Product', width: 140 },
       { label: 'Event', width: isLgAndBelow ? 125 : 200 },
       { label: 'HTTP', align: 'right' as const, width: 75 },
       { label: 'Latency', align: 'right' as const, width: 100 },
@@ -277,7 +307,7 @@ export function LogsTable({
           <TableBody>
             {isLoading && rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} sx={{ textAlign: 'center', py: 2 }}>
+                <TableCell colSpan={10} sx={{ textAlign: 'center', py: 2 }}>
                   <Typography color='text.secondary'>Loading...</Typography>
                 </TableCell>
               </TableRow>
@@ -293,7 +323,7 @@ export function LogsTable({
                 }}
               >
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   sx={{
                     textAlign: 'center',
                     py: 0.75,
@@ -434,6 +464,17 @@ export function LogsTable({
                       />
                     </TableCell>
                     <TableCell>
+                      <OverflowChip
+                        label={PRODUCT_LABELS[row.product]}
+                        variant='outlined'
+                        sx={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          minWidth: 110,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
                       <OverflowTooltip text={formatEvent(row)} />
                     </TableCell>
                     <TableCell sx={{ textAlign: 'right' }}>
@@ -485,7 +526,7 @@ export function LogsTable({
                   {isExpanded && (
                     <TableRow>
                       <TableCell
-                        colSpan={9}
+                        colSpan={10}
                         sx={{
                           py: 0,
                           px: 1,
@@ -519,7 +560,7 @@ export function LogsTable({
                 }}
               >
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   sx={{
                     textAlign: 'center',
                     py: 0.75,
