@@ -142,6 +142,34 @@ function OverflowTooltip({ text }: { text: string }) {
   );
 }
 
+function OverflowChip({
+  label,
+  ...chipProps
+}: { label: string } & Omit<React.ComponentProps<typeof Chip>, 'label'>) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflow, setOverflow] = useState(false);
+
+  useEffect(() => {
+    const labelEl = ref.current?.querySelector('.MuiChip-label');
+    if (labelEl) setOverflow(labelEl.scrollWidth > labelEl.clientWidth);
+  }, [label]);
+
+  return (
+    <Tooltip title={overflow ? label : ''} placement='top'>
+      <Chip
+        ref={ref}
+        label={label}
+        {...chipProps}
+        sx={{
+          ...chipProps.sx,
+          maxWidth: '100%',
+          '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' },
+        }}
+      />
+    </Tooltip>
+  );
+}
+
 const ROW_HEIGHT_ESTIMATE = 48;
 
 const MONO_SX = { fontFamily: 'monospace' } as const;
@@ -426,23 +454,25 @@ export function LogsTable({
                         size='small'
                         variant='filled'
                         sx={{
-                          fontWeight: 600,
+                          fontWeight: 500,
                           fontSize: 12,
                           minWidth: 40,
                           bgcolor:
                             row.source === 'sdk' ? '#4FC3F7' : 'primary.main',
                           color: 'white',
+                          fontFamily: 'monospace',
                         }}
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography
-                        variant='body2'
-                        color='text.primary'
-                        sx={{ ...monoSx, fontWeight: 500 }}
-                      >
-                        {PRODUCT_LABELS[row.product]}
-                      </Typography>
+                      <OverflowChip
+                        label={PRODUCT_LABELS[row.product]}
+                        variant='outlined'
+                        sx={{
+                          fontSize: 13,
+                          fontFamily: 'monospace',
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
                       <OverflowTooltip text={formatEvent(row)} />
