@@ -454,13 +454,12 @@ export function LogsTable({
                         size='small'
                         variant='filled'
                         sx={{
-                          fontWeight: 500,
+                          fontWeight: 600,
                           fontSize: 12,
                           minWidth: 40,
                           bgcolor:
                             row.source === 'sdk' ? '#4FC3F7' : 'primary.main',
                           color: 'white',
-                          fontFamily: 'monospace',
                         }}
                       />
                     </TableCell>
