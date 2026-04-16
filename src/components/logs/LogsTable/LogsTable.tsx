@@ -469,7 +469,8 @@ export function LogsTable({
                         variant='outlined'
                         sx={{
                           fontSize: 13,
-                          fontFamily: 'monospace',
+                          fontWeight: 600,
+                          minWidth: 110,
                         }}
                       />
                     </TableCell>
