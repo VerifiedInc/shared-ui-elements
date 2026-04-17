@@ -2,6 +2,7 @@ import {
   type FC,
   type ReactElement,
   forwardRef,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -49,6 +50,15 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
   props: DateRangeInputProps,
 ): ReactElement => {
   const styles = useStyle();
+  const nonce = useMemo(
+    () =>
+      typeof document !== 'undefined'
+        ? (document
+            .querySelector('meta[property="csp-nonce"]')
+            ?.getAttribute('content') ?? undefined)
+        : undefined,
+    [],
+  );
   const initialDate = (): [Date | null, Date | null] => {
     const { startDate, endDate } = props;
     if (!startDate || !endDate) return [null, null];
@@ -68,7 +78,7 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
 
   return (
     <Box ref={ref} sx={styles.wrapper}>
-      <style>{pickerCSS}</style>
+      <style nonce={nonce}>{pickerCSS}</style>
       <DatePicker
         open={open}
         onFocus={() => {

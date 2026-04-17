@@ -78,6 +78,10 @@ function TTSMagicButtonComponent(
       if (fontLoadingStatus.cssContent) {
         tempStyleElement = document.createElement('style');
         tempStyleElement.id = 'temp-font-style-for-download';
+        const nonce = document
+          .querySelector('meta[property="csp-nonce"]')
+          ?.getAttribute('content');
+        if (nonce) tempStyleElement.setAttribute('nonce', nonce);
         tempStyleElement.textContent = fontLoadingStatus.cssContent;
         document.head.appendChild(tempStyleElement);
       }
@@ -157,6 +161,10 @@ function TTSMagicButtonComponent(
     if (fontLoadingStatus.cssContent) {
       tempStyleElement = document.createElement('style');
       tempStyleElement.id = 'temp-font-style-for-image';
+      const nonce = document
+        .querySelector('meta[property="csp-nonce"]')
+        ?.getAttribute('content');
+      if (nonce) tempStyleElement.setAttribute('nonce', nonce);
       tempStyleElement.textContent = fontLoadingStatus.cssContent;
       document.head.appendChild(tempStyleElement);
     }
