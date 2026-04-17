@@ -68,6 +68,10 @@ export function useGoogleFont(
         // Create and append the style element with the CSS content
         const styleElement = document.createElement('style');
         styleElement.id = styleId;
+        const nonce = document
+          .querySelector('meta[property="csp-nonce"]')
+          ?.getAttribute('content');
+        if (nonce) styleElement.setAttribute('nonce', nonce);
         styleElement.textContent = cssText;
         styleElement.setAttribute('data-status', 'loaded');
         styleElement.setAttribute('data-css-content', cssText);
@@ -82,6 +86,10 @@ export function useGoogleFont(
         // Create a style element to mark as error
         const errorStyleElement = document.createElement('style');
         errorStyleElement.id = styleId;
+        const nonce = document
+          .querySelector('meta[property="csp-nonce"]')
+          ?.getAttribute('content');
+        if (nonce) errorStyleElement.setAttribute('nonce', nonce);
         errorStyleElement.setAttribute('data-status', 'error');
         document.head.appendChild(errorStyleElement);
 

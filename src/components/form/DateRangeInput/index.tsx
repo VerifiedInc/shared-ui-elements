@@ -2,6 +2,7 @@ import {
   type FC,
   type ReactElement,
   forwardRef,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -43,12 +44,27 @@ interface DateRangeInputProps {
   onChangeTz?: (startDate: string, endDate: string) => void;
   /** IANA time zone name (e.g. "America/New_York"). Omit for local time behavior. */
   timeZone?: string;
+  /**
+   * CSP nonce applied to the inline <style> tag. Pass this from the server
+   * (e.g. Next.js middleware/headers) so the style tag carries a nonce during
+   * SSR. Falls back to reading `<meta property="csp-nonce">` on the client.
+   */
+  nonce?: string;
 }
 
 export const DateRangeInput: FC<DateRangeInputProps> = (
   props: DateRangeInputProps,
 ): ReactElement => {
   const styles = useStyle();
+  const nonce = useMemo(() => {
+    if (props.nonce) return props.nonce;
+    if (typeof document === 'undefined') return undefined;
+    return (
+      document
+        .querySelector('meta[property="csp-nonce"]')
+        ?.getAttribute('content') ?? undefined
+    );
+  }, [props.nonce]);
   const initialDate = (): [Date | null, Date | null] => {
     const { startDate, endDate } = props;
     if (!startDate || !endDate) return [null, null];
@@ -68,7 +84,7 @@ export const DateRangeInput: FC<DateRangeInputProps> = (
 
   return (
     <Box ref={ref} sx={styles.wrapper}>
-      <style>{pickerCSS}</style>
+      <style nonce={nonce}>{pickerCSS}</style>
       <DatePicker
         open={open}
         onFocus={() => {
