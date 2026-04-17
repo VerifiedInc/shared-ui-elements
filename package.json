@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "9.8.2",
+  "version": "9.9.0",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "sideEffects": false,
@@ -137,6 +137,7 @@
     "framer-motion": ">=11.11.1",
     "html-to-image": ">=1.11.13 <2",
     "immer": ">=10",
+    "jspdf": ">=4.2.1 <5",
     "libphonenumber-js": ">=1.11.11",
     "lodash": ">=4.17.21",
     "notistack": ">=3.0.1",
@@ -148,7 +149,6 @@
     "react-dom": ">=18 <19",
     "react-hook-form": ">=7.52.1 <=7.53.2",
     "react-imask": ">=7.6.1",
-    "react-to-pdf": ">=3.0.0",
     "recharts": ">=2.15.0 <3",
     "tinycolor2": ">=1.6.0 <2",
     "uuid": ">=9.0.1",
