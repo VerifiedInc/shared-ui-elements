@@ -272,7 +272,6 @@ const timezones = [
   { name: 'Atlantic/Azores', utc_offset: '00:00:00' },
   { name: 'Atlantic/St_Helena', utc_offset: '00:00:00' },
   { name: 'Atlantic/Reykjavik', utc_offset: '00:00:00' },
-  { name: 'Factory', utc_offset: '00:00:00' },
   { name: 'Iceland', utc_offset: '00:00:00' },
   { name: 'Eire', utc_offset: '01:00:00' },
   { name: 'Africa/Casablanca', utc_offset: '01:00:00' },
