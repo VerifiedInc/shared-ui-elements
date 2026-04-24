@@ -58,7 +58,7 @@ export function exportBillableEventsToCsv({
   rows.push(groupHeader.join(','));
 
   // Row 2: Column header
-  const columnHeader = ['Brand', 'UUID', 'Integration Type'];
+  const columnHeader = ['Brand Name', 'Brand UUID', 'Integration Type'];
   for (const col of topLevelColumns) {
     columnHeader.push(escapeCsvValue(col.label));
   }
