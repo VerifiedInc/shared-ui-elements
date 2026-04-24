@@ -22,3 +22,4 @@ export * from './icons';
 export * from './UI';
 export * from './text-to-signup';
 export * from './logs';
+export * from './CopyableUuid';
