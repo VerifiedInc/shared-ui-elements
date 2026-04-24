@@ -137,6 +137,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
                   tail={0}
                   mono={false}
                   iconSx={{ color: 'success.main' }}
+                  typographyProps={{ variant: 'inherit', color: 'inherit' }}
                 />
               </TableCell>
               <TableCell>{row.integrationType}</TableCell>
