@@ -23,6 +23,7 @@ import { ContentCopy } from '@mui/icons-material';
 import { EmptyChartSection } from '../../chart/EmptyChartSection';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
 import { useSnackbar } from '../../Snackbar';
+import { CopyableUuid } from '../../CopyableUuid';
 import { formatLogTimestamp } from '../../../utils/date';
 import type { LogEntry, LogsResponse } from '../types';
 import { PRODUCT_LABELS } from '../constants';
@@ -93,18 +94,6 @@ function CopyButton({
       <ContentCopy sx={{ fontSize: 13 }} />
     </IconButton>
   );
-}
-
-function truncateUuid(uuid: string | null): string {
-  if (!uuid) {
-    return '—';
-  }
-
-  if (uuid.length <= 12) {
-    return uuid;
-  }
-
-  return `${uuid.slice(0, 4)}…${uuid.slice(-4)}`;
 }
 
 function formatEvent(row: LogEntry): string {
@@ -420,33 +409,13 @@ export function LogsTable({
                         )}
                       </Stack>
                     </TableCell>
-                    <TableCell
-                      sx={{
-                        '& .copy-btn': { opacity: 0 },
-                        '&:hover .copy-btn': { opacity: 1 },
-                      }}
-                    >
-                      <Stack
-                        direction='row'
-                        alignItems='center'
-                        overflow='hidden'
-                      >
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          noWrap
-                          sx={monoSx}
-                        >
-                          {truncateUuid(row.uuid)}
-                        </Typography>
-                        {row.uuid && (
-                          <CopyButton
-                            value={row.uuid}
-                            label='1-Click UUID'
-                            onCopy={handleCopy}
-                          />
-                        )}
-                      </Stack>
+                    <TableCell>
+                      <CopyableUuid
+                        uuid={row.uuid}
+                        label='1-Click UUID'
+                        variant='button'
+                        typographyProps={{ sx: monoSx }}
+                      />
                     </TableCell>
                     <TableCell>
                       <Chip
