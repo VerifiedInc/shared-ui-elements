@@ -10,6 +10,11 @@ export interface SubChartConfig {
   tooltipFormatter?: (value: number | string) => string;
   yAxisTickFormatter?: (value: number) => string;
   yAxisDomain?: [number | string, number | string];
+  /**
+   * Marks this sub-chart as showing percentage values. Percentage sub-charts
+   * opt out of the Total line and the Log Scale toggle.
+   */
+  isPercentage?: boolean;
 }
 
 export type SynchronizedSubChartConfig =
