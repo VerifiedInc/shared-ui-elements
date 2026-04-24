@@ -31,8 +31,8 @@ const mockData = [
     raw: {
       brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
       brandName: 'Hooli Health',
-      overall: {}
-    }
+      overall: {},
+    },
   },
   {
     brandUuid: '',
@@ -50,8 +50,8 @@ const mockData = [
     raw: {
       brandUuid: '',
       brandName: 'Pied Piper',
-      overall: {}
-    }
+      overall: {},
+    },
   },
   {
     brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
@@ -69,8 +69,8 @@ const mockData = [
     raw: {
       brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
       brandName: 'Aviato',
-      overall: {}
-    }
+      overall: {},
+    },
   },
 ];
 
