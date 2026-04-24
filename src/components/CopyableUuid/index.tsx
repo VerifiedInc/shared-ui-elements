@@ -122,11 +122,7 @@ export function CopyableUuid({
         aria-label={`Copy ${label}`}
         onClick={handleCopy}
         {...restTypographyProps}
-        sx={
-          [monoSx, textSx, typographySx as any, sx].filter(
-            Boolean,
-          )
-        }
+        sx={[monoSx, textSx, typographySx as any, sx].filter(Boolean)}
       >
         {truncated}
       </Typography>

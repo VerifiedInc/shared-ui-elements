@@ -86,7 +86,9 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
         <TableHead>
           {/* Product group header row */}
           <TableRow>
-            <TableCell rowSpan={2}>{sortLabel('brand', 'Brand Name')}</TableCell>
+            <TableCell rowSpan={2}>
+              {sortLabel('brand', 'Brand Name')}
+            </TableCell>
             <TableCell rowSpan={2}>Brand UUID</TableCell>
             <TableCell rowSpan={2}>
               {sortLabel('integrationType', 'Integration Type')}
