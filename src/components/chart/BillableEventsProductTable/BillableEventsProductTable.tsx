@@ -66,8 +66,8 @@ export const BillableEventsProductTable: React.FC<
       <Table sx={{ backgroundColor: white }}>
         <TableHead>
           <TableRow>
-            <TableCell>{sortLabel('brand', 'Brand')}</TableCell>
-            <TableCell>UUID</TableCell>
+            <TableCell>{sortLabel('brand', 'Brand Name')}</TableCell>
+            <TableCell>Brand UUID</TableCell>
             <TableCell>
               {sortLabel('integrationType', 'Integration Type')}
             </TableCell>
@@ -87,6 +87,10 @@ export const BillableEventsProductTable: React.FC<
                   uuid={row.brandUuid}
                   label='Brand UUID'
                   variant='button'
+                  head={6}
+                  tail={0}
+                  mono={false}
+                  iconSx={{ color: 'success.main' }}
                 />
               </TableCell>
               <TableCell>{row.integrationType}</TableCell>
