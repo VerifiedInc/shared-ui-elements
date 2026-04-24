@@ -35,6 +35,8 @@ export interface CopyableUuidProps {
   /** Whether to use monospace typography. Defaults to true. */
   mono?: boolean;
   typographyProps?: Omit<TypographyProps, 'children'>;
+  /** Styles applied to the copy icon button (button variant only). */
+  iconSx?: SxProps;
   sx?: SxProps;
 }
 
@@ -59,6 +61,7 @@ export function CopyableUuid({
   placeholder = '—',
   mono = true,
   typographyProps,
+  iconSx,
   sx,
 }: Readonly<CopyableUuidProps>): React.ReactElement {
   const { copy } = useCopyToClipboard({ type: 'text/plain' });
@@ -73,7 +76,7 @@ export function CopyableUuid({
         variant='body2'
         color='text.secondary'
         {...restTypographyProps}
-        sx={[monoSx, typographySx as any, sx as any].filter(Boolean) as any}
+        sx={[monoSx, typographySx as any, sx].filter(Boolean)}
       >
         {placeholder}
       </Typography>
@@ -120,9 +123,9 @@ export function CopyableUuid({
         onClick={handleCopy}
         {...restTypographyProps}
         sx={
-          [monoSx, textSx, typographySx as any, sx as any].filter(
+          [monoSx, textSx, typographySx as any, sx].filter(
             Boolean,
-          ) as any
+          )
         }
       >
         {truncated}
@@ -145,7 +148,7 @@ export function CopyableUuid({
         color='text.secondary'
         noWrap
         {...restTypographyProps}
-        sx={[monoSx, typographySx as any].filter(Boolean) as any}
+        sx={[monoSx, typographySx as any].filter(Boolean)}
       >
         {truncated}
       </Typography>
@@ -154,7 +157,7 @@ export function CopyableUuid({
         size='small'
         aria-label={`Copy ${label}`}
         onClick={handleCopy}
-        sx={{ p: 0.25, ml: 0.5 }}
+        sx={[{ p: 0.25, ml: 0.5 }, iconSx as any].filter(Boolean)}
       >
         <ContentCopy sx={{ fontSize: 13 }} />
       </IconButton>
