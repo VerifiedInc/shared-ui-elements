@@ -16,7 +16,7 @@ type Story = StoryObj<typeof BillableEventsProductTable>;
 
 const mockData = [
   {
-    brandUuid: '101',
+    brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
     brand: 'Hooli Health',
     integrationType: 'SDK',
     metrics: {
@@ -28,9 +28,14 @@ const mockData = [
       signup_riskSignals: 8,
       health_autofillsStarted: 13,
     },
+    raw: {
+      brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
+      brandName: 'Hooli Health',
+      overall: {}
+    }
   },
   {
-    brandUuid: '102',
+    brandUuid: '',
     brand: 'Pied Piper',
     integrationType: 'API',
     metrics: {
@@ -42,9 +47,14 @@ const mockData = [
       signup_riskSignals: 3,
       health_autofillsStarted: 45,
     },
+    raw: {
+      brandUuid: '',
+      brandName: 'Pied Piper',
+      overall: {}
+    }
   },
   {
-    brandUuid: '103',
+    brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
     brand: 'Aviato',
     integrationType: 'Semi-Hosted',
     metrics: {
@@ -56,6 +66,11 @@ const mockData = [
       signup_riskSignals: 14,
       health_autofillsStarted: 3,
     },
+    raw: {
+      brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
+      brandName: 'Aviato',
+      overall: {}
+    }
   },
 ];
 

@@ -22,10 +22,14 @@ type Story = StoryObj<typeof BillableEventsTable>;
 
 const mockData: BillableEventsTableRow[] = [
   {
-    brandUuid: '101',
+    brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
     brand: 'Hooli Health',
     integrationType: 'SDK',
-    raw: { brandUuid: '101', brandName: 'Hooli Health', overall: {} },
+    raw: {
+      brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
+      brandName: 'Hooli Health',
+      overall: {},
+    },
     metrics: {
       tts_smsKeywordsReceived: 4,
       tts_verificationsSucceeded: 3,
@@ -37,10 +41,10 @@ const mockData: BillableEventsTableRow[] = [
     },
   },
   {
-    brandUuid: '102',
+    brandUuid: '',
     brand: 'Pied Piper',
     integrationType: 'API',
-    raw: { brandUuid: '102', brandName: 'Pied Piper', overall: {} },
+    raw: { brandUuid: '', brandName: 'Pied Piper', overall: {} },
     metrics: {
       tts_smsKeywordsReceived: 12,
       tts_verificationsSucceeded: 10,
@@ -52,10 +56,14 @@ const mockData: BillableEventsTableRow[] = [
     },
   },
   {
-    brandUuid: '103',
+    brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
     brand: 'Aviato',
     integrationType: 'Semi-Hosted',
-    raw: { brandUuid: '103', brandName: 'Aviato', overall: {} },
+    raw: {
+      brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
+      brandName: 'Aviato',
+      overall: {},
+    },
     metrics: {
       tts_smsKeywordsReceived: 0,
       tts_verificationsSucceeded: 0,
