@@ -96,12 +96,27 @@ export function CopyableUuid({
 
   if (variant === 'text') {
     const textSx = {
+      // Reset native <button> styles so it reads as plain text.
+      background: 'transparent',
+      border: 0,
+      padding: 0,
+      margin: 0,
+      font: 'inherit',
+      color: 'inherit',
+      textAlign: 'inherit',
       cursor: 'pointer',
       '&:hover': { textDecoration: 'underline' },
+      '&:focus-visible': {
+        outline: '2px solid currentColor',
+        outlineOffset: 2,
+      },
     };
     return (
       <Typography
+        component='button'
+        type='button'
         variant='body2'
+        aria-label={`Copy ${label}`}
         onClick={handleCopy}
         {...restTypographyProps}
         sx={

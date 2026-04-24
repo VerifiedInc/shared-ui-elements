@@ -88,8 +88,8 @@ describe('<CopyableUuid/>', () => {
     expect(clipboardItems[0]).toBeInstanceOf(MockClipboardItem);
   });
 
-  test('text variant copies full uuid to clipboard on text click', async () => {
-    const { container } = render(
+  test('text variant copies full uuid to clipboard on click', async () => {
+    const { getByRole } = render(
       <CopyableUuid
         uuid={FULL_UUID}
         label='UUID'
@@ -99,11 +99,26 @@ describe('<CopyableUuid/>', () => {
       />,
     );
 
-    const text = container.querySelector('p, span');
-    expect(text).not.toBeNull();
-    fireEvent.click(text as Element);
+    const button = getByRole('button', { name: 'Copy UUID' });
+    fireEvent.click(button);
 
     await waitFor(() => expect(clipboardWrite).toHaveBeenCalledTimes(1));
+  });
+
+  test('text variant renders as a real button (keyboard accessible)', () => {
+    const { getByRole } = render(
+      <CopyableUuid
+        uuid={FULL_UUID}
+        label='UUID'
+        variant='text'
+        head={5}
+        tail={0}
+      />,
+    );
+
+    const button = getByRole('button', { name: 'Copy UUID' });
+    expect(button.tagName).toBe('BUTTON');
+    expect(button.getAttribute('type')).toBe('button');
   });
 
   test('swallows clipboard failures silently', async () => {
