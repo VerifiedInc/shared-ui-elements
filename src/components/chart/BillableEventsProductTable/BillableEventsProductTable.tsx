@@ -19,6 +19,7 @@ import {
   type BillableEventsTableRow,
 } from '../BillableEventsTable/BillableEventsTable.types';
 import { useBillableSort } from '../BillableEventsTable/useBillableSort.hook';
+import { CopyableUuid } from '../../CopyableUuid';
 import { white } from '../../../styles';
 
 const DIRECT_KEYS = ['brand', 'integrationType'];
@@ -65,7 +66,8 @@ export const BillableEventsProductTable: React.FC<
       <Table sx={{ backgroundColor: white }}>
         <TableHead>
           <TableRow>
-            <TableCell>{sortLabel('brand', 'Brand')}</TableCell>
+            <TableCell>{sortLabel('brand', 'Brand Name')}</TableCell>
+            <TableCell>Brand UUID</TableCell>
             <TableCell>
               {sortLabel('integrationType', 'Integration Type')}
             </TableCell>
@@ -80,6 +82,18 @@ export const BillableEventsProductTable: React.FC<
           {sortedData.map((row: BillableEventsTableRow) => (
             <TableRow key={row.brandUuid}>
               <TableCell>{row.brand}</TableCell>
+              <TableCell>
+                <CopyableUuid
+                  uuid={row.brandUuid}
+                  label='Brand UUID'
+                  variant='button'
+                  head={6}
+                  tail={0}
+                  mono={false}
+                  iconSx={{ color: 'success.main' }}
+                  typographyProps={{ variant: 'inherit', color: 'inherit' }}
+                />
+              </TableCell>
               <TableCell>{row.integrationType}</TableCell>
               {columns.map((col: BillableEventColumn) => (
                 <TableCell key={col.key} align='right'>

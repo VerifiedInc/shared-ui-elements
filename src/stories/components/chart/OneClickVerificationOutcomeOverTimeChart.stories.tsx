@@ -4,11 +4,31 @@ import { Box, Stack } from '@mui/material';
 import { ConversionOverTimeChart } from '../../../components/chart';
 import { green, yellow, red } from '../../../styles/colors';
 
+const sampleLegendBrand = {
+  uuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  value: 'Aviato Health',
+  color: green,
+  brandName: 'Aviato Health Production',
+  integrationType: 'Hosted',
+};
+
 const meta = {
   title: 'components/chart/OneClickVerificationOutcomeOverTimeChart',
   component: ConversionOverTimeChart,
   parameters: {
     layout: 'centered',
+  },
+  argTypes: {
+    showLegendUuid: {
+      control: 'boolean',
+      table: { type: { summary: 'boolean' } },
+    },
+    legendBrand: {
+      control: 'object',
+      table: {
+        type: { summary: 'ConversionOverTimeChartLegendBrand | undefined' },
+      },
+    },
   },
   decorators: [
     (Story) => (
@@ -244,5 +264,33 @@ export const StackModeNone: Story = {
     isSuccess: true,
     isFetching: false,
     filter: { timezone: 'UTC' },
+  },
+};
+
+export const WithLegend: Story = {
+  args: {
+    chartData: mockRawData,
+    seriesConfig,
+    stackMode: 'stack',
+    isLoading: false,
+    isSuccess: true,
+    isFetching: false,
+    filter: { timezone: 'UTC' },
+    legendBrand: sampleLegendBrand,
+    showLegendUuid: true,
+  },
+};
+
+export const WithLegendNoUuid: Story = {
+  args: {
+    chartData: mockRawData,
+    seriesConfig,
+    stackMode: 'stack',
+    isLoading: false,
+    isSuccess: true,
+    isFetching: false,
+    filter: { timezone: 'UTC' },
+    legendBrand: sampleLegendBrand,
+    showLegendUuid: false,
   },
 };

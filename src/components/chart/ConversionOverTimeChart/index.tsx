@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box,
+  Stack,
   ToggleButton,
   ToggleButtonGroup,
   type SxProps,
@@ -9,6 +10,7 @@ import {
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { AreaChart, type AreaSeriesChartData } from '../AreaChart';
+import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
 import { useStyle } from '../styles';
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
@@ -66,6 +68,15 @@ function mapBrandIntervalData({
   };
 }
 
+export interface ConversionOverTimeChartLegendBrand {
+  uuid: string;
+  value: string;
+  color: string;
+  dataKey?: string;
+  brandName?: string;
+  integrationType?: string;
+}
+
 export interface ConversionOverTimeChartProps {
   data?: Array<Record<string, number | string>>;
   series?: AreaSeriesChartData[];
@@ -80,6 +91,13 @@ export interface ConversionOverTimeChartProps {
   };
   sx?: SxProps;
   stackMode?: 'stack' | 'none';
+  /**
+   * Single-brand legend entry. When provided, renders a brand legend row
+   * beneath the chart with name, optional metadata, and a copyable UUID.
+   */
+  legendBrand?: ConversionOverTimeChartLegendBrand;
+  /** Whether the legend displays the copyable UUID. Defaults to true. */
+  showLegendUuid?: boolean;
 }
 
 export function ConversionOverTimeChart({
@@ -93,6 +111,8 @@ export function ConversionOverTimeChart({
   isSuccess,
   filter,
   sx,
+  legendBrand,
+  showLegendUuid = true,
 }: Readonly<ConversionOverTimeChartProps>): React.ReactNode {
   const style = useStyle();
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
@@ -176,59 +196,76 @@ export function ConversionOverTimeChart({
             `${(Number(value) * 100).toFixed(1)}%`;
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1,
-        height: style.regularChartWrapper.height,
-      }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <ToggleButtonGroup
-          value={mode}
-          exclusive
-          onChange={(_: React.MouseEvent, value: ViewMode | null) => {
-            if (value !== null) setMode(value);
-          }}
-          size='small'
-        >
-          <ToggleButton value='absolute'>Numbers</ToggleButton>
-          <ToggleButton value='percent'>Percentages</ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
-      <AreaChart
-        data={normalizedData ?? resolved.data}
-        series={resolved.series}
-        stackMode={rechartsStackMode}
-        isAnimationActive={true}
-        xAxis={{
-          dataKey: 'date',
-          type: 'number',
-          domain: ['dataMin', 'dataMax'],
-          tickFormatter: (value: number) =>
-            formatDateMMYY(value, {
-              timeZone: timezone,
-              hour12: false,
-              hour: 'numeric',
-            }),
-          allowDuplicatedCategory: false,
-        }}
-        yAxis={yAxis}
-        tooltip={{
-          formatter: tooltipFormatter,
-          labelFormatter: (value: number) =>
-            formatExtendedDate(value, { timeZone: timezone, hour12: false }),
-        }}
+    <Stack>
+      <Box
         sx={{
-          ...style.regularChartWrapper,
-          height: 'unset',
-          flex: 1,
-          minHeight: 0,
-          opacity: isFetching ? 0.4 : 1,
-          ...sx,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          height: style.regularChartWrapper.height,
         }}
-      />
-    </Box>
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <ToggleButtonGroup
+            value={mode}
+            exclusive
+            onChange={(_: React.MouseEvent, value: ViewMode | null) => {
+              if (value !== null) setMode(value);
+            }}
+            size='small'
+          >
+            <ToggleButton value='absolute'>Numbers</ToggleButton>
+            <ToggleButton value='percent'>Percentages</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+        <AreaChart
+          data={normalizedData ?? resolved.data}
+          series={resolved.series}
+          stackMode={rechartsStackMode}
+          isAnimationActive={true}
+          xAxis={{
+            dataKey: 'date',
+            type: 'number',
+            domain: ['dataMin', 'dataMax'],
+            tickFormatter: (value: number) =>
+              formatDateMMYY(value, {
+                timeZone: timezone,
+                hour12: false,
+                hour: 'numeric',
+              }),
+            allowDuplicatedCategory: false,
+          }}
+          yAxis={yAxis}
+          tooltip={{
+            formatter: tooltipFormatter,
+            labelFormatter: (value: number) =>
+              formatExtendedDate(value, { timeZone: timezone, hour12: false }),
+          }}
+          sx={{
+            ...style.regularChartWrapper,
+            height: 'unset',
+            flex: 1,
+            minHeight: 0,
+            opacity: isFetching ? 0.4 : 1,
+            ...sx,
+          }}
+        />
+      </Box>
+      {legendBrand && (
+        <SeriesPercentageChartLegend
+          payload={[
+            {
+              uuid: legendBrand.uuid,
+              value: legendBrand.value,
+              color: legendBrand.color,
+              dataKey: legendBrand.dataKey ?? legendBrand.uuid,
+              brandName: legendBrand.brandName,
+              integrationType: legendBrand.integrationType,
+            },
+          ]}
+          showUuid={showLegendUuid}
+        />
+      )}
+    </Stack>
   );
 }

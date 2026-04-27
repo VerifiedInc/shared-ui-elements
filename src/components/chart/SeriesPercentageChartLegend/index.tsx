@@ -4,9 +4,8 @@ import { AnimatePresence } from 'framer-motion';
 import { type ReactElement } from 'react';
 import { type LegendProps } from 'recharts';
 
-import { useCopyToClipboard } from '../../../hooks';
 import { MotionStack } from '../../animation';
-import { useSnackbar } from '../../Snackbar';
+import { CopyableUuid } from '../../CopyableUuid';
 
 type CustomPayload = {
   uuid: string;
@@ -24,9 +23,6 @@ function EntryBlock({
   entry: CustomPayload;
   showUuid?: boolean;
 }>): ReactElement {
-  const copyToClipboard = useCopyToClipboard({ type: 'text/plain' });
-  const snackbar = useSnackbar();
-
   return (
     <MotionStack
       component='li'
@@ -57,21 +53,15 @@ function EntryBlock({
           <Typography variant='body2'>{entry.integrationType}</Typography>
         )}
         {showUuid && entry.uuid && (
-          <Typography
-            variant='body2'
-            sx={{
-              cursor: 'pointer',
-              '&:hover': { textDecoration: 'underline' },
-            }}
-            onClick={() => {
-              if (entry.uuid) {
-                copyToClipboard.copy(entry.uuid).catch(() => undefined);
-                snackbar.enqueueSnackbar('UUID copied to clipboard', 'success');
-              }
-            }}
-          >
-            {entry.uuid.slice(0, 5)}...
-          </Typography>
+          <CopyableUuid
+            uuid={entry.uuid}
+            label='UUID'
+            head={5}
+            tail={0}
+            variant='text'
+            mono={false}
+            typographyProps={{ color: 'inherit' }}
+          />
         )}
       </Stack>
     </MotionStack>
@@ -85,7 +75,7 @@ interface SeriesPercentageChartLegendProps
 }
 
 export function SeriesPercentageChartLegend(
-  props: SeriesPercentageChartLegendProps,
+  props: Readonly<SeriesPercentageChartLegendProps>,
 ): ReactElement {
   const { payload } = props;
 

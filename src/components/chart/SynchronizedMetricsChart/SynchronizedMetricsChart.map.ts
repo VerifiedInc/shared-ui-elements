@@ -46,6 +46,7 @@ export function mapSynchronizedSubCharts({
         tooltipFormatter: config.tooltipFormatter,
         yAxisTickFormatter: config.yAxisTickFormatter,
         yAxisDomain: config.yAxisDomain,
+        isPercentage: false,
       };
     }
 
@@ -74,6 +75,7 @@ export function mapSynchronizedSubCharts({
       tooltipFormatter: config.tooltipFormatter,
       yAxisTickFormatter: config.yAxisTickFormatter,
       yAxisDomain: config.yAxisDomain,
+      isPercentage: true,
     };
   });
 
