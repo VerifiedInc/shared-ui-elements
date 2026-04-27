@@ -153,9 +153,11 @@ export function CopyableUuid({
         size='small'
         aria-label={`Copy ${label}`}
         onClick={handleCopy}
-        sx={[{ p: 0.25, ml: 0.5 }, iconSx as any].filter(Boolean)}
+        sx={[{ p: 0.25, ml: 0.5, fontSize: 'inherit' }, iconSx as any].filter(
+          Boolean,
+        )}
       >
-        <ContentCopy sx={{ fontSize: 13 }} />
+        <ContentCopy fontSize='inherit' />
       </IconButton>
     </Stack>
   );
