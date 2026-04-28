@@ -31,14 +31,14 @@ export interface CredentialRequestsEditorProps {
   credentialRequests: CredentialRequestsWithNew[];
   children: ReactNode;
   integrationType: SdkIntegrationType;
-  riskSignals: 'none' | 'basic' | 'advanced';
+  riskSignals: 'on' | 'off';
   onChange: (credentialRequests: CredentialRequests[]) => void;
   features?: CredentialRequestsEditorFeatures;
 }
 
 export interface CredentialRequestsEditorContext {
   addButtonText?: string;
-  riskSignals: 'none' | 'basic' | 'advanced';
+  riskSignals: 'on' | 'off';
   features?: CredentialRequestsEditorFeatures;
   integrationType: SdkIntegrationType;
 }

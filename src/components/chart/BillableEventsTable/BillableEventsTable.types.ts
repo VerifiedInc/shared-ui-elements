@@ -58,11 +58,6 @@ export const BILLABLE_PRODUCTS: BillableProductConfig[] = [
     label: '1-Click Signup',
     columns: [
       {
-        key: 'signup_riskSignalsLevel',
-        label: 'Risk Signals',
-        metricKey: 'riskSignalOption',
-      },
-      {
         key: 'signup_autofillsSucceeded',
         label: 'Autofills Succeeded',
         metricKey: 'oneClickSuccess',
