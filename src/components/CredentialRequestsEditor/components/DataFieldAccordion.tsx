@@ -46,7 +46,7 @@ import { DataFieldMulti } from './DataFieldMulti';
 interface DataFieldAccordionProps {
   defaultExpanded?: boolean;
   integrationType: SdkIntegrationType;
-  riskSignals: 'none' | 'basic' | 'advanced';
+  riskSignals: 'on' | 'off';
 }
 
 export function DataFieldAccordion(
