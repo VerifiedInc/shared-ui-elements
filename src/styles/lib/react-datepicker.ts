@@ -960,4 +960,35 @@ select.react-datepicker__year-select {
 .react-datepicker__year-read-view:hover .react-datepicker__year-read-view--down-arrow {
   border-top-color: #008a01;
 }
+
+.react-datepicker__year-dropdown-container--select,
+.react-datepicker__month-dropdown-container--select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.react-datepicker__year-dropdown-container--select::after,
+.react-datepicker__month-dropdown-container--select::after {
+  content: "";
+  display: block;
+  position: absolute;
+  border-color: inherit;
+  border-style: solid;
+  border-width: 3px 3px 0 0;
+  width: 9px;
+  height: 9px;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%) rotate(135deg);
+  pointer-events: none;
+}
+
+select.react-datepicker__year-select,
+select.react-datepicker__month-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 14px;
+  width: auto;
+}
 `;
