@@ -79,6 +79,7 @@ const Picker = function RenderPicker({
   minDate: _minDate,
   maxDate: _maxDate,
   disabled,
+  nonce: _nonce,
 }: {
   value: string;
   onChange: (event: { target: { value: string } }) => void;
@@ -88,9 +89,25 @@ const Picker = function RenderPicker({
   minDate?: Date;
   maxDate?: Date;
   disabled?: boolean;
+  /**
+   * CSP nonce applied to the inline <style> tag. Pass this from the server
+   * (e.g. Next.js middleware/headers) so the style tag carries a nonce during
+   * SSR. Falls back to reading `<meta property="csp-nonce">` on the client.
+   */
+  nonce?: string;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
+
+  const nonce = useMemo(() => {
+    if (_nonce) return _nonce;
+    if (typeof document === 'undefined') return undefined;
+    return (
+      document
+        .querySelector('meta[property="csp-nonce"]')
+        ?.getAttribute('content') ?? undefined
+    );
+  }, [_nonce]);
 
   const defaultDate = new Date('08/01/1989');
   const minDate = _minDate ?? new Date(1900, 0, 1);
@@ -171,7 +188,7 @@ const Picker = function RenderPicker({
           : {},
       }}
     >
-      <style>{pickerCSS}</style>
+      <style nonce={nonce}>{pickerCSS}</style>
       <DatePicker
         open={open}
         onFocus={() => {
