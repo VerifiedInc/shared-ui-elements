@@ -1,3 +1,5 @@
+import type { ChallengePrompt } from '../BrandChallengePromptsTooltip';
+
 export interface Brands {
   brandUuid: string;
   brandName: string;
@@ -8,6 +10,7 @@ export interface Brands {
   isLiveBrand?: boolean;
   isApproved?: boolean;
   additionalData?: any;
+  challengePrompts?: readonly ChallengePrompt[];
 }
 
 export type BrandFilter = {

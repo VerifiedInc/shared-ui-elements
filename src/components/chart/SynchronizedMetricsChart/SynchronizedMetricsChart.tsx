@@ -239,6 +239,7 @@ export function SynchronizedMetricsChart({
         dataKey: b.uuid,
         integrationType: b.description ?? undefined,
         brandName: b.brandName,
+        challengePrompts: b.challengePrompts,
       })),
     [resolvedSubCharts],
   );
