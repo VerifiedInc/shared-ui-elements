@@ -15,6 +15,7 @@ import { useStyle } from '../styles';
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 import type { BrandFilter } from '../../BrandFilterInput';
+import type { ChallengePrompt } from '../../BrandChallengePromptsTooltip';
 
 export type { AreaSeriesChartData } from '../AreaChart';
 
@@ -75,6 +76,7 @@ export interface ConversionOverTimeChartLegendBrand {
   dataKey?: string;
   brandName?: string;
   integrationType?: string;
+  challengePrompts?: readonly ChallengePrompt[];
 }
 
 export interface ConversionOverTimeChartProps {
@@ -261,6 +263,7 @@ export function ConversionOverTimeChart({
               dataKey: legendBrand.dataKey ?? legendBrand.uuid,
               brandName: legendBrand.brandName,
               integrationType: legendBrand.integrationType,
+              challengePrompts: legendBrand.challengePrompts,
             },
           ]}
           showUuid={showLegendUuid}
