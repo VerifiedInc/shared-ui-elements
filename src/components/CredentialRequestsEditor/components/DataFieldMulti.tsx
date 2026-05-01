@@ -8,12 +8,13 @@ import { useCredentialRequestField } from '../contexts/CredentialRequestFieldCon
 
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
+import type { RiskSignals } from '../types/riskSignals';
 
 export function DataFieldMulti({
   riskSignals,
-}: {
-  riskSignals: 'on' | 'off';
-}): React.JSX.Element | null {
+}: Readonly<{
+  riskSignals: RiskSignals;
+}>): React.JSX.Element | null {
   const { features, integrationType } = useCredentialRequestsEditor();
   const isFeatureDisabled =
     integrationType === SdkIntegrationType.Hosted ||
