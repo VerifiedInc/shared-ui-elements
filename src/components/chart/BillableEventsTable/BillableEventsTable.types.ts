@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChartData } from '../BillableEventsProductTable';
+import type { ChallengePrompt } from '../../BrandChallengePromptsTooltip';
 
 export enum BillableProduct {
   TEXT_TO_SIGNUP = 'TEXT_TO_SIGNUP',
@@ -88,6 +89,7 @@ export type BillableEventsTableRow = {
   integrationType: string;
   metrics: Record<string, number>;
   raw: ChartData;
+  challengePrompts?: readonly ChallengePrompt[];
 };
 
 export type BillableEventsTableProps = {

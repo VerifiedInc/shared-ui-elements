@@ -7,6 +7,7 @@ import {
   exportBillableEventsToCsv,
 } from '../../../components/chart/BillableEventsTable';
 import { BillableEventColumn } from '../../../components/chart/BillableEventsTable/BillableEventsTable.types';
+import type { ChallengePrompt } from '../../../components/BrandChallengePromptsTooltip';
 
 const meta: Meta<typeof BillableEventsTable> = {
   title: 'Components/chart/BillableEventsTable',
@@ -179,6 +180,40 @@ export const WithTopLevelColumns: Story = {
           size='small'
         />
       ),
+    },
+  },
+};
+
+const HOOLI_PROMPTS: ChallengePrompt[] = [
+  { type: 'birthDate', promptForChallenge: 'always' },
+  { type: 'ssn4', promptForChallenge: 'ifNecessary' },
+];
+
+const AVIATO_PROMPTS: ChallengePrompt[] = [
+  { type: 'fullName.firstName', promptForChallenge: 'always' },
+];
+
+const dataWithPrompts: BillableEventsTableRow[] = [
+  { ...mockData[0], challengePrompts: HOOLI_PROMPTS },
+  // Pied Piper intentionally has no prompts — hovering its brand cell renders
+  // the cell directly, no tooltip mounts.
+  mockData[1],
+  { ...mockData[2], challengePrompts: AVIATO_PROMPTS },
+];
+
+export const WithChallengePrompts: Story = {
+  args: {
+    data: dataWithPrompts,
+    isLoading: false,
+    isFetching: false,
+    visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Hover the Brand Name cell. Hooli Health and Aviato show their challenge prompts; Pied Piper has none configured, so its cell renders without a tooltip.',
+      },
     },
   },
 };
