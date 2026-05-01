@@ -3,6 +3,7 @@ import sortBy from 'lodash/sortBy';
 import { stringToHashedColor } from '../../../utils/uuidColor';
 
 import { BrandFilter } from '../../BrandFilterInput';
+import type { ChallengePrompt } from '../../BrandChallengePromptsTooltip';
 
 interface TimeSeriesDataPoint {
   date: number;
@@ -14,6 +15,7 @@ interface TimeSeriesChartData {
   name: string;
   color: string;
   chartData: TimeSeriesDataPoint[];
+  challengePrompts?: readonly ChallengePrompt[];
 }
 
 export interface MapSeriesTimeSeriesDataOptions {
@@ -55,6 +57,7 @@ export function mapSeriesTimeSeriesData(
       brandColor?: string;
       brandIntegrationType: string;
       chartData: TimeSeriesDataPoint[];
+      challengePrompts?: readonly ChallengePrompt[];
     }
   >();
 
@@ -101,6 +104,7 @@ export function mapSeriesTimeSeriesData(
           brandColor: colorMap.get(brand.brandUuid),
           brandIntegrationType: brand.integrationType,
           chartData: consolidatedChartData,
+          challengePrompts: brand.challengePrompts,
         });
       } else {
         keywordDataMap.set(identifier, {
@@ -110,6 +114,7 @@ export function mapSeriesTimeSeriesData(
           brandColor: colorMap.get(brand.brandUuid),
           brandIntegrationType: brand.integrationType,
           chartData,
+          challengePrompts: brand.challengePrompts,
         });
       }
     });
@@ -150,6 +155,7 @@ export function mapSeriesTimeSeriesData(
       brandColor,
       brandIntegrationType,
       chartData,
+      challengePrompts,
     }) => ({
       uuid: keyword ?? brandUuid, // Use keyword as uuid since we're grouping by keyword, fallback to brandUuid
       name: keyword ?? brandName, // Display keyword as the name, fallback to brandName
@@ -158,6 +164,7 @@ export function mapSeriesTimeSeriesData(
       chartData,
       brandUuid: keyword ? brandUuid : undefined,
       brandName: keyword ? brandName : undefined,
+      challengePrompts,
     }),
   );
 

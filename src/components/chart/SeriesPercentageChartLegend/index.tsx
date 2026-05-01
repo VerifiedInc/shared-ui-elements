@@ -6,6 +6,10 @@ import { type LegendProps } from 'recharts';
 
 import { MotionStack } from '../../animation';
 import { CopyableUuid } from '../../CopyableUuid';
+import {
+  BrandChallengePromptsTooltip,
+  type ChallengePrompt,
+} from '../../BrandChallengePromptsTooltip';
 
 type CustomPayload = {
   uuid: string;
@@ -14,6 +18,7 @@ type CustomPayload = {
   dataKey: string;
   integrationType?: string;
   brandName?: string;
+  challengePrompts?: readonly ChallengePrompt[];
 };
 
 function EntryBlock({
@@ -95,7 +100,9 @@ export function SeriesPercentageChartLegend(
       <AnimatePresence>
         {payload?.map((entry) => (
           <Grid2 key={`item-${entry.uuid}-${entry.value}`}>
-            <EntryBlock entry={entry} showUuid={props.showUuid} />
+            <BrandChallengePromptsTooltip prompts={entry.challengePrompts}>
+              <EntryBlock entry={entry} showUuid={props.showUuid} />
+            </BrandChallengePromptsTooltip>
           </Grid2>
         ))}
       </AnimatePresence>
