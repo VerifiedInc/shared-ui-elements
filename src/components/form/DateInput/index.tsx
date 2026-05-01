@@ -47,6 +47,12 @@ interface DateInputProps extends Omit<TextFieldProps, 'onBlur' | 'onChange'> {
     'data-mask-me'?: boolean;
   };
   redactYear?: boolean;
+  /**
+   * CSP nonce applied to the inline <style> tag. Pass this from the server
+   * (e.g. Next.js middleware/headers) so the style tag carries a nonce during
+   * SSR. Falls back to reading `<meta property="csp-nonce">` on the client.
+   */
+  nonce?: string;
 }
 
 const GhostInput = forwardRef(function RenderInput(
@@ -79,6 +85,7 @@ const Picker = function RenderPicker({
   minDate: _minDate,
   maxDate: _maxDate,
   disabled,
+  nonce,
 }: {
   value: string;
   onChange: (event: { target: { value: string } }) => void;
@@ -88,6 +95,12 @@ const Picker = function RenderPicker({
   minDate?: Date;
   maxDate?: Date;
   disabled?: boolean;
+  /**
+   * CSP nonce applied to the inline <style> tag. Pass this from the server
+   * (e.g. Next.js middleware/headers) so the style tag carries a nonce during
+   * SSR. Falls back to reading `<meta property="csp-nonce">` on the client.
+   */
+  nonce?: string;
 }): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -171,7 +184,7 @@ const Picker = function RenderPicker({
           : {},
       }}
     >
-      <style>{pickerCSS}</style>
+      <style nonce={nonce}>{pickerCSS}</style>
       <DatePicker
         open={open}
         onFocus={() => {
@@ -227,6 +240,16 @@ function DateInputComponent(
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : internalValue;
 
+  const nonce = useMemo(() => {
+    if (props.nonce) return props.nonce;
+    if (typeof document === 'undefined') return undefined;
+    return (
+      document
+        .querySelector('meta[property="csp-nonce"]')
+        ?.getAttribute('content') ?? undefined
+    );
+  }, [props.nonce]);
+
   const handleChange = (e: any): void => {
     const date = e.target.value;
     if (!isControlled) {
@@ -250,6 +273,7 @@ function DateInputComponent(
           minDate={minDate}
           maxDate={maxDate}
           disabled={disabled}
+          nonce={nonce}
         />
       )}
       {props.InputProps?.endAdornment}
