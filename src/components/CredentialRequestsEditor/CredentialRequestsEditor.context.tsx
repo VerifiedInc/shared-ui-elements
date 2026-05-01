@@ -10,6 +10,7 @@ import {
   type CredentialRequestsWithNew,
 } from './types/form';
 import { SdkIntegrationType } from './types/sdk';
+import { RiskSignals } from './types/riskSignals';
 
 export interface CredentialRequestsEditorFeatures {
   allowUserInput?: {
@@ -31,14 +32,14 @@ export interface CredentialRequestsEditorProps {
   credentialRequests: CredentialRequestsWithNew[];
   children: ReactNode;
   integrationType: SdkIntegrationType;
-  riskSignals: 'none' | 'basic' | 'advanced';
+  riskSignals: RiskSignals;
   onChange: (credentialRequests: CredentialRequests[]) => void;
   features?: CredentialRequestsEditorFeatures;
 }
 
 export interface CredentialRequestsEditorContext {
   addButtonText?: string;
-  riskSignals: 'none' | 'basic' | 'advanced';
+  riskSignals: RiskSignals;
   features?: CredentialRequestsEditorFeatures;
   integrationType: SdkIntegrationType;
 }
@@ -56,7 +57,7 @@ export function useCredentialRequestsEditor(): CredentialRequestsEditorContext {
 }
 
 export function CredentialRequestsEditorProvider(
-  props: CredentialRequestsEditorProps,
+  props: Readonly<CredentialRequestsEditorProps>,
 ): React.JSX.Element {
   const form = useForm<CredentialRequestsEditorForm>({
     defaultValues: { credentialRequests: props.credentialRequests },

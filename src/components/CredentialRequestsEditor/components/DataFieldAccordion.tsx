@@ -42,15 +42,16 @@ import { DataFieldMandatory } from './DataFieldMandatory';
 import { DataFieldUserInput } from './DataFieldUserInput';
 import { DataFieldDeleteModal } from './DataFieldDeleteModal';
 import { DataFieldMulti } from './DataFieldMulti';
+import type { RiskSignals } from '../types/riskSignals';
 
 interface DataFieldAccordionProps {
   defaultExpanded?: boolean;
   integrationType: SdkIntegrationType;
-  riskSignals: 'none' | 'basic' | 'advanced';
+  riskSignals: RiskSignals;
 }
 
 export function DataFieldAccordion(
-  props: DataFieldAccordionProps,
+  props: Readonly<DataFieldAccordionProps>,
 ): React.JSX.Element {
   const { defaultExpanded, integrationType, riskSignals } = props;
   const credentialRequestField = useCredentialRequestField();
