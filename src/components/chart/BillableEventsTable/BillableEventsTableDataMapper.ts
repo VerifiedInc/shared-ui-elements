@@ -94,7 +94,7 @@ export const mapBillableEventsTableData = ({
         integrationType: formatIntegrationType(brand.integrationType),
         metrics: brandMetrics.get(brandUuid) ?? {},
         raw,
-        ...(brand.inputChallengePrompts
+        ...(brand.inputChallengePrompts?.length
           ? { inputChallengePrompts: brand.inputChallengePrompts }
           : {}),
       };

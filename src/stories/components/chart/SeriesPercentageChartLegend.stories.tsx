@@ -21,7 +21,7 @@ const meta: Meta<typeof SeriesPercentageChartLegend> = {
     docs: {
       description: {
         component:
-          'Renders a multi-brand chart legend. Each entry can carry an optional `inputChallengePrompts` payload — when present, hovering the entry reveals a tooltip listing the brand`s challenge prompt configuration.',
+          "Renders a multi-brand chart legend. Each entry can carry an optional `inputChallengePrompts` payload — when present, hovering the entry reveals a tooltip listing the brand's challenge prompt configuration.",
       },
     },
   },
