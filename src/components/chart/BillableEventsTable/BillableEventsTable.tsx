@@ -130,7 +130,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
             <TableRow key={row.brandUuid}>
               <TableCell>
                 <LazyBrandChallengePromptsTooltip
-                  prompts={row.challengePrompts}
+                  prompts={row.inputChallengePrompts}
                 >
                   {row.brand}
                 </LazyBrandChallengePromptsTooltip>

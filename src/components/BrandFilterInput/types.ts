@@ -10,7 +10,7 @@ export interface Brands {
   isLiveBrand?: boolean;
   isApproved?: boolean;
   additionalData?: any;
-  challengePrompts?: readonly ChallengePrompt[];
+  inputChallengePrompts?: readonly ChallengePrompt[];
 }
 
 export type BrandFilter = {

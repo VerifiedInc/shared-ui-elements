@@ -15,7 +15,7 @@ interface TimeSeriesChartData {
   name: string;
   color: string;
   chartData: TimeSeriesDataPoint[];
-  challengePrompts?: readonly ChallengePrompt[];
+  inputChallengePrompts?: readonly ChallengePrompt[];
 }
 
 export interface MapSeriesTimeSeriesDataOptions {
@@ -57,7 +57,7 @@ export function mapSeriesTimeSeriesData(
       brandColor?: string;
       brandIntegrationType: string;
       chartData: TimeSeriesDataPoint[];
-      challengePrompts?: readonly ChallengePrompt[];
+      inputChallengePrompts?: readonly ChallengePrompt[];
     }
   >();
 
@@ -104,7 +104,7 @@ export function mapSeriesTimeSeriesData(
           brandColor: colorMap.get(brand.brandUuid),
           brandIntegrationType: brand.integrationType,
           chartData: consolidatedChartData,
-          challengePrompts: brand.challengePrompts,
+          inputChallengePrompts: brand.inputChallengePrompts,
         });
       } else {
         keywordDataMap.set(identifier, {
@@ -114,7 +114,7 @@ export function mapSeriesTimeSeriesData(
           brandColor: colorMap.get(brand.brandUuid),
           brandIntegrationType: brand.integrationType,
           chartData,
-          challengePrompts: brand.challengePrompts,
+          inputChallengePrompts: brand.inputChallengePrompts,
         });
       }
     });
@@ -155,7 +155,7 @@ export function mapSeriesTimeSeriesData(
       brandColor,
       brandIntegrationType,
       chartData,
-      challengePrompts,
+      inputChallengePrompts,
     }) => ({
       uuid: keyword ?? brandUuid, // Use keyword as uuid since we're grouping by keyword, fallback to brandUuid
       name: keyword ?? brandName, // Display keyword as the name, fallback to brandName
@@ -164,7 +164,7 @@ export function mapSeriesTimeSeriesData(
       chartData,
       brandUuid: keyword ? brandUuid : undefined,
       brandName: keyword ? brandName : undefined,
-      challengePrompts,
+      inputChallengePrompts,
     }),
   );
 

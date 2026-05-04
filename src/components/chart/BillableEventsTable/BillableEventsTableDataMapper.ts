@@ -27,7 +27,6 @@ type Brand = {
   brandUuid: string;
   brandName: string;
   integrationType: string;
-  challengePrompts?: readonly ChallengePrompt[];
   inputChallengePrompts?: readonly ChallengePrompt[];
 };
 
@@ -89,14 +88,15 @@ export const mapBillableEventsTableData = ({
       const brand = brands.find((b) => b.brandUuid === brandUuid);
       if (!brand) return null;
 
-      const prompts = brand.challengePrompts ?? brand.inputChallengePrompts;
       return {
         brandUuid,
         brand: brand.brandName,
         integrationType: formatIntegrationType(brand.integrationType),
         metrics: brandMetrics.get(brandUuid) ?? {},
         raw,
-        ...(prompts ? { challengePrompts: prompts } : {}),
+        ...(brand.inputChallengePrompts
+          ? { inputChallengePrompts: brand.inputChallengePrompts }
+          : {}),
       };
     })
     .filter((row): row is BillableEventsTableRow => row !== null);

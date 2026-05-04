@@ -21,7 +21,7 @@ const meta: Meta<typeof SeriesPercentageChartLegend> = {
     docs: {
       description: {
         component:
-          'Renders a multi-brand chart legend. Each entry can carry an optional `challengePrompts` payload — when present, hovering the entry reveals a tooltip listing the brand`s challenge prompt configuration.',
+          'Renders a multi-brand chart legend. Each entry can carry an optional `inputChallengePrompts` payload — when present, hovering the entry reveals a tooltip listing the brand`s challenge prompt configuration.',
       },
     },
   },
@@ -34,6 +34,7 @@ type Story = StoryObj<typeof SeriesPercentageChartLegend>;
 export const WithChallengePrompts: Story = {
   args: {
     showUuid: true,
+    showChallengePromptsTooltip: true,
     payload: [
       {
         uuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
@@ -42,7 +43,7 @@ export const WithChallengePrompts: Story = {
         dataKey: 'acme',
         integrationType: 'SDK',
         brandName: 'Acme Corp',
-        challengePrompts: ACME_PROMPTS,
+        inputChallengePrompts: ACME_PROMPTS,
       },
       {
         uuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
@@ -51,7 +52,7 @@ export const WithChallengePrompts: Story = {
         dataKey: 'pied-piper',
         integrationType: 'API',
         brandName: 'Pied Piper',
-        challengePrompts: PIED_PIPER_PROMPTS,
+        inputChallengePrompts: PIED_PIPER_PROMPTS,
       },
       {
         uuid: '8a9b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d',
@@ -60,7 +61,7 @@ export const WithChallengePrompts: Story = {
         dataKey: 'aviato',
         integrationType: 'Semi-Hosted',
         brandName: 'Aviato',
-        // No challengePrompts — hovering this entry shows nothing.
+        // No inputChallengePrompts — hovering this entry shows nothing.
       },
     ],
   },

@@ -196,6 +196,7 @@ export function SynchronizedMetricsChart({
   isFetching,
   filter,
   sx,
+  showChallengePromptsTooltip,
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
   const [showTotal, setShowTotal] = useState(false);
@@ -239,7 +240,7 @@ export function SynchronizedMetricsChart({
         dataKey: b.uuid,
         integrationType: b.description ?? undefined,
         brandName: b.brandName,
-        challengePrompts: b.challengePrompts,
+        inputChallengePrompts: b.inputChallengePrompts,
       })),
     [resolvedSubCharts],
   );
@@ -306,7 +307,10 @@ export function SynchronizedMetricsChart({
             yAxisDomain={sc.yAxisDomain}
           />
         ))}
-        <SeriesPercentageChartLegend payload={legendPayload} />
+        <SeriesPercentageChartLegend
+          payload={legendPayload}
+          showChallengePromptsTooltip={showChallengePromptsTooltip}
+        />
       </Stack>
     </Stack>
   );

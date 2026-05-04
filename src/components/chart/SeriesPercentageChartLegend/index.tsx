@@ -18,7 +18,7 @@ type CustomPayload = {
   dataKey: string;
   integrationType?: string;
   brandName?: string;
-  challengePrompts?: readonly ChallengePrompt[];
+  inputChallengePrompts?: readonly ChallengePrompt[];
 };
 
 function EntryBlock({
@@ -77,12 +77,13 @@ interface SeriesPercentageChartLegendProps
   extends Omit<LegendProps, 'payload'> {
   showUuid?: boolean;
   payload?: CustomPayload[];
+  showChallengePromptsTooltip?: boolean;
 }
 
 export function SeriesPercentageChartLegend(
   props: Readonly<SeriesPercentageChartLegendProps>,
 ): ReactElement {
-  const { payload } = props;
+  const { payload, showChallengePromptsTooltip = false } = props;
 
   return (
     <Grid2
@@ -100,9 +101,15 @@ export function SeriesPercentageChartLegend(
       <AnimatePresence>
         {payload?.map((entry) => (
           <Grid2 key={`item-${entry.uuid}-${entry.value}`}>
-            <BrandChallengePromptsTooltip prompts={entry.challengePrompts}>
+            {showChallengePromptsTooltip ? (
+              <BrandChallengePromptsTooltip
+                prompts={entry.inputChallengePrompts}
+              >
+                <EntryBlock entry={entry} showUuid={props.showUuid} />
+              </BrandChallengePromptsTooltip>
+            ) : (
               <EntryBlock entry={entry} showUuid={props.showUuid} />
-            </BrandChallengePromptsTooltip>
+            )}
           </Grid2>
         ))}
       </AnimatePresence>

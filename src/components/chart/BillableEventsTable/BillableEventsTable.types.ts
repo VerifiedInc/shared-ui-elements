@@ -89,7 +89,7 @@ export type BillableEventsTableRow = {
   integrationType: string;
   metrics: Record<string, number>;
   raw: ChartData;
-  challengePrompts?: readonly ChallengePrompt[];
+  inputChallengePrompts?: readonly ChallengePrompt[];
 };
 
 export type BillableEventsTableProps = {

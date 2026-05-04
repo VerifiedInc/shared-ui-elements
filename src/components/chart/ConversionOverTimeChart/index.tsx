@@ -76,7 +76,7 @@ export interface ConversionOverTimeChartLegendBrand {
   dataKey?: string;
   brandName?: string;
   integrationType?: string;
-  challengePrompts?: readonly ChallengePrompt[];
+  inputChallengePrompts?: readonly ChallengePrompt[];
 }
 
 export interface ConversionOverTimeChartProps {
@@ -100,6 +100,11 @@ export interface ConversionOverTimeChartProps {
   legendBrand?: ConversionOverTimeChartLegendBrand;
   /** Whether the legend displays the copyable UUID. Defaults to true. */
   showLegendUuid?: boolean;
+  /**
+   * Forwarded to the legend. When true, hovering the legend entry reveals
+   * the brand's `inputChallengePrompts` as a tooltip. Default false.
+   */
+  showChallengePromptsTooltip?: boolean;
 }
 
 export function ConversionOverTimeChart({
@@ -115,14 +120,16 @@ export function ConversionOverTimeChart({
   sx,
   legendBrand,
   showLegendUuid = true,
+  showChallengePromptsTooltip,
 }: Readonly<ConversionOverTimeChartProps>): React.ReactNode {
   const style = useStyle();
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
   const [mode, setMode] = useState<ViewMode>('absolute');
 
   const resolved =
-    chartData !== undefined
-      ? isLoading
+    chartData === undefined
+      ? { series: series ?? [], data: data ?? [] }
+      : isLoading
         ? {
             series: [] as AreaSeriesChartData[],
             data: [] as Array<Record<string, number | string>>,
@@ -131,8 +138,7 @@ export function ConversionOverTimeChart({
             brands: filter.brands,
             data: chartData,
             seriesConfig: seriesConfig ?? [],
-          })
-      : { series: series ?? [], data: data ?? [] };
+          });
 
   if (!resolved.data.length && isLoading) {
     return <LoadingChartSection />;
@@ -263,10 +269,11 @@ export function ConversionOverTimeChart({
               dataKey: legendBrand.dataKey ?? legendBrand.uuid,
               brandName: legendBrand.brandName,
               integrationType: legendBrand.integrationType,
-              challengePrompts: legendBrand.challengePrompts,
+              inputChallengePrompts: legendBrand.inputChallengePrompts,
             },
           ]}
           showUuid={showLegendUuid}
+          showChallengePromptsTooltip={showChallengePromptsTooltip}
         />
       )}
     </Stack>

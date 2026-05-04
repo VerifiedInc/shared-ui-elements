@@ -194,11 +194,11 @@ const AVIATO_PROMPTS: ChallengePrompt[] = [
 ];
 
 const dataWithPrompts: BillableEventsTableRow[] = [
-  { ...mockData[0], challengePrompts: HOOLI_PROMPTS },
+  { ...mockData[0], inputChallengePrompts: HOOLI_PROMPTS },
   // Pied Piper intentionally has no prompts — hovering its brand cell renders
   // the cell directly, no tooltip mounts.
   mockData[1],
-  { ...mockData[2], challengePrompts: AVIATO_PROMPTS },
+  { ...mockData[2], inputChallengePrompts: AVIATO_PROMPTS },
 ];
 
 export const WithChallengePrompts: Story = {

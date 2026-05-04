@@ -45,6 +45,7 @@ type SynchronizedMetricsChartBaseProps = {
     brands: BrandFilter[];
   };
   sx?: SxProps;
+  showChallengePromptsTooltip?: boolean;
 };
 
 export type SynchronizedMetricsChartProps = SynchronizedMetricsChartBaseProps &

@@ -30,7 +30,7 @@ export interface SeriesChartData {
   chartData: ChartDataPoint[];
   brandUuid?: string;
   brandName?: string;
-  challengePrompts?: readonly ChallengePrompt[];
+  inputChallengePrompts?: readonly ChallengePrompt[];
 }
 
 interface SeriesChartProps {
