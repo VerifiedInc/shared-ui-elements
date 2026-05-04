@@ -30,7 +30,6 @@ function EntryBlock({
 }>): ReactElement {
   return (
     <MotionStack
-      component='li'
       direction='row'
       spacing={1}
       sx={{
@@ -93,6 +92,8 @@ export function SeriesPercentageChartLegend(
       gap={2}
       sx={{
         mt: 2,
+        pl: 0,
+        listStyle: 'none',
         justifyContent: 'flex-start',
         alignItem: 'center',
         flexWrap: 'wrap',
@@ -100,7 +101,7 @@ export function SeriesPercentageChartLegend(
     >
       <AnimatePresence>
         {payload?.map((entry) => (
-          <Grid2 key={`item-${entry.uuid}-${entry.value}`}>
+          <Grid2 key={`item-${entry.uuid}-${entry.value}`} component='li'>
             {showChallengePromptsTooltip ? (
               <BrandChallengePromptsTooltip
                 prompts={entry.inputChallengePrompts}
