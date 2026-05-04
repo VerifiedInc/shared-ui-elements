@@ -3,7 +3,7 @@ import { useState, type ReactElement, type ReactNode } from 'react';
 import {
   BrandChallengePromptsTooltip,
   type BrandChallengePromptsTooltipProps,
-} from './index';
+} from './BrandChallengePromptsTooltip';
 
 interface LazyProps
   extends Omit<BrandChallengePromptsTooltipProps, 'children'> {
