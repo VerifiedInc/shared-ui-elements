@@ -13,9 +13,9 @@ import {
 } from 'recharts';
 
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
-
 import { SeriesChartLegend } from '../SeriesChartLegend';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
+import type { ChallengePrompt } from '../../BrandChallengePromptsTooltip';
 
 interface ChartDataPoint {
   date: number;
@@ -30,6 +30,7 @@ export interface SeriesChartData {
   chartData: ChartDataPoint[];
   brandUuid?: string;
   brandName?: string;
+  inputChallengePrompts?: readonly ChallengePrompt[];
 }
 
 interface SeriesChartProps {
@@ -41,7 +42,7 @@ interface SeriesChartProps {
   showLegend?: boolean;
 }
 
-export function SeriesChart(props: SeriesChartProps): ReactElement {
+export function SeriesChart(props: Readonly<SeriesChartProps>): ReactElement {
   const theme = useTheme();
 
   // Default to UTC if no timezone is provided

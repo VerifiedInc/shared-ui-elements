@@ -6,6 +6,10 @@ import { type LegendProps } from 'recharts';
 
 import { MotionStack } from '../../animation';
 import { CopyableUuid } from '../../CopyableUuid';
+import {
+  BrandChallengePromptsTooltip,
+  type ChallengePrompt,
+} from '../../BrandChallengePromptsTooltip';
 
 type CustomPayload = {
   uuid: string;
@@ -14,6 +18,7 @@ type CustomPayload = {
   dataKey: string;
   integrationType?: string;
   brandName?: string;
+  inputChallengePrompts?: readonly ChallengePrompt[];
 };
 
 function EntryBlock({
@@ -25,7 +30,6 @@ function EntryBlock({
 }>): ReactElement {
   return (
     <MotionStack
-      component='li'
       direction='row'
       spacing={1}
       sx={{
@@ -72,12 +76,13 @@ interface SeriesPercentageChartLegendProps
   extends Omit<LegendProps, 'payload'> {
   showUuid?: boolean;
   payload?: CustomPayload[];
+  showChallengePromptsTooltip?: boolean;
 }
 
 export function SeriesPercentageChartLegend(
   props: Readonly<SeriesPercentageChartLegendProps>,
 ): ReactElement {
-  const { payload } = props;
+  const { payload, showChallengePromptsTooltip = false } = props;
 
   return (
     <Grid2
@@ -87,6 +92,8 @@ export function SeriesPercentageChartLegend(
       gap={2}
       sx={{
         mt: 2,
+        pl: 0,
+        listStyle: 'none',
         justifyContent: 'flex-start',
         alignItem: 'center',
         flexWrap: 'wrap',
@@ -94,8 +101,16 @@ export function SeriesPercentageChartLegend(
     >
       <AnimatePresence>
         {payload?.map((entry) => (
-          <Grid2 key={`item-${entry.uuid}-${entry.value}`}>
-            <EntryBlock entry={entry} showUuid={props.showUuid} />
+          <Grid2 key={`item-${entry.uuid}-${entry.value}`} component='li'>
+            {showChallengePromptsTooltip ? (
+              <BrandChallengePromptsTooltip
+                prompts={entry.inputChallengePrompts}
+              >
+                <EntryBlock entry={entry} showUuid={props.showUuid} />
+              </BrandChallengePromptsTooltip>
+            ) : (
+              <EntryBlock entry={entry} showUuid={props.showUuid} />
+            )}
           </Grid2>
         ))}
       </AnimatePresence>

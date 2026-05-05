@@ -21,6 +21,7 @@ import {
 } from './BillableEventsTable.types';
 import { useBillableSort } from './useBillableSort.hook';
 import { CopyableUuid } from '../../CopyableUuid';
+import { LazyBrandChallengePromptsTooltip } from '../../BrandChallengePromptsTooltip';
 import { white } from '../../../styles';
 
 const DIRECT_KEYS = ['brand', 'integrationType'];
@@ -127,7 +128,13 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
         <TableBody>
           {sortedData.map((row: BillableEventsTableRow) => (
             <TableRow key={row.brandUuid}>
-              <TableCell>{row.brand}</TableCell>
+              <TableCell>
+                <LazyBrandChallengePromptsTooltip
+                  prompts={row.inputChallengePrompts}
+                >
+                  {row.brand}
+                </LazyBrandChallengePromptsTooltip>
+              </TableCell>
               <TableCell>
                 <CopyableUuid
                   uuid={row.brandUuid}

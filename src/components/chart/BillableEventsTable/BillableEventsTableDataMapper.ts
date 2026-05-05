@@ -3,6 +3,7 @@ import {
   BillableProduct,
   type BillableEventsTableRow,
 } from './BillableEventsTable.types';
+import type { ChallengePrompt } from '../../BrandChallengePromptsTooltip';
 
 /**
  * Maps raw or pre-mapped integration type values to display labels.
@@ -26,6 +27,7 @@ type Brand = {
   brandUuid: string;
   brandName: string;
   integrationType: string;
+  inputChallengePrompts?: readonly ChallengePrompt[];
 };
 
 type ChartData = {
@@ -82,7 +84,7 @@ export const mapBillableEventsTableData = ({
   }
 
   return Array.from(brandsWithData.entries())
-    .map(([brandUuid, raw]) => {
+    .map(([brandUuid, raw]): BillableEventsTableRow | null => {
       const brand = brands.find((b) => b.brandUuid === brandUuid);
       if (!brand) return null;
 
@@ -92,6 +94,9 @@ export const mapBillableEventsTableData = ({
         integrationType: formatIntegrationType(brand.integrationType),
         metrics: brandMetrics.get(brandUuid) ?? {},
         raw,
+        ...(brand.inputChallengePrompts?.length
+          ? { inputChallengePrompts: brand.inputChallengePrompts }
+          : {}),
       };
     })
     .filter((row): row is BillableEventsTableRow => row !== null);
