@@ -339,7 +339,8 @@ export function BrandFilterInput({
               : 'Not Active in Time Range';
           },
         })}
-        renderOption={(props, option, { selected }) => {
+        renderOption={(allProps, option, { selected }) => {
+          const { key, ...props } = allProps as any;
           // For virtual options, show them as selected based on the current selection state
           const isSelected =
             option.value === 'select-all'
@@ -348,46 +349,42 @@ export function BrandFilterInput({
                 ? areLiveBrandsSelected
                 : selected;
 
-          const renderOption = () => {
-            if (multiple && option.value === 'select-live-brands') {
-              return (
-                <Box
-                  component='li'
-                  {...props}
-                  onClick={undefined}
-                  onTouchStart={undefined}
-                  onMouseMove={undefined}
-                  sx={{ backgroundColor: 'transparent!important' }}
-                >
-                  <Button
-                    variant='contained'
-                    data-option-index={(props as any)['data-option-index']}
-                    onClick={props.onClick as any}
-                    onTouchStart={props.onTouchStart as any}
-                    onMouseMove={props.onMouseMove as any}
-                    disabled={
-                      areLiveBrandsSelected && !hasNonLiveBrandsSelected
-                    }
-                    sx={{ mx: 'auto' }}
-                  >
-                    {option.name}
-                  </Button>
-                </Box>
-              );
-            }
+          if (multiple && option.value === 'select-live-brands') {
             return (
-              <li {...props}>
-                <Box display='flex' alignItems='center' width='100%'>
-                  {multiple && (
-                    <Checkbox checked={isSelected} sx={{ marginRight: 1 }} />
-                  )}
-                  <Typography>{option.name}</Typography>
-                </Box>
-              </li>
+              <Box
+                key={key}
+                component='li'
+                {...props}
+                onClick={undefined}
+                onTouchStart={undefined}
+                onMouseMove={undefined}
+                sx={{ backgroundColor: 'transparent!important' }}
+              >
+                <Button
+                  variant='contained'
+                  data-option-index={props['data-option-index']}
+                  onClick={props.onClick}
+                  onTouchStart={props.onTouchStart}
+                  onMouseMove={props.onMouseMove}
+                  disabled={areLiveBrandsSelected && !hasNonLiveBrandsSelected}
+                  sx={{ mx: 'auto' }}
+                >
+                  {option.name}
+                </Button>
+              </Box>
             );
-          };
+          }
 
-          return <>{renderOption()}</>;
+          return (
+            <li key={key} {...props}>
+              <Box display='flex' alignItems='center' width='100%'>
+                {multiple && (
+                  <Checkbox checked={isSelected} sx={{ marginRight: 1 }} />
+                )}
+                <Typography>{option.name}</Typography>
+              </Box>
+            </li>
+          );
         }}
         renderInput={(params) => (
           <TextField
@@ -403,5 +400,5 @@ export function BrandFilterInput({
   );
 }
 
-export * from './types';
+export type * from './types';
 export * from './BrandFilterInput.hook';
