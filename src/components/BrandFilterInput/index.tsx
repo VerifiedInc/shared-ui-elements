@@ -158,7 +158,11 @@ export function BrandFilterInput({
   // Determine if all brands or all live brands are selected
   const selectionState = useMemo(() => {
     if (!multiple || !Array.isArray(localValue) || brandOptions.length === 0)
-      return { areAllSelected: false, areLiveBrandsSelected: false };
+      return {
+        areAllSelected: false,
+        areLiveBrandsSelected: false,
+        hasNonLiveBrandsSelected: false,
+      };
 
     const liveBrands = brandOptions.filter((brand) => brand._raw.isLiveBrand);
     const selectedBrands = localValue.filter(
@@ -232,9 +236,15 @@ export function BrandFilterInput({
     if (isSelectLiveBrandsSelected) {
       const liveBrands = brandOptions.filter((brand) => brand._raw.isLiveBrand);
 
-      // If selection is already exactly live brands, deselect all
+      // No-op if selection is already exactly live brands (button is disabled in this state)
       if (areLiveBrandsSelected && !hasNonLiveBrandsSelected) {
-        return [];
+        return Array.isArray(localValue)
+          ? localValue.filter(
+              (item) =>
+                item.value !== 'select-all' &&
+                item.value !== 'select-live-brands',
+            )
+          : [];
       }
 
       // Check maximum selection limit
