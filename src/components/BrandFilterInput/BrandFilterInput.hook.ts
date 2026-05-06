@@ -32,14 +32,15 @@ export function useBrandFilterInput({
     return (brands ?? []).map((brand) => brand);
   }, [brands]);
 
-  const brandOptions = useMemo(
-    () =>
-      sortBy(toOption(groupedBrands), [
-        // Sort by isLiveBrand property (if it exists) or fallback to live property
-        (option) => !option._raw.isLiveBrand,
-      ]),
-    [groupedBrands],
-  );
+  const brandOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const unique = groupedBrands.filter((brand) => {
+      if (seen.has(brand.brandUuid)) return false;
+      seen.add(brand.brandUuid);
+      return true;
+    });
+    return sortBy(toOption(unique), [(option) => !option._raw.isLiveBrand]);
+  }, [groupedBrands]);
 
   // Reset brands when options change or use default brand UUIDs
   useEffect(() => {

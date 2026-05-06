@@ -18,6 +18,7 @@ import {
   TextField,
   Checkbox,
   Box,
+  Button,
   Typography,
   SxProps,
 } from '@mui/material';
@@ -132,7 +133,7 @@ export function BrandFilterInput({
         _raw: {} as any,
       },
       selectLiveBrands: {
-        name: 'Select Live Brands',
+        name: 'Select Only Brands Active in Time Range',
         value: 'select-live-brands',
         _raw: {} as any,
       },
@@ -157,7 +158,11 @@ export function BrandFilterInput({
   // Determine if all brands or all live brands are selected
   const selectionState = useMemo(() => {
     if (!multiple || !Array.isArray(localValue) || brandOptions.length === 0)
-      return { areAllSelected: false, areLiveBrandsSelected: false };
+      return {
+        areAllSelected: false,
+        areLiveBrandsSelected: false,
+        hasNonLiveBrandsSelected: false,
+      };
 
     const liveBrands = brandOptions.filter((brand) => brand._raw.isLiveBrand);
     const selectedBrands = localValue.filter(
@@ -176,10 +181,15 @@ export function BrandFilterInput({
         selectedBrands.some((v) => v.value === brand.value),
       );
 
-    return { areAllSelected, areLiveBrandsSelected };
+    const hasNonLiveBrandsSelected = selectedBrands.some(
+      (brand) => !liveBrands.some((lb) => lb.value === brand.value),
+    );
+
+    return { areAllSelected, areLiveBrandsSelected, hasNonLiveBrandsSelected };
   }, [multiple, localValue, brandOptions]);
 
-  const { areAllSelected, areLiveBrandsSelected } = selectionState;
+  const { areAllSelected, areLiveBrandsSelected, hasNonLiveBrandsSelected } =
+    selectionState;
 
   // Handle virtual options functionality (Select All and Select Live Brands)
   const handleVirtualOptions = (newValue: Value | Value[] | null) => {
@@ -226,16 +236,15 @@ export function BrandFilterInput({
     if (isSelectLiveBrandsSelected) {
       const liveBrands = brandOptions.filter((brand) => brand._raw.isLiveBrand);
 
-      // If all live brands are already selected, unselect them
-      if (areLiveBrandsSelected) {
-        const nonLiveBrands = Array.isArray(localValue)
+      // No-op if selection is already exactly live brands (button is disabled in this state)
+      if (areLiveBrandsSelected && !hasNonLiveBrandsSelected) {
+        return Array.isArray(localValue)
           ? localValue.filter(
               (item) =>
-                item.value !== 'select-live-brands' &&
-                !liveBrands.some((b) => b.value === item.value),
+                item.value !== 'select-all' &&
+                item.value !== 'select-live-brands',
             )
           : [];
-        return nonLiveBrands;
       }
 
       // Check maximum selection limit
@@ -253,16 +262,8 @@ export function BrandFilterInput({
           : [];
       }
 
-      // Select all live brands while preserving other selected brands
-      const currentSelection = Array.isArray(localValue)
-        ? localValue.filter(
-            (item) =>
-              item.value !== 'select-all' &&
-              item.value !== 'select-live-brands' &&
-              !liveBrands.some((b) => b.value === item.value),
-          )
-        : [];
-      return [...currentSelection, ...liveBrands];
+      // Select only live brands, removing any non-live brands
+      return liveBrands;
     }
 
     // If neither virtual option is selected, return the selection without virtual options
@@ -343,10 +344,13 @@ export function BrandFilterInput({
               return '';
             }
             // Group by live status
-            return option._raw.isLiveBrand ? 'Live Brands' : 'Not Live Yet';
+            return option._raw.isLiveBrand
+              ? 'Active in Time Range'
+              : 'Not Active in Time Range';
           },
         })}
-        renderOption={(props, option, { selected }) => {
+        renderOption={(allProps, option, { selected }) => {
+          const { key, ...props } = allProps as any;
           // For virtual options, show them as selected based on the current selection state
           const isSelected =
             option.value === 'select-all'
@@ -355,8 +359,34 @@ export function BrandFilterInput({
                 ? areLiveBrandsSelected
                 : selected;
 
+          if (multiple && option.value === 'select-live-brands') {
+            return (
+              <Box
+                key={key}
+                component='li'
+                {...props}
+                onClick={undefined}
+                onTouchStart={undefined}
+                onMouseMove={undefined}
+                sx={{ backgroundColor: 'transparent!important' }}
+              >
+                <Button
+                  variant='contained'
+                  data-option-index={props['data-option-index']}
+                  onClick={props.onClick}
+                  onTouchStart={props.onTouchStart}
+                  onMouseMove={props.onMouseMove}
+                  disabled={areLiveBrandsSelected && !hasNonLiveBrandsSelected}
+                  sx={{ mx: 'auto' }}
+                >
+                  {option.name}
+                </Button>
+              </Box>
+            );
+          }
+
           return (
-            <li {...props}>
+            <li key={key} {...props}>
               <Box display='flex' alignItems='center' width='100%'>
                 {multiple && (
                   <Checkbox checked={isSelected} sx={{ marginRight: 1 }} />
@@ -380,5 +410,5 @@ export function BrandFilterInput({
   );
 }
 
-export * from './types';
+export type * from './types';
 export * from './BrandFilterInput.hook';
