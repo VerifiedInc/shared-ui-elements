@@ -14,18 +14,23 @@ const PIED_PIPER_CUSTOMER = 'a0000000-0000-0000-0000-000000000002';
 function makeRow(
   overrides: Partial<BillableEventsTableRow>,
 ): BillableEventsTableRow {
+  const has = (key: keyof BillableEventsTableRow) => key in overrides;
   return {
-    brandUuid: overrides.brandUuid ?? 'brand-1',
-    brand: overrides.brand ?? 'Brand 1',
-    customerUuid: overrides.customerUuid ?? HOOLI_CUSTOMER,
-    customerName: overrides.customerName ?? 'Hooli',
-    integrationType: overrides.integrationType ?? 'SDK',
-    metrics: overrides.metrics ?? { signup_autofillsSucceeded: 1 },
-    raw: overrides.raw ?? {
-      brandUuid: overrides.brandUuid ?? 'brand-1',
-      brandName: overrides.brand ?? 'Brand 1',
-      overall: {},
-    },
+    brandUuid: has('brandUuid') ? overrides.brandUuid! : 'brand-1',
+    brand: has('brand') ? overrides.brand! : 'Brand 1',
+    customerUuid: has('customerUuid') ? overrides.customerUuid : HOOLI_CUSTOMER,
+    customerName: has('customerName') ? overrides.customerName : 'Hooli',
+    integrationType: has('integrationType')
+      ? overrides.integrationType!
+      : 'SDK',
+    metrics: has('metrics') ? overrides.metrics! : { signup_autofillsSucceeded: 1 },
+    raw: has('raw')
+      ? overrides.raw!
+      : {
+          brandUuid: overrides.brandUuid ?? 'brand-1',
+          brandName: overrides.brand ?? 'Brand 1',
+          overall: {},
+        },
     challengePrompts: overrides.challengePrompts,
     providers: overrides.providers,
   };
@@ -64,17 +69,19 @@ describe('<BillableEventsTable/>', () => {
     const { queryByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
-    // Header used to read 'Brand UUID' — now lives in the expanded panel only.
+    // Header used to read 'Brand UUID', lives in the expanded panel only.
     expect(queryByText('Brand UUID:')).toBeNull();
   });
 
   test('renders Customer Name column with values', () => {
-    const { getByText } = render(
+    const { getByText, getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
     expect(getByText('Customer Name')).toBeDefined();
     expect(getByText('Hooli')).toBeDefined();
-    expect(getByText('Pied Piper')).toBeDefined();
+    // 'Pied Piper' is both the customer name AND the brand name,
+    // so it appears in two cells of the same row.
+    expect(getAllByText('Pied Piper').length).toBeGreaterThanOrEqual(2);
   });
 
   test('renders em-dash placeholder when customerName is missing', () => {
@@ -109,13 +116,13 @@ describe('<BillableEventsTable/>', () => {
   });
 
   test('whole-row click toggles the panel', () => {
-    const { container, queryByText, getByText } = render(
+    const { queryByText, getByText, getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
     expect(queryByText('Identifiers')).toBeNull();
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     expect(aviatoRow).not.toBeNull();
     fireEvent.click(aviatoRow!);
 
@@ -127,12 +134,12 @@ describe('<BillableEventsTable/>', () => {
   });
 
   test('only one row is expanded at a time', () => {
-    const { container, getAllByText } = render(
+    const { getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
-    const pipRow = within(container).getByText('Pied Piper').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
+    const pipRow = getAllByText('Pied Piper')[0].closest('tr');
 
     fireEvent.click(aviatoRow!);
     expect(getAllByText('Identifiers').length).toBe(1);
@@ -142,11 +149,11 @@ describe('<BillableEventsTable/>', () => {
   });
 
   test('expanded panel shows Brand UUID and Customer UUID labels', () => {
-    const { container, getByText } = render(
+    const { getByText, getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     fireEvent.click(aviatoRow!);
 
     expect(getByText('Brand UUID:')).toBeDefined();
@@ -154,11 +161,11 @@ describe('<BillableEventsTable/>', () => {
   });
 
   test('Challenges renders ordered prompts as "<type> (<lowercase prompt>)"', () => {
-    const { container, getByText } = render(
+    const { getByText, getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     fireEvent.click(aviatoRow!);
 
     expect(getByText('Birth Date (always)')).toBeDefined();
@@ -166,39 +173,47 @@ describe('<BillableEventsTable/>', () => {
   });
 
   test('Pied Piper has no providers — only 1-Click Signup column with empty challenges', () => {
-    const { container, getByText, queryByText, getAllByText } = render(
+    const { getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
-    const pipRow = within(container).getByText('Pied Piper').closest('tr');
+    const pipRow = getAllByText('Pied Piper')[0].closest('tr');
     fireEvent.click(pipRow!);
 
-    expect(getByText('1-Click Signup')).toBeDefined();
-    expect(queryByText('1-Click Health')).toBeNull();
+    const expandedPanelRow = pipRow?.nextElementSibling as HTMLElement;
+    const panel = within(expandedPanelRow);
+
+    expect(panel.getByText('1-Click Signup')).toBeDefined();
+    expect(panel.queryByText('1-Click Health')).toBeNull();
     // Empty challenge prompts collapse to "None configured".
-    expect(getAllByText('None configured').length).toBeGreaterThanOrEqual(1);
+    expect(panel.getAllByText('None configured').length).toBeGreaterThanOrEqual(1);
   });
 
   test('Provider names render verbatim (formatting is the backend\'s job)', () => {
-    const { container, getByText } = render(
+    const { getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     fireEvent.click(aviatoRow!);
 
-    expect(getByText('Acme')).toBeDefined();
-    expect(getByText('Pied Piper')).toBeDefined();
-    expect(getByText('Acme Health')).toBeDefined();
-    expect(getByText('Aviato')).toBeDefined();
+    const expandedPanelRow = aviatoRow?.nextElementSibling as HTMLElement;
+    expect(expandedPanelRow).not.toBeNull();
+    const panel = within(expandedPanelRow);
+
+    expect(panel.getByText('Acme')).toBeDefined();
+    expect(panel.getByText('Acme Health')).toBeDefined();
+    // 'Pied Piper' and 'Aviato' are brands and providers; assert at-least-one inside the panel.
+    expect(panel.getAllByText('Pied Piper').length).toBeGreaterThan(0);
+    expect(panel.getAllByText('Aviato').length).toBeGreaterThan(0);
   });
 
   test('1-Click Health uses an ordered list when mode is fallback', () => {
-    const { container } = render(
+    const { getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     fireEvent.click(aviatoRow!);
 
     const expandedPanelRow = aviatoRow?.nextElementSibling;
@@ -214,7 +229,7 @@ describe('<BillableEventsTable/>', () => {
           }
         : row,
     );
-    const { container } = render(
+    const { getAllByText } = render(
       <BillableEventsTable
         data={parallelData}
         isLoading={false}
@@ -222,7 +237,7 @@ describe('<BillableEventsTable/>', () => {
       />,
     );
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     fireEvent.click(aviatoRow!);
 
     const expandedPanelRow = aviatoRow?.nextElementSibling;
@@ -231,13 +246,13 @@ describe('<BillableEventsTable/>', () => {
   });
 
   test('inner CopyableUuid click does not toggle the row', () => {
-    const { queryByText, getAllByLabelText, container } = render(
+    const { queryByText, getAllByLabelText, getAllByText } = render(
       <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
     );
 
-    const aviatoRow = within(container).getByText('Aviato').closest('tr');
+    const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     fireEvent.click(aviatoRow!);
-    // Now expanded — clicking a UUID copy button inside the panel must not
+    // Clicking a UUID copy button inside the panel must not
     // collapse the row.
     const copyButtons = getAllByLabelText('Copy Brand UUID');
     fireEvent.click(copyButtons[0]);
@@ -287,10 +302,16 @@ describe('exportBillableEventsToCsv', () => {
     });
 
     expect(capturedBlob).not.toBeNull();
-    const text = await capturedBlob!.text();
+    // jsdom's Blob lacks .text(); read via FileReader.
+    const text = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(capturedBlob!);
+    });
     const lines = text.split('\n');
 
-    // Row 0: product group header — 5 leading empty cells for the fixed columns.
+    // Row 0: product group header, 5 leading empty cells for the fixed columns.
     expect(lines[0].startsWith(',,,,,')).toBe(true);
     // Row 1: column header.
     expect(lines[1].startsWith(
