@@ -43,8 +43,10 @@ export function exportBillableEventsToCsv({
   const rows: string[] = [];
 
   // Row 1: Product group header.
-  // Leading empty cells align with Brand, UUID, Integration Type, and each topLevelColumn.
-  const groupHeader = ['', '', '', ...topLevelColumns.map(() => '')];
+  // Leading empty cells align with the 5 fixed columns (Customer Name,
+  // Customer UUID, Brand Name, Brand UUID, Integration Type) and each
+  // topLevelColumn.
+  const groupHeader = ['', '', '', '', '', ...topLevelColumns.map(() => '')];
   for (const product of activeProducts) {
     const visibleCount = product.columns.filter(
       (c) => !topLevelKeys.has(c.key),
@@ -58,7 +60,13 @@ export function exportBillableEventsToCsv({
   rows.push(groupHeader.join(','));
 
   // Row 2: Column header
-  const columnHeader = ['Brand Name', 'Brand UUID', 'Integration Type'];
+  const columnHeader = [
+    'Customer Name',
+    'Customer UUID',
+    'Brand Name',
+    'Brand UUID',
+    'Integration Type',
+  ];
   for (const col of topLevelColumns) {
     columnHeader.push(escapeCsvValue(col.label));
   }
@@ -70,6 +78,8 @@ export function exportBillableEventsToCsv({
   // Data rows
   for (const row of data) {
     const csvRow = [
+      escapeCsvValue(row.customerName ?? ''),
+      escapeCsvValue(row.customerUuid ?? ''),
       escapeCsvValue(row.brand),
       escapeCsvValue(row.brandUuid),
       escapeCsvValue(row.integrationType),
