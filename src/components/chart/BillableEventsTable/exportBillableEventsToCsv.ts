@@ -22,6 +22,11 @@ interface ExportBillableEventsToCsvOptions {
     string,
     (value: number, row: BillableEventsTableRow) => string
   >;
+  /**
+   * Include the `Customer Name` and `Customer UUID` columns. Defaults to
+   * `true`. Set `false` for single-customer-scoped exports.
+   */
+  showCustomerColumn?: boolean;
 }
 
 export function exportBillableEventsToCsv({
@@ -30,6 +35,7 @@ export function exportBillableEventsToCsv({
   filename = 'billable-events',
   topLevelColumns = [],
   columnFormatters,
+  showCustomerColumn = true,
 }: ExportBillableEventsToCsvOptions): void {
   const products = visibleProducts ?? Object.values(BillableProduct);
   const activeProducts = BILLABLE_PRODUCTS.filter((p) =>
@@ -43,10 +49,14 @@ export function exportBillableEventsToCsv({
   const rows: string[] = [];
 
   // Row 1: Product group header.
-  // Leading empty cells align with the 5 fixed columns (Customer Name,
-  // Customer UUID, Brand Name, Brand UUID, Integration Type) and each
-  // topLevelColumn.
-  const groupHeader = ['', '', '', '', '', ...topLevelColumns.map(() => '')];
+  // Leading empty cells align with the fixed columns (Customer Name,
+  // Customer UUID, both optional, Brand Name, Brand UUID, Integration
+  // Type) and each topLevelColumn.
+  const fixedColumnCount = (showCustomerColumn ? 2 : 0) + 3;
+  const groupHeader = [
+    ...new Array(fixedColumnCount).fill(''),
+    ...topLevelColumns.map(() => ''),
+  ];
   for (const product of activeProducts) {
     const visibleCount = product.columns.filter(
       (c) => !topLevelKeys.has(c.key),
@@ -61,8 +71,7 @@ export function exportBillableEventsToCsv({
 
   // Row 2: Column header
   const columnHeader = [
-    'Customer Name',
-    'Customer UUID',
+    ...(showCustomerColumn ? ['Customer Name', 'Customer UUID'] : []),
     'Brand Name',
     'Brand UUID',
     'Integration Type',
@@ -78,8 +87,12 @@ export function exportBillableEventsToCsv({
   // Data rows
   for (const row of data) {
     const csvRow = [
-      escapeCsvValue(row.customerName ?? ''),
-      escapeCsvValue(row.customerUuid ?? ''),
+      ...(showCustomerColumn
+        ? [
+            escapeCsvValue(row.customerName ?? ''),
+            escapeCsvValue(row.customerUuid ?? ''),
+          ]
+        : []),
       escapeCsvValue(row.brand),
       escapeCsvValue(row.brandUuid),
       escapeCsvValue(row.integrationType),

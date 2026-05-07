@@ -116,6 +116,11 @@ export type BillableEventsTableProps = {
     (row: BillableEventsTableRow) => React.ReactNode
   >;
   topLevelColumns?: BillableEventColumn[];
+  /**
+   * Show the leading Customer Name column. Defaults to `true`. Set `false`
+   * for views scoped to a single customer where the column would be redundant.
+   */
+  showCustomerColumn?: boolean;
 };
 
 export type BillableEventsProductTableProps = {
