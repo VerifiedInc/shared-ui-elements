@@ -23,7 +23,9 @@ function makeRow(
     integrationType: has('integrationType')
       ? overrides.integrationType!
       : 'SDK',
-    metrics: has('metrics') ? overrides.metrics! : { signup_autofillsSucceeded: 1 },
+    metrics: has('metrics')
+      ? overrides.metrics!
+      : { signup_autofillsSucceeded: 1 },
     raw: has('raw')
       ? overrides.raw!
       : {
@@ -67,7 +69,11 @@ afterEach(() => {
 describe('<BillableEventsTable/>', () => {
   test('Brand UUID column is no longer in the header', () => {
     const { queryByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
     // Header used to read 'Brand UUID', lives in the expanded panel only.
     expect(queryByText('Brand UUID:')).toBeNull();
@@ -75,7 +81,11 @@ describe('<BillableEventsTable/>', () => {
 
   test('renders Customer Name column with values', () => {
     const { getByText, getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
     expect(getByText('Customer Name')).toBeDefined();
     expect(getByText('Hooli')).toBeDefined();
@@ -101,7 +111,11 @@ describe('<BillableEventsTable/>', () => {
 
   test('sort by Customer Name (asc then desc)', () => {
     const { getByText, container } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     fireEvent.click(getByText('Customer Name'));
@@ -110,14 +124,17 @@ describe('<BillableEventsTable/>', () => {
     expect(firstRowText).toContain('Hooli');
 
     fireEvent.click(getByText('Customer Name'));
-    firstRowText =
-      container.querySelectorAll('tbody tr')[0]?.textContent ?? '';
+    firstRowText = container.querySelectorAll('tbody tr')[0]?.textContent ?? '';
     expect(firstRowText).toContain('Pied Piper');
   });
 
   test('whole-row click toggles the panel', () => {
     const { queryByText, getByText, getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     expect(queryByText('Identifiers')).toBeNull();
@@ -135,7 +152,11 @@ describe('<BillableEventsTable/>', () => {
 
   test('only one row is expanded at a time', () => {
     const { getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     const aviatoRow = getAllByText('Aviato')[0].closest('tr');
@@ -150,7 +171,11 @@ describe('<BillableEventsTable/>', () => {
 
   test('expanded panel shows Brand UUID and Customer UUID labels', () => {
     const { getByText, getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     const aviatoRow = getAllByText('Aviato')[0].closest('tr');
@@ -162,7 +187,11 @@ describe('<BillableEventsTable/>', () => {
 
   test('Challenges renders ordered prompts as "<type> (<lowercase prompt>)"', () => {
     const { getByText, getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     const aviatoRow = getAllByText('Aviato')[0].closest('tr');
@@ -174,7 +203,11 @@ describe('<BillableEventsTable/>', () => {
 
   test('Pied Piper has no providers — only 1-Click Signup column with empty challenges', () => {
     const { getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     const pipRow = getAllByText('Pied Piper')[0].closest('tr');
@@ -186,12 +219,18 @@ describe('<BillableEventsTable/>', () => {
     expect(panel.getByText('1-Click Signup')).toBeDefined();
     expect(panel.queryByText('1-Click Health')).toBeNull();
     // Empty challenge prompts collapse to "None configured".
-    expect(panel.getAllByText('None configured').length).toBeGreaterThanOrEqual(1);
+    expect(panel.getAllByText('None configured').length).toBeGreaterThanOrEqual(
+      1,
+    );
   });
 
-  test('Provider names render verbatim (formatting is the backend\'s job)', () => {
+  test("Provider names render verbatim (formatting is the backend's job)", () => {
     const { getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     const aviatoRow = getAllByText('Aviato')[0].closest('tr');
@@ -210,14 +249,20 @@ describe('<BillableEventsTable/>', () => {
 
   test('1-Click Health uses an ordered list when mode is fallback', () => {
     const { getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     const aviatoRow = getAllByText('Aviato')[0].closest('tr');
     fireEvent.click(aviatoRow!);
 
     const expandedPanelRow = aviatoRow?.nextElementSibling;
-    expect(expandedPanelRow?.querySelectorAll('ol').length ?? 0).toBeGreaterThan(0);
+    expect(
+      expandedPanelRow?.querySelectorAll('ol').length ?? 0,
+    ).toBeGreaterThan(0);
   });
 
   test('1-Click Health uses an unordered list when mode is parallel', () => {
@@ -242,12 +287,18 @@ describe('<BillableEventsTable/>', () => {
 
     const expandedPanelRow = aviatoRow?.nextElementSibling;
     // 1-Click Signup is still <ol>; 1-Click Health switches to <ul> for parallel.
-    expect(expandedPanelRow?.querySelectorAll('ul').length ?? 0).toBeGreaterThan(0);
+    expect(
+      expandedPanelRow?.querySelectorAll('ul').length ?? 0,
+    ).toBeGreaterThan(0);
   });
 
   test('inner CopyableUuid click does not toggle the row', () => {
     const { queryByText, getAllByLabelText, getAllByText } = render(
-      <BillableEventsTable data={baseData} isLoading={false} isFetching={false} />,
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
     );
 
     const aviatoRow = getAllByText('Aviato')[0].closest('tr');
@@ -314,14 +365,18 @@ describe('exportBillableEventsToCsv', () => {
     // Row 0: product group header, 5 leading empty cells for the fixed columns.
     expect(lines[0].startsWith(',,,,,')).toBe(true);
     // Row 1: column header.
-    expect(lines[1].startsWith(
-      'Customer Name,Customer UUID,Brand Name,Brand UUID,Integration Type',
-    )).toBe(true);
+    expect(
+      lines[1].startsWith(
+        'Customer Name,Customer UUID,Brand Name,Brand UUID,Integration Type',
+      ),
+    ).toBe(true);
     // Row 2+: data rows include both customer columns.
     expect(
-      lines.slice(2).some((l) =>
-        l.startsWith(`Hooli,${HOOLI_CUSTOMER},Aviato,aviato-uuid,SDK`),
-      ),
+      lines
+        .slice(2)
+        .some((l) =>
+          l.startsWith(`Hooli,${HOOLI_CUSTOMER},Aviato,aviato-uuid,SDK`),
+        ),
     ).toBe(true);
   });
 });

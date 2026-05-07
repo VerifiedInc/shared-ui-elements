@@ -1,7 +1,10 @@
 import { Box, Stack, Typography } from '@mui/material';
 
 import { CopyableUuid } from '../../CopyableUuid';
-import type { BrandProviders, ChallengePrompt } from './BillableEventsTable.types';
+import type {
+  BrandProviders,
+  ChallengePrompt,
+} from './BillableEventsTable.types';
 import {
   formatChallengeInput,
   formatHealthDataProviderMode,
@@ -73,10 +76,7 @@ export function BrandDetailsPanel({
   return (
     <Box sx={{ p: 2 }}>
       <Stack spacing={3}>
-        <IdentifiersSection
-          brandUuid={brandUuid}
-          customerUuid={customerUuid}
-        />
+        <IdentifiersSection brandUuid={brandUuid} customerUuid={customerUuid} />
         <SettingsSection
           challengePrompts={challengePrompts}
           providers={providers}
@@ -243,7 +243,11 @@ function DataProvidersSubsection({
   providers,
   mode,
   ordered,
-}: Readonly<{ providers: string[]; mode?: string, ordered: boolean }>): JSX.Element {
+}: Readonly<{
+  providers: string[];
+  mode?: string;
+  ordered: boolean;
+}>): JSX.Element {
   if (providers.length === 0) {
     return (
       <Box>
