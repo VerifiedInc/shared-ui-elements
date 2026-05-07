@@ -315,6 +315,12 @@ describe('<BillableEventsTable/>', () => {
 
 describe('exportBillableEventsToCsv', () => {
   let capturedBlob: Blob | null;
+  // `vi.restoreAllMocks()` only restores `vi.spyOn` targets — it does NOT
+  // undo `Object.defineProperty` overrides. Capture the originals here and
+  // restore them in afterEach so URL.createObjectURL / revokeObjectURL don't
+  // leak the mock into later test files.
+  const originalCreateObjectURL = URL.createObjectURL;
+  const originalRevokeObjectURL = URL.revokeObjectURL;
 
   beforeEach(() => {
     capturedBlob = null;
@@ -343,6 +349,14 @@ describe('exportBillableEventsToCsv', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: originalCreateObjectURL,
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: originalRevokeObjectURL,
+    });
   });
 
   test('header includes Customer Name + Customer UUID + Brand Name + Brand UUID + Integration Type', async () => {
