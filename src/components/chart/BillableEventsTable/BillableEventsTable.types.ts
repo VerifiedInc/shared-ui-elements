@@ -1,6 +1,17 @@
 import React from 'react';
 import { ChartData } from '../BillableEventsProductTable';
 
+export type ChallengePrompt = {
+  type: string;
+  promptForChallenge: string;
+};
+
+export type BrandProviders = {
+  allowedProviders?: string[];
+  healthDataProviders?: string[];
+  healthDataProviderMode?: string;
+};
+
 export enum BillableProduct {
   TEXT_TO_SIGNUP = 'TEXT_TO_SIGNUP',
   ONE_CLICK_VERIFY = 'ONE_CLICK_VERIFY',
@@ -85,9 +96,13 @@ export const BILLABLE_PRODUCTS: BillableProductConfig[] = [
 export type BillableEventsTableRow = {
   brandUuid: string;
   brand: string;
+  customerUuid?: string;
+  customerName?: string;
   integrationType: string;
   metrics: Record<string, number>;
   raw: ChartData;
+  challengePrompts?: ChallengePrompt[];
+  providers?: BrandProviders;
 };
 
 export type BillableEventsTableProps = {
