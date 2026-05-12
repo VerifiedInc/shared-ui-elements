@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
+import { buildDisplayValue } from './utils';
+
 export type MemberIdInputProps = Omit<TextFieldProps, 'onChange'> & {
   onChange?: (event: { target: { value: string } }) => void;
   name?: string;
@@ -20,16 +22,6 @@ export type MemberIdInputProps = Omit<TextFieldProps, 'onChange'> & {
 
 function isRedactedValue(value: string): boolean {
   return value.includes('*') || value.includes('•');
-}
-
-// Normalize * → • then apply centered masking for display.
-function buildDisplayValue(value: string): string {
-  const normalized = value.replace(/\*/g, '•');
-  if (normalized.includes('•')) return normalized;
-  const length = normalized.length;
-  if (length <= 2) return normalized;
-  if (length < 5) return '•'.repeat(length - 2) + normalized.slice(-2);
-  return normalized.slice(0, 2) + '•'.repeat(length - 4) + normalized.slice(-2);
 }
 
 /**
@@ -74,9 +66,10 @@ export function MemberIdInput({
         value={displayValue}
         placeholder={placeholder}
         onChange={(e) => {
-          // When visible, pass through directly — no masking logic needed.
+          // When visible, pass through directly — only strip redaction chars
+          // so a paste of "••••AC02" doesn't get accepted as raw.
           if (isVisible) {
-            propagate(e.target.value);
+            propagate(e.target.value.replace(/[•*]/g, ''));
             return;
           }
 
@@ -87,9 +80,9 @@ export function MemberIdInput({
 
           if (!isActivelyTyping) {
             // Pre-filled/redacted — only reachable via paste or autofill since
-            // regular keystrokes are intercepted in onKeyDown. Strip display
-            // dots and treat the result as a fresh value.
-            propagate(newDisplay.replace(/•/g, ''));
+            // regular keystrokes are intercepted in onKeyDown. Strip redaction
+            // chars and treat the result as a fresh value.
+            propagate(newDisplay.replace(/[•*]/g, ''));
             return;
           }
 
@@ -102,7 +95,7 @@ export function MemberIdInput({
             );
             newRaw =
               prevRaw.slice(0, pos) +
-              inserted.replace(/•/g, '') +
+              inserted.replace(/[•*]/g, '') +
               prevRaw.slice(pos);
           } else if (newDisplay.length < prevDisplay.length) {
             // Deletion via cut / drag-drop (keyboard backspace is handled below).
@@ -113,7 +106,8 @@ export function MemberIdInput({
           } else {
             // Same length: overwrite at cursor position.
             const newChar = newDisplay[pos] ?? '';
-            newRaw = prevRaw.slice(0, pos) + newChar + prevRaw.slice(pos + 1);
+            const sanitized = newChar.replace(/[•*]/g, '');
+            newRaw = prevRaw.slice(0, pos) + sanitized + prevRaw.slice(pos + 1);
           }
 
           propagate(newRaw);
@@ -143,7 +137,7 @@ export function MemberIdInput({
             // Pre-filled or redacted: start fresh with the typed char.
             if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
               e.preventDefault();
-              propagate(e.key);
+              if (e.key !== '*' && e.key !== '•') propagate(e.key);
             }
           },
         }}

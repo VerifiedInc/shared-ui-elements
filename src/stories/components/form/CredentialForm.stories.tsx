@@ -554,7 +554,7 @@ const mockCredentials = [
     type: 'healthInsurance',
     value: {
       id: 174,
-      memberId: 'AC****02',
+      memberId: '****AC02',
       payer: {
         verifiedId: 'V123123',
         name: 'Aviato Health Insurance Of California',
