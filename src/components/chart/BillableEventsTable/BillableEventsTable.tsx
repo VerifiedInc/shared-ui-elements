@@ -8,7 +8,7 @@ import {
   TableRow,
   TableSortLabel,
 } from '@mui/material';
-import React, { useEffect, useMemo } from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -19,11 +19,11 @@ import {
   type BillableEventsTableProps,
   type BillableEventsTableRow,
 } from './BillableEventsTable.types';
+import { BrandDetailsPanel } from './BrandDetailsPanel';
 import { useBillableSort } from './useBillableSort.hook';
-import { CopyableUuid } from '../../CopyableUuid';
 import { white } from '../../../styles';
 
-const DIRECT_KEYS = ['brand', 'integrationType'];
+const DIRECT_KEYS = ['customerName', 'brand', 'integrationType'];
 
 export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   data,
@@ -33,9 +33,14 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   onSortedDataChange,
   columnSlots,
   topLevelColumns = [],
+  showCustomerColumn = true,
 }) => {
   const { sortKey, sortDir, handleSort, sortedData } =
     useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
+
+  const [expandedBrandUuid, setExpandedBrandUuid] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     onSortedDataChange?.(sortedData);
@@ -56,6 +61,11 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
       .flatMap((p) => p.columns)
       .filter((c) => !topLevelColumnKeys.has(c.key));
   }, [activeProducts, topLevelColumnKeys]);
+
+  // Brand Name + Integration Type = 2 fixed cells, plus Customer Name when shown.
+  const fixedColumnCount = 2 + (showCustomerColumn ? 1 : 0);
+  const totalColumnCount =
+    fixedColumnCount + topLevelColumns.length + allColumns.length;
 
   const sortLabel = (
     key: string,
@@ -86,10 +96,14 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
         <TableHead>
           {/* Product group header row */}
           <TableRow>
+            {showCustomerColumn && (
+              <TableCell rowSpan={2}>
+                {sortLabel('customerName', 'Customer Name')}
+              </TableCell>
+            )}
             <TableCell rowSpan={2}>
               {sortLabel('brand', 'Brand Name')}
             </TableCell>
-            <TableCell rowSpan={2}>Brand UUID</TableCell>
             <TableCell rowSpan={2}>
               {sortLabel('integrationType', 'Integration Type')}
             </TableCell>
@@ -125,38 +139,67 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedData.map((row: BillableEventsTableRow) => (
-            <TableRow key={row.brandUuid}>
-              <TableCell>{row.brand}</TableCell>
-              <TableCell>
-                <CopyableUuid
-                  uuid={row.brandUuid}
-                  label='Brand UUID'
-                  variant='button'
-                  head={6}
-                  tail={0}
-                  mono={false}
-                  iconSx={{ color: 'success.main' }}
-                  typographyProps={{ variant: 'inherit', color: 'inherit' }}
-                />
-              </TableCell>
-              <TableCell>{row.integrationType}</TableCell>
-              {topLevelColumns.map((col: BillableEventColumn) => (
-                <TableCell key={col.key}>
-                  {columnSlots?.[col.key]
-                    ? columnSlots[col.key](row)
-                    : (row.metrics[col.key] ?? 0)}
-                </TableCell>
-              ))}
-              {allColumns.map((col: BillableEventColumn) => (
-                <TableCell key={col.key} align='right'>
-                  {columnSlots?.[col.key]
-                    ? columnSlots[col.key](row)
-                    : (row.metrics[col.key] ?? 0)}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
+          {sortedData.map((row: BillableEventsTableRow) => {
+            const isExpanded = expandedBrandUuid === row.brandUuid;
+            return (
+              <Fragment key={row.brandUuid}>
+                <TableRow
+                  hover
+                  onClick={() =>
+                    setExpandedBrandUuid(isExpanded ? null : row.brandUuid)
+                  }
+                  sx={{
+                    cursor: 'pointer',
+                    '& > td': {
+                      borderBottom: isExpanded ? 'none' : undefined,
+                    },
+                  }}
+                >
+                  {showCustomerColumn && (
+                    <TableCell>{row.customerName ?? '—'}</TableCell>
+                  )}
+                  <TableCell>{row.brand}</TableCell>
+                  <TableCell>{row.integrationType}</TableCell>
+                  {topLevelColumns.map((col: BillableEventColumn) => (
+                    <TableCell key={col.key}>
+                      {columnSlots?.[col.key]
+                        ? columnSlots[col.key](row)
+                        : (row.metrics[col.key] ?? 0)}
+                    </TableCell>
+                  ))}
+                  {allColumns.map((col: BillableEventColumn) => (
+                    <TableCell key={col.key} align='right'>
+                      {columnSlots?.[col.key]
+                        ? columnSlots[col.key](row)
+                        : (row.metrics[col.key] ?? 0)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {isExpanded && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={totalColumnCount}
+                      sx={{
+                        py: 0,
+                        px: 0,
+                        borderTop: 'none',
+                        bgcolor: 'grey.50',
+                      }}
+                    >
+                      <BrandDetailsPanel
+                        brandUuid={row.brandUuid}
+                        customerUuid={
+                          showCustomerColumn ? row.customerUuid : undefined
+                        }
+                        challengePrompts={row.challengePrompts}
+                        providers={row.providers}
+                      />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </Fragment>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>

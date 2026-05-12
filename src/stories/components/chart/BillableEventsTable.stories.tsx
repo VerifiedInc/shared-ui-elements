@@ -20,10 +20,15 @@ const meta: Meta<typeof BillableEventsTable> = {
 export default meta;
 type Story = StoryObj<typeof BillableEventsTable>;
 
+const HOOLI_CUSTOMER_UUID = 'a0000000-0000-0000-0000-000000000001';
+const PIED_PIPER_CUSTOMER_UUID = 'a0000000-0000-0000-0000-000000000002';
+
 const mockData: BillableEventsTableRow[] = [
   {
     brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
     brand: 'Hooli Health',
+    customerUuid: HOOLI_CUSTOMER_UUID,
+    customerName: 'Hooli',
     integrationType: 'SDK',
     raw: {
       brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
@@ -39,10 +44,22 @@ const mockData: BillableEventsTableRow[] = [
       signup_riskSignals: 5,
       health_autofillsStarted: 5,
     },
+    challengePrompts: [
+      { type: 'birthDate', promptForChallenge: 'always' },
+      { type: 'fullName.firstName', promptForChallenge: 'ifNecessary' },
+      { type: 'ssn4', promptForChallenge: 'ifNecessary' },
+    ],
+    providers: {
+      allowedProviders: ['Acme', 'Aviato'],
+      healthDataProviders: ['Pied Piper', 'Acme Health'],
+      healthDataProviderMode: 'fallback',
+    },
   },
   {
     brandUuid: '',
     brand: 'Pied Piper',
+    customerUuid: PIED_PIPER_CUSTOMER_UUID,
+    customerName: 'Pied Piper',
     integrationType: 'API',
     raw: { brandUuid: '', brandName: 'Pied Piper', overall: {} },
     metrics: {
@@ -54,10 +71,19 @@ const mockData: BillableEventsTableRow[] = [
       signup_riskSignals: 2,
       health_autofillsStarted: 20,
     },
+    challengePrompts: [
+      { type: 'birthDate', promptForChallenge: 'always' },
+      { type: 'fullName.firstName', promptForChallenge: 'ifNecessary' },
+    ],
+    providers: {
+      allowedProviders: ['Acme'],
+    },
   },
   {
     brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
     brand: 'Aviato',
+    customerUuid: HOOLI_CUSTOMER_UUID,
+    customerName: 'Hooli',
     integrationType: 'Semi-Hosted',
     raw: {
       brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
@@ -75,6 +101,26 @@ const mockData: BillableEventsTableRow[] = [
     },
   },
 ];
+
+const mockDataWithoutProviders: BillableEventsTableRow[] = mockData.map(
+  (row) => {
+    const { providers: _providers, ...rest } = row;
+    return rest;
+  },
+);
+
+const mockDataWithParallelHealth: BillableEventsTableRow[] = mockData.map(
+  (row) => {
+    if (!row.providers?.healthDataProviders) return row;
+    return {
+      ...row,
+      providers: {
+        ...row.providers,
+        healthDataProviderMode: 'parallel',
+      },
+    };
+  },
+);
 
 export const AllProducts: Story = {
   args: {
@@ -128,6 +174,22 @@ export const WithColumnSlots: Story = {
         />
       ),
     },
+  },
+};
+
+export const WithoutProviders: Story = {
+  args: {
+    data: mockDataWithoutProviders,
+    isLoading: false,
+    isFetching: false,
+  },
+};
+
+export const WithParallelHealth: Story = {
+  args: {
+    data: mockDataWithParallelHealth,
+    isLoading: false,
+    isFetching: false,
   },
 };
 
