@@ -119,13 +119,37 @@ export const refineAge18Plus = (value: string) => {
   return validateAge18Plus(value);
 };
 
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const MASKED_DATE_REGEX = /^•{4}-\d{2}-\d{2}$/;
+
+// Returns true for a valid YYYY-MM-DD date string (server-formatted credentials).
+const isValidIsoDate = (value: string): boolean =>
+  ISO_DATE_REGEX.test(value) && !isNaN(new Date(value).getTime());
+
+// Returns true for a server-masked birthDate (••••-MM-DD).
+// The server already validated the credential; the year is intentionally hidden.
+const isServerMaskedDate = (value: string): boolean => MASKED_DATE_REGEX.test(value);
+
+const isValidIsoAge18Plus = (value: string): boolean => {
+  const birthDate = new Date(value);
+  const eighteenYearsAgo = new Date();
+  eighteenYearsAgo.setUTCFullYear(eighteenYearsAgo.getUTCFullYear() - 18);
+  return birthDate <= eighteenYearsAgo;
+};
+
 export const dateSchema = zod
   .string()
-  .refine(refineTimestamp, '')
-  .refine(refineMinimumDate1900, '');
+  .refine((v) => isServerMaskedDate(v) || isValidIsoDate(v) || refineTimestamp(v), '')
+  .refine((v) => isServerMaskedDate(v) || isValidIsoDate(v) || refineMinimumDate1900(v), '');
 
 export const birthDateSchema = zod
   .string()
-  .refine(refineTimestamp, '')
-  .refine(refineMinimumDate1900, '')
-  .refine(refineAge18Plus, 'Must be 18 years or older');
+  .refine((v) => isServerMaskedDate(v) || isValidIsoDate(v) || refineTimestamp(v), '')
+  .refine((v) => isServerMaskedDate(v) || isValidIsoDate(v) || refineMinimumDate1900(v), '')
+  .refine(
+    (v) => {
+      if (isServerMaskedDate(v)) return true;
+      return isValidIsoDate(v) ? isValidIsoAge18Plus(v) : refineAge18Plus(v);
+    },
+    'Must be 18 years or older',
+  );
