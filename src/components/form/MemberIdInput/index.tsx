@@ -25,7 +25,7 @@ function isRedactedValue(value: string): boolean {
 }
 
 /**
- * Masked input for member IDs. Displays the middle characters as bullets.
+ * Masked input for member IDs. show last 4 via buildDisplayValue.
  * - Pre-filled / redacted values: any keystroke starts fresh; backspace clears.
  * - User-typed values: normal editing; backspace always clears the whole field.
  */
