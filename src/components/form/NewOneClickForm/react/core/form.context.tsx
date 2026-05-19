@@ -180,36 +180,25 @@ export const FormProvider: React.FC<FormProviderProps> = ({
 
   const updateFieldValue = useCallback(
     (path: string, value: any) => {
+      // Equality check and field lookup happen OUTSIDE setState so they are not
+      // re-executed by React 18 StrictMode's double-invocation of updaters.
+      // Mutating FormField inside the updater AND bailing out via `return prev`
+      // makes the updater impure: on the second invocation the mutation from
+      // the first invocation makes the equality check pass, returning `prev`
+      // and dropping the state update, which loses keystrokes.
+      const field = getField(path);
+      if (!field) {
+        console.warn(`Attempted to update non-existent field: ${path}`);
+        return;
+      }
+      if (field.value === value) return;
+
+      field.value = value;
+      updateParentFieldsRecursively(path);
+
       setState((prev) => {
-        if (!prev.form) {
-          console.warn('No form instance available');
-          return prev;
-        }
-
-        // Use the enhanced getField function to find the field by path
-        const field = getField(path);
-
-        if (!field) {
-          console.warn(`Attempted to update non-existent field: ${path}`);
-          return prev;
-        }
-
-        // Check if value actually changed to avoid unnecessary updates
-        if (field.value === value) {
-          return prev;
-        }
-
-        // Update the field value directly on the core FormField instance
-        field.value = value;
-
-        // Recursively update all parent composite fields up the hierarchy
-        updateParentFieldsRecursively(path);
-
-        // Force re-render by creating new state object
-        return {
-          ...prev,
-          form: prev.form, // This will trigger re-render due to field mutation
-        };
+        if (!prev.form) return prev;
+        return { ...prev, form: prev.form };
       });
     },
     [getField, updateParentFieldsRecursively],
@@ -217,35 +206,22 @@ export const FormProvider: React.FC<FormProviderProps> = ({
 
   const setFieldTouched = useCallback(
     (path: string, touched: boolean) => {
+      // Same StrictMode-safety rationale as updateFieldValue: do the equality
+      // check and mutation outside setState so the updater stays pure.
+      const field = getField(path);
+      if (!field) {
+        console.warn(
+          `Attempted to set touched state for non-existent field: ${path}`,
+        );
+        return;
+      }
+      if (field.touched === touched) return;
+
+      field.touched = touched;
+
       setState((prev) => {
-        if (!prev.form) {
-          console.warn('No form instance available');
-          return prev;
-        }
-
-        // Use the enhanced getField function to find the field by path
-        const field = getField(path);
-
-        if (!field) {
-          console.warn(
-            `Attempted to set touched state for non-existent field: ${path}`,
-          );
-          return prev;
-        }
-
-        // Avoid unnecessary updates if touched state hasn't changed
-        if (field.touched === touched) {
-          return prev;
-        }
-
-        // Update the field touched state directly on the core FormField instance
-        field.touched = touched;
-
-        // Force re-render by creating new state object
-        return {
-          ...prev,
-          form: prev.form, // This will trigger re-render due to field mutation
-        };
+        if (!prev.form) return prev;
+        return { ...prev, form: prev.form };
       });
     },
     [getField],
