@@ -209,5 +209,56 @@ describe('birthDate', () => {
         expect(field.isValid).toBe(true);
       });
     });
+
+    describe('ISO date (YYYY-MM-DD) — new server format', () => {
+      test('valid ISO date for an adult is accepted', () => {
+        field.value = '1990-01-15';
+        expect(field.isValid).toBe(true);
+      });
+
+      test('ISO date for exactly 18 years old is accepted', () => {
+        const now = new Date();
+        const year = now.getUTCFullYear() - 18;
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        field.value = `${year}-${month}-${day}`;
+        expect(field.isValid).toBe(true);
+      });
+
+      test('ISO date for under-18 person is rejected', () => {
+        const now = new Date();
+        const year = now.getUTCFullYear() - 17;
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        field.value = `${year}-${month}-${day}`;
+        expect(field.isValid).toBe(false);
+      });
+
+      test('ISO date for 100-year-old adult is accepted', () => {
+        const now = new Date();
+        const year = now.getUTCFullYear() - 100;
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        field.value = `${year}-${month}-${day}`;
+        expect(field.isValid).toBe(true);
+      });
+
+      test('invalid ISO date string is rejected', () => {
+        field.value = '1990-13-45';
+        expect(field.isValid).toBe(false);
+      });
+    });
+
+    describe('server-masked date (••••-MM-DD) — IDI partial mask', () => {
+      test('masked date is always accepted (server already validated)', () => {
+        field.value = '••••-01-15';
+        expect(field.isValid).toBe(true);
+      });
+
+      test('masked date with different month/day is accepted', () => {
+        field.value = '••••-12-31';
+        expect(field.isValid).toBe(true);
+      });
+    });
   });
 });

@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
-import { USDateSchema, validateTimestamp } from '../../../../../../../validations/date.schema';
+import {
+  USDateSchema,
+  validateTimestamp,
+} from '../../../../../../../validations/date.schema';
 import { formatDateMMDDYYYY } from '../../../../../../../utils/date';
 
 import { DateInput } from '../../../../../../form';
@@ -21,9 +24,13 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
   const { options } = useOneClickForm();
   const { field, setValue } = useFormField<'birthDate'>({ key: fieldKey });
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const isServerMasked = /^•{4}-\d{2}-\d{2}$/.test((field?.value as string) ?? '');
+  const isServerMasked = /^•{4}-\d{2}-\d{2}$/.test(
+    (field?.value as string) ?? '',
+  );
   // If the original credential was stored as a Unix-ms timestamp, preserve that format on change
-  const useLegacyTimestamp = validateTimestamp((field?.defaultValue as string) ?? '');
+  const useLegacyTimestamp = validateTimestamp(
+    (field?.defaultValue as string) ?? '',
+  );
 
   const [localValue, setLocalValue] = useState<string>(() => {
     const value = field?.value as string | undefined;
@@ -95,7 +102,9 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
       // Preserve Unix-ms timestamp format for credentials that originally used it
       setValue(String(Date.UTC(year, month - 1, day, 12, 0, 0, 0)));
     } else {
-      setValue(`${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+      setValue(
+        `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+      );
     }
   };
 
@@ -126,7 +135,9 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
         minDate={minDateForPicker}
         maxDate={maxDateForPicker}
         disabled={field.isDisabled}
-        redactYear={isServerMasked || (isDob && options.features.field?.dob?.redactYear)}
+        redactYear={
+          isServerMasked || (isDob && options.features.field?.dob?.redactYear)
+        }
         InputProps={{
           'data-mask-me': true,
           endAdornment: (
