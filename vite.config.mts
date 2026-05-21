@@ -50,6 +50,7 @@ export default defineConfig({
         'utils/phone': resolvePath('src/utils/phone.ts'),
         'utils/logo': resolvePath('src/utils/logo/index.ts'),
         'utils/wrapPromise': resolvePath('src/utils/wrapPromise/index.ts'),
+        'utils/number': resolvePath('src/utils/number/index.ts'),
       },
       formats: ['es'],
     },
