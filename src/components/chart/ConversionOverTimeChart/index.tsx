@@ -217,11 +217,7 @@ export function ConversionOverTimeChart({
       : null;
 
   const rechartsStackMode =
-    stackMode === 'stack'
-      ? mode === 'absolute'
-        ? 'stack'
-        : 'expand'
-      : 'none';
+    stackMode === 'stack' ? (mode === 'absolute' ? 'stack' : 'expand') : 'none';
 
   const yAxis =
     mode === 'absolute'
