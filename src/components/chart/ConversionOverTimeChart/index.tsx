@@ -26,6 +26,27 @@ export interface BrandIntervalData {
   interval?: Array<Record<string, number | string>>;
 }
 
+/**
+ * A single entry in the chart's toggle button group. Selecting it swaps the
+ * data, series, and display configuration the chart renders.
+ */
+export interface ConversionOverTimeChartView {
+  key: string;
+  label: string;
+  /** Raw bucketed data; will be mapped via {@link mapBrandIntervalData}. */
+  chartData?: BrandIntervalData[];
+  /** Pre-mapped data points (alternative to `chartData`). */
+  data?: Array<Record<string, number | string>>;
+  /** Series definitions for pre-mapped `data`. */
+  series?: AreaSeriesChartData[];
+  /** Series config used to map `chartData`. */
+  seriesConfig?: AreaSeriesChartData[];
+  /** Display mode for this view. Defaults to 'absolute'. */
+  mode?: ViewMode;
+  /** Stacking mode for this view. Defaults to the top-level `stackMode`. */
+  stackMode?: 'stack' | 'none';
+}
+
 function mapBrandIntervalData({
   brands,
   data,
@@ -98,6 +119,18 @@ export interface ConversionOverTimeChartProps {
   legendBrand?: ConversionOverTimeChartLegendBrand;
   /** Whether the legend displays the copyable UUID. Defaults to true. */
   showLegendUuid?: boolean;
+  /**
+   * Configurable toggle button group. Each view defines its own data, series,
+   * and display mode. Consumers control the order — including inserting custom
+   * views (e.g. 'Data Providers') between the built-in Numbers / Percentages.
+   *
+   * When omitted, the chart falls back to the built-in
+   * `[Numbers, Percentages]` toggles driven by the top-level
+   * `chartData`/`seriesConfig`.
+   */
+  views?: ConversionOverTimeChartView[];
+  /** Key of the initially selected view. Defaults to the first view. */
+  defaultViewKey?: string;
 }
 
 export function ConversionOverTimeChart({
@@ -113,13 +146,38 @@ export function ConversionOverTimeChart({
   sx,
   legendBrand,
   showLegendUuid = true,
+  views,
+  defaultViewKey,
 }: Readonly<ConversionOverTimeChartProps>): React.ReactNode {
   const style = useStyle();
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
-  const [mode, setMode] = useState<ViewMode>('absolute');
+
+  // Effective views: explicit `views` prop takes precedence; otherwise fall
+  // back to the legacy built-in Numbers / Percentages toggles backed by the
+  // top-level chartData/seriesConfig.
+  const effectiveViews: ConversionOverTimeChartView[] = views ?? [
+    { key: 'absolute', label: 'Numbers', mode: 'absolute' },
+    { key: 'percent', label: 'Percentages', mode: 'percent' },
+  ];
+
+  const [activeViewKey, setActiveViewKey] = useState<string>(
+    defaultViewKey ?? effectiveViews[0]?.key ?? 'absolute',
+  );
+
+  const activeView =
+    effectiveViews.find((v) => v.key === activeViewKey) ?? effectiveViews[0];
+  const mode: ViewMode = activeView?.mode ?? 'absolute';
+  const stackMode = activeView?.stackMode ?? stackModeProp;
+
+  // Resolve the data + series for the active view. A view can override the
+  // top-level chartData/seriesConfig/data/series; otherwise fall back to them.
+  const viewChartData = activeView?.chartData ?? chartData;
+  const viewSeriesConfig = activeView?.seriesConfig ?? seriesConfig;
+  const viewData = activeView?.data ?? data;
+  const viewSeries = activeView?.series ?? series;
 
   const resolved =
-    chartData !== undefined
+    viewChartData !== undefined
       ? isLoading
         ? {
             series: [] as AreaSeriesChartData[],
@@ -127,21 +185,23 @@ export function ConversionOverTimeChart({
           }
         : mapBrandIntervalData({
             brands: filter.brands,
-            data: chartData,
-            seriesConfig: seriesConfig ?? [],
+            data: viewChartData,
+            seriesConfig: viewSeriesConfig ?? [],
           })
-      : { series: series ?? [], data: data ?? [] };
+      : { series: viewSeries ?? [], data: viewData ?? [] };
 
-  if (!resolved.data.length && isLoading) {
-    return <LoadingChartSection />;
-  }
+  const isEmpty = !resolved.data.length || !isSuccess;
+  const isLoadingEmpty = !resolved.data.length && isLoading;
 
-  if (!resolved.data.length || !isSuccess) {
-    return <EmptyChartSection />;
+  // Legacy path (no `views` prop): preserve the original early-return UX so
+  // existing consumers don't see a layout shift.
+  if (!views) {
+    if (isLoadingEmpty) return <LoadingChartSection />;
+    if (isEmpty) return <EmptyChartSection />;
   }
 
   const normalizedData =
-    stackModeProp === 'none' && mode === 'percent'
+    stackMode === 'none' && mode === 'percent'
       ? resolved.data.map((d) => {
           const localMax = Math.max(
             0,
@@ -157,11 +217,7 @@ export function ConversionOverTimeChart({
       : null;
 
   const rechartsStackMode =
-    stackModeProp === 'stack'
-      ? mode === 'absolute'
-        ? 'stack'
-        : 'expand'
-      : 'none';
+    stackMode === 'stack' ? (mode === 'absolute' ? 'stack' : 'expand') : 'none';
 
   const yAxis =
     mode === 'absolute'
@@ -178,7 +234,7 @@ export function ConversionOverTimeChart({
     mode === 'absolute'
       ? (value: number | string | Array<number | string>) =>
           Number(value).toLocaleString()
-      : stackModeProp === 'stack'
+      : stackMode === 'stack'
         ? (
             value: number | string | Array<number | string>,
             _name: string | number,
@@ -207,49 +263,61 @@ export function ConversionOverTimeChart({
       >
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <ToggleButtonGroup
-            value={mode}
+            value={activeViewKey}
             exclusive
-            onChange={(_: React.MouseEvent, value: ViewMode | null) => {
-              if (value !== null) setMode(value);
+            onChange={(_: React.MouseEvent, value: string | null) => {
+              if (value !== null) setActiveViewKey(value);
             }}
             size='small'
           >
-            <ToggleButton value='absolute'>Numbers</ToggleButton>
-            <ToggleButton value='percent'>Percentages</ToggleButton>
+            {effectiveViews.map((view) => (
+              <ToggleButton key={view.key} value={view.key}>
+                {view.label}
+              </ToggleButton>
+            ))}
           </ToggleButtonGroup>
         </Box>
-        <AreaChart
-          data={normalizedData ?? resolved.data}
-          series={resolved.series}
-          stackMode={rechartsStackMode}
-          isAnimationActive={true}
-          xAxis={{
-            dataKey: 'date',
-            type: 'number',
-            domain: ['dataMin', 'dataMax'],
-            tickFormatter: (value: number) =>
-              formatDateMMYY(value, {
-                timeZone: timezone,
-                hour12: false,
-                hour: 'numeric',
-              }),
-            allowDuplicatedCategory: false,
-          }}
-          yAxis={yAxis}
-          tooltip={{
-            formatter: tooltipFormatter,
-            labelFormatter: (value: number) =>
-              formatExtendedDate(value, { timeZone: timezone, hour12: false }),
-          }}
-          sx={{
-            ...style.regularChartWrapper,
-            height: 'unset',
-            flex: 1,
-            minHeight: 0,
-            opacity: isFetching ? 0.4 : 1,
-            ...sx,
-          }}
-        />
+        {isLoadingEmpty ? (
+          <LoadingChartSection />
+        ) : isEmpty ? (
+          <EmptyChartSection />
+        ) : (
+          <AreaChart
+            data={normalizedData ?? resolved.data}
+            series={resolved.series}
+            stackMode={rechartsStackMode}
+            isAnimationActive={true}
+            xAxis={{
+              dataKey: 'date',
+              type: 'number',
+              domain: ['dataMin', 'dataMax'],
+              tickFormatter: (value: number) =>
+                formatDateMMYY(value, {
+                  timeZone: timezone,
+                  hour12: false,
+                  hour: 'numeric',
+                }),
+              allowDuplicatedCategory: false,
+            }}
+            yAxis={yAxis}
+            tooltip={{
+              formatter: tooltipFormatter,
+              labelFormatter: (value: number) =>
+                formatExtendedDate(value, {
+                  timeZone: timezone,
+                  hour12: false,
+                }),
+            }}
+            sx={{
+              ...style.regularChartWrapper,
+              height: 'unset',
+              flex: 1,
+              minHeight: 0,
+              opacity: isFetching ? 0.4 : 1,
+              ...sx,
+            }}
+          />
+        )}
       </Box>
       {legendBrand && (
         <SeriesPercentageChartLegend
