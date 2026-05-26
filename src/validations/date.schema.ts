@@ -158,7 +158,10 @@ export const birthDateSchema = zod
   )
   .refine(
     (v) =>
-      isServerMaskedDate(v) || isValidIsoDate(v) || refineMinimumDate1900(v),
+      isServerMaskedDate(v) ||
+      (isValidIsoDate(v)
+        ? Number(v.slice(0, 4)) >= 1900
+        : refineMinimumDate1900(v)),
     '',
   )
   .refine((v) => {
