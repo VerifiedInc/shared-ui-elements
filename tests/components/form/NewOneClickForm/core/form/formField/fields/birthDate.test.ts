@@ -247,6 +247,11 @@ describe('birthDate', () => {
         field.value = '1990-13-45';
         expect(field.isValid).toBe(false);
       });
+
+      test('ISO date before 1900 is rejected', () => {
+        field.value = '1899-12-31';
+        expect(field.isValid).toBe(false);
+      });
     });
 
     describe('server-masked date (••••-MM-DD) — IDI partial mask', () => {
