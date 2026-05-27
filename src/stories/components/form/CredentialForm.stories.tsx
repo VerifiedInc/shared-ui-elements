@@ -510,7 +510,7 @@ const mockCredentials = [
     uuid: 'dob-id-1234',
     type: 'birthDate',
     value: {
-      birthDate: '617976000000',
+      birthDate: '1989-08-01',
     },
   },
   {
@@ -519,8 +519,8 @@ const mockCredentials = [
     value: {
       documentNumber: '123456789',
       issuanceState: 'NY',
-      issuanceDate: '1754049600000',
-      expirationDate: '1765800000000',
+      issuanceDate: '2025-08-01',
+      expirationDate: '2025-12-15',
       address: {
         line1: '123 Main Street',
         line2: 'Apt 1A',
@@ -537,8 +537,8 @@ const mockCredentials = [
     value: {
       documentNumber: '123456781',
       issuanceState: 'NY',
-      issuanceDate: '1754049600000',
-      expirationDate: '1765800000000',
+      issuanceDate: '2025-08-01',
+      expirationDate: '2025-12-15',
       address: {
         line1: '123 Main Street',
         line2: 'Apt 1A',

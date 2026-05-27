@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react';
 import { Box } from '@mui/material';
 
-import { USDateSchema } from '../../../../../../../validations/date.schema';
+import {
+  USDateSchema,
+  validateTimestamp,
+} from '../../../../../../../validations/date.schema';
 import { formatDateMMDDYYYY } from '../../../../../../../utils/date';
 
 import { DateInput } from '../../../../../../form';
@@ -21,9 +24,26 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
   const { options } = useOneClickForm();
   const { field, setValue } = useFormField<'birthDate'>({ key: fieldKey });
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [localValue, setLocalValue] = useState<string>(
-    field?.value ? formatDateMMDDYYYY(field?.value) : '',
+  const isServerMasked = /^•{4}-\d{2}-\d{2}$/.test(
+    (field?.value as string) ?? '',
   );
+  // If the original credential was stored as a Unix-ms timestamp, preserve that format on change
+  const useLegacyTimestamp = validateTimestamp(
+    (field?.defaultValue as string) ?? '',
+  );
+
+  const [localValue, setLocalValue] = useState<string>(() => {
+    const value = field?.value as string | undefined;
+    if (!value) return '';
+    // Server-masked birthDate (••••-MM-DD): show MM/DD with fake year so redactYear renders ••••
+    const maskedMatch = /^•{4}-(\d{2})-(\d{2})$/.exec(value);
+    if (maskedMatch) return `${maskedMatch[1]}/${maskedMatch[2]}/1900`;
+    // ISO date string (YYYY-MM-DD): convert to MM/DD/YYYY for the input
+    const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (isoMatch) return `${isoMatch[2]}/${isoMatch[3]}/${isoMatch[1]}`;
+    // Legacy Unix-ms timestamp
+    return formatDateMMDDYYYY(value);
+  });
 
   if (
     !field ||
@@ -55,6 +75,13 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
   const handleChange = (value: string) => {
     if (field.isDisabled) return;
 
+    // Any edit to a server-masked field must start fresh — the fake year must never be saved
+    if (isServerMasked) {
+      setLocalValue('');
+      setValue('');
+      return;
+    }
+
     const valid = USDateSchema.safeParse(value);
     const valueParsed = value.replace(/[^0-9]/g, '');
 
@@ -69,11 +96,16 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
       return setValue('NaN');
     }
 
-    // Parse the date string (MM/DD/YYYY) and create a UTC date
     const [month, day, year] = value.split('/').map(Number);
-    const dateTimestamp = Date.UTC(year, month - 1, day, 12, 0, 0, 0);
 
-    setValue(String(dateTimestamp));
+    if (useLegacyTimestamp) {
+      // Preserve Unix-ms timestamp format for credentials that originally used it
+      setValue(String(Date.UTC(year, month - 1, day, 12, 0, 0, 0)));
+    } else {
+      setValue(
+        `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+      );
+    }
   };
 
   const handleClear = () => {
@@ -103,7 +135,9 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
         minDate={minDateForPicker}
         maxDate={maxDateForPicker}
         disabled={field.isDisabled}
-        redactYear={isDob && options.features.field?.dob?.redactYear}
+        redactYear={
+          isServerMasked || (isDob && options.features.field?.dob?.redactYear)
+        }
         InputProps={{
           'data-mask-me': true,
           endAdornment: (
