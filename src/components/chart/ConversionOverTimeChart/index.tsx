@@ -280,22 +280,20 @@ export function ConversionOverTimeChart({
           height: style.regularChartWrapper.height,
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-          {extraToggles?.length ? (
-            <ToggleButtonGroup size='small'>
-              {extraToggles.map((toggle) => (
-                <ToggleButton
-                  key={toggle.id}
-                  value={toggle.id}
-                  selected={toggle.selected}
-                  onChange={() => toggle.onChange(!toggle.selected)}
-                  aria-label={toggle.ariaLabel ?? toggle.label}
-                >
-                  {toggle.label}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          ) : null}
+        <Stack direction='row' spacing={1} justifyContent='flex-end'>
+          {extraToggles?.map((toggle) => (
+            <ToggleButton
+              key={toggle.id}
+              value={toggle.id}
+              selected={toggle.selected}
+              onChange={() => toggle.onChange(!toggle.selected)}
+              size='small'
+              aria-label={toggle.ariaLabel ?? toggle.label}
+              aria-pressed={toggle.selected}
+            >
+              {toggle.label}
+            </ToggleButton>
+          ))}
           <ToggleButtonGroup
             value={activeViewKey}
             exclusive
@@ -310,7 +308,7 @@ export function ConversionOverTimeChart({
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
-        </Box>
+        </Stack>
         {isLoadingEmpty ? (
           <LoadingChartSection />
         ) : isEmpty ? (
