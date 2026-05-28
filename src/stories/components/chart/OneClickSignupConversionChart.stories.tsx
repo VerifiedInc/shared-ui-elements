@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
@@ -209,5 +210,65 @@ export const WithLegendNoUuid: Story = {
     filter: { timezone: 'UTC' },
     legendBrand: sampleLegendBrand,
     showLegendUuid: false,
+  },
+};
+
+// Alternate dataset + series config used to demonstrate that `extraToggles`
+// can drive a real swap of what the chart renders. Same date range as
+// `mockRawData` so the x-axis stays comparable; different keys/values so the
+// visual change is obvious when the toggle flips on.
+const variantASeriesConfig = [
+  { key: 'Series X', dataKey: 'seriesX', color: '#7c3aed' },
+  { key: 'Series Y', dataKey: 'seriesY', color: '#f97316' },
+];
+
+const variantAData = [
+  {
+    brandUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    brandName: 'Brand',
+    interval: [
+      { date: '2026-01-10T12:00:00Z', seriesX: 40, seriesY: 32 },
+      { date: '2026-01-11T12:00:00Z', seriesX: 55, seriesY: 30 },
+      { date: '2026-01-12T12:00:00Z', seriesX: 70, seriesY: 28 },
+      { date: '2026-01-13T12:00:00Z', seriesX: 95, seriesY: 26 },
+      { date: '2026-01-14T12:00:00Z', seriesX: 130, seriesY: 23 },
+      { date: '2026-01-15T12:00:00Z', seriesX: 165, seriesY: 20 },
+      { date: '2026-01-16T12:00:00Z', seriesX: 195, seriesY: 145 },
+      { date: '2026-01-17T12:00:00Z', seriesX: 215, seriesY: 155 },
+      { date: '2026-01-18T12:00:00Z', seriesX: 240, seriesY: 145 },
+      { date: '2026-01-19T12:00:00Z', seriesX: 270, seriesY: 130 },
+      { date: '2026-01-20T12:00:00Z', seriesX: 310, seriesY: 115 },
+      { date: '2026-01-21T12:00:00Z', seriesX: 345, seriesY: 100 },
+      { date: '2026-01-22T12:00:00Z', seriesX: 380, seriesY: 185 },
+      { date: '2026-01-23T12:00:00Z', seriesX: 410, seriesY: 165 },
+    ],
+  },
+];
+
+export const WithExtraToggle: Story = {
+  args: {
+    stackMode: 'none',
+    isLoading: false,
+    isSuccess: true,
+    isFetching: false,
+    filter: { timezone: 'UTC' },
+  },
+  render: (args) => {
+    const [variantA, setVariantA] = useState(false);
+    return (
+      <ConversionOverTimeChart
+        {...args}
+        chartData={variantA ? variantAData : mockRawData}
+        seriesConfig={variantA ? variantASeriesConfig : seriesConfig}
+        extraToggles={[
+          {
+            id: 'variant-a',
+            label: 'Variant A',
+            selected: variantA,
+            onChange: setVariantA,
+          },
+        ]}
+      />
+    );
   },
 };
