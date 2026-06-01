@@ -47,6 +47,19 @@ export interface ConversionOverTimeChartView {
   stackMode?: 'stack' | 'none';
 }
 
+/**
+ * Auxiliary boolean toggle rendered to the left of the built-in
+ * Numbers / Percentages group. Consumer owns the selected state so the toggle
+ * can drive consumer-side data or rendering decisions.
+ */
+export interface ConversionOverTimeChartToggle {
+  id: string;
+  label: string;
+  selected: boolean;
+  onChange: (selected: boolean) => void;
+  ariaLabel?: string;
+}
+
 function mapBrandIntervalData({
   brands,
   data,
@@ -131,6 +144,11 @@ export interface ConversionOverTimeChartProps {
   views?: ConversionOverTimeChartView[];
   /** Key of the initially selected view. Defaults to the first view. */
   defaultViewKey?: string;
+  /**
+   * Optional auxiliary toggles rendered left of the Numbers / Percentages
+   * group. Each toggle is independent and controlled by the consumer.
+   */
+  extraToggles?: ConversionOverTimeChartToggle[];
 }
 
 export function ConversionOverTimeChart({
@@ -148,6 +166,7 @@ export function ConversionOverTimeChart({
   showLegendUuid = true,
   views,
   defaultViewKey,
+  extraToggles,
 }: Readonly<ConversionOverTimeChartProps>): React.ReactNode {
   const style = useStyle();
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
@@ -261,7 +280,20 @@ export function ConversionOverTimeChart({
           height: style.regularChartWrapper.height,
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Stack direction='row' spacing={1} justifyContent='flex-end'>
+          {extraToggles?.map((toggle) => (
+            <ToggleButton
+              key={toggle.id}
+              value={toggle.id}
+              selected={toggle.selected}
+              onChange={() => toggle.onChange(!toggle.selected)}
+              size='small'
+              aria-label={toggle.ariaLabel ?? toggle.label}
+              aria-pressed={toggle.selected}
+            >
+              {toggle.label}
+            </ToggleButton>
+          ))}
           <ToggleButtonGroup
             value={activeViewKey}
             exclusive
@@ -276,7 +308,7 @@ export function ConversionOverTimeChart({
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
-        </Box>
+        </Stack>
         {isLoadingEmpty ? (
           <LoadingChartSection />
         ) : isEmpty ? (
