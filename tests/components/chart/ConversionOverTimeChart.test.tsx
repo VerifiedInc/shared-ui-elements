@@ -15,7 +15,10 @@ beforeAll(() => {
   ).ResizeObserver = MockResizeObserver;
 });
 
-import { ConversionOverTimeChart } from '../../../src/components/chart/ConversionOverTimeChart';
+import {
+  ConversionOverTimeChart,
+  normalizePercentData,
+} from '../../../src/components/chart/ConversionOverTimeChart';
 
 const testTheme = createTheme({
   palette: {
@@ -60,6 +63,65 @@ function renderChart(
     </ThemeProvider>,
   );
 }
+
+describe('normalizePercentData', () => {
+  const series = [
+    { key: 'A', dataKey: 'a', color: '#111' },
+    { key: 'B', dataKey: 'b', color: '#222' },
+  ];
+
+  test("'max' basis divides by the largest series so the biggest reads 100%", () => {
+    const result = normalizePercentData(
+      [{ date: 1, a: 100, b: 84 }],
+      series,
+      'max',
+    );
+    expect(result[0].a).toBe(1);
+    expect(result[0].b).toBeCloseTo(0.84, 5);
+  });
+
+  test("'sum' basis divides by the point total so shares sum to 100%", () => {
+    const result = normalizePercentData(
+      [{ date: 1, a: 1, b: 18 }],
+      series,
+      'sum',
+    );
+    expect(result[0].a).toBeCloseTo(1 / 19, 5);
+    expect(result[0].b).toBeCloseTo(18 / 19, 5);
+    expect(Number(result[0].a) + Number(result[0].b)).toBeCloseTo(1, 5);
+  });
+
+  test('zero denominator yields zeros (no division by zero)', () => {
+    expect(
+      normalizePercentData([{ date: 1, a: 0, b: 0 }], series, 'sum')[0],
+    ).toEqual({
+      date: 1,
+      a: 0,
+      b: 0,
+    });
+    expect(
+      normalizePercentData([{ date: 1, a: 0, b: 0 }], series, 'max')[0],
+    ).toEqual({
+      date: 1,
+      a: 0,
+      b: 0,
+    });
+  });
+
+  test('preserves the date key and normalizes every series per point', () => {
+    const result = normalizePercentData(
+      [
+        { date: 10, a: 2, b: 2 },
+        { date: 20, a: 3, b: 1 },
+      ],
+      series,
+      'sum',
+    );
+    expect(result.map((r) => r.date)).toEqual([10, 20]);
+    expect(result[0].a).toBeCloseTo(0.5, 5);
+    expect(result[1].a).toBeCloseTo(0.75, 5);
+  });
+});
 
 describe('ConversionOverTimeChart — extraToggles', () => {
   test('renders no extra toggles when prop is undefined', () => {

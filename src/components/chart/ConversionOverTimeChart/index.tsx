@@ -75,6 +75,30 @@ export interface ConversionOverTimeChartToggle {
   ariaLabel?: string;
 }
 
+/**
+ * Normalize each point's series values to fractions for percent mode.
+ * `'max'` divides by the largest series at that point.
+ * `'sum'` divides by the point's total.
+ */
+export function normalizePercentData(
+  data: Array<Record<string, number | string>>,
+  series: AreaSeriesChartData[],
+  basis: PercentBasis,
+): Array<Record<string, number | string>> {
+  return data.map((d) => {
+    const denominator =
+      basis === 'sum'
+        ? series.reduce((sum, s) => sum + (Number(d[s.dataKey]) || 0), 0)
+        : Math.max(0, ...series.map((s) => Number(d[s.dataKey]) || 0));
+    const normalized: Record<string, number | string> = { date: d.date };
+    for (const s of series) {
+      normalized[s.dataKey] =
+        denominator === 0 ? 0 : (Number(d[s.dataKey]) || 0) / denominator;
+    }
+    return normalized;
+  });
+}
+
 function mapBrandIntervalData({
   brands,
   data,
@@ -249,24 +273,7 @@ export function ConversionOverTimeChart({
 
   const normalizedData =
     stackMode === 'none' && mode === 'percent'
-      ? resolved.data.map((d) => {
-          const basis =
-            percentBasis === 'sum'
-              ? resolved.series.reduce(
-                  (sum, s) => sum + (Number(d[s.dataKey]) || 0),
-                  0,
-                )
-              : Math.max(
-                  0,
-                  ...resolved.series.map((s) => Number(d[s.dataKey]) || 0),
-                );
-          const normalized: Record<string, number | string> = { date: d.date };
-          for (const s of resolved.series) {
-            normalized[s.dataKey] =
-              basis === 0 ? 0 : (Number(d[s.dataKey]) || 0) / basis;
-          }
-          return normalized;
-        })
+      ? normalizePercentData(resolved.data, resolved.series, percentBasis)
       : null;
 
   const rechartsStackMode =
