@@ -20,6 +20,16 @@ export type { AreaSeriesChartData } from '../AreaChart';
 
 type ViewMode = 'absolute' | 'percent';
 
+/**
+ * How percentages are computed:
+ * - `'max'` (default): each series as a fraction of the largest series, so the
+ *   biggest reads 100%. Right for funnel/subset data where one
+ *   series contains the others.
+ * - `'sum'`: each series as its share of the total, so all series sum to 100%.
+ *   Right for mutually-exclusive breakdowns.
+ */
+type PercentBasis = 'max' | 'sum';
+
 export interface BrandIntervalData {
   brandUuid: string;
   brandName: string;
@@ -45,6 +55,11 @@ export interface ConversionOverTimeChartView {
   mode?: ViewMode;
   /** Stacking mode for this view. Defaults to the top-level `stackMode`. */
   stackMode?: 'stack' | 'none';
+  /**
+   * How percentages are computed for this view.
+   * Defaults to the top-level `percentBasis`.
+   */
+  percentBasis?: PercentBasis;
 }
 
 /**
@@ -149,6 +164,16 @@ export interface ConversionOverTimeChartProps {
    * group. Each toggle is independent and controlled by the consumer.
    */
   extraToggles?: ConversionOverTimeChartToggle[];
+  /**
+   * How non-stacked percentages are computed. Defaults to `'max'` (subset
+   * semantics). Use `'sum'` for mutually-exclusive breakdowns.
+   */
+  percentBasis?: PercentBasis;
+  /**
+   * When true, tooltip rows are ordered by their value at the hovered point,
+   * descending, instead of by series declaration order. Defaults to false.
+   */
+  sortTooltipByValueDesc?: boolean;
 }
 
 export function ConversionOverTimeChart({
@@ -167,6 +192,8 @@ export function ConversionOverTimeChart({
   views,
   defaultViewKey,
   extraToggles,
+  percentBasis: percentBasisProp = 'max',
+  sortTooltipByValueDesc = false,
 }: Readonly<ConversionOverTimeChartProps>): React.ReactNode {
   const style = useStyle();
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
@@ -187,6 +214,7 @@ export function ConversionOverTimeChart({
     effectiveViews.find((v) => v.key === activeViewKey) ?? effectiveViews[0];
   const mode: ViewMode = activeView?.mode ?? 'absolute';
   const stackMode = activeView?.stackMode ?? stackModeProp;
+  const percentBasis = activeView?.percentBasis ?? percentBasisProp;
 
   // Resolve the data + series for the active view. A view can override the
   // top-level chartData/seriesConfig/data/series; otherwise fall back to them.
@@ -222,14 +250,20 @@ export function ConversionOverTimeChart({
   const normalizedData =
     stackMode === 'none' && mode === 'percent'
       ? resolved.data.map((d) => {
-          const localMax = Math.max(
-            0,
-            ...resolved.series.map((s) => Number(d[s.dataKey]) || 0),
-          );
+          const basis =
+            percentBasis === 'sum'
+              ? resolved.series.reduce(
+                  (sum, s) => sum + (Number(d[s.dataKey]) || 0),
+                  0,
+                )
+              : Math.max(
+                  0,
+                  ...resolved.series.map((s) => Number(d[s.dataKey]) || 0),
+                );
           const normalized: Record<string, number | string> = { date: d.date };
           for (const s of resolved.series) {
             normalized[s.dataKey] =
-              localMax === 0 ? 0 : (Number(d[s.dataKey]) || 0) / localMax;
+              basis === 0 ? 0 : (Number(d[s.dataKey]) || 0) / basis;
           }
           return normalized;
         })
@@ -269,6 +303,13 @@ export function ConversionOverTimeChart({
           }
         : (value: number | string | Array<number | string>) =>
             `${(Number(value) * 100).toFixed(1)}%`;
+
+  // Recharts orders tooltip rows by series declaration order. When requested,
+  // sort by the hovered point's value descending so the largest series leads.
+  // `itemSorter` sorts ascending on the returned key, so negate the value.
+  const tooltipItemSorter = sortTooltipByValueDesc
+    ? (item: { value?: unknown }) => -(Number(item?.value) || 0)
+    : undefined;
 
   return (
     <Stack>
@@ -334,6 +375,7 @@ export function ConversionOverTimeChart({
             yAxis={yAxis}
             tooltip={{
               formatter: tooltipFormatter,
+              itemSorter: tooltipItemSorter,
               labelFormatter: (value: number) =>
                 formatExtendedDate(value, {
                   timeZone: timezone,
