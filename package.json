@@ -1,6 +1,6 @@
 {
   "name": "@verifiedinc-public/shared-ui-elements",
-  "version": "11.0.1",
+  "version": "11.0.2-beta.0",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
   "sideEffects": false,
@@ -117,7 +117,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.2.2",
     "vite-plugin-dts": "^4.3.0",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.8"
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
