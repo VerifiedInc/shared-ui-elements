@@ -6,6 +6,7 @@ import {
   BillableProduct,
   exportBillableEventsToCsv,
   type BillableEventsTableRow,
+  type BillableLeadingColumn,
 } from '../../../src/components/chart/BillableEventsTable';
 
 const HOOLI_CUSTOMER = 'a0000000-0000-0000-0000-000000000001';
@@ -35,6 +36,11 @@ function makeRow(
         },
     challengePrompts: overrides.challengePrompts,
     providers: overrides.providers,
+    dealName: overrides.dealName,
+    dealCurrentStage: overrides.dealCurrentStage,
+    dealFurthestStage: overrides.dealFurthestStage,
+    billable: overrides.billable,
+    billingNotes: overrides.billingNotes,
   };
 }
 
@@ -390,6 +396,222 @@ describe('exportBillableEventsToCsv', () => {
         .slice(2)
         .some((l) =>
           l.startsWith(`Hooli,${HOOLI_CUSTOMER},Aviato,aviato-uuid,SDK`),
+        ),
+    ).toBe(true);
+  });
+});
+
+// Deal columns (leadingColumns + Billing Notes), opt-in.
+const DEAL_LEADING_COLUMNS: BillableLeadingColumn[] = [
+  {
+    type: 'column',
+    column: { key: 'dealName', label: 'Deal Name', metricKey: 'dealName' },
+  },
+  {
+    type: 'group',
+    label: 'Deal Stage',
+    columns: [
+      {
+        key: 'dealCurrentStage',
+        label: 'Current',
+        metricKey: 'dealCurrentStage',
+      },
+      {
+        key: 'dealFurthestStage',
+        label: 'Furthest',
+        metricKey: 'dealFurthestStage',
+      },
+    ],
+  },
+  {
+    type: 'column',
+    column: { key: 'billable', label: 'Billable?', metricKey: 'billable' },
+  },
+];
+
+const DEAL_COLUMN_SLOTS = {
+  dealName: (row: BillableEventsTableRow) => row.dealName ?? '—',
+  dealCurrentStage: (row: BillableEventsTableRow) =>
+    row.dealCurrentStage ?? 'none',
+  dealFurthestStage: (row: BillableEventsTableRow) =>
+    row.dealFurthestStage ?? 'none',
+  billable: (row: BillableEventsTableRow) => (row.billable ? '✓' : ''),
+};
+
+describe('<BillableEventsTable/> deal columns', () => {
+  const dealData = [
+    makeRow({
+      brandUuid: 'brand-uuid',
+      brand: 'Brand',
+      customerName: 'Customer A',
+      dealName: 'Customer Deal',
+      dealCurrentStage: 'Trial',
+      dealFurthestStage: 'Won',
+      billable: true,
+      billingNotes: 'Prepaid',
+    }),
+  ];
+
+  test('renders the Deal Stage group header + Current/Furthest sub-columns and the single deal columns', () => {
+    const { getByText } = render(
+      <BillableEventsTable
+        data={dealData}
+        isLoading={false}
+        isFetching={false}
+        leadingColumns={DEAL_LEADING_COLUMNS}
+        columnSlots={DEAL_COLUMN_SLOTS}
+      />,
+    );
+
+    expect(getByText('Deal Stage')).toBeDefined(); // group parent header
+    expect(getByText('Current')).toBeDefined();
+    expect(getByText('Furthest')).toBeDefined();
+    expect(getByText('Deal Name')).toBeDefined();
+    expect(getByText('Billable?')).toBeDefined();
+    // cell values via columnSlots
+    expect(getByText('Trial')).toBeDefined();
+    expect(getByText('Won')).toBeDefined();
+  });
+
+  test('deal columns render between Customer Name and Brand Name', () => {
+    const { container } = render(
+      <BillableEventsTable
+        data={dealData}
+        isLoading={false}
+        isFetching={false}
+        leadingColumns={DEAL_LEADING_COLUMNS}
+        columnSlots={DEAL_COLUMN_SLOTS}
+      />,
+    );
+    const firstHeaderRow = container.querySelectorAll('thead tr')[0];
+    const headerText = Array.from(
+      firstHeaderRow?.querySelectorAll('th') ?? [],
+    ).map((th) => th.textContent ?? '');
+    const customerIdx = headerText.findIndex((t) =>
+      t.includes('Customer Name'),
+    );
+    const dealNameIdx = headerText.findIndex((t) => t.includes('Deal Name'));
+    const brandIdx = headerText.findIndex((t) => t.includes('Brand Name'));
+    expect(customerIdx).toBeLessThan(dealNameIdx);
+    expect(dealNameIdx).toBeLessThan(brandIdx);
+  });
+
+  test('does NOT render deal columns when leadingColumns is omitted', () => {
+    const { queryByText } = render(
+      <BillableEventsTable
+        data={dealData}
+        isLoading={false}
+        isFetching={false}
+      />,
+    );
+    expect(queryByText('Deal Stage')).toBeNull();
+    expect(queryByText('Deal Name')).toBeNull();
+  });
+
+  test('Billing Notes appears in the expanded panel when present', () => {
+    const { getAllByText, getByText, queryByText } = render(
+      <BillableEventsTable
+        data={dealData}
+        isLoading={false}
+        isFetching={false}
+        leadingColumns={DEAL_LEADING_COLUMNS}
+        columnSlots={DEAL_COLUMN_SLOTS}
+      />,
+    );
+
+    expect(queryByText('Billing Notes')).toBeNull(); // collapsed
+    fireEvent.click(getAllByText('Brand')[0].closest('tr')!);
+    expect(getByText('Billing Notes')).toBeDefined();
+    expect(getByText('Prepaid')).toBeDefined();
+  });
+});
+
+describe('exportBillableEventsToCsv deal columns', () => {
+  const originalCreateObjectURL = URL.createObjectURL;
+  const originalRevokeObjectURL = URL.revokeObjectURL;
+  let capturedBlob: Blob | null;
+
+  beforeEach(() => {
+    capturedBlob = null;
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn().mockImplementation((blob: Blob) => {
+        capturedBlob = blob;
+        return 'blob:mock';
+      }),
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: vi.fn(),
+    });
+    const realCreateElement = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation(((tag: string) => {
+      const el = realCreateElement(tag);
+      if (tag === 'a') Object.defineProperty(el, 'click', { value: vi.fn() });
+      return el;
+    }) as typeof document.createElement);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: originalCreateObjectURL,
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: originalRevokeObjectURL,
+    });
+  });
+
+  test('includes the Deal Stage group + leading columns with formatted values', async () => {
+    const dealData = [
+      makeRow({
+        brand: 'Brand',
+        customerName: 'Customer A',
+        dealName: 'Customer Deal',
+        dealCurrentStage: 'Trial',
+        dealFurthestStage: 'Won',
+        billable: true,
+      }),
+    ];
+
+    exportBillableEventsToCsv({
+      data: dealData,
+      filename: 'test',
+      visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
+      leadingColumns: DEAL_LEADING_COLUMNS,
+      columnFormatters: {
+        dealName: (_v, row) => row.dealName ?? '',
+        dealCurrentStage: (_v, row) => row.dealCurrentStage ?? 'none',
+        dealFurthestStage: (_v, row) => row.dealFurthestStage ?? 'none',
+        billable: (_v, row) => (row.billable ? 'Yes' : 'No'),
+      },
+    });
+
+    const text = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(capturedBlob!);
+    });
+    const lines = text.split('\n');
+
+    expect(lines[0]).toContain('Deal Stage'); // group header row
+    expect(lines[1]).toContain('Deal Name');
+    expect(lines[1]).toContain('Current');
+    expect(lines[1]).toContain('Furthest');
+    expect(lines[1]).toContain('Billable?');
+    // data row carries the formatted deal values
+    expect(
+      lines
+        .slice(2)
+        .some(
+          (l) =>
+            l.includes('Brand') &&
+            l.includes('Trial') &&
+            l.includes('Won') &&
+            l.includes('Yes'),
         ),
     ).toBe(true);
   });

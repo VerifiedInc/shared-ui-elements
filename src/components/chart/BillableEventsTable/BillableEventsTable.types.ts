@@ -25,6 +25,15 @@ export type BillableEventColumn = {
   metricKey: string;
 };
 
+/**
+ * An ordered leading column rendered between Customer Name and Brand Name. Either a single column
+ * or a labelled group with a parent header spanning its child columns.
+ * Cells render via `columnSlots[column.key]` (falling back to `metrics`).
+ */
+export type BillableLeadingColumn =
+  | { type: 'column'; column: BillableEventColumn }
+  | { type: 'group'; label: string; columns: BillableEventColumn[] };
+
 export type BillableProductConfig = {
   product: BillableProduct;
   label: string;
@@ -103,6 +112,12 @@ export type BillableEventsTableRow = {
   raw: ChartData;
   challengePrompts?: ChallengePrompt[];
   providers?: BrandProviders;
+  // Optional customer-level deal info.
+  dealName?: string | null;
+  dealCurrentStage?: string | null;
+  dealFurthestStage?: string | null;
+  billable?: boolean | null;
+  billingNotes?: string | null;
 };
 
 export type BillableEventsTableProps = {
@@ -116,6 +131,11 @@ export type BillableEventsTableProps = {
     (row: BillableEventsTableRow) => React.ReactNode
   >;
   topLevelColumns?: BillableEventColumn[];
+  /**
+   * Ordered columns/groups rendered between Customer Name and Brand Name.
+   * Opt-in, omitted ⇒ unchanged layout.
+   */
+  leadingColumns?: BillableLeadingColumn[];
   /**
    * Show the leading Customer Name column. Defaults to `true`. Set `false`
    * for views scoped to a single customer where the column would be redundant.

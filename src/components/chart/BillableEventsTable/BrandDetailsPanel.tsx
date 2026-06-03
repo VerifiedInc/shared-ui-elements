@@ -16,6 +16,7 @@ interface BrandDetailsPanelProps {
   customerUuid?: string;
   challengePrompts?: ChallengePrompt[];
   providers?: BrandProviders;
+  billingNotes?: string | null;
 }
 
 const SECTION_HEADER_SX = {
@@ -62,21 +63,24 @@ export function BrandDetailsPanel({
   customerUuid,
   challengePrompts,
   providers,
+  billingNotes,
 }: Readonly<BrandDetailsPanelProps>): JSX.Element {
   const hasSignupProviders = Boolean(
     providers?.allowedProviders && providers.allowedProviders.length > 0,
   );
   const hasHealth = Boolean(
     providers &&
-      ((providers.healthDataProviders &&
-        providers.healthDataProviders.length > 0) ||
-        providers.healthDataProviderMode),
+      (Boolean(providers.healthDataProviders?.length) ||
+        Boolean(providers.healthDataProviderMode)),
   );
 
   return (
     <Box sx={{ p: 2 }}>
       <Stack spacing={3}>
         <IdentifiersSection brandUuid={brandUuid} customerUuid={customerUuid} />
+        {billingNotes != null && billingNotes.trim() !== '' && (
+          <BillingNotesSection billingNotes={billingNotes} />
+        )}
         <SettingsSection
           challengePrompts={challengePrompts}
           providers={providers}
@@ -84,6 +88,19 @@ export function BrandDetailsPanel({
           hasHealth={hasHealth}
         />
       </Stack>
+    </Box>
+  );
+}
+
+function BillingNotesSection({
+  billingNotes,
+}: Readonly<{ billingNotes: string }>): JSX.Element {
+  return (
+    <Box>
+      <Typography sx={SECTION_HEADER_SX}>Billing Notes</Typography>
+      <Typography variant='body2' sx={{ whiteSpace: 'pre-wrap' }}>
+        {billingNotes}
+      </Typography>
     </Box>
   );
 }

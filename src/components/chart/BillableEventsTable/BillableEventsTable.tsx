@@ -18,6 +18,7 @@ import {
   type BillableEventColumn,
   type BillableEventsTableProps,
   type BillableEventsTableRow,
+  type BillableLeadingColumn,
 } from './BillableEventsTable.types';
 import { BrandDetailsPanel } from './BrandDetailsPanel';
 import { useBillableSort } from './useBillableSort.hook';
@@ -33,6 +34,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   onSortedDataChange,
   columnSlots,
   topLevelColumns = [],
+  leadingColumns = [],
   showCustomerColumn = true,
 }) => {
   const { sortKey, sortDir, handleSort, sortedData } =
@@ -62,10 +64,38 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
       .filter((c) => !topLevelColumnKeys.has(c.key));
   }, [activeProducts, topLevelColumnKeys]);
 
+  // Every leading leaf column (single columns + group children), in order.
+  const leadingFlat = useMemo(
+    () =>
+      leadingColumns.flatMap((item) =>
+        item.type === 'column' ? [item.column] : item.columns,
+      ),
+    [leadingColumns],
+  );
+  // Only the children of leading groups, these fill the second header row (singles span both rows).
+  const leadingGroupColumns = useMemo(
+    () =>
+      leadingColumns.flatMap((item) =>
+        item.type === 'group' ? item.columns : [],
+      ),
+    [leadingColumns],
+  );
+
+  const renderCell = (
+    col: BillableEventColumn,
+    row: BillableEventsTableRow,
+  ): React.ReactNode =>
+    columnSlots?.[col.key]
+      ? columnSlots[col.key](row)
+      : (row.metrics[col.key] ?? '—');
+
   // Brand Name + Integration Type = 2 fixed cells, plus Customer Name when shown.
   const fixedColumnCount = 2 + (showCustomerColumn ? 1 : 0);
   const totalColumnCount =
-    fixedColumnCount + topLevelColumns.length + allColumns.length;
+    fixedColumnCount +
+    leadingFlat.length +
+    topLevelColumns.length +
+    allColumns.length;
 
   const sortLabel = (
     key: string,
@@ -101,6 +131,25 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
                 {sortLabel('customerName', 'Customer Name')}
               </TableCell>
             )}
+            {/* Leading columns/groups sit between Customer Name and Brand Name.
+                Single columns span both header rows, groups render a
+                parent header here and their child columns in the second row. */}
+            {leadingColumns.map((item: BillableLeadingColumn, index) =>
+              item.type === 'column' ? (
+                <TableCell key={item.column.key} rowSpan={2}>
+                  {item.column.label}
+                </TableCell>
+              ) : (
+                <TableCell
+                  key={`leading-group-${index}`}
+                  colSpan={item.columns.length}
+                  align='center'
+                  sx={{ fontWeight: 'bold', borderBottom: 'none' }}
+                >
+                  {item.label}
+                </TableCell>
+              ),
+            )}
             <TableCell rowSpan={2}>
               {sortLabel('brand', 'Brand Name')}
             </TableCell>
@@ -131,6 +180,9 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
           </TableRow>
           {/* Event column header row */}
           <TableRow>
+            {leadingGroupColumns.map((col: BillableEventColumn) => (
+              <TableCell key={col.key}>{col.label}</TableCell>
+            ))}
             {allColumns.map((col: BillableEventColumn) => (
               <TableCell key={col.key} align='right'>
                 {sortLabel(col.key, col.label, 'right')}
@@ -157,6 +209,21 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
                 >
                   {showCustomerColumn && (
                     <TableCell>{row.customerName ?? '—'}</TableCell>
+                  )}
+                  {leadingColumns.map((item: BillableLeadingColumn, index) =>
+                    item.type === 'column' ? (
+                      <TableCell key={item.column.key}>
+                        {renderCell(item.column, row)}
+                      </TableCell>
+                    ) : (
+                      <Fragment key={`leading-group-${index}`}>
+                        {item.columns.map((col) => (
+                          <TableCell key={col.key}>
+                            {renderCell(col, row)}
+                          </TableCell>
+                        ))}
+                      </Fragment>
+                    ),
                   )}
                   <TableCell>{row.brand}</TableCell>
                   <TableCell>{row.integrationType}</TableCell>
@@ -193,6 +260,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
                         }
                         challengePrompts={row.challengePrompts}
                         providers={row.providers}
+                        billingNotes={row.billingNotes}
                       />
                     </TableCell>
                   </TableRow>
