@@ -923,6 +923,118 @@ describe('<DataTable/>', () => {
     });
   });
 
+  describe('column pinning', () => {
+    test('shows pin actions in the column menu only when pinning is enabled', () => {
+      const { getByLabelText, queryByText } = render(
+        <DataTable data={members} enableColumnMenu />,
+      );
+
+      fireEvent.click(getByLabelText('Email column menu'));
+
+      expect(queryByText('Pin to left')).toBeNull();
+      expect(queryByText('Pin to right')).toBeNull();
+    });
+
+    test('pinning a column to the left moves it to the front and makes it sticky', () => {
+      const { getByLabelText, getByText, container } = render(
+        <DataTable data={members} enableColumnMenu enableColumnPinning />,
+      );
+
+      expect(getHeaderTexts(container)[0]).toBe('Email');
+
+      fireEvent.click(getByLabelText('Role column menu'));
+      fireEvent.click(getByText('Pin to left'));
+
+      expect(getHeaderTexts(container)[0]).toBe('Role');
+
+      // The sticky offset is inlined on the header and body cells.
+      const headerCell =
+        container.querySelector<HTMLTableCellElement>('thead th');
+      expect(headerCell?.style.left).toBe('0px');
+
+      const firstBodyCell = container.querySelector<HTMLTableCellElement>(
+        'tbody tr[data-index] td',
+      );
+      expect(firstBodyCell?.textContent).toBe('admin');
+      expect(firstBodyCell?.style.left).toBe('0px');
+    });
+
+    test('pinning a column to the right moves it to the end', () => {
+      const { getByLabelText, getByText, container } = render(
+        <DataTable data={members} enableColumnMenu enableColumnPinning />,
+      );
+
+      fireEvent.click(getByLabelText('Role column menu'));
+      fireEvent.click(getByText('Pin to right'));
+
+      const headerTexts = getHeaderTexts(container);
+      expect(headerTexts[headerTexts.length - 1]).toBe('Role');
+
+      const headerCells =
+        container.querySelectorAll<HTMLTableCellElement>('thead th');
+      expect(headerCells[headerCells.length - 1].style.right).toBe('0px');
+    });
+
+    test('a pinned column offers the other side and Unpin, which restores the order', () => {
+      const { getByLabelText, getByText, queryByText, container } = render(
+        <DataTable
+          data={members}
+          enableColumnMenu
+          enableColumnPinning
+          initialColumnPinning={{ left: ['role'], right: [] }}
+        />,
+      );
+
+      expect(getHeaderTexts(container)[0]).toBe('Role');
+
+      fireEvent.click(getByLabelText('Role column menu'));
+      expect(queryByText('Pin to left')).toBeNull();
+      expect(getByText('Pin to right')).toBeDefined();
+
+      fireEvent.click(getByText('Unpin'));
+
+      expect(getHeaderTexts(container)[0]).toBe('Email');
+
+      const headerCell =
+        container.querySelector<HTMLTableCellElement>('thead th');
+      expect(headerCell?.style.left).toBe('');
+    });
+
+    test('reports the next pinning state and supports per-column opt-out', () => {
+      const onColumnPinningChange = vi.fn();
+      const { getByLabelText, getByText, queryByText } = render(
+        <DataTable
+          data={members}
+          enableColumnMenu
+          enableColumnPinning
+          onColumnPinningChange={onColumnPinningChange}
+          columns={[
+            {
+              id: 'email',
+              accessorFn: (row) => row.email,
+              header: 'Email',
+              enablePinning: false,
+            },
+            { id: 'role', accessorFn: (row) => row.role, header: 'Role' },
+          ]}
+        />,
+      );
+
+      // Opted-out column: no pin actions in its menu.
+      fireEvent.click(getByLabelText('Email column menu'));
+      expect(queryByText('Pin to left')).toBeNull();
+
+      // Swap to the role menu (fireEvent dispatches through the backdrop).
+      fireEvent.click(getByLabelText('Role column menu'));
+      fireEvent.click(getByText('Pin to left'));
+
+      expect(onColumnPinningChange).toHaveBeenCalledWith({
+        left: ['role'],
+        right: [],
+      });
+    });
+  });
+
   describe('custom icons', () => {
     // Icon slots receive SvgIcon props (fontSize, sx) which custom
     // components are free to ignore.
@@ -981,9 +1093,12 @@ describe('<DataTable/>', () => {
         <DataTable
           data={members}
           enableColumnMenu
+          enableColumnPinning
           icons={{
             sortAsc: makeIcon('custom-sort-asc'),
             sortDesc: makeIcon('custom-sort-desc'),
+            pinLeft: makeIcon('custom-pin-left'),
+            pinRight: makeIcon('custom-pin-right'),
             filter: makeIcon('custom-filter'),
             hideColumn: makeIcon('custom-hide-column'),
             manageColumns: makeIcon('custom-manage-columns'),
@@ -998,10 +1113,13 @@ describe('<DataTable/>', () => {
 
       expect(getByTestId('custom-sort-asc')).toBeDefined();
       expect(getByTestId('custom-sort-desc')).toBeDefined();
+      expect(getByTestId('custom-pin-left')).toBeDefined();
+      expect(getByTestId('custom-pin-right')).toBeDefined();
       expect(getByTestId('custom-filter')).toBeDefined();
       expect(getByTestId('custom-hide-column')).toBeDefined();
       expect(getByTestId('custom-manage-columns')).toBeDefined();
       expect(queryByTestId('ArrowUpwardIcon')).toBeNull();
+      expect(queryByTestId('PushPinIcon')).toBeNull();
       expect(queryByTestId('FilterAltIcon')).toBeNull();
       expect(queryByTestId('VisibilityOffIcon')).toBeNull();
 

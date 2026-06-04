@@ -12,6 +12,8 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type ColumnPinningPosition,
+  type ColumnPinningState,
   type ColumnSizingState,
   type Header,
   type OnChangeFn,
@@ -20,6 +22,7 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import type { SxProps, Theme } from '@mui/material';
 import {
   Badge,
   Box,
@@ -73,6 +76,20 @@ const DEFAULT_PAGE_SIZE = 25;
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const DEFAULT_ROW_HEIGHT_ESTIMATE = 53;
 const EMPTY_ICONS: DataTableIcons = {};
+const EMPTY_COLUMN_PINNING: ColumnPinningState = { left: [], right: [] };
+
+/** Shallow-compares two sticky offset maps (column id -> px). */
+function haveSameOffsets(
+  a: Record<string, number>,
+  b: Record<string, number>,
+): boolean {
+  const aKeys = Object.keys(a);
+
+  return (
+    aKeys.length === Object.keys(b).length &&
+    aKeys.every((key) => a[key] === b[key])
+  );
+}
 
 /** Maps a column meta align onto the header cell flex container. */
 const HEADER_JUSTIFY_CONTENT = {
@@ -149,6 +166,7 @@ export function DataTable<TData extends DataTableData>({
   disablePagination = false,
   enableColumnResizing = false,
   enableColumnMenu = false,
+  enableColumnPinning = false,
   showToolbar = false,
   initialFilters = EMPTY_FILTERS,
   filters: controlledFilters,
@@ -160,6 +178,9 @@ export function DataTable<TData extends DataTableData>({
   initialColumnVisibility = {},
   columnVisibility: controlledColumnVisibility,
   onColumnVisibilityChange,
+  initialColumnPinning = EMPTY_COLUMN_PINNING,
+  columnPinning: controlledColumnPinning,
+  onColumnPinningChange,
   footerLeft,
   estimateRowHeight = DEFAULT_ROW_HEIGHT_ESTIMATE,
   maxHeight = 600,
@@ -222,6 +243,15 @@ export function DataTable<TData extends DataTableData>({
       initialColumnVisibility,
       controlledColumnVisibility,
       onColumnVisibilityChange,
+    );
+
+  // Pinned columns written by the column menu's pin actions —
+  // `{ left: [...columnIds], right: [...columnIds] }`.
+  const [columnPinning, handleColumnPinningChange] =
+    useControllableState<ColumnPinningState>(
+      initialColumnPinning,
+      controlledColumnPinning,
+      onColumnPinningChange,
     );
 
   // Internal-only: dragged column widths, keyed by column id.
@@ -334,6 +364,9 @@ export function DataTable<TData extends DataTableData>({
     state: {
       ...(disableSorting ? {} : { sorting }),
       ...(disablePagination ? {} : { pagination }),
+      // Only wired in when enabled so a stray pinning state can't reorder
+      // columns on tables that never opted in.
+      ...(enableColumnPinning ? { columnPinning } : {}),
       columnVisibility,
       columnSizing,
     },
@@ -343,7 +376,11 @@ export function DataTable<TData extends DataTableData>({
     onSortingChange: handleSortingChange,
     onPaginationChange: handlePaginationChange,
     onColumnVisibilityChange: handleColumnVisibilityChange,
+    onColumnPinningChange: handleColumnPinningChange,
     onColumnSizingChange: setColumnSizing,
+    // Drives column.getCanPin(), which the column menu's pin actions key
+    // off. Per-column opt-out via `enablePinning: false` on the def.
+    enableColumnPinning,
     // Live resizing: the dragged column tracks the pointer instead of
     // snapping on release. Virtualization keeps the re-render cost low.
     columnResizeMode: 'onChange',
@@ -388,6 +425,15 @@ export function DataTable<TData extends DataTableData>({
   // Visible leaf columns drive the colSpan of full-width rows (loading,
   // empty, dividers, virtualizer padding) — hidden columns don't count.
   const columnCount = table.getVisibleLeafColumns().length || 1;
+
+  // Visible pinned leaf columns in pinned order — drive the sticky
+  // offsets and the edge dividers between pinned and scrolling regions.
+  const leftPinnedIds = enableColumnPinning
+    ? table.getLeftVisibleLeafColumns().map((column) => column.id)
+    : [];
+  const rightPinnedIds = enableColumnPinning
+    ? table.getRightVisibleLeafColumns().map((column) => column.id)
+    : [];
 
   // Column whose kebab menu is open. Resolved per render so the menu sees
   // fresh sorting state.
@@ -455,6 +501,143 @@ export function DataTable<TData extends DataTableData>({
 
     return () => observer.disconnect();
   }, [headerRowCount, resolvedColumns]);
+
+  // Pinned cells stick via CSS left/right offsets equal to the summed
+  // widths of the pinned columns before them. Widths are measured from
+  // the rendered header cells — TanStack's own offsets assume the defs'
+  // sizes, which the browser's auto table layout does not honor.
+  const pinnedHeaderCellRefs = useRef<
+    Record<string, HTMLTableCellElement | null>
+  >({});
+  const [pinnedOffsets, setPinnedOffsets] = useState<{
+    left: Record<string, number>;
+    right: Record<string, number>;
+  }>({ left: {}, right: {} });
+
+  // Joined ids so the effect re-runs only when the pinned sets change.
+  const leftPinnedKey = leftPinnedIds.join(',');
+  const rightPinnedKey = rightPinnedIds.join(',');
+
+  useLayoutEffect(() => {
+    if (leftPinnedKey === '' && rightPinnedKey === '') {
+      setPinnedOffsets((previous) =>
+        Object.keys(previous.left).length === 0 &&
+        Object.keys(previous.right).length === 0
+          ? previous
+          : { left: {}, right: {} },
+      );
+      return undefined;
+    }
+
+    const leftIds = leftPinnedKey === '' ? [] : leftPinnedKey.split(',');
+    const rightIds = rightPinnedKey === '' ? [] : rightPinnedKey.split(',');
+
+    const measure = () => {
+      const left: Record<string, number> = {};
+      let offset = 0;
+
+      for (const id of leftIds) {
+        left[id] = offset;
+        offset +=
+          pinnedHeaderCellRefs.current[id]?.getBoundingClientRect().width ?? 0;
+      }
+
+      // Right offsets accumulate from the right edge inward.
+      const right: Record<string, number> = {};
+      offset = 0;
+
+      for (const id of [...rightIds].reverse()) {
+        right[id] = offset;
+        offset +=
+          pinnedHeaderCellRefs.current[id]?.getBoundingClientRect().width ?? 0;
+      }
+
+      // Returning the previous object when nothing changed keeps the state
+      // referentially stable so re-measures don't cause render loops.
+      setPinnedOffsets((previous) =>
+        haveSameOffsets(previous.left, left) &&
+        haveSameOffsets(previous.right, right)
+          ? previous
+          : { left, right },
+      );
+    };
+
+    measure();
+
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    // Re-measure when a pinned column changes width (drag-resize, data
+    // reflowing the auto layout) — fires only on actual size changes.
+    const observer = new ResizeObserver(measure);
+
+    [...leftIds, ...rightIds].forEach((id) => {
+      const cell = pinnedHeaderCellRefs.current[id];
+
+      if (cell) {
+        observer.observe(cell);
+      }
+    });
+
+    return () => observer.disconnect();
+    // resolvedColumns remounts the header cells, so the observer must
+    // re-attach to the new nodes.
+  }, [leftPinnedKey, rightPinnedKey, resolvedColumns]);
+
+  // Last left-pinned / first right-pinned column — where the pinned
+  // region meets the scrolling columns; the edge divider draws there.
+  const isPinnedEdge = (
+    pinned: ColumnPinningPosition,
+    columnId: string,
+  ): boolean =>
+    pinned === 'left'
+      ? leftPinnedIds[leftPinnedIds.length - 1] === columnId
+      : rightPinnedIds[0] === columnId;
+
+  // Offsets are inline style (not sx) — they change on every resize-drag
+  // frame and would churn Emotion classes.
+  const getPinnedOffsetStyle = (
+    pinned: ColumnPinningPosition,
+    columnId: string,
+  ): React.CSSProperties | undefined => {
+    if (pinned === 'left') {
+      return { left: pinnedOffsets.left[columnId] ?? 0 };
+    }
+
+    if (pinned === 'right') {
+      return { right: pinnedOffsets.right[columnId] ?? 0 };
+    }
+
+    return undefined;
+  };
+
+  // Sticky styles for a pinned body cell. The solid background hides the
+  // columns scrolling underneath; row hover is overlaid as a gradient so
+  // the cell stays opaque. (Header cells get their stickiness and
+  // background from MUI's stickyHeader instead.)
+  const getPinnedCellSx = (
+    pinned: ColumnPinningPosition,
+    columnId: string,
+  ): SxProps<Theme> | undefined => {
+    if (!pinned) {
+      return undefined;
+    }
+
+    return (theme) => ({
+      position: 'sticky',
+      zIndex: 1,
+      bgcolor: 'background.paper',
+      '.MuiTableRow-hover:hover > &': {
+        backgroundImage: `linear-gradient(${theme.palette.action.hover}, ${theme.palette.action.hover})`,
+      },
+      ...(isPinnedEdge(pinned, columnId)
+        ? {
+            boxShadow: `inset ${pinned === 'left' ? -1 : 1}px 0 0 ${theme.palette.divider}`,
+          }
+        : {}),
+    });
+  };
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -627,6 +810,10 @@ export function DataTable<TData extends DataTableData>({
                     enableColumnResizing &&
                     columnSizing[column.id] !== undefined;
                   const isResizing = column.getIsResizing();
+                  // Group headers can't pin (only leaf columns can).
+                  const pinned: ColumnPinningPosition = isGroupHeader
+                    ? false
+                    : column.getIsPinned();
                   const showColumnMenu = enableColumnMenu && !isGroupHeader;
                   const isMenuOpen =
                     columnPanel?.type === 'menu' &&
@@ -676,15 +863,24 @@ export function DataTable<TData extends DataTableData>({
                   return (
                     <TableCell
                       key={header.id}
+                      // Pinned header cells are the width source for the
+                      // sticky offsets.
+                      ref={(element: HTMLTableCellElement | null) => {
+                        if (pinned) {
+                          pinnedHeaderCellRefs.current[column.id] = element;
+                        }
+                      }}
                       align={align}
                       colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                       rowSpan={rowSpan > 1 ? rowSpan : undefined}
                       sortDirection={sortDirection}
-                      // Dragged width is inline style (not sx) — it changes
-                      // on every drag frame and would churn Emotion classes.
-                      style={
-                        isResized ? { width: column.getSize() } : undefined
-                      }
+                      // Dragged width and sticky offset are inline style
+                      // (not sx) — they change on every drag frame and
+                      // would churn Emotion classes.
+                      style={{
+                        ...(isResized ? { width: column.getSize() } : {}),
+                        ...getPinnedOffsetStyle(pinned, column.id),
+                      }}
                       sx={{
                         width: meta?.width,
                         // Group labels sit borderless above their
@@ -692,6 +888,22 @@ export function DataTable<TData extends DataTableData>({
                         ...(isGroupHeader ? { borderBottom: 'none' } : {}),
                         ...(rowIndex > 0
                           ? { top: headerRowTops[rowIndex] ?? 0 }
+                          : {}),
+                        // Pinned headers float above the other sticky
+                        // header cells (MUI's stickyHeader is zIndex 2)
+                        // and draw the divider toward the scroll region.
+                        // The horizontal stickiness itself comes from the
+                        // stickyHeader position plus the inline offset.
+                        ...(pinned
+                          ? {
+                              zIndex: 3,
+                              ...(isPinnedEdge(pinned, column.id)
+                                ? {
+                                    boxShadow: (theme: Theme) =>
+                                      `inset ${pinned === 'left' ? -1 : 1}px 0 0 ${theme.palette.divider}`,
+                                  }
+                                : {}),
+                            }
                           : {}),
                         // The kebab stays invisible until the header is
                         // hovered (or focused via keyboard), and pinned
@@ -872,9 +1084,15 @@ export function DataTable<TData extends DataTableData>({
                   >
                     {row.getVisibleCells().map((cell) => {
                       const meta = getColumnMeta(cell.column.columnDef.meta);
+                      const pinned = cell.column.getIsPinned();
 
                       return (
-                        <TableCell key={cell.id} align={meta?.align}>
+                        <TableCell
+                          key={cell.id}
+                          align={meta?.align}
+                          style={getPinnedOffsetStyle(pinned, cell.column.id)}
+                          sx={getPinnedCellSx(pinned, cell.column.id)}
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),

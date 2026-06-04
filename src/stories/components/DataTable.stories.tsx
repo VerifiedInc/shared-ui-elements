@@ -16,6 +16,8 @@ import {
 import {
   AddCircleOutline,
   ArrowBack,
+  ArrowCircleLeft,
+  ArrowCircleRight,
   ArrowForward,
   Badge,
   ChevronLeft,
@@ -27,6 +29,7 @@ import {
   ManageSearch,
   MoreHoriz,
   North,
+  RemoveCircleOutline,
   SkipNext,
   SkipPrevious,
   South,
@@ -251,14 +254,64 @@ export const InitialColumnVisibility: Story = {
   },
 };
 
+// Pin columns to either edge from the column menu (Pin to left / Pin to
+// right / Unpin) — pinned columns reorder to that edge and stay sticky
+// while the table scrolls horizontally. Email starts pinned left; the
+// wide columns force the horizontal overflow that makes the stickiness
+// visible.
+export const ColumnPinning: Story = {
+  args: {
+    data: members,
+    enableColumnMenu: true,
+    enableColumnPinning: true,
+    tableLayout: 'fixed',
+    initialColumnPinning: { left: ['email'], right: [] },
+    columns: [
+      {
+        id: 'email',
+        accessorFn: (row) => row.email,
+        header: 'Email',
+        enableSorting: true,
+        meta: { width: 260 },
+      },
+      {
+        id: 'role',
+        accessorFn: (row) => row.role,
+        header: 'Role',
+        meta: { width: 320 },
+      },
+      {
+        id: 'status',
+        accessorFn: (row) => row.status,
+        header: 'Status',
+        meta: { width: 320 },
+      },
+      {
+        id: 'mfaEnabled',
+        accessorFn: (row) => row.mfaEnabled,
+        header: 'MFA',
+        cell: (info) => (info.getValue() ? 'Enabled' : 'Not Enabled'),
+        meta: { width: 320 },
+      },
+      {
+        id: 'invitedAt',
+        accessorFn: (row) => row.invitedAt,
+        header: 'Invited At',
+        meta: { width: 320 },
+      },
+    ],
+  },
+};
+
 // Everything on: the toolbar, drag-resizable columns plus the full column
-// menu (sort, filter, hide, manage columns).
+// menu (sort, pin, filter, hide, manage columns).
 export const FullFeatured: Story = {
   args: {
     data: members,
     showToolbar: true,
     enableColumnMenu: true,
     enableColumnResizing: true,
+    enableColumnPinning: true,
     tableLayout: 'fixed',
   },
 };
@@ -272,11 +325,15 @@ export const CustomIcons: Story = {
     data: members,
     showToolbar: true,
     enableColumnMenu: true,
+    enableColumnPinning: true,
     initialSorting: [{ id: 'email', desc: false }],
     icons: {
       sort: UnfoldMore,
       sortAsc: North,
       sortDesc: South,
+      pinLeft: ArrowCircleLeft,
+      pinRight: ArrowCircleRight,
+      unpin: RemoveCircleOutline,
       columnMenu: MoreHoriz,
       filter: FilterAltOutlined,
       openFilterPanel: Tune,

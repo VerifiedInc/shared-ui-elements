@@ -1,4 +1,5 @@
-import type { Column } from '@tanstack/react-table';
+import type { Column, ColumnPinningPosition } from '@tanstack/react-table';
+import type { SvgIconProps } from '@mui/material';
 import {
   Divider,
   ListItemIcon,
@@ -10,11 +11,25 @@ import {
   ArrowDownward,
   ArrowUpward,
   FilterAlt,
+  PushPin,
+  PushPinOutlined,
   ViewColumn,
   VisibilityOff,
 } from '@mui/icons-material';
 
 import type { DataTableData, DataTableIcons } from './DataTable.types';
+
+/**
+ * MUI ships a single upright push pin — tilt it toward each side so the
+ * two pin directions read differently, like the DataGrid pin icons.
+ */
+function PushPinLeft(props: Readonly<SvgIconProps>) {
+  return <PushPin {...props} sx={{ transform: 'rotate(30deg)' }} />;
+}
+
+function PushPinRight(props: Readonly<SvgIconProps>) {
+  return <PushPin {...props} sx={{ transform: 'rotate(-30deg)' }} />;
+}
 
 interface DataTableColumnMenuProps<TData extends DataTableData> {
   column: Column<TData, unknown>;
@@ -48,6 +63,9 @@ export function DataTableColumnMenu<TData extends DataTableData>({
   const {
     sortAsc: SortAscIcon = ArrowUpward,
     sortDesc: SortDescIcon = ArrowDownward,
+    pinLeft: PinLeftIcon = PushPinLeft,
+    pinRight: PinRightIcon = PushPinRight,
+    unpin: UnpinIcon = PushPinOutlined,
     filter: FilterIcon = FilterAlt,
     hideColumn: HideColumnIcon = VisibilityOff,
     manageColumns: ManageColumnsIcon = ViewColumn,
@@ -55,6 +73,10 @@ export function DataTableColumnMenu<TData extends DataTableData>({
 
   const canSort = column.getCanSort();
   const isSort = column.getIsSorted();
+  // False unless the table enables column pinning (and the def doesn't
+  // opt out via `enablePinning: false`).
+  const canPin = column.getCanPin();
+  const isPinned = column.getIsPinned();
   const canFilter = column.getCanFilter();
   const canHide = column.getCanHide();
 
@@ -65,6 +87,11 @@ export function DataTableColumnMenu<TData extends DataTableData>({
 
   const handleUnsort = (): void => {
     column.clearSorting();
+    onClose();
+  };
+
+  const handlePin = (position: ColumnPinningPosition): void => {
+    column.pin(position);
     onClose();
   };
 
@@ -103,7 +130,32 @@ export function DataTableColumnMenu<TData extends DataTableData>({
           <ListItemText>Unsort</ListItemText>
         </MenuItem>
       )}
-      {canSort && canFilter && <Divider />}
+      {canSort && canPin && <Divider />}
+      {canPin && isPinned !== 'left' && (
+        <MenuItem onClick={() => handlePin('left')}>
+          <ListItemIcon>
+            <PinLeftIcon fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>Pin to left</ListItemText>
+        </MenuItem>
+      )}
+      {canPin && isPinned !== 'right' && (
+        <MenuItem onClick={() => handlePin('right')}>
+          <ListItemIcon>
+            <PinRightIcon fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>Pin to right</ListItemText>
+        </MenuItem>
+      )}
+      {canPin && isPinned !== false && (
+        <MenuItem onClick={() => handlePin(false)}>
+          <ListItemIcon>
+            <UnpinIcon fontSize='small' />
+          </ListItemIcon>
+          <ListItemText>Unpin</ListItemText>
+        </MenuItem>
+      )}
+      {(canSort || canPin) && canFilter && <Divider />}
       {canFilter && (
         <MenuItem onClick={onOpenFilter}>
           <ListItemIcon>
@@ -112,7 +164,7 @@ export function DataTableColumnMenu<TData extends DataTableData>({
           <ListItemText>Filter</ListItemText>
         </MenuItem>
       )}
-      {(canSort || canFilter) && <Divider />}
+      {(canSort || canPin || canFilter) && <Divider />}
       {canHide && (
         <MenuItem onClick={handleHide}>
           <ListItemIcon>

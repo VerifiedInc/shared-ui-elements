@@ -3,6 +3,7 @@ import type { ComponentType, ReactNode, Ref } from 'react';
 import type { SvgIconProps } from '@mui/material';
 import type {
   ColumnDef,
+  ColumnPinningState,
   PaginationState,
   Row,
   SortingState,
@@ -101,6 +102,12 @@ export interface DataTableIcons {
   sortAsc?: DataTableIconComponent;
   /** Column menu "Sort by DESC" item. Defaults to ArrowDownward. */
   sortDesc?: DataTableIconComponent;
+  /** Column menu "Pin to left" item. Defaults to a left-tilted PushPin. */
+  pinLeft?: DataTableIconComponent;
+  /** Column menu "Pin to right" item. Defaults to a right-tilted PushPin. */
+  pinRight?: DataTableIconComponent;
+  /** Column menu "Unpin" item. Defaults to PushPinOutlined. */
+  unpin?: DataTableIconComponent;
   /**
    * Kebab button on header hover that opens the column menu. Defaults to
    * MoreVert.
@@ -188,7 +195,9 @@ export interface DataTableProps<TData extends DataTableData> {
    * Custom row renderer; falls back to the default row markup. Custom rows
    * build their own cells, so column visibility (Hide column / Manage
    * columns) only affects them when they render from
-   * `row.getVisibleCells()` instead of hardcoding cells.
+   * `row.getVisibleCells()` instead of hardcoding cells. Pinned-column
+   * stickiness is likewise applied by the default cells only — custom rows
+   * must style their own.
    */
   renderRow?: (context: DataTableRowContext<TData>) => ReactNode;
   /** Initial sorting state, e.g. `[{ id: 'email', desc: false }]`. */
@@ -259,14 +268,24 @@ export interface DataTableProps<TData extends DataTableData> {
   /**
    * Shows a kebab menu on each column header (revealed on hover, like the
    * MUI DataGrid) with per-column actions: Sort by ASC/DESC for sortable
-   * columns, Filter for filterable columns, and Hide column / Manage
-   * columns for column visibility.
+   * columns, Pin to left / Pin to right / Unpin with
+   * `enableColumnPinning`, Filter for filterable columns, and Hide column
+   * / Manage columns for column visibility.
    *
    * Every accessor column is filterable through the operator-based filter
    * panel by default — opt a column out with `enableColumnFilter: false`
    * on its def.
    */
   enableColumnMenu?: boolean;
+  /**
+   * Adds Pin to left / Pin to right / Unpin actions to the column menu.
+   * Pinned columns reorder to that edge and stay sticky while the table
+   * scrolls horizontally; their offsets are measured from the rendered
+   * header cells, so they hold under both table layouts. Per-column
+   * opt-out via `enablePinning: false` on the def. Custom `renderRow`
+   * rows build their own cells and must apply their own sticky styles.
+   */
+  enableColumnPinning?: boolean;
   /**
    * Shows a toolbar row above the table with Manage columns and Filters
    * buttons plus a search button that expands into a quick-search input on
@@ -336,6 +355,22 @@ export interface DataTableProps<TData extends DataTableData> {
    * shown (column menu, manage columns panel).
    */
   onColumnVisibilityChange?: (columnVisibility: VisibilityState) => void;
+  /**
+   * Initial pinned columns, e.g. `{ left: ['email'], right: [] }` —
+   * requires `enableColumnPinning`.
+   */
+  initialColumnPinning?: ColumnPinningState;
+  /**
+   * Controlled pinning state (pair with `onColumnPinningChange`) — e.g.
+   * to persist pinned columns per user. Takes precedence over
+   * `initialColumnPinning`. When omitted, pinning state is internal.
+   */
+  columnPinning?: ColumnPinningState;
+  /**
+   * Called with the next pinning state whenever a column is pinned or
+   * unpinned from the column menu.
+   */
+  onColumnPinningChange?: (columnPinning: ColumnPinningState) => void;
   /**
    * Content rendered on the left side of the footer, opposite the
    * pagination controls (e.g. a summary, bulk actions or an export button).
