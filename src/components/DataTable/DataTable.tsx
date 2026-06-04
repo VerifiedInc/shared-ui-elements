@@ -183,6 +183,7 @@ export function DataTable<TData extends DataTableData>({
   onColumnPinningChange,
   footerLeft,
   estimateRowHeight = DEFAULT_ROW_HEIGHT_ESTIMATE,
+  minWidth = 650,
   maxHeight = 600,
   tableLayout = 'auto',
   icons = EMPTY_ICONS,
@@ -612,19 +613,28 @@ export function DataTable<TData extends DataTableData>({
     return undefined;
   };
 
-  // Sticky styles for a pinned body cell. The solid background hides the
-  // columns scrolling underneath; row hover is overlaid as a gradient so
-  // the cell stays opaque. (Header cells get their stickiness and
-  // background from MUI's stickyHeader instead.)
-  const getPinnedCellSx = (
+  // Fixed layout enforces exact widths — clip overflowing content
+  // (unbreakable strings would otherwise paint over the neighbors).
+  const clipCellSx =
+    tableLayout === 'fixed'
+      ? ({ overflow: 'hidden', textOverflow: 'ellipsis' } as const)
+      : undefined;
+
+  // Body cell styles: the fixed-layout clip plus, for pinned cells, the
+  // sticky positioning. The solid background hides the columns scrolling
+  // underneath; row hover is overlaid as a gradient so the cell stays
+  // opaque. (Header cells get their stickiness and background from MUI's
+  // stickyHeader instead.)
+  const getBodyCellSx = (
     pinned: ColumnPinningPosition,
     columnId: string,
   ): SxProps<Theme> | undefined => {
     if (!pinned) {
-      return undefined;
+      return clipCellSx;
     }
 
     return (theme) => ({
+      ...clipCellSx,
       position: 'sticky',
       zIndex: 1,
       bgcolor: 'background.paper',
@@ -771,7 +781,7 @@ export function DataTable<TData extends DataTableData>({
       <TableContainer ref={scrollContainerRef} sx={{ maxHeight }}>
         <Table
           stickyHeader
-          sx={{ minWidth: 650, tableLayout }}
+          sx={{ minWidth, tableLayout }}
           aria-label='data table'
         >
           <TableHead>
@@ -883,6 +893,12 @@ export function DataTable<TData extends DataTableData>({
                       }}
                       sx={{
                         width: meta?.width,
+                        // Fixed layout enforces exact widths — clip
+                        // overflowing content (unbreakable strings would
+                        // otherwise paint over the neighboring cells).
+                        ...(tableLayout === 'fixed'
+                          ? { overflow: 'hidden', textOverflow: 'ellipsis' }
+                          : {}),
                         // Group labels sit borderless above their
                         // sub-columns, matching BillableEventsTable.
                         ...(isGroupHeader ? { borderBottom: 'none' } : {}),
@@ -1091,7 +1107,7 @@ export function DataTable<TData extends DataTableData>({
                           key={cell.id}
                           align={meta?.align}
                           style={getPinnedOffsetStyle(pinned, cell.column.id)}
-                          sx={getPinnedCellSx(pinned, cell.column.id)}
+                          sx={getBodyCellSx(pinned, cell.column.id)}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,

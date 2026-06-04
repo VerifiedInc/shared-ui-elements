@@ -256,15 +256,16 @@ export const InitialColumnVisibility: Story = {
 
 // Pin columns to either edge from the column menu (Pin to left / Pin to
 // right / Unpin) — pinned columns reorder to that edge and stay sticky
-// while the table scrolls horizontally. Email starts pinned left; the
-// wide columns force the horizontal overflow that makes the stickiness
-// visible.
+// while the table scrolls horizontally. Email starts pinned left. The
+// `minWidth` beyond the container width is what makes the table scroll
+// horizontally — without it there is nothing for pinned columns to
+// stick over.
 export const ColumnPinning: Story = {
   args: {
     data: members,
     enableColumnMenu: true,
     enableColumnPinning: true,
-    tableLayout: 'fixed',
+    minWidth: 1600,
     initialColumnPinning: { left: ['email'], right: [] },
     columns: [
       {
@@ -272,32 +273,27 @@ export const ColumnPinning: Story = {
         accessorFn: (row) => row.email,
         header: 'Email',
         enableSorting: true,
-        meta: { width: 260 },
       },
       {
         id: 'role',
         accessorFn: (row) => row.role,
         header: 'Role',
-        meta: { width: 320 },
       },
       {
         id: 'status',
         accessorFn: (row) => row.status,
         header: 'Status',
-        meta: { width: 320 },
       },
       {
         id: 'mfaEnabled',
         accessorFn: (row) => row.mfaEnabled,
         header: 'MFA',
         cell: (info) => (info.getValue() ? 'Enabled' : 'Not Enabled'),
-        meta: { width: 320 },
       },
       {
         id: 'invitedAt',
         accessorFn: (row) => row.invitedAt,
         header: 'Invited At',
-        meta: { width: 320 },
       },
     ],
   },

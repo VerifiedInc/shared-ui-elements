@@ -284,6 +284,11 @@ export interface DataTableProps<TData extends DataTableData> {
    * header cells, so they hold under both table layouts. Per-column
    * opt-out via `enablePinning: false` on the def. Custom `renderRow`
    * rows build their own cells and must apply their own sticky styles.
+   *
+   * The table only scrolls horizontally once it is wider than its
+   * container — pair with a `minWidth` beyond the container width (or
+   * exact column widths on every column with `tableLayout: 'fixed'`),
+   * otherwise there is nothing for pinned columns to stick over.
    */
   enableColumnPinning?: boolean;
   /**
@@ -379,12 +384,20 @@ export interface DataTableProps<TData extends DataTableData> {
   footerLeft?: ReactNode;
   /** Estimated row height in px used by the virtualizer. Defaults to 53. */
   estimateRowHeight?: number;
+  /**
+   * Min width of the table itself (any CSS width value). When it exceeds
+   * the container width, the table scrolls horizontally — which is what
+   * gives pinned columns something to stick over. Defaults to 650.
+   */
+  minWidth?: number | string;
   /** Max height of the scroll container. Defaults to 600. */
   maxHeight?: number | string;
   /**
    * Table layout algorithm. With the default 'auto', column widths are
    * hints and content can stretch a column. Use 'fixed' to enforce the
-   * exact px/percentage widths set via column meta.
+   * exact px/percentage widths set via column meta — content that cannot
+   * fit (e.g. long unbreakable strings) is clipped with an ellipsis
+   * instead of leaking over the neighboring cells.
    */
   tableLayout?: 'auto' | 'fixed';
   /**
