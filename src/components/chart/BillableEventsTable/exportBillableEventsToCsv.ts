@@ -70,7 +70,7 @@ export function exportBillableEventsToCsv({
   if (showCustomerColumn) {
     leaves.push(
       { label: 'Customer Name', value: (r) => r.customerName ?? '' },
-      { label: 'Customer UUID', value: (r) => r.customerUuid ?? '' }
+      { label: 'Customer UUID', value: (r) => r.customerUuid ?? '' },
     );
   }
 
@@ -94,7 +94,7 @@ export function exportBillableEventsToCsv({
   leaves.push(
     { label: 'Brand Name', value: (r) => r.brand },
     { label: 'Brand UUID', value: (r) => r.brandUuid },
-    { label: 'Integration Type', value: (r) => r.integrationType }
+    { label: 'Integration Type', value: (r) => r.integrationType },
   );
 
   for (const col of topLevelColumns) {
