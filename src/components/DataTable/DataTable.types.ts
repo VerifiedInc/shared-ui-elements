@@ -1,10 +1,12 @@
-import type { ReactNode, Ref } from 'react';
+import type { ComponentType, ReactNode, Ref } from 'react';
 
+import type { SvgIconProps } from '@mui/material';
 import type {
   ColumnDef,
   PaginationState,
   Row,
   SortingState,
+  VisibilityState,
 } from '@tanstack/react-table';
 import type { VirtualItem } from '@tanstack/react-virtual';
 
@@ -13,6 +15,56 @@ import type { VirtualItem } from '@tanstack/react-virtual';
  * shape is unknown ahead of time.
  */
 export type DataTableData = Record<string, unknown>;
+
+/** Operators available in the column filter panel (MUI DataGrid parity). */
+export type DataTableFilterOperator =
+  | 'contains'
+  | 'doesNotContain'
+  | 'equals'
+  | 'doesNotEqual'
+  | 'startsWith'
+  | 'endsWith'
+  | 'isEmpty'
+  | 'isNotEmpty'
+  | 'isAnyOf';
+
+/**
+ * Low-level value shape used internally by `dataTableFilterFn` — consumed
+ * from `DataTableFilterRow` when pre-filtering client-side.
+ */
+export interface DataTableFilterValue {
+  operator: DataTableFilterOperator;
+  /** A single string for most operators; a `string[]` for `isAnyOf`. */
+  value?: string | string[];
+}
+
+/** Whether all filter rows must match (AND) or any one suffices (OR). */
+export type DataTableFilterLogicOperator = 'and' | 'or';
+
+/**
+ * One row in the filter panel. Each row targets a specific column with an
+ * operator and optional value. `id` is a unique key within the current
+ * filter state (not the column id) so multiple rows can target the same
+ * column.
+ */
+export interface DataTableFilterRow {
+  id: string;
+  columnId: string;
+  operator: DataTableFilterOperator;
+  /** `string` for most operators; `string[]` for `isAnyOf`. */
+  value?: string | string[];
+}
+
+/**
+ * The full filter state passed to / returned from the table. With
+ * `manualFiltering`, translate these into the server query in
+ * `onFiltersChange`; client-side filtering is applied automatically
+ * otherwise.
+ */
+export interface DataTableActiveFilters {
+  rows: DataTableFilterRow[];
+  logicOperator: DataTableFilterLogicOperator;
+}
 
 /**
  * Optional per-column display hints, supplied via the TanStack
@@ -26,6 +78,70 @@ export interface DataTableColumnMeta {
    * which sizes the whole column.
    */
   width?: number | string;
+}
+
+/**
+ * Replacement component for one of the table's built-in MUI icons. Slots
+ * receive the same props as the icon they replace (`fontSize`, `sx`, ...) so
+ * MUI icons drop in directly; custom components are free to ignore them.
+ */
+export type DataTableIconComponent = ComponentType<SvgIconProps>;
+
+/**
+ * Custom icon mapping — each slot replaces the MUI icon the table renders
+ * there by default. Unset slots keep the MUI default.
+ */
+export interface DataTableIcons {
+  /**
+   * Sort direction arrow on sortable headers. Defaults to the MUI
+   * TableSortLabel arrow.
+   */
+  sort?: DataTableIconComponent;
+  /** Column menu "Sort by ASC" item. Defaults to ArrowUpward. */
+  sortAsc?: DataTableIconComponent;
+  /** Column menu "Sort by DESC" item. Defaults to ArrowDownward. */
+  sortDesc?: DataTableIconComponent;
+  /**
+   * Kebab button on header hover that opens the column menu. Defaults to
+   * MoreVert.
+   */
+  columnMenu?: DataTableIconComponent;
+  /**
+   * Column menu "Filter" item and the active-filter indicator on filtered
+   * headers. Defaults to FilterAlt.
+   */
+  filter?: DataTableIconComponent;
+  /** Toolbar "Filters" button. Defaults to FilterList. */
+  openFilterPanel?: DataTableIconComponent;
+  /**
+   * Toolbar "Manage columns" button and the column menu "Manage columns"
+   * item. Defaults to ViewColumn.
+   */
+  manageColumns?: DataTableIconComponent;
+  /** Column menu "Hide column" item. Defaults to VisibilityOff. */
+  hideColumn?: DataTableIconComponent;
+  /**
+   * Search adornments — the toolbar quick search and the manage columns
+   * panel input. Defaults to Search.
+   */
+  search?: DataTableIconComponent;
+  /**
+   * Clear buttons — clear search and remove a filter panel row. Defaults
+   * to Close.
+   */
+  close?: DataTableIconComponent;
+  /** Filter panel "Add filter" button. Defaults to Add. */
+  addFilter?: DataTableIconComponent;
+  /** Filter panel "Remove all" button. Defaults to DeleteOutline. */
+  removeAllFilters?: DataTableIconComponent;
+  /** Pagination first-page button. Defaults to FirstPage. */
+  paginationFirst?: DataTableIconComponent;
+  /** Pagination previous-page button. Defaults to KeyboardArrowLeft. */
+  paginationPrevious?: DataTableIconComponent;
+  /** Pagination next-page button. Defaults to KeyboardArrowRight. */
+  paginationNext?: DataTableIconComponent;
+  /** Pagination last-page button. Defaults to LastPage. */
+  paginationLast?: DataTableIconComponent;
 }
 
 /**
@@ -68,7 +184,12 @@ export interface DataTableProps<TData extends DataTableData> {
   columns?: Array<ColumnDef<TData, unknown>>;
   /** Stable row identity; falls back to the row index. */
   getRowId?: (row: TData, index: number) => string;
-  /** Custom row renderer; falls back to the default row markup. */
+  /**
+   * Custom row renderer; falls back to the default row markup. Custom rows
+   * build their own cells, so column visibility (Hide column / Manage
+   * columns) only affects them when they render from
+   * `row.getVisibleCells()` instead of hardcoding cells.
+   */
   renderRow?: (context: DataTableRowContext<TData>) => ReactNode;
   /** Initial sorting state, e.g. `[{ id: 'email', desc: false }]`. */
   initialSorting?: SortingState;
@@ -126,6 +247,96 @@ export interface DataTableProps<TData extends DataTableData> {
   /** Hides the pagination footer and renders all rows (still virtualized). */
   disablePagination?: boolean;
   /**
+   * Adds drag handles (vertical separator lines) on the header cell edges
+   * to resize columns; double-clicking a handle restores the column's
+   * default width. Drags start from the column's rendered width (measured
+   * when the drag starts; numeric `meta.width` values seed it upfront).
+   * Per-column opt-out via `enableResizing: false` on the def. Widths are
+   * enforced exactly with `tableLayout: 'fixed'`; with the default 'auto',
+   * content can keep a column from shrinking below its natural width.
+   */
+  enableColumnResizing?: boolean;
+  /**
+   * Shows a kebab menu on each column header (revealed on hover, like the
+   * MUI DataGrid) with per-column actions: Sort by ASC/DESC for sortable
+   * columns, Filter for filterable columns, and Hide column / Manage
+   * columns for column visibility.
+   *
+   * Every accessor column is filterable through the operator-based filter
+   * panel by default — opt a column out with `enableColumnFilter: false`
+   * on its def.
+   */
+  enableColumnMenu?: boolean;
+  /**
+   * Shows a toolbar row above the table with Manage columns and Filters
+   * buttons plus a search button that expands into a quick-search input on
+   * the right, like the MUI DataGrid toolbar. The filter button carries a
+   * badge with the active filter count. While the toolbar is shown, the
+   * filter / manage columns panels open anchored to their toolbar button —
+   * including when triggered from a column menu — instead of at the column
+   * that opened them.
+   */
+  showToolbar?: boolean;
+  /**
+   * Initial filter state. Rows are applied as AND by default; switch to OR
+   * via `logicOperator: 'or'`.
+   *
+   * @example
+   * initialFilters={{ rows: [{ id: 'f1', columnId: 'role', operator: 'equals', value: 'admin' }], logicOperator: 'and' }}
+   */
+  initialFilters?: DataTableActiveFilters;
+  /**
+   * Controlled filter state (pair with `onFiltersChange`). Takes
+   * precedence over `initialFilters`. When omitted, filter state is
+   * internal.
+   */
+  filters?: DataTableActiveFilters;
+  /**
+   * Called with the next filter state when the filter panel changes. With
+   * `manualFiltering`, fetch the matching rows from the server in response
+   * (and usually reset the page to 0).
+   */
+  onFiltersChange?: (filters: DataTableActiveFilters) => void;
+  /**
+   * Server-side filtering: rows in `data` are assumed to already match the
+   * active filters and search query — the filter panel and the toolbar
+   * search input only update their state, nothing is filtered client-side.
+   */
+  manualFiltering?: boolean;
+  /** Initial quick-search query for the toolbar search input. */
+  initialSearch?: string;
+  /**
+   * Controlled quick-search query (pair with `onSearchChange`). Takes
+   * precedence over `initialSearch`. When omitted, search state is
+   * internal.
+   */
+  search?: string;
+  /**
+   * Called with the next query as the user types in the toolbar search
+   * input. With `manualFiltering`, fetch the matching rows from the server
+   * in response (and usually reset the page to 0).
+   */
+  onSearchChange?: (search: string) => void;
+  /**
+   * Initial column visibility, keyed by column id — `{ role: false }`
+   * mounts the table with the role column hidden. Also what the manage
+   * columns panel's Reset restores. Per-column opt-out from hiding via
+   * `enableHiding: false` on the def.
+   */
+  initialColumnVisibility?: VisibilityState;
+  /**
+   * Controlled column visibility state (pair with
+   * `onColumnVisibilityChange`) — e.g. to persist hidden columns per user.
+   * Takes precedence over `initialColumnVisibility`. When omitted,
+   * visibility state is internal.
+   */
+  columnVisibility?: VisibilityState;
+  /**
+   * Called with the next visibility state whenever a column is hidden or
+   * shown (column menu, manage columns panel).
+   */
+  onColumnVisibilityChange?: (columnVisibility: VisibilityState) => void;
+  /**
    * Content rendered on the left side of the footer, opposite the
    * pagination controls (e.g. a summary, bulk actions or an export button).
    * Rendered even when pagination is disabled.
@@ -141,6 +352,15 @@ export interface DataTableProps<TData extends DataTableData> {
    * exact px/percentage widths set via column meta.
    */
   tableLayout?: 'auto' | 'fixed';
+  /**
+   * Custom icon mapping — replaces the MUI icons the table renders by
+   * default (toolbar buttons, column menu items, filter panel actions,
+   * pagination arrows). Unset slots keep the MUI default.
+   *
+   * @example
+   * icons={{ search: MagnifyingGlass, columnMenu: DotsThree }}
+   */
+  icons?: DataTableIcons;
   /** Message displayed when `data` is empty. */
   emptyMessage?: string;
   isLoading?: boolean;

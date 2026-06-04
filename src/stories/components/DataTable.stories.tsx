@@ -13,7 +13,28 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { Badge, ChevronLeft, ChevronRight, Close } from '@mui/icons-material';
+import {
+  AddCircleOutline,
+  ArrowBack,
+  ArrowForward,
+  Badge,
+  ChevronLeft,
+  ChevronRight,
+  Close,
+  DeleteSweep,
+  FilterAltOutlined,
+  HighlightOff,
+  ManageSearch,
+  MoreHoriz,
+  North,
+  SkipNext,
+  SkipPrevious,
+  South,
+  Tune,
+  UnfoldMore,
+  ViewWeek,
+  VisibilityOffOutlined,
+} from '@mui/icons-material';
 
 import { formatExtendedDate } from '../../utils/date';
 
@@ -109,6 +130,167 @@ export const CustomColumns: Story = {
         meta: { align: 'right', width: 140 },
       },
     ],
+  },
+};
+
+// Drag the vertical separators on the header edges to resize columns;
+// double-click a separator to restore the default width. `tableLayout:
+// 'fixed'` makes the dragged widths exact (with 'auto', content can keep a
+// column from shrinking below its natural width).
+export const ColumnResizing: Story = {
+  args: {
+    data: members,
+    enableColumnResizing: true,
+    tableLayout: 'fixed',
+    columns: [
+      {
+        id: 'email',
+        accessorFn: (row) => row.email,
+        header: 'Email',
+        enableSorting: true,
+        meta: { width: 280 },
+      },
+      {
+        id: 'role',
+        accessorFn: (row) => row.role,
+        header: 'Role',
+        meta: { width: 160 },
+      },
+      {
+        id: 'status',
+        accessorFn: (row) => row.status,
+        header: 'Status',
+        meta: { width: 160 },
+      },
+      {
+        id: 'invitedAt',
+        accessorFn: (row) => row.invitedAt,
+        header: 'Invited At',
+        enableSorting: true,
+      },
+    ],
+  },
+};
+
+// Per-column kebab menu (hover a header to reveal it), like the MUI
+// DataGrid column menu: Sort by ASC/DESC for sortable columns, Filter for
+// filterable columns, and Hide column / Manage columns for visibility.
+export const ColumnMenu: Story = {
+  args: {
+    data: members,
+    enableColumnMenu: true,
+  },
+};
+
+// Top-right toolbar with Manage columns and Filters buttons plus a search
+// button that expands into a quick-search input, like the MUI DataGrid
+// toolbar. The panels open anchored to their toolbar button — including
+// when triggered from a column menu — and the filter button shows a badge
+// with the active filter count. The quick search matches any column value
+// (with `manualFiltering`, the query feeds a server query via
+// `onSearchChange` instead).
+export const Toolbar: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    enableColumnMenu: true,
+  },
+};
+
+// Table mounted with an active quick search — the input starts expanded
+// with the query applied and collapses back to its icon once cleared.
+export const ToolbarInitialSearch: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    initialSearch: 'admin',
+  },
+};
+
+// Table mounted with active filters — filtered columns show a funnel
+// indicator that reopens the panel. Multiple rows combine with AND or OR.
+// With `manualFiltering`, the same state feeds a server query via
+// `onFiltersChange` instead (like the AsyncPagination story does for
+// sorting).
+export const InitialFilters: Story = {
+  args: {
+    data: members,
+    enableColumnMenu: true,
+    initialFilters: {
+      rows: [
+        { id: 'f1', columnId: 'role', operator: 'equals', value: 'admin' },
+      ],
+      logicOperator: 'and',
+    },
+  },
+};
+
+// Two filter rows with OR — shows rows matching either condition.
+export const MultiFilterOr: Story = {
+  args: {
+    data: members,
+    enableColumnMenu: true,
+    initialFilters: {
+      rows: [
+        { id: 'f1', columnId: 'role', operator: 'equals', value: 'admin' },
+        { id: 'f2', columnId: 'status', operator: 'equals', value: 'pending' },
+      ],
+      logicOperator: 'or',
+    },
+  },
+};
+
+// Columns hidden on mount — bring them back through the column menu's
+// Manage columns panel (or hide more via Hide column). The panel's Reset
+// restores this initial visibility.
+export const InitialColumnVisibility: Story = {
+  args: {
+    data: members,
+    enableColumnMenu: true,
+    initialColumnVisibility: { custom: false, invitedAt: false },
+  },
+};
+
+// Everything on: the toolbar, drag-resizable columns plus the full column
+// menu (sort, filter, hide, manage columns).
+export const FullFeatured: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    enableColumnMenu: true,
+    enableColumnResizing: true,
+    tableLayout: 'fixed',
+  },
+};
+
+// Custom icon mapping — every icon the table renders can be replaced
+// through the `icons` prop (here with other MUI icons, but any component
+// accepting SvgIcon props works, e.g. icons from another library). Unset
+// slots keep the MUI default.
+export const CustomIcons: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    enableColumnMenu: true,
+    initialSorting: [{ id: 'email', desc: false }],
+    icons: {
+      sort: UnfoldMore,
+      sortAsc: North,
+      sortDesc: South,
+      columnMenu: MoreHoriz,
+      filter: FilterAltOutlined,
+      openFilterPanel: Tune,
+      manageColumns: ViewWeek,
+      hideColumn: VisibilityOffOutlined,
+      search: ManageSearch,
+      close: HighlightOff,
+      addFilter: AddCircleOutline,
+      removeAllFilters: DeleteSweep,
+      paginationFirst: SkipPrevious,
+      paginationPrevious: ArrowBack,
+      paginationNext: ArrowForward,
+      paginationLast: SkipNext,
+    },
   },
 };
 
