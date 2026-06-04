@@ -1164,6 +1164,9 @@ export function DataTable<TData extends DataTableData>({
       {columnPanel?.type === 'filter' && (
         <DataTableFilterPanel
           table={table}
+          // Unfiltered rows — value suggestions shouldn't shrink as the
+          // active filters narrow the table.
+          data={data}
           initialColumnId={columnPanel.columnId}
           anchorPosition={columnPanel.anchorPosition}
           transformHorizontal={columnPanel.transformHorizontal}

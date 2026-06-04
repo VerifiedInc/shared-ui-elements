@@ -31,6 +31,16 @@ export function filterOperatorRequiresValue(
   return operator !== 'isEmpty' && operator !== 'isNotEmpty';
 }
 
+/**
+ * Whether the operator takes multiple values — rendered as a chips input
+ * in the filter panel instead of a single text field.
+ */
+export function filterOperatorIsMultiValue(
+  operator: DataTableFilterOperator,
+): boolean {
+  return operator === 'contains' || operator === 'isAnyOf';
+}
+
 /** Empty filter state — no rows, AND logic. */
 export const EMPTY_FILTERS: DataTableActiveFilters = {
   rows: [],
@@ -47,8 +57,16 @@ export function isFilterRowActive(row: DataTableFilterRow): boolean {
     return true;
   }
 
+  if (Array.isArray(row.value)) {
+    return (
+      filterOperatorIsMultiValue(row.operator) &&
+      row.value.some((value) => value.trim() !== '')
+    );
+  }
+
+  // isAnyOf only works with an array value.
   if (row.operator === 'isAnyOf') {
-    return Array.isArray(row.value) && row.value.length > 0;
+    return false;
   }
 
   return typeof row.value === 'string' && row.value.trim() !== '';
@@ -148,6 +166,21 @@ export function dataTableFilterFn<TData>(
         values.some((value) => text === value.trim().toLowerCase())
       );
     }
+    case 'contains': {
+      // Chips from the filter panel OR within the row — the value matches
+      // when it contains any of them. A single string (e.g. consumer
+      // supplied initial filters) works too.
+      const values = Array.isArray(filter.value)
+        ? filter.value
+        : [filter.value ?? ''];
+      const queries = values
+        .map((value) => value.trim().toLowerCase())
+        .filter((query) => query !== '');
+
+      return (
+        queries.length === 0 || queries.some((query) => text.includes(query))
+      );
+    }
     default: {
       const query =
         typeof filter.value === 'string'
@@ -159,8 +192,6 @@ export function dataTableFilterFn<TData>(
       }
 
       switch (filter.operator) {
-        case 'contains':
-          return text.includes(query);
         case 'doesNotContain':
           return !text.includes(query);
         case 'equals':

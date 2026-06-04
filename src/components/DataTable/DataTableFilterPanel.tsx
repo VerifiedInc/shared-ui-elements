@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import type { Table } from '@tanstack/react-table';
 import {
@@ -25,12 +25,19 @@ import type {
 } from './DataTable.types';
 import {
   dataTableFilterOperators,
+  filterOperatorIsMultiValue,
   filterOperatorRequiresValue,
 } from './DataTable.filters';
-import { getColumnLabel } from './DataTable.utils';
+import { getColumnLabel, getColumnMeta } from './DataTable.utils';
 
 interface DataTableFilterPanelProps<TData extends DataTableData> {
   table: Table<TData>;
+  /**
+   * Unfiltered rows — the value input derives its suggestions from each
+   * column's distinct values here. (With manualFiltering this is just the
+   * current page; `meta.filterOptions` supplies the full set instead.)
+   */
+  data?: TData[];
   /** Column preselected when opening from a column menu with no active filters. */
   initialColumnId: string;
   anchorPosition: { top: number; left: number };
@@ -49,7 +56,20 @@ interface DataTableFilterPanelProps<TData extends DataTableData> {
 }
 
 function makeRow(columnId: string, id: string): DataTableFilterRow {
-  return { id, columnId, operator: 'contains', value: '' };
+  // contains is multi-value — rows start with no chips.
+  return { id, columnId, operator: 'contains', value: [] };
+}
+
+/**
+ * Multi-value operators render chips — a single string value (e.g.
+ * consumer-supplied initial filters) shows as one chip.
+ */
+function toChipValues(value: string | string[] | undefined): string[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return value ? [value] : [];
 }
 
 /**
@@ -59,6 +79,7 @@ function makeRow(columnId: string, id: string): DataTableFilterRow {
  */
 export function DataTableFilterPanel<TData extends DataTableData>({
   table,
+  data = [],
   initialColumnId,
   anchorPosition,
   transformHorizontal = 'left',
@@ -93,6 +114,50 @@ export function DataTableFilterPanel<TData extends DataTableData>({
     .filter((column) => column.getCanFilter());
 
   const firstFilterableColumnId = filterableColumns[0]?.id ?? initialColumnId;
+
+  // Suggestions for the value input: the column's distinct stringified
+  // values, derived lazily from the unfiltered rows and cached per column.
+  // `meta.filterOptions` overrides the derived list.
+  const optionsByColumn = useMemo(
+    () => new Map<string, string[]>(),
+    [table, data],
+  );
+
+  const getColumnOptions = (columnId: string): string[] => {
+    const cached = optionsByColumn.get(columnId);
+
+    if (cached) {
+      return cached;
+    }
+
+    const column = table.getColumn(columnId);
+    const meta = getColumnMeta(column?.columnDef.meta);
+
+    let options: string[];
+
+    if (meta?.filterOptions) {
+      options = meta.filterOptions;
+    } else if (column?.accessorFn) {
+      const unique = new Set<string>();
+
+      data.forEach((row, index) => {
+        const value = column.accessorFn?.(row, index);
+
+        // Mirrors the empty values the default cell renders as an em dash.
+        if (value !== null && value !== undefined && value !== '') {
+          unique.add(String(value));
+        }
+      });
+
+      options = Array.from(unique).sort((a, b) => a.localeCompare(b));
+    } else {
+      options = [];
+    }
+
+    optionsByColumn.set(columnId, options);
+
+    return options;
+  };
 
   const report = (
     nextRows: DataTableFilterRow[],
@@ -141,14 +206,15 @@ export function DataTableFilterPanel<TData extends DataTableData>({
     nextOperator: DataTableFilterOperator,
     currentValue: string | string[] | undefined,
   ): void => {
-    // Crossing between single-value and multi-value operators resets the
-    // value to the correct empty shape.
+    // Crossing between single-value and multi-value operators converts
+    // the value to the matching shape, carrying over what was typed
+    // (multi -> single keeps the first chip).
     let nextValue: string | string[] | undefined = currentValue;
 
-    if (nextOperator === 'isAnyOf' && !Array.isArray(currentValue)) {
-      nextValue = [];
-    } else if (nextOperator !== 'isAnyOf' && Array.isArray(currentValue)) {
-      nextValue = '';
+    if (filterOperatorIsMultiValue(nextOperator)) {
+      nextValue = toChipValues(currentValue);
+    } else if (Array.isArray(currentValue)) {
+      nextValue = currentValue[0] ?? '';
     }
 
     updateRow(id, { operator: nextOperator, value: nextValue });
@@ -243,13 +309,15 @@ export function DataTableFilterPanel<TData extends DataTableData>({
                 </MenuItem>
               ))}
             </TextField>
-            {row.operator === 'isAnyOf' ? (
+            {filterOperatorIsMultiValue(row.operator) ? (
               <Autocomplete
                 multiple
                 freeSolo
-                options={[]}
+                options={getColumnOptions(row.columnId)}
+                // Chips already picked drop out of the suggestion list.
+                filterSelectedOptions
                 size='medium'
-                value={Array.isArray(row.value) ? row.value : []}
+                value={toChipValues(row.value)}
                 onChange={(_, nextValue) =>
                   updateRow(row.id, { value: nextValue })
                 }

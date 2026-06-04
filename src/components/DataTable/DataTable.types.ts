@@ -35,7 +35,10 @@ export type DataTableFilterOperator =
  */
 export interface DataTableFilterValue {
   operator: DataTableFilterOperator;
-  /** A single string for most operators; a `string[]` for `isAnyOf`. */
+  /**
+   * A single string for most operators; a `string[]` for the multi-value
+   * operators (`contains`, `isAnyOf`) — `contains` accepts either.
+   */
   value?: string | string[];
 }
 
@@ -52,7 +55,11 @@ export interface DataTableFilterRow {
   id: string;
   columnId: string;
   operator: DataTableFilterOperator;
-  /** `string` for most operators; `string[]` for `isAnyOf`. */
+  /**
+   * `string` for most operators; `string[]` for the multi-value operators
+   * (`contains`, `isAnyOf`) — `contains` accepts either. Multiple values
+   * OR within the row (the cell value matches any of them).
+   */
   value?: string | string[];
 }
 
@@ -79,6 +86,13 @@ export interface DataTableColumnMeta {
    * which sizes the whole column.
    */
   width?: number | string;
+  /**
+   * Options suggested by the filter panel's value input for this column.
+   * When omitted, suggestions are derived from the column's distinct
+   * values in `data` — with `manualFiltering`, `data` only holds the
+   * current page, so supply the full set here.
+   */
+  filterOptions?: string[];
 }
 
 /**

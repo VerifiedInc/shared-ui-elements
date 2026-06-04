@@ -309,14 +309,95 @@ describe('<DataTable/>', () => {
       fireEvent.click(getByLabelText('Email column menu'));
       fireEvent.click(getByText('Filter'));
 
-      // Panel opens preselecting the menu's column with `contains`.
-      fireEvent.change(getByPlaceholderText('Filter value'), {
-        target: { value: 'alpha' },
-      });
+      // Panel opens preselecting the menu's column with `contains` —
+      // a multi-value operator, so values commit as chips on Enter.
+      const valueInput = getByPlaceholderText('Filter value');
+      fireEvent.change(valueInput, { target: { value: 'alpha' } });
+      fireEvent.keyDown(valueInput, { key: 'Enter' });
 
       const rows = getBodyRowTexts(container);
       expect(rows).toHaveLength(1);
       expect(rows[0]).toContain('alpha@verified.inc');
+    });
+
+    test('contains accepts multiple chip values that OR within the row', () => {
+      const { getByLabelText, getByText, getByPlaceholderText, container } =
+        render(<DataTable data={members} enableColumnMenu />);
+
+      fireEvent.click(getByLabelText('Email column menu'));
+      fireEvent.click(getByText('Filter'));
+
+      const valueInput = getByPlaceholderText('Filter value');
+      fireEvent.change(valueInput, { target: { value: 'alpha' } });
+      fireEvent.keyDown(valueInput, { key: 'Enter' });
+      expect(getBodyRowTexts(container)).toHaveLength(1);
+
+      // A second chip widens the match — the row ORs its values.
+      fireEvent.change(valueInput, { target: { value: 'bravo' } });
+      fireEvent.keyDown(valueInput, { key: 'Enter' });
+      expect(getBodyRowTexts(container)).toHaveLength(2);
+
+      // Deleting a chip through its close button narrows it again.
+      const chip = getByText('alpha').parentElement;
+      fireEvent.click(chip?.querySelector('.MuiChip-deleteIcon') as Element);
+
+      expect(getBodyRowTexts(container)).toHaveLength(1);
+      expect(getBodyRowTexts(container)[0]).toContain('bravo@verified.inc');
+    });
+
+    test('suggests the distinct column values in the value input', () => {
+      const {
+        getByLabelText,
+        getByText,
+        getByPlaceholderText,
+        getByRole,
+        getAllByRole,
+        container,
+      } = render(<DataTable data={members} enableColumnMenu />);
+
+      fireEvent.click(getByLabelText('Role column menu'));
+      fireEvent.click(getByText('Filter'));
+
+      // ArrowDown opens the suggestion list: deduped and sorted.
+      fireEvent.keyDown(getByPlaceholderText('Filter value'), {
+        key: 'ArrowDown',
+      });
+      expect(getAllByRole('option').map((option) => option.textContent)).toEqual(
+        ['admin', 'member'],
+      );
+
+      // Picking a suggestion commits it as a chip and filters.
+      fireEvent.click(getByRole('option', { name: 'admin' }));
+      expect(getBodyRowTexts(container)).toHaveLength(1);
+      expect(getBodyRowTexts(container)[0]).toContain('charlie@verified.inc');
+    });
+
+    test('meta.filterOptions overrides the derived suggestions', () => {
+      const { getByLabelText, getByText, getByPlaceholderText, getAllByRole } =
+        render(
+          <DataTable
+            data={members}
+            enableColumnMenu
+            columns={[
+              {
+                id: 'email',
+                accessorFn: (row) => row.email,
+                header: 'Email',
+                meta: { filterOptions: ['@verified.inc', '@example.com'] },
+              },
+            ]}
+          />,
+        );
+
+      fireEvent.click(getByLabelText('Email column menu'));
+      fireEvent.click(getByText('Filter'));
+
+      fireEvent.keyDown(getByPlaceholderText('Filter value'), {
+        key: 'ArrowDown',
+      });
+      expect(getAllByRole('option').map((option) => option.textContent)).toEqual(
+        ['@verified.inc', '@example.com'],
+      );
     });
 
     test('supports operators without a value input (is empty)', () => {
@@ -344,17 +425,18 @@ describe('<DataTable/>', () => {
       fireEvent.click(getByText('Filter'));
 
       // First row: email contains 'a' → alpha + bravo + charlie all match.
-      fireEvent.change(getAllByPlaceholderText('Filter value')[0], {
-        target: { value: 'a' },
-      });
+      const firstInput = getAllByPlaceholderText('Filter value')[0];
+      fireEvent.change(firstInput, { target: { value: 'a' } });
+      fireEvent.keyDown(firstInput, { key: 'Enter' });
       expect(getBodyRowTexts(container)).toHaveLength(3);
 
-      // Add a second row for role = 'admin' → only charlie matches both.
+      // Add a second row for email contains 'charlie' → only charlie
+      // matches both.
       fireEvent.click(getByText('Add filter'));
       const valueInputs = getAllByPlaceholderText('Filter value');
-      fireEvent.change(valueInputs[valueInputs.length - 1], {
-        target: { value: 'charlie' },
-      });
+      const secondInput = valueInputs[valueInputs.length - 1];
+      fireEvent.change(secondInput, { target: { value: 'charlie' } });
+      fireEvent.keyDown(secondInput, { key: 'Enter' });
       expect(getBodyRowTexts(container)).toHaveLength(1);
       expect(getBodyRowTexts(container)[0]).toContain('charlie@verified.inc');
     });
@@ -372,14 +454,15 @@ describe('<DataTable/>', () => {
       fireEvent.click(getByText('Filter'));
 
       // Row 1: email contains 'alpha'.
-      fireEvent.change(getAllByPlaceholderText('Filter value')[0], {
-        target: { value: 'alpha' },
-      });
+      const firstInput = getAllByPlaceholderText('Filter value')[0];
+      fireEvent.change(firstInput, { target: { value: 'alpha' } });
+      fireEvent.keyDown(firstInput, { key: 'Enter' });
 
       // Add row 2: email contains 'bravo'.
       fireEvent.click(getByText('Add filter'));
-      const valueInputs = getAllByPlaceholderText('Filter value');
-      fireEvent.change(valueInputs[1], { target: { value: 'bravo' } });
+      const secondInput = getAllByPlaceholderText('Filter value')[1];
+      fireEvent.change(secondInput, { target: { value: 'bravo' } });
+      fireEvent.keyDown(secondInput, { key: 'Enter' });
 
       // AND: must match both → zero rows (no email contains both 'alpha' and 'bravo').
       expect(getBodyRowTexts(container)).toHaveLength(0);
@@ -393,7 +476,7 @@ describe('<DataTable/>', () => {
     });
 
     test('shows an indicator on a filtered column that reopens the panel', () => {
-      const { getByLabelText, getByPlaceholderText, container } = render(
+      const { getByLabelText, getByText, container } = render(
         <DataTable
           data={members}
           enableColumnMenu
@@ -415,10 +498,8 @@ describe('<DataTable/>', () => {
 
       fireEvent.click(getByLabelText('Email filter'));
 
-      const valueInput = getByPlaceholderText(
-        'Filter value',
-      ) as HTMLInputElement;
-      expect(valueInput.value).toBe('alpha');
+      // The single string value renders as one chip.
+      expect(getByText('alpha')).toBeDefined();
     });
 
     test('removes a single row through its X button', () => {
@@ -496,9 +577,9 @@ describe('<DataTable/>', () => {
 
       fireEvent.click(getByLabelText('Email column menu'));
       fireEvent.click(getByText('Filter'));
-      fireEvent.change(getByPlaceholderText('Filter value'), {
-        target: { value: 'alpha' },
-      });
+      const valueInput = getByPlaceholderText('Filter value');
+      fireEvent.change(valueInput, { target: { value: 'alpha' } });
+      fireEvent.keyDown(valueInput, { key: 'Enter' });
 
       // Rows untouched — server expected to filter.
       expect(getBodyRowTexts(container)).toHaveLength(3);
@@ -509,7 +590,7 @@ describe('<DataTable/>', () => {
       expect(lastCall.rows[0]).toMatchObject({
         columnId: 'email',
         operator: 'contains',
-        value: 'alpha',
+        value: ['alpha'],
       });
     });
   });
@@ -1162,6 +1243,10 @@ describe('dataTableFilterFn', () => {
     // Comparisons are case-insensitive over the stringified value.
     ['contains', 'Alpha@Verified.inc', 'alpha', true],
     ['contains', 'bravo', 'alpha', false],
+    // Multiple contains values (chips) OR within the row.
+    ['contains', 'alpha@verified.inc', ['ZULU', 'Alpha'], true],
+    ['contains', 'bravo', ['alpha', 'zulu'], false],
+    ['contains', 'anything', [], true],
     ['doesNotContain', 'bravo', 'alpha', true],
     ['equals', 'Admin', 'admin', true],
     ['doesNotEqual', 'admin', 'admin', false],
