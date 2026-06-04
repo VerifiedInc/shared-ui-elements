@@ -362,9 +362,9 @@ describe('<DataTable/>', () => {
       fireEvent.keyDown(getByPlaceholderText('Filter value'), {
         key: 'ArrowDown',
       });
-      expect(getAllByRole('option').map((option) => option.textContent)).toEqual(
-        ['admin', 'member'],
-      );
+      expect(
+        getAllByRole('option').map((option) => option.textContent),
+      ).toEqual(['admin', 'member']);
 
       // Picking a suggestion commits it as a chip and filters.
       fireEvent.click(getByRole('option', { name: 'admin' }));
@@ -395,9 +395,9 @@ describe('<DataTable/>', () => {
       fireEvent.keyDown(getByPlaceholderText('Filter value'), {
         key: 'ArrowDown',
       });
-      expect(getAllByRole('option').map((option) => option.textContent)).toEqual(
-        ['@verified.inc', '@example.com'],
-      );
+      expect(
+        getAllByRole('option').map((option) => option.textContent),
+      ).toEqual(['@verified.inc', '@example.com']);
     });
 
     test('supports operators without a value input (is empty)', () => {
