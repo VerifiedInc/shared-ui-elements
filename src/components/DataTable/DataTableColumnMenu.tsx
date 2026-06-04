@@ -54,11 +54,17 @@ export function DataTableColumnMenu<TData extends DataTableData>({
   } = icons;
 
   const canSort = column.getCanSort();
+  const isSort = column.getIsSorted();
   const canFilter = column.getCanFilter();
   const canHide = column.getCanHide();
 
   const handleSort = (desc: boolean): void => {
     column.toggleSorting(desc);
+    onClose();
+  };
+
+  const handleUnsort = (): void => {
+    column.clearSorting();
     onClose();
   };
 
@@ -89,6 +95,12 @@ export function DataTableColumnMenu<TData extends DataTableData>({
             <SortDescIcon fontSize='small' />
           </ListItemIcon>
           <ListItemText>Sort by DESC</ListItemText>
+        </MenuItem>
+      )}
+      {canSort && isSort && (
+        <MenuItem disabled={isLoading} onClick={handleUnsort}>
+          <ListItemIcon />
+          <ListItemText>Unsort</ListItemText>
         </MenuItem>
       )}
       {canSort && canFilter && <Divider />}
