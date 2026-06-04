@@ -619,10 +619,12 @@ describe('<DataTable/>', () => {
 
       fireEvent.click(getByLabelText('Show filters'));
 
-      // Panel opens preselecting the first filterable column (email).
-      fireEvent.change(getByPlaceholderText('Filter value'), {
-        target: { value: 'alpha' },
-      });
+      // Panel opens preselecting the first filterable column (email) with
+      // `contains` — a multi-value operator, so the value commits as a
+      // chip on Enter.
+      const valueInput = getByPlaceholderText('Filter value');
+      fireEvent.change(valueInput, { target: { value: 'alpha' } });
+      fireEvent.keyDown(valueInput, { key: 'Enter' });
 
       const rows = getBodyRowTexts(container);
       expect(rows).toHaveLength(1);
