@@ -33,6 +33,7 @@ vi.mock('@tanstack/react-virtual', () => ({
           lane: 0,
         })),
       getTotalSize: () => count * size,
+      measure: () => undefined,
       measureElement: () => undefined,
       scrollToOffset: () => undefined,
     };
@@ -1229,6 +1230,176 @@ describe('<DataTable/>', () => {
       expect(getByTestId('custom-search')).toBeDefined();
       expect(getByTestId('ViewColumnIcon')).toBeDefined();
       expect(getByTestId('FilterListIcon')).toBeDefined();
+    });
+  });
+
+  describe('bidirectional scroll', () => {
+    function getScrollContainer(container: HTMLElement): HTMLDivElement {
+      return container.querySelector(
+        '.MuiTableContainer-root',
+      ) as HTMLDivElement;
+    }
+
+    // jsdom has no layout — fake a scrollable container so the hook's edge
+    // math (scrollHeight - scrollTop - clientHeight) has real numbers.
+    function makeScrollable(element: HTMLDivElement): void {
+      Object.defineProperty(element, 'scrollHeight', {
+        value: 1000,
+        configurable: true,
+      });
+      Object.defineProperty(element, 'clientHeight', {
+        value: 400,
+        configurable: true,
+      });
+    }
+
+    test('shows the sticky in-flight indicators while pages load', () => {
+      const { getByText } = render(
+        <DataTable
+          data={members}
+          disablePagination
+          bidirectionalScroll={{
+            isLoadingNewer: true,
+            isLoadingOlder: true,
+            onLoadNewer: vi.fn(),
+            onLoadOlder: vi.fn(),
+          }}
+        />,
+      );
+
+      expect(getByText('Loading newer rows')).toBeDefined();
+      expect(getByText('Loading older rows')).toBeDefined();
+    });
+
+    test('supports custom indicator labels', () => {
+      const { getByText } = render(
+        <DataTable
+          data={members}
+          disablePagination
+          bidirectionalScroll={{
+            isLoadingNewer: true,
+            isLoadingOlder: true,
+            onLoadNewer: vi.fn(),
+            onLoadOlder: vi.fn(),
+            loadingNewerLabel: 'Loading newer logs',
+            loadingOlderLabel: 'Loading older logs',
+          }}
+        />,
+      );
+
+      expect(getByText('Loading newer logs')).toBeDefined();
+      expect(getByText('Loading older logs')).toBeDefined();
+    });
+
+    test('hides the indicators while no page is loading', () => {
+      const { queryByText } = render(
+        <DataTable
+          data={members}
+          disablePagination
+          bidirectionalScroll={{
+            onLoadNewer: vi.fn(),
+            onLoadOlder: vi.fn(),
+          }}
+        />,
+      );
+
+      expect(queryByText('Loading newer rows')).toBeNull();
+      expect(queryByText('Loading older rows')).toBeNull();
+    });
+
+    test('loads newer rows at the top edge and older rows at the bottom edge', () => {
+      const onLoadNewer = vi.fn();
+      const onLoadOlder = vi.fn();
+
+      const { container } = render(
+        <DataTable
+          data={members}
+          disablePagination
+          bidirectionalScroll={{
+            hasNewer: true,
+            hasOlder: true,
+            onLoadNewer,
+            onLoadOlder,
+          }}
+        />,
+      );
+
+      const scrollContainer = getScrollContainer(container);
+      makeScrollable(scrollContainer);
+
+      // Scroll away from both edges to arm the triggers.
+      scrollContainer.scrollTop = 300;
+      fireEvent.scroll(scrollContainer);
+      expect(onLoadNewer).not.toHaveBeenCalled();
+      expect(onLoadOlder).not.toHaveBeenCalled();
+
+      // Top edge — loads newer.
+      scrollContainer.scrollTop = 0;
+      fireEvent.scroll(scrollContainer);
+      expect(onLoadNewer).toHaveBeenCalledTimes(1);
+
+      // Bottom edge (scrollHeight - scrollTop - clientHeight = 0) — loads
+      // older.
+      scrollContainer.scrollTop = 600;
+      fireEvent.scroll(scrollContainer);
+      expect(onLoadOlder).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not load at the edges without the bidirectionalScroll prop', () => {
+      const { container } = render(
+        <DataTable data={members} disablePagination />,
+      );
+
+      const scrollContainer = getScrollContainer(container);
+      makeScrollable(scrollContainer);
+
+      scrollContainer.scrollTop = 300;
+      fireEvent.scroll(scrollContainer);
+      scrollContainer.scrollTop = 0;
+
+      // No listener is attached, so this must not throw — and there are no
+      // callbacks to call.
+      fireEvent.scroll(scrollContainer);
+    });
+
+    test('preserves the scroll position when newer rows are prepended', () => {
+      const newer: Member[] = [
+        { email: 'delta@verified.inc', role: 'member', mfaEnabled: true },
+        { email: 'echo@verified.inc', role: 'admin', mfaEnabled: false },
+      ];
+
+      const renderTable = (data: Member[], isLoadingNewer: boolean) => (
+        <DataTable
+          data={data}
+          getRowId={(row) => row.email}
+          disablePagination
+          bidirectionalScroll={{
+            hasNewer: true,
+            isLoadingNewer,
+            onLoadNewer: vi.fn(),
+            onLoadOlder: vi.fn(),
+          }}
+        />
+      );
+
+      const { container, rerender } = render(renderTable(members, false));
+
+      const scrollContainer = getScrollContainer(container);
+      makeScrollable(scrollContainer);
+      scrollContainer.scrollTop = 100;
+
+      // The fetch starts — the hook snapshots the scroll metrics.
+      rerender(renderTable(members, true));
+
+      // The fetched rows land, growing the scrollable height by 400.
+      Object.defineProperty(scrollContainer, 'scrollHeight', {
+        value: 1400,
+        configurable: true,
+      });
+      rerender(renderTable([...newer, ...members], false));
+
+      // scrollTop is pushed down by the height delta, holding the viewport.
+      expect(scrollContainer.scrollTop).toBe(500);
     });
   });
 });

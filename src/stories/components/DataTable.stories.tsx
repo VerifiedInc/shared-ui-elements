@@ -643,6 +643,67 @@ export const AsyncPagination: Story = {
   render: () => <AsyncPaginationExample />,
 };
 
+// Bidirectional infinite scroll — rows stream in at both edges like the
+// dashboard LogsTable: scrolling to the bottom fetches older rows and
+// scrolling back to the top fetches newer ones, with sticky in-flight
+// indicators at the edges. Pagination is disabled — the scroll edges
+// replace the pager — and `getRowId` keeps row identity stable while
+// newer rows are prepended.
+function BidirectionalScrollExample() {
+  const PAGE = 25;
+
+  // Window into the feed: starts in the middle so both directions have
+  // pages to load.
+  const [start, setStart] = useState(50);
+  const [end, setEnd] = useState(50 + PAGE);
+  const [isLoadingNewer, setIsLoadingNewer] = useState(false);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+
+  const loadNewer = () => {
+    setIsLoadingNewer(true);
+
+    // Simulates a server request for the next newer page.
+    setTimeout(() => {
+      setStart((previous) => Math.max(0, previous - PAGE));
+      setIsLoadingNewer(false);
+    }, 800);
+  };
+
+  const loadOlder = () => {
+    setIsLoadingOlder(true);
+
+    // Simulates a server request for the next older page.
+    setTimeout(() => {
+      setEnd((previous) => Math.min(members.length, previous + PAGE));
+      setIsLoadingOlder(false);
+    }, 800);
+  };
+
+  return (
+    <DataTable
+      data={members.slice(start, end)}
+      getRowId={(row) => row.email}
+      disablePagination
+      // The feed arrives in server order — client sorting would shuffle
+      // the merged pages.
+      disableSorting
+      maxHeight={400}
+      bidirectionalScroll={{
+        hasNewer: start > 0,
+        hasOlder: end < members.length,
+        isLoadingNewer,
+        isLoadingOlder,
+        onLoadNewer: loadNewer,
+        onLoadOlder: loadOlder,
+      }}
+    />
+  );
+}
+
+export const BidirectionalScroll: Story = {
+  render: () => <BidirectionalScrollExample />,
+};
+
 // Large dataset with pagination disabled — virtualization keeps it fast.
 export const VirtualizedWithoutPagination: Story = {
   args: {

@@ -214,6 +214,49 @@ export interface DataTableRowContext<TData> {
   renderDefaultRow: () => ReactNode;
 }
 
+/**
+ * Configuration for bidirectional infinite scroll (see
+ * `DataTableProps.bidirectionalScroll`). The flags describe a paged,
+ * reverse-chronological feed: "newer" pages sit above the loaded window,
+ * "older" pages below it.
+ */
+export interface DataTableBidirectionalScroll {
+  /** Whether more rows exist above the loaded window. */
+  hasNewer?: boolean;
+  /** Whether more rows exist below the loaded window. */
+  hasOlder?: boolean;
+  /**
+   * Whether a newer-page fetch is in flight — shows the sticky indicator
+   * below the header and holds the scroll position when the rows land.
+   */
+  isLoadingNewer?: boolean;
+  /**
+   * Whether an older-page fetch is in flight — shows the sticky indicator
+   * at the bottom edge.
+   */
+  isLoadingOlder?: boolean;
+  /**
+   * Called when the user scrolls to the top edge — fetch the next newer
+   * page and prepend its rows to `data`.
+   */
+  onLoadNewer: () => void;
+  /**
+   * Called when the user scrolls to the bottom edge — fetch the next older
+   * page and append its rows to `data`.
+   */
+  onLoadOlder: () => void;
+  /**
+   * When this value changes, the scroll position resets to the top and the
+   * edge triggers re-arm. Derive it from the active filters (e.g. a
+   * serialised filter string) so a filter change starts a fresh feed.
+   */
+  resetKey?: string | number;
+  /** Label inside the top indicator. Defaults to 'Loading newer rows'. */
+  loadingNewerLabel?: string;
+  /** Label inside the bottom indicator. Defaults to 'Loading older rows'. */
+  loadingOlderLabel?: string;
+}
+
 export interface DataTableProps<TData extends DataTableData> {
   data: TData[];
   /**
@@ -296,6 +339,21 @@ export interface DataTableProps<TData extends DataTableData> {
   disableSorting?: boolean;
   /** Hides the pagination footer and renders all rows (still virtualized). */
   disablePagination?: boolean;
+  /**
+   * Bidirectional infinite scroll for streaming feeds (e.g. logs):
+   * scrolling to the bottom edge calls `onLoadOlder`, scrolling back to
+   * the top edge calls `onLoadNewer`, and sticky in-flight indicators pin
+   * to the edges while a page loads. The scroll position is preserved when
+   * newer rows are prepended, so the viewport doesn't jump.
+   *
+   * The consumer owns the pages: merge the fetched rows into `data` and
+   * flip the `has*` / `isLoading*` flags (e.g. from a React Query infinite
+   * query). Pair with `disablePagination` (the scroll edges replace the
+   * pager) and `getRowId` (prepended rows shift the indexes, which are the
+   * default row identity); rows are assumed to arrive in feed order, so
+   * sorting is usually disabled or manual.
+   */
+  bidirectionalScroll?: DataTableBidirectionalScroll;
   /**
    * Adds drag handles (vertical separator lines) on the header cell edges
    * to resize columns; double-clicking a handle restores the column's
