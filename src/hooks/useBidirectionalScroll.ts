@@ -3,6 +3,13 @@ import debounce from 'lodash/debounce';
 import type { Virtualizer } from '@tanstack/react-virtual';
 
 interface UseBidirectionalScrollOptions {
+  /**
+   * Gates the whole hook: when false, no scroll listener attaches and no
+   * scroll adjustments run. Lets components that must call the hook
+   * unconditionally (e.g. DataTable) keep the feature optional. Default
+   * true.
+   */
+  enabled?: boolean;
   /** Ref to the scrollable container element */
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
   /** The virtualizer instance (needed to recalculate after scroll adjustment) */
@@ -42,6 +49,7 @@ interface UseBidirectionalScrollOptions {
  *   viewport doesn't jump.
  */
 export function useBidirectionalScroll({
+  enabled = true,
   scrollContainerRef,
   virtualizer,
   rowCount,
@@ -64,6 +72,7 @@ export function useBidirectionalScroll({
   const olderArmedRef = useRef(false);
 
   useEffect(() => {
+    if (!enabled) return;
     const container = scrollContainerRef.current;
     if (container) {
       container.scrollTop = 0;
@@ -73,10 +82,11 @@ export function useBidirectionalScroll({
     // Disarm older-load until the user scrolls away from the bottom edge,
     // preventing a spurious loadOlder when the container is empty after reset.
     olderArmedRef.current = false;
-  }, [resetKey, scrollContainerRef]);
+  }, [enabled, resetKey, scrollContainerRef]);
 
   // Phase 1: snapshot when the newer fetch starts
   useEffect(() => {
+    if (!enabled) return;
     if (isLoadingNewer && !wasLoadingNewerRef.current) {
       const container = scrollContainerRef.current;
       if (container) {
@@ -87,7 +97,7 @@ export function useBidirectionalScroll({
       }
     }
     wasLoadingNewerRef.current = !!isLoadingNewer;
-  }, [isLoadingNewer, scrollContainerRef]);
+  }, [enabled, isLoadingNewer, scrollContainerRef]);
 
   // Phase 2: restore after new rows are committed to the DOM
   useLayoutEffect(() => {
@@ -117,6 +127,7 @@ export function useBidirectionalScroll({
   onLoadNewerRef.current = onLoadNewer;
 
   useEffect(() => {
+    if (!enabled) return;
     const container = scrollContainerRef.current;
     if (!container) return;
 
@@ -179,5 +190,5 @@ export function useBidirectionalScroll({
       loadNewer.cancel();
       loadOlder.cancel();
     };
-  }, [scrollContainerRef, debounceMs, rearmDistance]);
+  }, [enabled, scrollContainerRef, debounceMs, rearmDistance]);
 }

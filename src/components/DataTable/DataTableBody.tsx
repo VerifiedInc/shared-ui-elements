@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { flexRender } from '@tanstack/react-table';
 import {
@@ -11,6 +11,11 @@ import {
 } from '@mui/material';
 
 import { useDataTableContext } from './DataTable.context';
+import { VIRTUAL_BOUNDARY_ATTRIBUTE } from './DataTable.utils';
+
+// Stops the row-group measurement walk (see measureRowGroup) at the rows
+// that don't belong to any virtual row — padding and edge indicators.
+const virtualBoundaryProps = { [VIRTUAL_BOUNDARY_ATTRIBUTE]: '' };
 
 interface DataTableEdgeLoadingRowProps {
   edge: 'top' | 'bottom';
@@ -33,6 +38,7 @@ function DataTableEdgeLoadingRow({
 }: Readonly<DataTableEdgeLoadingRowProps>) {
   return (
     <TableRow
+      {...virtualBoundaryProps}
       sx={{
         position: 'sticky',
         ...(edge === 'top' ? { top } : { bottom: 0 }),
@@ -91,6 +97,73 @@ export function DataTableBody() {
 
   const virtualItems = virtualizer.getVirtualItems();
 
+  // The virtualizer's own ResizeObserver only watches the data-index row,
+  // so a sibling row resizing underneath it (e.g. a Collapse detail panel
+  // expanding) would go unnoticed and leave a stale group height — the
+  // scroll then snaps once the stale row leaves the window. This observer
+  // watches the sibling rows of every rendered group and re-measures the
+  // owning row when one of them resizes. It fires on every frame of a
+  // Collapse animation, so the virtualizer tracks the real height (and
+  // compensates the scroll offset for rows above the viewport) throughout.
+  const observedSiblingsRef = useRef<Set<Element>>(new Set());
+  const siblingObserverRef = useRef<ResizeObserver | null>(null);
+
+  const getSiblingObserver = (): ResizeObserver | null => {
+    if (!siblingObserverRef.current && typeof ResizeObserver !== 'undefined') {
+      siblingObserverRef.current = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          // Walk back to the data-index row that owns the resized sibling.
+          let owner = entry.target.previousElementSibling;
+          while (owner && !owner.hasAttribute('data-index')) {
+            owner = owner.previousElementSibling;
+          }
+
+          if (owner?.isConnected) {
+            virtualizer.measureElement(owner);
+          }
+        }
+      });
+    }
+
+    return siblingObserverRef.current;
+  };
+
+  useEffect(() => () => siblingObserverRef.current?.disconnect(), []);
+
+  // Recreated every render on purpose: the ref then re-runs on each
+  // commit, so sibling rows mounted after the data row (e.g. conditionally
+  // rendered detail rows) still get observed.
+  const measureRow = (node: HTMLTableRowElement | null): void => {
+    virtualizer.measureElement(node);
+    if (!node) return;
+
+    const observer = getSiblingObserver();
+    if (!observer) return;
+
+    // Drop rows that scrolled out of the window — the observer would
+    // otherwise keep their detached <tr>s alive.
+    for (const observed of observedSiblingsRef.current) {
+      if (!observed.isConnected) {
+        observer.unobserve(observed);
+        observedSiblingsRef.current.delete(observed);
+      }
+    }
+
+    let sibling = node.nextElementSibling;
+    while (
+      sibling &&
+      !sibling.hasAttribute('data-index') &&
+      !sibling.hasAttribute(VIRTUAL_BOUNDARY_ATTRIBUTE)
+    ) {
+      if (!observedSiblingsRef.current.has(sibling)) {
+        observer.observe(sibling);
+        observedSiblingsRef.current.add(sibling);
+      }
+
+      sibling = sibling.nextElementSibling;
+    }
+  };
+
   const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
 
   const paddingBottom =
@@ -131,7 +204,7 @@ export function DataTableBody() {
       )}
 
       {paddingTop > 0 && (
-        <TableRow>
+        <TableRow {...virtualBoundaryProps}>
           {/* Height is inline style (not sx) — it changes on every
               scroll frame and would churn Emotion classes. */}
           <TableCell
@@ -147,7 +220,7 @@ export function DataTableBody() {
 
         const rowProps = {
           'data-index': virtualRow.index,
-          ref: virtualizer.measureElement,
+          ref: measureRow,
         };
 
         const renderDefaultRow = () => (
@@ -187,7 +260,7 @@ export function DataTableBody() {
       })}
 
       {paddingBottom > 0 && (
-        <TableRow>
+        <TableRow {...virtualBoundaryProps}>
           <TableCell
             colSpan={columnCount}
             sx={{ p: 0, border: 'none' }}

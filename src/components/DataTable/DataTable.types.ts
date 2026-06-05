@@ -196,8 +196,11 @@ export interface DataTableRowContext<TData> {
   /** Virtual item for this row (index, measured size, offsets). */
   virtualRow: VirtualItem;
   /**
-   * Spread onto the root `<TableRow>` of a custom row so the virtualizer
-   * can measure its rendered height.
+   * Spread onto the first `<TableRow>` of a custom row so the virtualizer
+   * can measure its rendered height. Sibling rows rendered after it (e.g.
+   * a divider row or an expandable detail row) are measured and observed
+   * as part of the same row group — expanding a Collapse panel resizes
+   * the virtual row instead of snapping the scroll.
    */
   rowProps: {
     'data-index': number;

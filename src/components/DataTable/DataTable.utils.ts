@@ -2,6 +2,39 @@ import type { Column, ColumnDef } from '@tanstack/react-table';
 
 import type { DataTableColumnMeta, DataTableData } from './DataTable.types';
 
+/**
+ * Marks tbody rows that don't belong to any virtual row group (the
+ * virtualizer padding rows, the bidirectional-scroll edge indicators) so
+ * group measurement and observation stop walking when they reach one.
+ */
+export const VIRTUAL_BOUNDARY_ATTRIBUTE = 'data-virtual-boundary';
+
+/**
+ * Measures a logical row group. A single virtual row renders as several
+ * sibling `<tr>`s — the data row (which carries `data-index` and the
+ * measure ref) plus the divider row and any detail row a custom renderRow
+ * appends — so measuring only the first `<tr>` (the virtualizer default)
+ * undersizes every row, making the scrollbar jitter while scrolling, and
+ * ignores expanded detail panels entirely, snapping the scroll when their
+ * row leaves the render window. Sums the whole group up to the next
+ * measured row or a boundary row instead.
+ */
+export function measureRowGroup(element: Element): number {
+  let height = (element as HTMLElement).offsetHeight;
+
+  let sibling = element.nextElementSibling;
+  while (
+    sibling &&
+    !sibling.hasAttribute('data-index') &&
+    !sibling.hasAttribute(VIRTUAL_BOUNDARY_ATTRIBUTE)
+  ) {
+    height += (sibling as HTMLElement).offsetHeight;
+    sibling = sibling.nextElementSibling;
+  }
+
+  return height;
+}
+
 /** Turns an object key into a readable header label, e.g. `createdAt` → `Created At`. */
 export function formatColumnLabel(key: string): string {
   return key

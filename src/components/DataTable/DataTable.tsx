@@ -44,6 +44,7 @@ import {
   applyMetaWidthsToSizes,
   getColumnMeta,
   inferColumns,
+  measureRowGroup,
 } from './DataTable.utils';
 import { DataTableBody } from './DataTableBody';
 import { DataTableFooter } from './DataTableFooter';
@@ -106,7 +107,7 @@ export function DataTable<TData extends DataTableData>({
   footerLeft,
   estimateRowHeight = DEFAULT_ROW_HEIGHT_ESTIMATE,
   minWidth = 650,
-  maxHeight = 800,
+  maxHeight = 300,
   tableLayout = 'auto',
   icons = EMPTY_ICONS,
   emptyMessage = 'No data to display.',
@@ -462,6 +463,10 @@ export function DataTable<TData extends DataTableData>({
     getScrollElement: () => scrollContainerRef.current,
     estimateSize: () => estimateRowHeight,
     overscan: 5,
+    // The default measurement reads only the <tr> carrying the measure
+    // ref, but a logical row renders as several <tr>s (data row + divider
+    // row + optional detail row from renderRow) — see measureRowGroup.
+    measureElement: measureRowGroup,
   });
 
   // Edge-triggered infinite scroll (LogsTable parity): the top edge loads
