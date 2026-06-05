@@ -260,6 +260,9 @@ export function DataTableFilterPanel<TData extends DataTableData>({
                 select
                 size='medium'
                 value={logicOperator}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'Filter logic operator' },
+                }}
                 onChange={(event) =>
                   handleLogicOperatorChange(
                     event.target.value as DataTableFilterLogicOperator,
