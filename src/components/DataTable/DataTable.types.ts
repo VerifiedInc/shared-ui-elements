@@ -510,7 +510,7 @@ export interface DataTableProps<TData extends DataTableData> {
    * gives pinned columns something to stick over. Defaults to 650.
    */
   minWidth?: number | string;
-  /** Max height of the scroll container. Defaults to 600. */
+  /** Max height of the scroll container. Defaults to 800. */
   maxHeight?: number | string;
   /**
    * Table layout algorithm. With the default 'auto', column widths are
