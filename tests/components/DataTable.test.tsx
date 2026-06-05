@@ -469,7 +469,9 @@ describe('<DataTable/>', () => {
       expect(getBodyRowTexts(container)).toHaveLength(0);
 
       // Switch to OR.
-      fireEvent.mouseDown(getByRole('combobox', { name: '' })); // the And/Or select
+      fireEvent.mouseDown(
+        getByRole('combobox', { name: 'Filter logic operator' }),
+      ); // the And/Or select
       fireEvent.click(getByRole('option', { name: 'Or' }));
 
       // OR: matches alpha OR bravo → 2 rows.
