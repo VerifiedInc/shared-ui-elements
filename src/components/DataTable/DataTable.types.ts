@@ -1,7 +1,8 @@
-import type { ComponentType, ReactNode, Ref } from 'react';
+import type { ComponentType, CSSProperties, ReactNode, Ref } from 'react';
 
-import type { SvgIconProps } from '@mui/material';
+import type { SvgIconProps, SxProps, Theme } from '@mui/material';
 import type {
+  Cell,
   ColumnDef,
   ColumnPinningState,
   PaginationState,
@@ -139,6 +140,14 @@ export interface DataTableIcons {
    * item. Defaults to ViewColumn.
    */
   manageColumns?: DataTableIconComponent;
+  /** Toolbar "Export" button. Defaults to FileDownloadOutlined. */
+  export?: DataTableIconComponent;
+  /** Export menu "Print" item. Defaults to Print. */
+  print?: DataTableIconComponent;
+  /** Export menu "Download as CSV" item. Defaults to DescriptionOutlined. */
+  downloadCsv?: DataTableIconComponent;
+  /** Export menu "Download as Excel" item. Defaults to GridOnOutlined. */
+  downloadExcel?: DataTableIconComponent;
   /** Column menu "Hide column" item. Defaults to VisibilityOff. */
   hideColumn?: DataTableIconComponent;
   /**
@@ -166,6 +175,17 @@ export interface DataTableIcons {
 }
 
 /**
+ * Props for one body `<TableCell>` matching the default cells: the meta
+ * alignment plus, for pinned columns, the sticky offset and background
+ * styles (and the fixed-layout overflow clipping).
+ */
+export interface DataTableCellProps {
+  align?: DataTableColumnMeta['align'];
+  style?: CSSProperties;
+  sx?: SxProps<Theme>;
+}
+
+/**
  * Context handed to the custom row renderer. The default row markup is
  * available through `renderDefaultRow` so custom renderers can decorate it
  * (e.g. append an expandable detail row) instead of rebuilding it.
@@ -183,6 +203,13 @@ export interface DataTableRowContext<TData> {
     'data-index': number;
     ref: Ref<HTMLTableRowElement>;
   };
+  /**
+   * Spread onto each `<TableCell>` of a custom row (built from
+   * `row.getVisibleCells()`) to match the default cells — column meta
+   * alignment plus, with `enableColumnPinning`, the sticky styles that
+   * keep pinned cells in place while the table scrolls horizontally.
+   */
+  getCellProps: (cell: Cell<TData, unknown>) => DataTableCellProps;
   /** Renders the default `<TableRow>` for this row. */
   renderDefaultRow: () => ReactNode;
 }
@@ -209,9 +236,9 @@ export interface DataTableProps<TData extends DataTableData> {
    * Custom row renderer; falls back to the default row markup. Custom rows
    * build their own cells, so column visibility (Hide column / Manage
    * columns) only affects them when they render from
-   * `row.getVisibleCells()` instead of hardcoding cells. Pinned-column
-   * stickiness is likewise applied by the default cells only — custom rows
-   * must style their own.
+   * `row.getVisibleCells()` instead of hardcoding cells. Spread
+   * `getCellProps(cell)` onto each cell to keep the default alignment and
+   * pinned-column stickiness.
    */
   renderRow?: (context: DataTableRowContext<TData>) => ReactNode;
   /** Initial sorting state, e.g. `[{ id: 'email', desc: false }]`. */
@@ -272,11 +299,13 @@ export interface DataTableProps<TData extends DataTableData> {
   /**
    * Adds drag handles (vertical separator lines) on the header cell edges
    * to resize columns; double-clicking a handle restores the column's
-   * default width. Drags start from the column's rendered width (measured
-   * when the drag starts; numeric `meta.width` values seed it upfront).
-   * Per-column opt-out via `enableResizing: false` on the def. Widths are
-   * enforced exactly with `tableLayout: 'fixed'`; with the default 'auto',
-   * content can keep a column from shrinking below its natural width.
+   * pre-drag width. Drags start from the column's rendered width, and the
+   * other columns are frozen at theirs — resizing changes the table width
+   * (adding horizontal scroll as needed) instead of reflowing the
+   * neighboring columns. Per-column opt-out via `enableResizing: false`
+   * on the def. Widths are enforced exactly with `tableLayout: 'fixed'`;
+   * with the default 'auto', content can keep a column from shrinking
+   * below its natural width.
    */
   enableColumnResizing?: boolean;
   /**
@@ -297,7 +326,8 @@ export interface DataTableProps<TData extends DataTableData> {
    * scrolls horizontally; their offsets are measured from the rendered
    * header cells, so they hold under both table layouts. Per-column
    * opt-out via `enablePinning: false` on the def. Custom `renderRow`
-   * rows build their own cells and must apply their own sticky styles.
+   * rows build their own cells — spread `getCellProps(cell)` onto them
+   * to get the sticky styles.
    *
    * The table only scrolls horizontally once it is wider than its
    * container — pair with a `minWidth` beyond the container width (or
@@ -315,6 +345,21 @@ export interface DataTableProps<TData extends DataTableData> {
    * that opened them.
    */
   showToolbar?: boolean;
+  /**
+   * Adds an Export button to the toolbar (requires `showToolbar`) with
+   * Print, Download as CSV and Download as Excel actions. Exports always
+   * reflect the displayed table: the filtered + sorted rows across every
+   * page and the visible accessor columns in display order (display-only
+   * columns are skipped). With grouped columns the export starts with a
+   * group header row, like the rendered header. With `manualPagination`
+   * only the loaded page is exported.
+   */
+  enableExport?: boolean;
+  /**
+   * Base filename (no extension) for the exported files; also the printed
+   * document title. Defaults to 'data'.
+   */
+  exportFilename?: string;
   /**
    * Initial filter state. Rows are applied as AND by default; switch to OR
    * via `logicOperator: 'or'`.

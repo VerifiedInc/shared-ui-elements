@@ -300,7 +300,8 @@ export const ColumnPinning: Story = {
 };
 
 // Everything on: the toolbar, drag-resizable columns plus the full column
-// menu (sort, pin, filter, hide, manage columns).
+// menu (sort, pin, filter, hide, manage columns) and the export menu
+// (print, CSV, Excel) — exports reflect the displayed rows and columns.
 export const FullFeatured: Story = {
   args: {
     data: members,
@@ -308,6 +309,8 @@ export const FullFeatured: Story = {
     enableColumnMenu: true,
     enableColumnResizing: true,
     enableColumnPinning: true,
+    enableExport: true,
+    exportFilename: 'members',
     tableLayout: 'fixed',
   },
 };

@@ -12,6 +12,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type Cell,
   type ColumnPinningPosition,
   type ColumnPinningState,
   type ColumnSizingState,
@@ -26,6 +27,7 @@ import type { SxProps, Theme } from '@mui/material';
 import {
   Badge,
   Box,
+  Divider,
   IconButton,
   InputAdornment,
   Stack,
@@ -52,6 +54,7 @@ import {
 
 import type {
   DataTableActiveFilters,
+  DataTableCellProps,
   DataTableData,
   DataTableIcons,
   DataTableProps,
@@ -69,6 +72,7 @@ import {
   isFilterRowActive,
 } from './DataTable.filters';
 import { DataTableColumnMenu } from './DataTableColumnMenu';
+import { DataTableExportMenu } from './DataTableExportMenu';
 import { DataTableFilterPanel } from './DataTableFilterPanel';
 import { DataTableManageColumnsPanel } from './DataTableManageColumnsPanel';
 
@@ -168,6 +172,8 @@ export function DataTable<TData extends DataTableData>({
   enableColumnMenu = false,
   enableColumnPinning = false,
   showToolbar = false,
+  enableExport = false,
+  exportFilename = 'data',
   initialFilters = EMPTY_FILTERS,
   filters: controlledFilters,
   onFiltersChange,
@@ -229,7 +235,7 @@ export function DataTable<TData extends DataTableData>({
     );
 
   // Quick-search query written by the toolbar search input. Pre-filtered
-  // client-side across every column value; with manualFiltering the
+  // client-side across the columns' cell values; with manualFiltering the
   // consumer handles it from onSearchChange.
   const [search, handleSearchChange] = useControllableState<string>(
     initialSearch,
@@ -258,23 +264,34 @@ export function DataTable<TData extends DataTableData>({
   // Internal-only: dragged column widths, keyed by column id.
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
 
+  // Once any column was dragged, every column gets an explicit width and
+  // the table is sized to their sum — so widening a column grows the
+  // table (horizontal scroll) instead of reflowing (shrinking) its
+  // neighbors.
+  const hasResizedColumns =
+    enableColumnResizing && Object.keys(columnSizing).length > 0;
+
   // TanStack computes drag deltas from the column's believed size, which
   // falls back to a 150px default for columns sized by the browser's table
-  // layout — the first drag would snap such a column to ~150px. Seeding
-  // the def with the cell's rendered width right before the drag starts
-  // makes resizing track from the real width instead. (column.columnDef
-  // is TanStack's merged copy, so consumer defs are never mutated.)
+  // layout — the first drag would snap such a column to ~150px. Right
+  // before a drag starts, every still-unsized visible leaf column is
+  // seeded with its rendered width: the dragged one so resizing tracks
+  // from its real width, and the others so they stay frozen while only
+  // the table width follows the drag (see hasResizedColumns).
+  // (column.columnDef is TanStack's merged copy, so consumer defs are
+  // never mutated.)
   const startColumnResize = (
     header: Header<TData, unknown>,
     event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>,
   ): void => {
-    if (columnSizing[header.column.id] === undefined) {
-      const width = event.currentTarget
-        .closest('th')
-        ?.getBoundingClientRect().width;
+    for (const column of table.getVisibleLeafColumns()) {
+      if (columnSizing[column.id] === undefined) {
+        const width =
+          headerCellRefs.current[column.id]?.getBoundingClientRect().width;
 
-      if (width) {
-        header.column.columnDef.size = Math.round(width);
+        if (width) {
+          column.columnDef.size = Math.round(width);
+        }
       }
     }
 
@@ -350,12 +367,20 @@ export function DataTable<TData extends DataTableData>({
   // Multi-filter + quick-search pre-processing: apply the active filter
   // rows and the search query to `data` before handing it to TanStack.
   // Handles both AND and OR logic (TanStack can only AND column filters
-  // natively). With manualFiltering the consumer receives onFiltersChange
-  // / onSearchChange and handles both on the server.
+  // natively). Values resolve through the column accessors, so both match
+  // what the cells display — not raw row fields that never render. With
+  // manualFiltering the consumer receives onFiltersChange / onSearchChange
+  // and handles both on the server.
   const filteredData = useMemo(
     () =>
-      manualFiltering ? data : applySearch(applyFilters(data, filters), search),
-    [data, filters, search, manualFiltering],
+      manualFiltering
+        ? data
+        : applySearch(
+            applyFilters(data, filters, resolvedColumns),
+            search,
+            resolvedColumns,
+          ),
+    [data, filters, search, manualFiltering, resolvedColumns],
   );
 
   const table = useReactTable({
@@ -503,13 +528,13 @@ export function DataTable<TData extends DataTableData>({
     return () => observer.disconnect();
   }, [headerRowCount, resolvedColumns]);
 
-  // Pinned cells stick via CSS left/right offsets equal to the summed
-  // widths of the pinned columns before them. Widths are measured from
-  // the rendered header cells — TanStack's own offsets assume the defs'
-  // sizes, which the browser's auto table layout does not honor.
-  const pinnedHeaderCellRefs = useRef<
-    Record<string, HTMLTableCellElement | null>
-  >({});
+  // Rendered leaf header cells, keyed by column id. They are the width
+  // source for the pinned sticky offsets and for freezing column widths
+  // when a resize drag starts — TanStack's own sizes assume the defs'
+  // sizes, which the browser's table layout does not honor.
+  const headerCellRefs = useRef<Record<string, HTMLTableCellElement | null>>(
+    {},
+  );
   const [pinnedOffsets, setPinnedOffsets] = useState<{
     left: Record<string, number>;
     right: Record<string, number>;
@@ -540,7 +565,7 @@ export function DataTable<TData extends DataTableData>({
       for (const id of leftIds) {
         left[id] = offset;
         offset +=
-          pinnedHeaderCellRefs.current[id]?.getBoundingClientRect().width ?? 0;
+          headerCellRefs.current[id]?.getBoundingClientRect().width ?? 0;
       }
 
       // Right offsets accumulate from the right edge inward.
@@ -550,7 +575,7 @@ export function DataTable<TData extends DataTableData>({
       for (const id of [...rightIds].reverse()) {
         right[id] = offset;
         offset +=
-          pinnedHeaderCellRefs.current[id]?.getBoundingClientRect().width ?? 0;
+          headerCellRefs.current[id]?.getBoundingClientRect().width ?? 0;
       }
 
       // Returning the previous object when nothing changed keeps the state
@@ -574,7 +599,7 @@ export function DataTable<TData extends DataTableData>({
     const observer = new ResizeObserver(measure);
 
     [...leftIds, ...rightIds].forEach((id) => {
-      const cell = pinnedHeaderCellRefs.current[id];
+      const cell = headerCellRefs.current[id];
 
       if (cell) {
         observer.observe(cell);
@@ -649,6 +674,19 @@ export function DataTable<TData extends DataTableData>({
     });
   };
 
+  // Cell props matching the default body cells — meta alignment plus the
+  // pinned sticky styles. Shared with custom renderRow rows through the
+  // row context so they keep pinning parity.
+  const getCellProps = (cell: Cell<TData, unknown>): DataTableCellProps => {
+    const pinned = cell.column.getIsPinned();
+
+    return {
+      align: getColumnMeta(cell.column.columnDef.meta)?.align,
+      style: getPinnedOffsetStyle(pinned, cell.column.id),
+      sx: getBodyCellSx(pinned, cell.column.id),
+    };
+  };
+
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollContainerRef.current,
@@ -708,6 +746,27 @@ export function DataTable<TData extends DataTableData>({
               </IconButton>
             </Tooltip>
           )}
+          {enableExport && (
+            <Divider
+              orientation='vertical'
+              variant='middle'
+              flexItem
+              sx={{ height: 14, alignSelf: 'center' }}
+            />
+          )}
+          {enableExport && (
+            <DataTableExportMenu
+              table={table}
+              filename={exportFilename}
+              icons={icons}
+            />
+          )}
+          <Divider
+            orientation='vertical'
+            variant='middle'
+            flexItem
+            sx={{ height: 14, alignSelf: 'center' }}
+          />
           {/* Search button that expands into the quick-search input. The
               icon button is the input's start adornment, so the field
               grows open around it — expanding on focus and collapsing on
@@ -778,10 +837,25 @@ export function DataTable<TData extends DataTableData>({
           />
         </Stack>
       )}
-      <TableContainer ref={scrollContainerRef} sx={{ maxHeight }}>
+      <TableContainer
+        ref={scrollContainerRef}
+        // `width: 0` keeps the table's width from propagating to the
+        // page (inside flex/grid parents a wide — e.g. drag-resized —
+        // table would otherwise push the ancestors apart instead of
+        // scrolling), while `minWidth: 100%` still stretches the
+        // container to fill whatever width the parent actually has.
+        sx={{ maxHeight, width: 0, minWidth: '100%' }}
+      >
         <Table
           stickyHeader
           sx={{ minWidth, tableLayout }}
+          // With resizing active the table is sized to the sum of the
+          // column widths, so widening a column adds horizontal scroll
+          // instead of shrinking its neighbors. Inline style — it changes
+          // on every drag frame.
+          style={
+            hasResizedColumns ? { width: table.getTotalSize() } : undefined
+          }
           aria-label='data table'
         >
           <TableHead>
@@ -816,9 +890,6 @@ export function DataTable<TData extends DataTableData>({
                     enableColumnResizing &&
                     !isGroupHeader &&
                     column.getCanResize();
-                  const isResized =
-                    enableColumnResizing &&
-                    columnSizing[column.id] !== undefined;
                   const isResizing = column.getIsResizing();
                   // Group headers can't pin (only leaf columns can).
                   const pinned: ColumnPinningPosition = isGroupHeader
@@ -873,22 +944,27 @@ export function DataTable<TData extends DataTableData>({
                   return (
                     <TableCell
                       key={header.id}
-                      // Pinned header cells are the width source for the
-                      // sticky offsets.
+                      // Leaf header cells are the width source for the
+                      // pinned sticky offsets and for freezing the
+                      // columns when a resize drag starts.
                       ref={(element: HTMLTableCellElement | null) => {
-                        if (pinned) {
-                          pinnedHeaderCellRefs.current[column.id] = element;
+                        if (!isGroupHeader) {
+                          headerCellRefs.current[column.id] = element;
                         }
                       }}
                       align={align}
                       colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                       rowSpan={rowSpan > 1 ? rowSpan : undefined}
                       sortDirection={sortDirection}
-                      // Dragged width and sticky offset are inline style
-                      // (not sx) — they change on every drag frame and
-                      // would churn Emotion classes.
+                      // Widths and sticky offsets are inline style (not
+                      // sx) — they change on every drag frame and would
+                      // churn Emotion classes. With resizing active every
+                      // header gets its explicit width (group headers the
+                      // sum of their leaves), so columns never reflow.
                       style={{
-                        ...(isResized ? { width: column.getSize() } : {}),
+                        ...(hasResizedColumns
+                          ? { width: header.getSize() }
+                          : {}),
                         ...getPinnedOffsetStyle(pinned, column.id),
                       }}
                       sx={{
@@ -1098,24 +1174,14 @@ export function DataTable<TData extends DataTableData>({
                     {...rowProps}
                     sx={{ '& > td': { borderBottom: 'unset' } }}
                   >
-                    {row.getVisibleCells().map((cell) => {
-                      const meta = getColumnMeta(cell.column.columnDef.meta);
-                      const pinned = cell.column.getIsPinned();
-
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          align={meta?.align}
-                          style={getPinnedOffsetStyle(pinned, cell.column.id)}
-                          sx={getBodyCellSx(pinned, cell.column.id)}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      );
-                    })}
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} {...getCellProps(cell)}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
                   </TableRow>
                   {/* Divider row — draws the full-width line below the row,
                       matching the dashboard team table design. */}
@@ -1128,7 +1194,13 @@ export function DataTable<TData extends DataTableData>({
               return (
                 <React.Fragment key={row.id}>
                   {renderRow
-                    ? renderRow({ row, virtualRow, rowProps, renderDefaultRow })
+                    ? renderRow({
+                        row,
+                        virtualRow,
+                        rowProps,
+                        getCellProps,
+                        renderDefaultRow,
+                      })
                     : renderDefaultRow()}
                 </React.Fragment>
               );
