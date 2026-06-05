@@ -43,7 +43,6 @@ import { formatExtendedDate } from '../../utils/date';
 
 import { DataTable } from '../../components/DataTable';
 import type { DataTableRowContext } from '../../components/DataTable';
-import { set } from 'date-fns';
 
 type Member = {
   email: string;

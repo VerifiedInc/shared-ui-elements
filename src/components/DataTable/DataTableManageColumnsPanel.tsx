@@ -78,6 +78,7 @@ export function DataTableManageColumnsPanel<TData extends DataTableData>({
           autoFocus
           size='small'
           placeholder='Search'
+          inputProps={{ 'aria-label': 'Search columns' }}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           InputProps={{
