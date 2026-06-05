@@ -107,7 +107,7 @@ export function DataTable<TData extends DataTableData>({
   footerLeft,
   estimateRowHeight = DEFAULT_ROW_HEIGHT_ESTIMATE,
   minWidth = 650,
-  maxHeight = 300,
+  maxHeight = 800,
   tableLayout = 'auto',
   icons = EMPTY_ICONS,
   emptyMessage = 'No data to display.',
