@@ -508,6 +508,44 @@ describe('<BillableEventsTable/> deal columns', () => {
     expect(queryByText('Deal Name')).toBeNull();
   });
 
+  test('sorts by Deal Name and by Current stage (leading columns are sortable)', () => {
+    const rows = [
+      makeRow({
+        brandUuid: 'b-z',
+        brand: 'Z Brand',
+        customerName: 'C',
+        dealName: 'Zeta Deal',
+        dealCurrentStage: 'Trial',
+      }),
+      makeRow({
+        brandUuid: 'b-a',
+        brand: 'A Brand',
+        customerName: 'C',
+        dealName: 'Alpha Deal',
+        dealCurrentStage: 'Won',
+      }),
+    ];
+    const { getByText, container } = render(
+      <BillableEventsTable
+        data={rows}
+        isLoading={false}
+        isFetching={false}
+        leadingColumns={DEAL_LEADING_COLUMNS}
+        columnSlots={DEAL_COLUMN_SLOTS}
+      />,
+    );
+    const firstRow = () =>
+      container.querySelectorAll('tbody tr')[0]?.textContent ?? '';
+
+    fireEvent.click(getByText('Deal Name')); // asc by deal name
+    expect(firstRow()).toContain('Alpha Deal');
+    fireEvent.click(getByText('Deal Name')); // desc
+    expect(firstRow()).toContain('Zeta Deal');
+
+    fireEvent.click(getByText('Current')); // asc by stage label: Trial < Won
+    expect(firstRow()).toContain('Trial');
+  });
+
   test('Billing Notes appears in the expanded panel when present', () => {
     const { getAllByText, getByText, queryByText } = render(
       <BillableEventsTable

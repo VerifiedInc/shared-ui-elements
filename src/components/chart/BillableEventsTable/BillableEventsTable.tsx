@@ -37,8 +37,30 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   leadingColumns = [],
   showCustomerColumn = true,
 }) => {
+  // Every leading leaf column (single columns + group children), in order.
+  const leadingFlat = useMemo(
+    () =>
+      leadingColumns.flatMap((item) =>
+        item.type === 'column' ? [item.column] : item.columns,
+      ),
+    [leadingColumns],
+  );
+  // Only the children of leading groups, these fill the second header row (singles span both rows).
+  const leadingGroupColumns = useMemo(
+    () =>
+      leadingColumns.flatMap((item) =>
+        item.type === 'group' ? item.columns : [],
+      ),
+    [leadingColumns],
+  );
+  // Leading columns sort by their direct row field (like Customer/Brand Name), not row.metrics.
+  const directKeys = useMemo(
+    () => [...DIRECT_KEYS, ...leadingFlat.map((col) => col.key)],
+    [leadingFlat],
+  );
+
   const { sortKey, sortDir, handleSort, sortedData } =
-    useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
+    useBillableSort<BillableEventsTableRow>(data, directKeys, 'brand');
 
   const [expandedBrandUuid, setExpandedBrandUuid] = useState<string | null>(
     null,
@@ -63,23 +85,6 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
       .flatMap((p) => p.columns)
       .filter((c) => !topLevelColumnKeys.has(c.key));
   }, [activeProducts, topLevelColumnKeys]);
-
-  // Every leading leaf column (single columns + group children), in order.
-  const leadingFlat = useMemo(
-    () =>
-      leadingColumns.flatMap((item) =>
-        item.type === 'column' ? [item.column] : item.columns,
-      ),
-    [leadingColumns],
-  );
-  // Only the children of leading groups, these fill the second header row (singles span both rows).
-  const leadingGroupColumns = useMemo(
-    () =>
-      leadingColumns.flatMap((item) =>
-        item.type === 'group' ? item.columns : [],
-      ),
-    [leadingColumns],
-  );
 
   const renderCell = (
     col: BillableEventColumn,
@@ -137,7 +142,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
             {leadingColumns.map((item: BillableLeadingColumn, index) =>
               item.type === 'column' ? (
                 <TableCell key={item.column.key} rowSpan={2}>
-                  {item.column.label}
+                  {sortLabel(item.column.key, item.column.label)}
                 </TableCell>
               ) : (
                 <TableCell
@@ -181,7 +186,9 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
           {/* Event column header row */}
           <TableRow>
             {leadingGroupColumns.map((col: BillableEventColumn) => (
-              <TableCell key={col.key}>{col.label}</TableCell>
+              <TableCell key={col.key}>
+                {sortLabel(col.key, col.label)}
+              </TableCell>
             ))}
             {allColumns.map((col: BillableEventColumn) => (
               <TableCell key={col.key} align='right'>
