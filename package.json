@@ -131,6 +131,7 @@
     "@mui/icons-material": ">=5 <6",
     "@mui/material": ">=5 <6",
     "@tanstack/react-query": ">=5",
+    "@tanstack/react-table": ">=8 <9",
     "@tanstack/react-virtual": ">=3",
     "date-fns": ">=3.6.0",
     "decimal.js": ">=10.4.3",
