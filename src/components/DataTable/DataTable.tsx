@@ -851,10 +851,13 @@ export function DataTable<TData extends DataTableData>({
           sx={{ minWidth, tableLayout }}
           // With resizing active the table is sized to the sum of the
           // column widths, so widening a column adds horizontal scroll
-          // instead of shrinking its neighbors. Inline style — it changes
-          // on every drag frame.
+          // instead of shrinking its neighbors — but never below the
+          // container width, so narrowing columns can't leave a gap on
+          // the right. Inline style — it changes on every drag frame.
           style={
-            hasResizedColumns ? { width: table.getTotalSize() } : undefined
+            hasResizedColumns
+              ? { width: `max(${table.getTotalSize()}px, 100%)` }
+              : undefined
           }
           aria-label='data table'
         >
