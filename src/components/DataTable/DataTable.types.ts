@@ -85,6 +85,12 @@ export interface DataTableColumnMeta {
    * Column width — any CSS width value: a number for px (e.g. 140) or a
    * string for percentage fill (e.g. '40%'). Applied to the header cell,
    * which sizes the whole column.
+   *
+   * With `enableColumnResizing`, a numeric (px) width behaves like a
+   * drag-resize: the table grows to the sum of the column widths and
+   * scrolls horizontally rather than shrinking the other columns to fit,
+   * so a large width never reflows its neighbors. Percentage widths still
+   * split the available space.
    */
   width?: number | string;
   /**

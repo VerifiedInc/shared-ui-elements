@@ -174,6 +174,42 @@ export const ColumnResizing: Story = {
   },
 };
 
+// A large initial column width (set via `meta.width`) behaves like a
+// drag-resize: the table grows to the sum of the column widths and scrolls
+// horizontally, instead of shrinking the other columns to fit. Columns
+// without a width stay auto and flex to fill the remaining space.
+export const LargeColumnWidth: Story = {
+  args: {
+    data: members,
+    enableColumnResizing: true,
+    columns: [
+      {
+        id: 'email',
+        accessorFn: (row) => row.email,
+        header: 'Email',
+        enableSorting: true,
+        meta: { width: 2000 },
+      },
+      {
+        id: 'role',
+        accessorFn: (row) => row.role,
+        header: 'Role',
+      },
+      {
+        id: 'status',
+        accessorFn: (row) => row.status,
+        header: 'Status',
+      },
+      {
+        id: 'invitedAt',
+        accessorFn: (row) => row.invitedAt,
+        header: 'Invited At',
+        enableSorting: true,
+      },
+    ],
+  },
+};
+
 // Per-column kebab menu (hover a header to reveal it), like the MUI
 // DataGrid column menu: Sort by ASC/DESC for sortable columns, Filter for
 // filterable columns, and Hide column / Manage columns for visibility.

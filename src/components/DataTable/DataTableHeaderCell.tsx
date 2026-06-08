@@ -140,11 +140,17 @@ export function DataTableHeaderCell({
       sortDirection={sortDirection}
       // Widths and sticky offsets are inline style (not
       // sx) — they change on every drag frame and would
-      // churn Emotion classes. With resizing active every
-      // header gets its explicit width (group headers the
-      // sum of their leaves), so columns never reflow.
+      // churn Emotion classes. A header gets its explicit
+      // width once a drag has frozen every column, or up
+      // front when the column carries a numeric meta.width
+      // — so a wide column grows the table instead of
+      // reflowing its neighbors. Columns with no fixed
+      // width stay auto (flexing to fill) until a drag
+      // freezes them.
       style={{
-        ...(hasResizedColumns ? { width: header.getSize() } : {}),
+        ...(hasResizedColumns || typeof meta?.width === 'number'
+          ? { width: header.getSize() }
+          : {}),
         ...getPinnedOffsetStyle(pinned, column.id),
       }}
       sx={{
