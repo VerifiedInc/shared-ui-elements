@@ -284,6 +284,28 @@ describe('<DataTable/>', () => {
       expect(getBodyRowTexts(container)[0]).toContain('charlie@verified.inc');
     });
 
+    test('hides the kebab on columns opting out via meta.disableColumnMenu', () => {
+      const { getByLabelText, queryByLabelText } = render(
+        <DataTable
+          data={members}
+          enableColumnMenu
+          columns={[
+            {
+              id: 'expand',
+              header: '',
+              meta: { disableColumnMenu: true },
+            },
+            { id: 'email', accessorFn: (row) => row.email, header: 'Email' },
+          ]}
+        />,
+      );
+
+      // The utility column has no menu...
+      expect(queryByLabelText('Expand column menu')).toBeNull();
+      // ...while the others still do.
+      expect(getByLabelText('Email column menu')).toBeDefined();
+    });
+
     test('omits the sort items for non-sortable columns', () => {
       const { getByLabelText, queryByText } = render(
         <DataTable

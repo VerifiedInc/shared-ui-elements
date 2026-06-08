@@ -81,7 +81,11 @@ export function DataTableHeaderCell({
   const pinned: ColumnPinningPosition = isGroupHeader
     ? false
     : column.getIsPinned();
-  const showColumnMenu = enableColumnMenu && !isGroupHeader;
+  // Per-column opt-out (meta.disableColumnMenu) — for utility columns with
+  // nothing to act on, so they don't show a menu offering only the global
+  // "Manage columns" action.
+  const showColumnMenu =
+    enableColumnMenu && !isGroupHeader && !meta?.disableColumnMenu;
   const isMenuOpen =
     columnPanel?.type === 'menu' && columnPanel.columnId === column.id;
   // Compute from our filter state — TanStack's columnFilters is no longer
