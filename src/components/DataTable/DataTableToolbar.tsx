@@ -94,7 +94,10 @@ export function DataTableToolbar() {
             size='small'
             aria-label='Show filters'
             onClick={(event) =>
-              openFilterPanel(firstFilterableColumnId ?? '', event.currentTarget)
+              openFilterPanel(
+                firstFilterableColumnId ?? '',
+                event.currentTarget,
+              )
             }
           >
             <Badge badgeContent={totalActiveFilterCount} color='primary'>

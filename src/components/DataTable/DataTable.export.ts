@@ -90,10 +90,14 @@ export function getDataTableExportModel<TData extends DataTableData>(
       ...columns.map((column) => getColumnLabel(column)),
       ...additionalColumns.map((column) => column.header),
     ],
-    rows: table.getPrePaginationRowModel().rows.map((row) => [
-      ...columns.map((column) => toExportValue(row.getValue(column.id))),
-      ...additionalColumns.map((column) => toExportValue(column.value(row.original))),
-    ]),
+    rows: table
+      .getPrePaginationRowModel()
+      .rows.map((row) => [
+        ...columns.map((column) => toExportValue(row.getValue(column.id))),
+        ...additionalColumns.map((column) =>
+          toExportValue(column.value(row.original)),
+        ),
+      ]),
   };
 }
 

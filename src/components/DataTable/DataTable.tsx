@@ -68,7 +68,9 @@ function findFirstLeafColumnId<TData>(
   cols: ReadonlyArray<ColumnDef<TData, unknown>> | undefined,
 ): string | undefined {
   for (const col of cols ?? []) {
-    const group = (col as { columns?: ReadonlyArray<ColumnDef<TData, unknown>> }).columns;
+    const group = (
+      col as { columns?: ReadonlyArray<ColumnDef<TData, unknown>> }
+    ).columns;
     if (group?.length) {
       const childId = findFirstLeafColumnId(group);
       if (childId) return childId;
