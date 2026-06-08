@@ -81,7 +81,11 @@ export function DataTableHeaderCell({
   const pinned: ColumnPinningPosition = isGroupHeader
     ? false
     : column.getIsPinned();
-  const showColumnMenu = enableColumnMenu && !isGroupHeader;
+  // Per-column opt-out (meta.disableColumnMenu) — for utility columns with
+  // nothing to act on, so they don't show a menu offering only the global
+  // "Manage columns" action.
+  const showColumnMenu =
+    enableColumnMenu && !isGroupHeader && !meta?.disableColumnMenu;
   const isMenuOpen =
     columnPanel?.type === 'menu' && columnPanel.columnId === column.id;
   // Compute from our filter state — TanStack's columnFilters is no longer
@@ -140,11 +144,22 @@ export function DataTableHeaderCell({
       sortDirection={sortDirection}
       // Widths and sticky offsets are inline style (not
       // sx) — they change on every drag frame and would
-      // churn Emotion classes. With resizing active every
-      // header gets its explicit width (group headers the
-      // sum of their leaves), so columns never reflow.
+      // churn Emotion classes. A header gets its explicit
+      // width once a drag has frozen every column, or up
+      // front when the column carries a numeric meta.width
+      // — so a wide column grows the table instead of
+      // reflowing its neighbors. Columns with no fixed
+      // width stay auto (flexing to fill) until a drag
+      // freezes them. Only with resizing on: otherwise the
+      // column size isn't seeded from meta.width, so
+      // header.getSize() would be the 150px default and
+      // override the sx width below — the width applies
+      // through sx instead.
       style={{
-        ...(hasResizedColumns ? { width: header.getSize() } : {}),
+        ...(hasResizedColumns ||
+        (enableColumnResizing && typeof meta?.width === 'number')
+          ? { width: header.getSize() }
+          : {}),
         ...getPinnedOffsetStyle(pinned, column.id),
       }}
       sx={{

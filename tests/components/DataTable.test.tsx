@@ -284,6 +284,28 @@ describe('<DataTable/>', () => {
       expect(getBodyRowTexts(container)[0]).toContain('charlie@verified.inc');
     });
 
+    test('hides the kebab on columns opting out via meta.disableColumnMenu', () => {
+      const { getByLabelText, queryByLabelText } = render(
+        <DataTable
+          data={members}
+          enableColumnMenu
+          columns={[
+            {
+              id: 'expand',
+              header: '',
+              meta: { disableColumnMenu: true },
+            },
+            { id: 'email', accessorFn: (row) => row.email, header: 'Email' },
+          ]}
+        />,
+      );
+
+      // The utility column has no menu...
+      expect(queryByLabelText('Expand column menu')).toBeNull();
+      // ...while the others still do.
+      expect(getByLabelText('Email column menu')).toBeDefined();
+    });
+
     test('omits the sort items for non-sortable columns', () => {
       const { getByLabelText, queryByText } = render(
         <DataTable
@@ -1006,6 +1028,90 @@ describe('<DataTable/>', () => {
       const { container } = render(<DataTable data={members} />);
 
       expect(container.querySelector('.DataTable-columnResizer')).toBeNull();
+    });
+
+    test('a large initial column width grows the table instead of shrinking its neighbors', () => {
+      const { container } = render(
+        <DataTable
+          data={members}
+          enableColumnResizing
+          columns={[
+            {
+              id: 'email',
+              accessorFn: (row) => row.email,
+              header: 'Email',
+              meta: { width: 800 },
+            },
+            {
+              id: 'role',
+              accessorFn: (row) => row.role,
+              header: 'Role',
+            },
+            {
+              id: 'mfaEnabled',
+              accessorFn: (row) => row.mfaEnabled,
+              header: 'MFA',
+            },
+          ]}
+        />,
+      );
+
+      const table = container.querySelector<HTMLTableElement>(
+        'table[aria-label="data table"]',
+      );
+
+      // The table is sized to the sum of the column widths (800 + the 150px
+      // TanStack default for the two unsized columns), with a 100% floor —
+      // so the wide column adds horizontal scroll rather than reflowing.
+      expect(table?.style.width).toBe('max(1100px, 100%)');
+
+      const headerCells =
+        container.querySelectorAll<HTMLTableCellElement>('thead th');
+
+      // The sized column gets its explicit width...
+      expect(headerCells[0].style.width).toBe('800px');
+      // ...while the unsized neighbors stay auto (no inline width) so they
+      // flex to fill the remaining space instead of being crushed.
+      expect(headerCells[1].style.width).toBe('');
+      expect(headerCells[2].style.width).toBe('');
+    });
+
+    test('leaves the table unsized when no column carries an explicit width', () => {
+      const { container } = render(
+        <DataTable data={members} enableColumnResizing />,
+      );
+
+      const table = container.querySelector<HTMLTableElement>(
+        'table[aria-label="data table"]',
+      );
+
+      // No explicit sizes and no drag yet — the table keeps its default
+      // sizing so columns distribute normally.
+      expect(table?.style.width).toBe('');
+    });
+
+    test('does not add an inline width for a numeric meta.width when resizing is off', () => {
+      const { container } = render(
+        <DataTable
+          data={members}
+          columns={[
+            {
+              id: 'email',
+              accessorFn: (row) => row.email,
+              header: 'Email',
+              meta: { width: 140 },
+            },
+          ]}
+        />,
+      );
+
+      const headerCell =
+        container.querySelector<HTMLTableCellElement>('thead th');
+
+      // Without resizing the size isn't seeded from meta.width, so an inline
+      // width would be the 150px default and override the sx width — the
+      // width must come through sx (no inline width) instead.
+      expect(headerCell?.style.width).toBe('');
     });
   });
 

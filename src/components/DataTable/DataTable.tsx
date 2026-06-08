@@ -170,10 +170,8 @@ export function DataTable<TData extends DataTableData>({
   // Internal-only: dragged column widths, keyed by column id.
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
 
-  // Once any column was dragged, every column gets an explicit width and
-  // the table is sized to their sum — so widening a column grows the
-  // table (horizontal scroll) instead of reflowing (shrinking) its
-  // neighbors.
+  // True once any column has been dragged — every column is then frozen at
+  // an explicit width (see startColumnResize / the header cell widths).
   const hasResizedColumns =
     enableColumnResizing && Object.keys(columnSizing).length > 0;
 
@@ -323,6 +321,25 @@ export function DataTable<TData extends DataTableData>({
   // Visible leaf columns drive the colSpan of full-width rows (loading,
   // empty, dividers, virtualizer padding) — hidden columns don't count.
   const columnCount = table.getVisibleLeafColumns().length || 1;
+
+  // Explicit widths come either from a resize drag (above) or from numeric
+  // column widths set up front — `meta.width`, copied onto the column size
+  // by applyMetaWidthsToSizes. Either way the table is sized to the sum of
+  // the column widths so a wide column grows the table — adding horizontal
+  // scroll — instead of reflowing (shrinking) its neighbors, matching the
+  // drag-resize behavior. Until a drag freezes every column, columns
+  // without an explicit width stay auto and flex to fill the rest.
+  // (A percentage meta.width isn't a fixed px width — it splits the
+  // available space, so it doesn't put the table into this mode.)
+  const hasInitialColumnSizes =
+    enableColumnResizing &&
+    table
+      .getVisibleLeafColumns()
+      .some(
+        (column) =>
+          typeof getColumnMeta(column.columnDef.meta)?.width === 'number',
+      );
+  const hasExplicitColumnSizes = hasResizedColumns || hasInitialColumnSizes;
 
   // Visible pinned leaf columns in pinned order — drive the sticky
   // offsets and the edge dividers between pinned and scrolling regions.
@@ -553,13 +570,14 @@ export function DataTable<TData extends DataTableData>({
           <Table
             stickyHeader
             sx={{ minWidth, tableLayout }}
-            // With resizing active the table is sized to the sum of the
-            // column widths, so widening a column adds horizontal scroll
-            // instead of shrinking its neighbors — but never below the
-            // container width, so narrowing columns can't leave a gap on
-            // the right. Inline style — it changes on every drag frame.
+            // With explicit column widths — set up front (numeric
+            // meta.width) or by a resize drag — the table is sized to the
+            // sum of the column widths, so a wide column adds horizontal
+            // scroll instead of shrinking its neighbors — but never below
+            // the container width, so narrowing columns can't leave a gap
+            // on the right. Inline style — it changes on every drag frame.
             style={
-              hasResizedColumns
+              hasExplicitColumnSizes
                 ? { width: `max(${table.getTotalSize()}px, 100%)` }
                 : undefined
             }

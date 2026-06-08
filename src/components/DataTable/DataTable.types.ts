@@ -85,6 +85,12 @@ export interface DataTableColumnMeta {
    * Column width — any CSS width value: a number for px (e.g. 140) or a
    * string for percentage fill (e.g. '40%'). Applied to the header cell,
    * which sizes the whole column.
+   *
+   * With `enableColumnResizing`, a numeric (px) width behaves like a
+   * drag-resize: the table grows to the sum of the column widths and
+   * scrolls horizontally rather than shrinking the other columns to fit,
+   * so a large width never reflows its neighbors. Percentage widths still
+   * split the available space.
    */
   width?: number | string;
   /**
@@ -94,6 +100,13 @@ export interface DataTableColumnMeta {
    * current page, so supply the full set here.
    */
   filterOptions?: string[];
+  /**
+   * Hides the hover kebab (column menu) on this column even when the table
+   * has `enableColumnMenu`. Use for utility columns with nothing to act on
+   * (e.g. an expand/select column) so they don't show a menu offering only
+   * the global "Manage columns" action.
+   */
+  disableColumnMenu?: boolean;
 }
 
 /**
@@ -378,7 +391,8 @@ export interface DataTableProps<TData extends DataTableData> {
    *
    * Every accessor column is filterable through the operator-based filter
    * panel by default — opt a column out with `enableColumnFilter: false`
-   * on its def.
+   * on its def. Hide the kebab on a specific column (e.g. a utility
+   * expand/select column) with `meta.disableColumnMenu`.
    */
   enableColumnMenu?: boolean;
   /**
