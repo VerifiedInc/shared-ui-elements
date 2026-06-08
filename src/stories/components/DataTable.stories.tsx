@@ -350,7 +350,8 @@ export const ConsumerFilterPanel: Story = {
           Custom filters
         </Typography>
         <Typography variant='body2' color='text.secondary'>
-          The consumer renders its own controls here, wired to its own state / server query.
+          The consumer renders its own controls here, wired to its own state /
+          server query.
         </Typography>
       </Box>
     ),
