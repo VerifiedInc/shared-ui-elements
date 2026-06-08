@@ -344,15 +344,19 @@ export const ConsumerFilterPanel: Story = {
     showToolbar: true,
     manualFiltering: true,
     activeFilterCount: 2,
-    renderFilterPanel: () => (
+    renderFilterPanel: ({ onClose }) => (
       <Box sx={{ minWidth: 260 }}>
         <Typography variant='subtitle2' sx={{ mb: 1 }}>
           Custom filters
         </Typography>
-        <Typography variant='body2' color='text.secondary'>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5 }}>
           The consumer renders its own controls here, wired to its own state /
           server query.
         </Typography>
+        {/* `onClose` lets the panel close the popover itself (e.g. an Apply/Cancel button). */}
+        <Button size='small' variant='outlined' onClick={onClose}>
+          Apply
+        </Button>
       </Box>
     ),
   },

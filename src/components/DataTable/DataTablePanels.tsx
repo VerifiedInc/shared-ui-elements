@@ -63,7 +63,9 @@ export function DataTablePanels() {
             }}
             onClose={closeColumnPanel}
           >
-            <Box sx={{ p: 2 }}>{renderFilterPanel()}</Box>
+            <Box sx={{ p: 2 }}>
+              {renderFilterPanel({ onClose: closeColumnPanel, table })}
+            </Box>
           </Popover>
         ) : (
           <DataTableFilterPanel

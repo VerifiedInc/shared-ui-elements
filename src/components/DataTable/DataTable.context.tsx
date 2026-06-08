@@ -23,6 +23,7 @@ import type {
   DataTableBidirectionalScroll,
   DataTableCellProps,
   DataTableData,
+  DataTableFilterPanelContext,
   DataTableIcons,
   DataTableRowContext,
 } from './DataTable.types';
@@ -91,7 +92,7 @@ export interface DataTableContextValue<TData extends DataTableData> {
   onFiltersChange: OnChangeFn<DataTableActiveFilters>;
   /** Consumer-rendered filter panel content, shown in place of the built-in operator
    * panel. Can be used for custom/domain specific filters. */
-  renderFilterPanel?: () => ReactNode;
+  renderFilterPanel?: (context: DataTableFilterPanelContext<TData>) => ReactNode;
   /** Active-filter count for the Filters button badge when using renderFilterPanel. */
   activeFilterCount?: number;
   search: string;

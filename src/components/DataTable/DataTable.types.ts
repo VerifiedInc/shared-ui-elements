@@ -8,6 +8,7 @@ import type {
   PaginationState,
   Row,
   SortingState,
+  Table,
   VisibilityState,
 } from '@tanstack/react-table';
 import type { VirtualItem } from '@tanstack/react-virtual';
@@ -75,6 +76,14 @@ export interface DataTableFilterRow {
 export interface DataTableActiveFilters {
   rows: DataTableFilterRow[];
   logicOperator: DataTableFilterLogicOperator;
+}
+
+/** API handed to a consumer-rendered filter panel. */
+export interface DataTableFilterPanelContext<TData extends DataTableData> {
+  /** Closes the filter popover, e.g. from an Apply/Cancel button inside the panel. */
+  onClose: () => void;
+  /** The table instance, for consumers that need column/row info. */
+  table: Table<TData>;
 }
 
 /**
@@ -481,8 +490,11 @@ export interface DataTableProps<TData extends DataTableData> {
    * rendering this content instead of the built-in operator-based panel, the consumer supplies its
    * own filter controls (wired to its own state / server query) and the table stays filter-agnostic.
    * Pair with `manualFiltering`. Use `activeFilterCount` to drive the Filters button badge.
+   *
+   * Receives `{ onClose, table }` so the panel can close the popover itself (e.g. an Apply/Cancel
+   * button) and read the table instance if needed.
    */
-  renderFilterPanel?: () => ReactNode;
+  renderFilterPanel?: (context: DataTableFilterPanelContext<TData>) => ReactNode;
   /**
    * Active-filter count for the Filters button badge when using `renderFilterPanel` (the table can't
    * infer it from consumer-owned filter state). Ignored without `renderFilterPanel`.

@@ -192,9 +192,10 @@ export function DataTable<TData extends DataTableData>({
   // Pin the left-most column by default (pinFirstColumn) unless the consumer drives pinning or
   // sets its own initial pinning. The pin is applied even without enableColumnPinning (which only
   // governs the column-menu pin actions).
+  // Resolve from inferred columns too, so the default pin works for zero-config tables.
   const firstLeafColumnId = useMemo(
-    () => findFirstLeafColumnId(columns),
-    [columns],
+    () => findFirstLeafColumnId(columns ?? inferColumns(data)),
+    [columns, data],
   );
   const defaultColumnPinning =
     controlledColumnPinning === undefined &&
@@ -213,10 +214,13 @@ export function DataTable<TData extends DataTableData>({
       onColumnPinningChange,
     );
 
-  // Pinning state/offsets apply when the menu pin actions are enabled OR a default first-column
-  // pin is in effect, independent of `enableColumnPinning`, which only gates the menu actions.
+  // Pinning state/offsets apply whenever the menu pin actions are enabled or the pinning state has
+  // any pinned columns, a default first-column pin, or consumer-provided initial/controlled
+  // pinning, independent of `enableColumnPinning`, which only gates the menu actions.
   const columnPinningActive =
-    enableColumnPinning || (pinFirstColumn && firstLeafColumnId !== undefined);
+    enableColumnPinning ||
+    (columnPinning.left?.length ?? 0) > 0 ||
+    (columnPinning.right?.length ?? 0) > 0;
 
   // Internal-only: dragged column widths, keyed by column id.
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});

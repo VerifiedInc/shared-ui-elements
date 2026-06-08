@@ -717,6 +717,27 @@ describe('<DataTable/>', () => {
       expect(queryByText('Add filter')).toBeNull();
     });
 
+    test('passes an onClose to renderFilterPanel so the panel can close itself', () => {
+      const { getByLabelText, getByText, queryByText } = render(
+        <DataTable
+          data={members}
+          showToolbar
+          renderFilterPanel={({ onClose }) => (
+            <button type='button' onClick={onClose}>
+              Apply filters
+            </button>
+          )}
+        />,
+      );
+
+      fireEvent.click(getByLabelText('Show filters'));
+      expect(getByText('Apply filters')).toBeDefined();
+
+      // The consumer's control closes the popover via the provided onClose.
+      fireEvent.click(getByText('Apply filters'));
+      expect(queryByText('Apply filters')).toBeNull();
+    });
+
     test('searches rows through the toolbar search input', () => {
       const { getByLabelText, container } = render(
         <DataTable data={members} showToolbar />,
@@ -1149,7 +1170,12 @@ describe('<DataTable/>', () => {
 
     test('pinning a column to the left moves it to the front and makes it sticky', () => {
       const { getByLabelText, getByText, container } = render(
-        <DataTable data={members} enableColumnMenu enableColumnPinning />,
+        <DataTable
+          data={members}
+          enableColumnMenu
+          enableColumnPinning
+          pinFirstColumn={false}
+        />,
       );
 
       expect(getHeaderTexts(container)[0]).toBe('Email');
@@ -1368,6 +1394,7 @@ describe('<DataTable/>', () => {
           data={members}
           enableColumnMenu
           enableColumnPinning
+          pinFirstColumn={false}
           icons={{
             sortAsc: makeIcon('custom-sort-asc'),
             sortDesc: makeIcon('custom-sort-desc'),
