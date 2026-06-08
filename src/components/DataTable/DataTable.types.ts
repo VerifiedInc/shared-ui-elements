@@ -476,6 +476,18 @@ export interface DataTableProps<TData extends DataTableData> {
    * search input only update their state, nothing is filtered client-side.
    */
   manualFiltering?: boolean;
+  /**
+   * Consumer-rendered filter panel. When provided, the toolbar's Filters button opens a popover
+   * rendering this content instead of the built-in operator-based panel, the consumer supplies its
+   * own filter controls (wired to its own state / server query) and the table stays filter-agnostic.
+   * Pair with `manualFiltering`. Use `activeFilterCount` to drive the Filters button badge.
+   */
+  renderFilterPanel?: () => ReactNode;
+  /**
+   * Active-filter count for the Filters button badge when using `renderFilterPanel` (the table can't
+   * infer it from consumer-owned filter state). Ignored without `renderFilterPanel`.
+   */
+  activeFilterCount?: number;
   /** Initial quick-search query for the toolbar search input. */
   initialSearch?: string;
   /**
