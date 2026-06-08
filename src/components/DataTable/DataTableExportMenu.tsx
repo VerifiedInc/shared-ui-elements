@@ -22,6 +22,7 @@ import {
   exportDataTableToExcel,
   getDataTableExportModel,
   printDataTable,
+  type DataTableExportColumn,
   type DataTableExportModel,
 } from './DataTable.export';
 
@@ -30,6 +31,8 @@ interface DataTableExportMenuProps<TData extends DataTableData> {
   /** Base filename (no extension); also the printed document title. */
   filename: string;
   icons: DataTableIcons;
+  /** Export-only columns appended after the visible columns. */
+  additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
 }
 
 /**
@@ -42,6 +45,7 @@ export function DataTableExportMenu<TData extends DataTableData>({
   table,
   filename,
   icons,
+  additionalExportColumns,
 }: Readonly<DataTableExportMenuProps<TData>>) {
   const {
     export: ExportIcon = FileDownloadOutlined,
@@ -57,7 +61,7 @@ export function DataTableExportMenu<TData extends DataTableData>({
   const handleExport = (
     action: (model: DataTableExportModel, filename: string) => void,
   ): void => {
-    action(getDataTableExportModel(table), filename);
+    action(getDataTableExportModel(table, additionalExportColumns), filename);
     setAnchorEl(null);
   };
 

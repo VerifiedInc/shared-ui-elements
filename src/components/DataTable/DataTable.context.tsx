@@ -26,6 +26,7 @@ import type {
   DataTableIcons,
   DataTableRowContext,
 } from './DataTable.types';
+import type { DataTableExportColumn } from './DataTable.export';
 
 /** Where a floating panel opens and which of its top corners pins there. */
 export type DataTablePanelAnchor = {
@@ -76,6 +77,7 @@ export interface DataTableContextValue<TData extends DataTableData> {
   enableColumnMenu: boolean;
   enableExport: boolean;
   exportFilename: string;
+  additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
   disablePagination: boolean;
   pageSizeOptions: number[];
   footerLeft?: ReactNode;

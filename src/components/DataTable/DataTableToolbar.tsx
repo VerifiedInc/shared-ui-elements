@@ -30,6 +30,7 @@ export function DataTableToolbar() {
     onSearchChange,
     enableExport,
     exportFilename,
+    additionalExportColumns,
     toolbarFilterButtonRef,
     toolbarManageColumnsButtonRef,
     openFilterPanel,
@@ -108,6 +109,7 @@ export function DataTableToolbar() {
           table={table}
           filename={exportFilename}
           icons={icons}
+          additionalExportColumns={additionalExportColumns}
         />
       )}
       <Divider

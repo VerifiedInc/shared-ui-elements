@@ -12,6 +12,8 @@ import type {
 } from '@tanstack/react-table';
 import type { VirtualItem } from '@tanstack/react-virtual';
 
+import type { DataTableExportColumn } from './DataTable.export';
+
 /**
  * Generic record shape — the table works with arrays of objects whose
  * shape is unknown ahead of time.
@@ -435,6 +437,12 @@ export interface DataTableProps<TData extends DataTableData> {
    * document title. Defaults to 'data'.
    */
   exportFilename?: string;
+  /**
+   * Extra export-only columns appended after the visible columns in the CSV / Excel / Print output,
+   * for data shown outside the grid (e.g. data in an expandable detail row) that should still be
+   * exported. Each supplies a `header` and a `(row) => value` extractor, not rendered in the table.
+   */
+  additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
   /**
    * Initial filter state. Rows are applied as AND by default; switch to OR
    * via `logicOperator: 'or'`.
