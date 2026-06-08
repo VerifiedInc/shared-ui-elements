@@ -62,8 +62,9 @@ const EMPTY_COLUMN_PINNING: ColumnPinningState = { left: [], right: [] };
 // hook is gated off, so they never run.
 const NOOP = (): void => {};
 
-// First leaf column id (depth-first), used to pin the left-most column by default. Reads the
-// explicit `id`, falling back to a string `accessorKey`, undefined if neither can be determined.
+// First pinnable leaf column id (depth-first), used to pin the left-most column by default. Skips
+// columns that opted out (`enablePinning: false`). Reads the explicit `id`, falling back to a
+// string `accessorKey`; undefined if none qualifies.
 function findFirstLeafColumnId<TData>(
   cols: ReadonlyArray<ColumnDef<TData, unknown>> | undefined,
 ): string | undefined {
@@ -76,6 +77,8 @@ function findFirstLeafColumnId<TData>(
       if (childId) return childId;
       continue;
     }
+    // Skip columns that opted out of pinning.
+    if ((col as { enablePinning?: boolean }).enablePinning === false) continue;
     const accessorKey = (col as { accessorKey?: unknown }).accessorKey;
     const id =
       (col as { id?: string }).id ??

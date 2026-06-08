@@ -1199,6 +1199,8 @@ describe('<DataTable/>', () => {
           data={members}
           enableColumnMenu
           enableColumnPinning
+          // Isolate explicit menu-pinning from the default first-column pin.
+          pinFirstColumn={false}
           onColumnPinningChange={onColumnPinningChange}
           columns={[
             {
