@@ -7,6 +7,7 @@ import {
   getSortedRowModel,
   useReactTable,
   type Cell,
+  type ColumnDef,
   type ColumnPinningPosition,
   type ColumnPinningState,
   type ColumnSizingState,
@@ -61,6 +62,27 @@ const EMPTY_COLUMN_PINNING: ColumnPinningState = { left: [], right: [] };
 // hook is gated off, so they never run.
 const NOOP = (): void => {};
 
+// First leaf column id (depth-first), used to pin the left-most column by default. Reads the
+// explicit `id`, falling back to a string `accessorKey`, undefined if neither can be determined.
+function findFirstLeafColumnId<TData>(
+  cols: ReadonlyArray<ColumnDef<TData, unknown>> | undefined,
+): string | undefined {
+  for (const col of cols ?? []) {
+    const group = (col as { columns?: ReadonlyArray<ColumnDef<TData, unknown>> }).columns;
+    if (group?.length) {
+      const childId = findFirstLeafColumnId(group);
+      if (childId) return childId;
+      continue;
+    }
+    const accessorKey = (col as { accessorKey?: unknown }).accessorKey;
+    const id =
+      (col as { id?: string }).id ??
+      (typeof accessorKey === 'string' ? accessorKey : undefined);
+    if (id) return id;
+  }
+  return undefined;
+}
+
 /**
  * Root of the DataTable: owns every piece of table state and the TanStack
  * instance, shares them with the subcomponents (toolbar, head, body,
@@ -88,9 +110,11 @@ export function DataTable<TData extends DataTableData>({
   enableColumnResizing = false,
   enableColumnMenu = false,
   enableColumnPinning = false,
+  pinFirstColumn = true,
   showToolbar = false,
   enableExport = false,
   exportFilename = 'data',
+  additionalExportColumns,
   initialFilters = EMPTY_FILTERS,
   filters: controlledFilters,
   onFiltersChange,
@@ -158,14 +182,34 @@ export function DataTable<TData extends DataTableData>({
       onColumnVisibilityChange,
     );
 
+  // Pin the left-most column by default (pinFirstColumn) unless the consumer drives pinning or
+  // sets its own initial pinning. The pin is applied even without enableColumnPinning (which only
+  // governs the column-menu pin actions).
+  const firstLeafColumnId = useMemo(
+    () => findFirstLeafColumnId(columns),
+    [columns],
+  );
+  const defaultColumnPinning =
+    controlledColumnPinning === undefined &&
+    initialColumnPinning === EMPTY_COLUMN_PINNING &&
+    pinFirstColumn &&
+    firstLeafColumnId
+      ? { left: [firstLeafColumnId], right: [] }
+      : initialColumnPinning;
+
   // Pinned columns written by the column menu's pin actions —
   // `{ left: [...columnIds], right: [...columnIds] }`.
   const [columnPinning, handleColumnPinningChange] =
     useControllableState<ColumnPinningState>(
-      initialColumnPinning,
+      defaultColumnPinning,
       controlledColumnPinning,
       onColumnPinningChange,
     );
+
+  // Pinning state/offsets apply when the menu pin actions are enabled OR a default first-column
+  // pin is in effect, independent of `enableColumnPinning`, which only gates the menu actions.
+  const columnPinningActive =
+    enableColumnPinning || (pinFirstColumn && firstLeafColumnId !== undefined);
 
   // Internal-only: dragged column widths, keyed by column id.
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
@@ -260,9 +304,9 @@ export function DataTable<TData extends DataTableData>({
     state: {
       ...(disableSorting ? {} : { sorting }),
       ...(disablePagination ? {} : { pagination }),
-      // Only wired in when enabled so a stray pinning state can't reorder
-      // columns on tables that never opted in.
-      ...(enableColumnPinning ? { columnPinning } : {}),
+      // Only wired in when active so a stray pinning state can't reorder
+      // columns on tables that never opted in (menu pinning or first-column pin).
+      ...(columnPinningActive ? { columnPinning } : {}),
       columnVisibility,
       columnSizing,
     },
@@ -343,10 +387,10 @@ export function DataTable<TData extends DataTableData>({
 
   // Visible pinned leaf columns in pinned order — drive the sticky
   // offsets and the edge dividers between pinned and scrolling regions.
-  const leftPinnedIds = enableColumnPinning
+  const leftPinnedIds = columnPinningActive
     ? table.getLeftVisibleLeafColumns().map((column) => column.id)
     : [];
-  const rightPinnedIds = enableColumnPinning
+  const rightPinnedIds = columnPinningActive
     ? table.getRightVisibleLeafColumns().map((column) => column.id)
     : [];
 
@@ -525,6 +569,7 @@ export function DataTable<TData extends DataTableData>({
     enableColumnMenu,
     enableExport,
     exportFilename,
+    additionalExportColumns,
     disablePagination,
     pageSizeOptions,
     footerLeft,

@@ -413,6 +413,13 @@ export interface DataTableProps<TData extends DataTableData> {
    */
   enableColumnPinning?: boolean;
   /**
+   * Pins the left-most (first leaf) column to the left by default, so it stays visible while the
+   * table scrolls horizontally. Defaults to `true`. The pin applies even without
+   * `enableColumnPinning` (which only adds the column-menu pin actions). Set `false` to opt out, or
+   * pass `initialColumnPinning` / a controlled `columnPinning` to take over pinning entirely.
+   */
+  pinFirstColumn?: boolean;
+  /**
    * Shows a toolbar row above the table with Manage columns and Filters
    * buttons plus a search button that expands into a quick-search input on
    * the right, like the MUI DataGrid toolbar. The filter button carries a
