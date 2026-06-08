@@ -1067,6 +1067,30 @@ describe('<DataTable/>', () => {
       // sizing so columns distribute normally.
       expect(table?.style.width).toBe('');
     });
+
+    test('does not add an inline width for a numeric meta.width when resizing is off', () => {
+      const { container } = render(
+        <DataTable
+          data={members}
+          columns={[
+            {
+              id: 'email',
+              accessorFn: (row) => row.email,
+              header: 'Email',
+              meta: { width: 140 },
+            },
+          ]}
+        />,
+      );
+
+      const headerCell =
+        container.querySelector<HTMLTableCellElement>('thead th');
+
+      // Without resizing the size isn't seeded from meta.width, so an inline
+      // width would be the 150px default and override the sx width — the
+      // width must come through sx (no inline width) instead.
+      expect(headerCell?.style.width).toBe('');
+    });
   });
 
   describe('column pinning', () => {

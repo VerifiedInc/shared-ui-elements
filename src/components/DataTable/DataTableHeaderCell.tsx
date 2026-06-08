@@ -146,9 +146,14 @@ export function DataTableHeaderCell({
       // — so a wide column grows the table instead of
       // reflowing its neighbors. Columns with no fixed
       // width stay auto (flexing to fill) until a drag
-      // freezes them.
+      // freezes them. Only with resizing on: otherwise the
+      // column size isn't seeded from meta.width, so
+      // header.getSize() would be the 150px default and
+      // override the sx width below — the width applies
+      // through sx instead.
       style={{
-        ...(hasResizedColumns || typeof meta?.width === 'number'
+        ...(hasResizedColumns ||
+        (enableColumnResizing && typeof meta?.width === 'number')
           ? { width: header.getSize() }
           : {}),
         ...getPinnedOffsetStyle(pinned, column.id),
