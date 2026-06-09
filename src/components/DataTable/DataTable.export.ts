@@ -7,6 +7,16 @@ import { getColumnLabel } from './DataTable.utils';
 export type DataTableExportValue = string | number | boolean;
 
 /**
+ * An extra export-only column appended after the visible table columns, for data shown outside
+ * the grid (e.g. an expandable detail row) that should still land in the CSV / Excel / Print output.
+ * The consumer supplies the header and a per-row value extractor, the table has no knowledge of it.
+ */
+export interface DataTableExportColumn<TData extends DataTableData> {
+  header: string;
+  value: (row: TData) => DataTableExportValue;
+}
+
+/**
  * Snapshot of the displayed table used by every export format: the
  * filtered + sorted rows across every page and the visible accessor
  * columns in display order.
@@ -51,6 +61,7 @@ function toExportValue(value: unknown): DataTableExportValue {
  */
 export function getDataTableExportModel<TData extends DataTableData>(
   table: Table<TData>,
+  additionalColumns: ReadonlyArray<DataTableExportColumn<TData>> = [],
 ): DataTableExportModel {
   const columns = table
     .getVisibleLeafColumns()
@@ -65,19 +76,28 @@ export function getDataTableExportModel<TData extends DataTableData>(
   // Blank out the repeats so each group label appears once at the start
   // of its span, like the rendered grouped header row.
   const groupHeader = groupLabels.some((label) => label !== '')
-    ? groupLabels.map((label, index) =>
-        index > 0 && groupLabels[index - 1] === label ? '' : label,
-      )
+    ? groupLabels
+        .map((label, index) =>
+          index > 0 && groupLabels[index - 1] === label ? '' : label,
+        )
+        // Additional (export-only) columns sit outside any group.
+        .concat(additionalColumns.map(() => ''))
     : undefined;
 
   return {
     groupHeader,
-    header: columns.map((column) => getColumnLabel(column)),
+    header: [
+      ...columns.map((column) => getColumnLabel(column)),
+      ...additionalColumns.map((column) => column.header),
+    ],
     rows: table
       .getPrePaginationRowModel()
-      .rows.map((row) =>
-        columns.map((column) => toExportValue(row.getValue(column.id))),
-      ),
+      .rows.map((row) => [
+        ...columns.map((column) => toExportValue(row.getValue(column.id))),
+        ...additionalColumns.map((column) =>
+          toExportValue(column.value(row.original)),
+        ),
+      ]),
   };
 }
 

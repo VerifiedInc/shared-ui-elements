@@ -1,3 +1,5 @@
+import { Box, Popover } from '@mui/material';
+
 import { useDataTableContext } from './DataTable.context';
 import { DataTableColumnMenu } from './DataTableColumnMenu';
 import { DataTableFilterPanel } from './DataTableFilterPanel';
@@ -16,6 +18,7 @@ export function DataTablePanels() {
     isLoading,
     filters,
     onFiltersChange,
+    renderFilterPanel,
     columnPanel,
     closeColumnPanel,
     openFilterPanel,
@@ -46,21 +49,39 @@ export function DataTablePanels() {
           }
         />
       )}
-      {columnPanel?.type === 'filter' && (
-        <DataTableFilterPanel
-          table={table}
-          // Unfiltered rows — value suggestions shouldn't shrink as the
-          // active filters narrow the table.
-          data={data}
-          initialColumnId={columnPanel.columnId}
-          anchorPosition={columnPanel.anchorPosition}
-          transformHorizontal={columnPanel.transformHorizontal}
-          icons={icons}
-          filters={filters}
-          onFiltersChange={onFiltersChange}
-          onClose={closeColumnPanel}
-        />
-      )}
+      {columnPanel?.type === 'filter' &&
+        (renderFilterPanel ? (
+          // Consumer-rendered filter panel: the table provides the popover shell + anchor,
+          // the consumer owns the controls and filter state.
+          <Popover
+            open
+            anchorReference='anchorPosition'
+            anchorPosition={columnPanel.anchorPosition}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: columnPanel.transformHorizontal,
+            }}
+            onClose={closeColumnPanel}
+          >
+            <Box sx={{ p: 2 }}>
+              {renderFilterPanel({ onClose: closeColumnPanel, table })}
+            </Box>
+          </Popover>
+        ) : (
+          <DataTableFilterPanel
+            table={table}
+            // Unfiltered rows, value suggestions shouldn't shrink as the
+            // active filters narrow the table.
+            data={data}
+            initialColumnId={columnPanel.columnId}
+            anchorPosition={columnPanel.anchorPosition}
+            transformHorizontal={columnPanel.transformHorizontal}
+            icons={icons}
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            onClose={closeColumnPanel}
+          />
+        ))}
       {columnPanel?.type === 'manageColumns' && (
         <DataTableManageColumnsPanel
           table={table}

@@ -697,6 +697,47 @@ describe('<DataTable/>', () => {
       expect(getByLabelText('Show filters').textContent).toBe('2');
     });
 
+    test('renders a consumer filter panel instead of the operator panel, with the supplied badge count', () => {
+      const { getByLabelText, getByText, queryByText } = render(
+        <DataTable
+          data={members}
+          showToolbar
+          renderFilterPanel={() => <div>Custom filter content</div>}
+          activeFilterCount={3}
+        />,
+      );
+
+      // The badge reflects the consumer-provided count, not the internal operator-filter rows.
+      expect(getByLabelText('Show filters').textContent).toBe('3');
+
+      fireEvent.click(getByLabelText('Show filters'));
+
+      // The consumer's content renders; the built-in operator panel ("Add filter") does not.
+      expect(getByText('Custom filter content')).toBeDefined();
+      expect(queryByText('Add filter')).toBeNull();
+    });
+
+    test('passes an onClose to renderFilterPanel so the panel can close itself', () => {
+      const { getByLabelText, getByText, queryByText } = render(
+        <DataTable
+          data={members}
+          showToolbar
+          renderFilterPanel={({ onClose }) => (
+            <button type='button' onClick={onClose}>
+              Apply filters
+            </button>
+          )}
+        />,
+      );
+
+      fireEvent.click(getByLabelText('Show filters'));
+      expect(getByText('Apply filters')).toBeDefined();
+
+      // The consumer's control closes the popover via the provided onClose.
+      fireEvent.click(getByText('Apply filters'));
+      expect(queryByText('Apply filters')).toBeNull();
+    });
+
     test('searches rows through the toolbar search input', () => {
       const { getByLabelText, container } = render(
         <DataTable data={members} showToolbar />,
@@ -1129,7 +1170,12 @@ describe('<DataTable/>', () => {
 
     test('pinning a column to the left moves it to the front and makes it sticky', () => {
       const { getByLabelText, getByText, container } = render(
-        <DataTable data={members} enableColumnMenu enableColumnPinning />,
+        <DataTable
+          data={members}
+          enableColumnMenu
+          enableColumnPinning
+          pinFirstColumn={false}
+        />,
       );
 
       expect(getHeaderTexts(container)[0]).toBe('Email');
@@ -1199,6 +1245,8 @@ describe('<DataTable/>', () => {
           data={members}
           enableColumnMenu
           enableColumnPinning
+          // Isolate explicit menu-pinning from the default first-column pin.
+          pinFirstColumn={false}
           onColumnPinningChange={onColumnPinningChange}
           columns={[
             {
@@ -1224,6 +1272,66 @@ describe('<DataTable/>', () => {
         left: ['role'],
         right: [],
       });
+    });
+
+    test('pins the first column to the left by default (pinFirstColumn)', () => {
+      const { container } = render(
+        <DataTable
+          data={members}
+          columns={[
+            { id: 'email', accessorFn: (row) => row.email, header: 'Email' },
+            { id: 'role', accessorFn: (row) => row.role, header: 'Role' },
+          ]}
+        />,
+      );
+
+      // First column is sticky-pinned to the left (offset inlined on header + body cells), even
+      // without enableColumnPinning (which only governs the menu pin actions).
+      const headerCell =
+        container.querySelector<HTMLTableCellElement>('thead th');
+      expect(headerCell?.style.left).toBe('0px');
+      const firstBodyCell = container.querySelector<HTMLTableCellElement>(
+        'tbody tr[data-index] td',
+      );
+      expect(firstBodyCell?.style.left).toBe('0px');
+    });
+
+    test('pinFirstColumn={false} leaves the first column unpinned', () => {
+      const { container } = render(
+        <DataTable
+          data={members}
+          pinFirstColumn={false}
+          columns={[
+            { id: 'email', accessorFn: (row) => row.email, header: 'Email' },
+            { id: 'role', accessorFn: (row) => row.role, header: 'Role' },
+          ]}
+        />,
+      );
+
+      const headerCell =
+        container.querySelector<HTMLTableCellElement>('thead th');
+      expect(headerCell?.style.left).toBe('');
+    });
+
+    test('the default first-column pin skips a column that opted out of pinning', () => {
+      const { container } = render(
+        <DataTable
+          data={members}
+          columns={[
+            {
+              id: 'email',
+              accessorFn: (row) => row.email,
+              header: 'Email',
+              enablePinning: false,
+            },
+          ]}
+        />,
+      );
+
+      // The only column opted out, nothing is auto-pinned.
+      const headerCell =
+        container.querySelector<HTMLTableCellElement>('thead th');
+      expect(headerCell?.style.left).toBe('');
     });
   });
 
@@ -1286,6 +1394,7 @@ describe('<DataTable/>', () => {
           data={members}
           enableColumnMenu
           enableColumnPinning
+          pinFirstColumn={false}
           icons={{
             sortAsc: makeIcon('custom-sort-asc'),
             sortDesc: makeIcon('custom-sort-desc'),

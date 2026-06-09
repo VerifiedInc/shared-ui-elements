@@ -30,6 +30,9 @@ export function DataTableToolbar() {
     onSearchChange,
     enableExport,
     exportFilename,
+    additionalExportColumns,
+    renderFilterPanel,
+    activeFilterCount,
     toolbarFilterButtonRef,
     toolbarManageColumnsButtonRef,
     openFilterPanel,
@@ -55,11 +58,16 @@ export function DataTableToolbar() {
 
   // The badge count on the filter button, and the column preselected when
   // it opens the panel with no active rows. The filter button is omitted
-  // when no column is filterable.
-  const totalActiveFilterCount = filters.rows.filter(isFilterRowActive).length;
+  // when no column is filterable AND no consumer filter panel is provided.
+  // With a consumer panel the count comes from the consumer (activeFilterCount).
+  const totalActiveFilterCount = renderFilterPanel
+    ? (activeFilterCount ?? 0)
+    : filters.rows.filter(isFilterRowActive).length;
   const firstFilterableColumnId = table
     .getAllLeafColumns()
     .find((column) => column.getCanFilter())?.id;
+  const showFilterButton =
+    renderFilterPanel !== undefined || firstFilterableColumnId !== undefined;
 
   return (
     <Stack
@@ -79,14 +87,17 @@ export function DataTableToolbar() {
           <ManageColumnsIcon fontSize='small' />
         </IconButton>
       </Tooltip>
-      {firstFilterableColumnId !== undefined && (
+      {showFilterButton && (
         <Tooltip title='Filters' placement='bottom' arrow>
           <IconButton
             ref={toolbarFilterButtonRef}
             size='small'
             aria-label='Show filters'
             onClick={(event) =>
-              openFilterPanel(firstFilterableColumnId, event.currentTarget)
+              openFilterPanel(
+                firstFilterableColumnId ?? '',
+                event.currentTarget,
+              )
             }
           >
             <Badge badgeContent={totalActiveFilterCount} color='primary'>
@@ -108,6 +119,7 @@ export function DataTableToolbar() {
           table={table}
           filename={exportFilename}
           icons={icons}
+          additionalExportColumns={additionalExportColumns}
         />
       )}
       <Divider

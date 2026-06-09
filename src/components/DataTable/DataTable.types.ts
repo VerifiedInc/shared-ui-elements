@@ -8,9 +8,12 @@ import type {
   PaginationState,
   Row,
   SortingState,
+  Table,
   VisibilityState,
 } from '@tanstack/react-table';
 import type { VirtualItem } from '@tanstack/react-virtual';
+
+import type { DataTableExportColumn } from './DataTable.export';
 
 /**
  * Generic record shape — the table works with arrays of objects whose
@@ -73,6 +76,14 @@ export interface DataTableFilterRow {
 export interface DataTableActiveFilters {
   rows: DataTableFilterRow[];
   logicOperator: DataTableFilterLogicOperator;
+}
+
+/** API handed to a consumer-rendered filter panel. */
+export interface DataTableFilterPanelContext<TData extends DataTableData> {
+  /** Closes the filter popover, e.g. from an Apply/Cancel button inside the panel. */
+  onClose: () => void;
+  /** The table instance, for consumers that need column/row info. */
+  table: Table<TData>;
 }
 
 /**
@@ -411,6 +422,13 @@ export interface DataTableProps<TData extends DataTableData> {
    */
   enableColumnPinning?: boolean;
   /**
+   * Pins the left-most (first leaf) column to the left by default, so it stays visible while the
+   * table scrolls horizontally. Defaults to `true`. The pin applies even without
+   * `enableColumnPinning` (which only adds the column-menu pin actions). Set `false` to opt out, or
+   * pass `initialColumnPinning` / a controlled `columnPinning` to take over pinning entirely.
+   */
+  pinFirstColumn?: boolean;
+  /**
    * Shows a toolbar row above the table with Manage columns and Filters
    * buttons plus a search button that expands into a quick-search input on
    * the right, like the MUI DataGrid toolbar. The filter button carries a
@@ -435,6 +453,12 @@ export interface DataTableProps<TData extends DataTableData> {
    * document title. Defaults to 'data'.
    */
   exportFilename?: string;
+  /**
+   * Extra export-only columns appended after the visible columns in the CSV / Excel / Print output,
+   * for data shown outside the grid (e.g. data in an expandable detail row) that should still be
+   * exported. Each supplies a `header` and a `(row) => value` extractor, not rendered in the table.
+   */
+  additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
   /**
    * Initial filter state. Rows are applied as AND by default; switch to OR
    * via `logicOperator: 'or'`.
@@ -461,6 +485,23 @@ export interface DataTableProps<TData extends DataTableData> {
    * search input only update their state, nothing is filtered client-side.
    */
   manualFiltering?: boolean;
+  /**
+   * Consumer-rendered filter panel. When provided, the toolbar's Filters button opens a popover
+   * rendering this content instead of the built-in operator-based panel, the consumer supplies its
+   * own filter controls (wired to its own state / server query) and the table stays filter-agnostic.
+   * Pair with `manualFiltering`. Use `activeFilterCount` to drive the Filters button badge.
+   *
+   * Receives `{ onClose, table }` so the panel can close the popover itself (e.g. an Apply/Cancel
+   * button) and read the table instance if needed.
+   */
+  renderFilterPanel?: (
+    context: DataTableFilterPanelContext<TData>,
+  ) => ReactNode;
+  /**
+   * Active-filter count for the Filters button badge when using `renderFilterPanel` (the table can't
+   * infer it from consumer-owned filter state). Ignored without `renderFilterPanel`.
+   */
+  activeFilterCount?: number;
   /** Initial quick-search query for the toolbar search input. */
   initialSearch?: string;
   /**

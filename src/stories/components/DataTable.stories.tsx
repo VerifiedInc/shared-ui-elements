@@ -334,6 +334,48 @@ export const ColumnPinning: Story = {
   },
 };
 
+// Consumer-rendered filter panel: the toolbar Filters button opens a popover rendering whatever the
+// consumer supplies (here a placeholder), instead of the built-in operator panel. The consumer owns
+// the controls + filter state (typically with `manualFiltering` feeding a server query) and drives
+// the button badge via `activeFilterCount`.
+export const ConsumerFilterPanel: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    manualFiltering: true,
+    activeFilterCount: 2,
+    renderFilterPanel: ({ onClose }) => (
+      <Box sx={{ minWidth: 260 }}>
+        <Typography variant='subtitle2' sx={{ mb: 1 }}>
+          Custom filters
+        </Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5 }}>
+          The consumer renders its own controls here, wired to its own state /
+          server query.
+        </Typography>
+        {/* `onClose` lets the panel close the popover itself (e.g. an Apply/Cancel button). */}
+        <Button size='small' variant='outlined' onClick={onClose}>
+          Apply
+        </Button>
+      </Box>
+    ),
+  },
+};
+
+// Export-only columns appended after the visible columns in the CSV / Excel / Print output — for
+// data shown outside the grid (e.g. ids in an expandable detail row). Open the Export menu.
+export const AdditionalExportColumns: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    enableExport: true,
+    additionalExportColumns: [
+      { header: 'Role (export only)', value: (row) => row.role },
+      { header: 'Status (export only)', value: (row) => row.status },
+    ],
+  },
+};
+
 // Everything on: the toolbar, drag-resizable columns plus the full column
 // menu (sort, pin, filter, hide, manage columns) and the export menu
 // (print, CSV, Excel) — exports reflect the displayed rows and columns.

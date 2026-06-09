@@ -164,6 +164,10 @@ export function DataTableHeaderCell({
       }}
       sx={{
         width: meta?.width,
+        // Bottom-align header text so a leaf column spanning both header rows
+        // (rowSpan) lines up with the leaf headers under a group label, instead
+        // of floating mid-cell against the taller grouped header.
+        verticalAlign: 'bottom',
         // Fixed layout enforces exact widths — clip
         // overflowing content (unbreakable strings would
         // otherwise paint over the neighboring cells).
