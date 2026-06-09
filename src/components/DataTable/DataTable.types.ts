@@ -494,7 +494,9 @@ export interface DataTableProps<TData extends DataTableData> {
    * Receives `{ onClose, table }` so the panel can close the popover itself (e.g. an Apply/Cancel
    * button) and read the table instance if needed.
    */
-  renderFilterPanel?: (context: DataTableFilterPanelContext<TData>) => ReactNode;
+  renderFilterPanel?: (
+    context: DataTableFilterPanelContext<TData>,
+  ) => ReactNode;
   /**
    * Active-filter count for the Filters button badge when using `renderFilterPanel` (the table can't
    * infer it from consumer-owned filter state). Ignored without `renderFilterPanel`.

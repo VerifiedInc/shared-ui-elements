@@ -92,7 +92,9 @@ export interface DataTableContextValue<TData extends DataTableData> {
   onFiltersChange: OnChangeFn<DataTableActiveFilters>;
   /** Consumer-rendered filter panel content, shown in place of the built-in operator
    * panel. Can be used for custom/domain specific filters. */
-  renderFilterPanel?: (context: DataTableFilterPanelContext<TData>) => ReactNode;
+  renderFilterPanel?: (
+    context: DataTableFilterPanelContext<TData>,
+  ) => ReactNode;
   /** Active-filter count for the Filters button badge when using renderFilterPanel. */
   activeFilterCount?: number;
   search: string;
