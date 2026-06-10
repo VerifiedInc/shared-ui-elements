@@ -37,7 +37,10 @@ export function usePersistedState<T>(
     (action: SetStateAction<T | null>) =>
       setState((prev) => ({
         ...prev,
-        value: typeof action === 'function' ? action(prev.value) : action,
+        value:
+          typeof action === 'function'
+            ? (action as (prev: T | null) => T | null)(prev.value)
+            : action,
       })),
     [],
   );
