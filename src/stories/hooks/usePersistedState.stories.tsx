@@ -1,7 +1,10 @@
 import * as React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { usePersistedState, type Persistor } from '../../hooks/usePersistedState';
+import {
+  usePersistedState,
+  type Persistor,
+} from '../../hooks/usePersistedState';
 
 const meta: Meta = {
   title: 'Hooks/usePersistedState',
@@ -105,7 +108,14 @@ const ObjectExample = () => {
           Persists a structured object. Changes are written to{' '}
           <code>localStorage</code> automatically on every update.
         </p>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' as const, marginBottom: '0.75rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap' as const,
+            marginBottom: '0.75rem',
+          }}
+        >
           <label>
             Theme:{' '}
             <select
@@ -181,8 +191,8 @@ const AsyncExample = () => {
       <div style={containerStyle}>
         <p>
           When <code>get</code> returns a <code>Promise</code>, the lazy
-          initializer detects it and returns <code>null</code> immediately.
-          The effect awaits the promise and sets <code>ready</code> once it
+          initializer detects it and returns <code>null</code> immediately. The
+          effect awaits the promise and sets <code>ready</code> once it
           resolves. Reload the story — the value is remembered in the simulated
           store for the session.
         </p>
@@ -227,10 +237,10 @@ const FallbackExample = () => {
     <Section title='Failing persistor (SSR / unavailable storage)'>
       <div style={containerStyle}>
         <p>
-          When the persistor throws (e.g. during SSR), <code>value</code>{' '}
-          starts as <code>null</code> and <code>ready</code> is{' '}
-          <code>false</code>. The effect recovers after mount, setting{' '}
-          <code>value</code> to <code>initialState</code>.
+          When the persistor throws (e.g. during SSR), <code>value</code> starts
+          as <code>null</code> and <code>ready</code> is <code>false</code>. The
+          effect recovers after mount, setting <code>value</code> to{' '}
+          <code>initialState</code>.
         </p>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <input
