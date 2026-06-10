@@ -87,7 +87,7 @@ export function usePersistedState<T>(
       };
       persist();
     }
-  }, [state.value, state.ready]);
+  }, [persistor, state.value, state.ready]);
 
   return [state.value, setValue, state.ready];
 }
