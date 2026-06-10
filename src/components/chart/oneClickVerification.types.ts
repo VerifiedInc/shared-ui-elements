@@ -8,6 +8,8 @@ export interface OneClickVerificationIntervalEntry {
   oneClickVerificationFailed: number;
   oneClickVerificationUndelivered: number;
   oneClickVerificationExpired: number;
+  oneClickVerificationAutofillCreated?: number;
+  oneClickVerificationAutofillVerified?: number;
   [key: string]: any;
 }
 
