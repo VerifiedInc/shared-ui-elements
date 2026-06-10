@@ -1,55 +1,73 @@
 'use client';
 
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 
 export interface Persistor<T> {
   get: () => T | null | Promise<T | null>;
   set: (value: T) => void | Promise<void>;
 }
 
+function isThenable(value: unknown): value is PromiseLike<unknown> {
+  return typeof (value as { then?: unknown })?.then === 'function';
+}
+
 export function usePersistedState<T>(
   initialState: T,
   persistor: Persistor<T>,
 ): [T | null, Dispatch<SetStateAction<T | null>>, boolean] {
-  const [value, setValue] = useState<T | null>(() => {
-    try {
-      const result = persistor.get();
-      if (result instanceof Promise) return null;
-      return result ?? initialState;
-    } catch {
-      return null;
-    }
-  });
+  const [state, setState] = useState<{ value: T | null; ready: boolean }>(
+    () => {
+      try {
+        const result = persistor.get();
+        if (isThenable(result)) return { value: null, ready: false };
+        return { value: (result as T | null) ?? initialState, ready: true };
+      } catch {
+        return { value: null, ready: false };
+      }
+    },
+  );
 
-  const [ready, setReady] = useState(value !== null);
+  const setValue: Dispatch<SetStateAction<T | null>> = useCallback(
+    (action: SetStateAction<T | null>) =>
+      setState((prev) => ({
+        ...prev,
+        value: typeof action === 'function' ? action(prev.value) : action,
+      })),
+    [],
+  );
 
   useEffect(() => {
-    if (!ready) {
+    if (!state.ready) {
       const resolve = async () => {
         try {
           const persisted = await persistor.get();
-          setValue(persisted !== null ? persisted : initialState);
+          setState({ value: persisted ?? initialState, ready: true });
         } catch {
-          setValue(initialState);
+          setState({ value: initialState, ready: true });
         }
-        setReady(true);
       };
       resolve();
     }
   }, []);
 
   useEffect(() => {
-    if (ready && value !== null) {
+    if (state.ready && state.value !== null) {
       const persist = async () => {
         try {
-          await persistor.set(value);
+          await persistor.set(state.value as T);
         } catch {
           // persistor unavailable, skip
         }
       };
       persist();
     }
-  }, [value, ready]);
+  }, [state.value, state.ready]);
 
-  return [value, setValue, ready];
+  return [state.value, setValue, state.ready];
 }
