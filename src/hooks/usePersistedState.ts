@@ -46,18 +46,35 @@ export function usePersistedState<T>(
   );
 
   useEffect(() => {
-    if (!state.ready) {
-      const resolve = async () => {
-        try {
-          const persisted = await persistor.get();
-          setState({ value: persisted ?? initialState, ready: true });
-        } catch {
-          setState({ value: initialState, ready: true });
-        }
-      };
-      resolve();
-    }
-  }, []);
+    if (state.ready) return;
+
+    let cancelled = false;
+
+    const resolve = async () => {
+      try {
+        const persisted = await persistor.get();
+        if (cancelled) return;
+
+        setState((prev) => ({
+          value: prev.value !== null ? prev.value : (persisted ?? initialState),
+          ready: true,
+        }));
+      } catch {
+        if (cancelled) return;
+
+        setState((prev) => ({
+          value: prev.value !== null ? prev.value : initialState,
+          ready: true,
+        }));
+      }
+    };
+
+    resolve();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialState, persistor, state.ready]);
 
   useEffect(() => {
     if (state.ready && state.value !== null) {
