@@ -12,5 +12,5 @@ export const prettyField = (field: string): string =>
       if (word === 'Ssn') return 'SSN';
       return word;
     })
-    .filter((e) => e !== 'Credential')
+    .filter((e) => e.trim() !== '' && e !== 'Credential')
     .join(' ');
