@@ -113,8 +113,8 @@ export interface DataTableColumnMeta {
   filterOptions?: string[];
   /**
    * Restricts which operators the filter panel offers for this column. When
-   * omitted, all operators are available. Useful to hide operators a column
-   * can't meaningfully support.
+   * omitted or empty array, all operators are available. Useful to hide
+   * operators a column can't meaningfully support.
    */
   filterOperators?: DataTableFilterOperator[];
   /**
