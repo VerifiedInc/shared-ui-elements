@@ -85,6 +85,38 @@ export const dataTableFilterOperators: ReadonlyArray<{
   { value: 'isAnyOf', label: 'is any of' },
 ];
 
+/**
+ * The operator options offered for a column, restricted to `allowed` when a
+ * column supplies `meta.filterOperators`. Display order from
+ * `dataTableFilterOperators` is preserved, an empty/absent `allowed` returns
+ * the full list.
+ */
+export function operatorOptionsFor(
+  allowed?: DataTableFilterOperator[],
+): typeof dataTableFilterOperators {
+  return allowed?.length
+    ? dataTableFilterOperators.filter((option) =>
+        allowed.includes(option.value),
+      )
+    : dataTableFilterOperators;
+}
+
+/**
+ * Default operator for a fresh filter row on a column: `contains` when allowed,
+ * otherwise the first allowed operator (falls back to `contains` if the list is
+ * empty).
+ */
+export function defaultFilterOperator(
+  allowed?: DataTableFilterOperator[],
+): DataTableFilterOperator {
+  const options = operatorOptionsFor(allowed);
+
+  return (
+    (options.find((option) => option.value === 'contains') ?? options[0])
+      ?.value ?? 'contains'
+  );
+}
+
 /** Whether the operator needs a value input to be meaningful. */
 export function filterOperatorRequiresValue(
   operator: DataTableFilterOperator,

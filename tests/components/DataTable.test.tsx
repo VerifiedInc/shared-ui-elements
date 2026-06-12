@@ -423,6 +423,57 @@ describe('<DataTable/>', () => {
       ).toEqual(['@verified.inc', '@example.com']);
     });
 
+    test('meta.filterOperators restricts the operator dropdown', () => {
+      const { getByLabelText, getByText, getByRole, getAllByRole } = render(
+        <DataTable
+          data={members}
+          enableColumnMenu
+          columns={[
+            {
+              id: 'email',
+              accessorFn: (row) => row.email,
+              header: 'Email',
+              meta: { filterOperators: ['equals', 'isAnyOf'] },
+            },
+          ]}
+        />,
+      );
+
+      fireEvent.click(getByLabelText('Email column menu'));
+      fireEvent.click(getByText('Filter'));
+
+      fireEvent.mouseDown(getByRole('combobox', { name: 'Operator' }));
+      // Only the allowed operators are offered, in canonical display order.
+      expect(
+        getAllByRole('option').map((option) => option.textContent),
+      ).toEqual(['equals', 'is any of']);
+    });
+
+    test('defaults a new row to the first allowed operator when contains is excluded', () => {
+      const { getByLabelText, getByText, getByRole } = render(
+        <DataTable
+          data={members}
+          enableColumnMenu
+          columns={[
+            {
+              id: 'email',
+              accessorFn: (row) => row.email,
+              header: 'Email',
+              meta: { filterOperators: ['equals', 'isAnyOf'] },
+            },
+          ]}
+        />,
+      );
+
+      fireEvent.click(getByLabelText('Email column menu'));
+      fireEvent.click(getByText('Filter'));
+
+      // `contains` (the usual default) isn't allowed, so the row opens on `equals`.
+      expect(getByRole('combobox', { name: 'Operator' }).textContent).toBe(
+        'equals',
+      );
+    });
+
     test('supports operators without a value input (is empty)', () => {
       const { getByLabelText, getByText, getByRole, container } = render(
         <DataTable data={members} enableColumnMenu />,

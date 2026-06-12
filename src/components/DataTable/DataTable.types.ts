@@ -112,6 +112,12 @@ export interface DataTableColumnMeta {
    */
   filterOptions?: string[];
   /**
+   * Restricts which operators the filter panel offers for this column. When
+   * omitted or empty array, all operators are available. Useful to hide
+   * operators a column can't meaningfully support.
+   */
+  filterOperators?: DataTableFilterOperator[];
+  /**
    * Hides the hover kebab (column menu) on this column even when the table
    * has `enableColumnMenu`. Use for utility columns with nothing to act on
    * (e.g. an expand/select column) so they don't show a menu offering only

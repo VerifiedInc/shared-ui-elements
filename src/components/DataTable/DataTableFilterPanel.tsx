@@ -25,8 +25,10 @@ import type {
 } from './DataTable.types';
 import {
   dataTableFilterOperators,
+  defaultFilterOperator,
   filterOperatorIsMultiValue,
   filterOperatorRequiresValue,
+  operatorOptionsFor,
 } from './DataTable.filters';
 import { getColumnLabel, getColumnMeta } from './DataTable.utils';
 
@@ -55,9 +57,18 @@ interface DataTableFilterPanelProps<TData extends DataTableData> {
   onClose: () => void;
 }
 
-function makeRow(columnId: string, id: string): DataTableFilterRow {
-  // contains is multi-value — rows start with no chips.
-  return { id, columnId, operator: 'contains', value: [] };
+function makeRow(
+  columnId: string,
+  id: string,
+  operator: DataTableFilterOperator,
+): DataTableFilterRow {
+  // Multi-value operators start with no chips, single-value with an empty string.
+  return {
+    id,
+    columnId,
+    operator,
+    value: filterOperatorIsMultiValue(operator) ? [] : '',
+  };
 }
 
 /**
@@ -101,10 +112,28 @@ export function DataTableFilterPanel<TData extends DataTableData>({
     return `r${counter.current}`;
   };
 
+  // Operators offered / defaulted for a column, honoring `meta.filterOperators`.
+  const allowedOperators = (
+    columnId: string,
+  ): DataTableFilterOperator[] | undefined =>
+    getColumnMeta(table.getColumn(columnId)?.columnDef.meta)?.filterOperators;
+  const operatorOptionsForColumn = (
+    columnId: string,
+  ): typeof dataTableFilterOperators =>
+    operatorOptionsFor(allowedOperators(columnId));
+  const defaultOperatorFor = (columnId: string): DataTableFilterOperator =>
+    defaultFilterOperator(allowedOperators(columnId));
+
   const [rows, setRows] = useState<DataTableFilterRow[]>(() =>
     filters.rows.length > 0
       ? filters.rows
-      : [makeRow(initialColumnId, nextId())],
+      : [
+          makeRow(
+            initialColumnId,
+            nextId(),
+            defaultOperatorFor(initialColumnId),
+          ),
+        ],
   );
   const [logicOperator, setLogicOperator] =
     useState<DataTableFilterLogicOperator>(filters.logicOperator);
@@ -167,12 +196,36 @@ export function DataTableFilterPanel<TData extends DataTableData>({
   };
 
   const handleAddRow = (): void => {
-    const newRow = makeRow(firstFilterableColumnId, nextId());
+    const newRow = makeRow(
+      firstFilterableColumnId,
+      nextId(),
+      defaultOperatorFor(firstFilterableColumnId),
+    );
     const next = [...rows, newRow];
 
     setRows(next);
     // New row has an empty value — don't fire a filter change yet; the
     // user will type a value, which triggers report().
+  };
+
+  // Switching columns may invalidate the current operator (the new column
+  // restricts its operators), fall back to that column's default and reset
+  // the value to the matching shape.
+  const handleColumnChange = (id: string, nextColumnId: string): void => {
+    const row = rows.find((r) => r.id === id);
+    const allowed = operatorOptionsForColumn(nextColumnId);
+
+    if (row && allowed.some((option) => option.value === row.operator)) {
+      updateRow(id, { columnId: nextColumnId });
+      return;
+    }
+
+    const operator = defaultOperatorFor(nextColumnId);
+    updateRow(id, {
+      columnId: nextColumnId,
+      operator,
+      value: filterOperatorIsMultiValue(operator) ? [] : '',
+    });
   };
 
   const handleRemoveRow = (id: string): void => {
@@ -282,7 +335,7 @@ export function DataTableFilterPanel<TData extends DataTableData>({
               label='Column'
               value={row.columnId}
               onChange={(event) =>
-                updateRow(row.id, { columnId: event.target.value })
+                handleColumnChange(row.id, event.target.value)
               }
               sx={{ minWidth: 150 }}
             >
@@ -306,7 +359,7 @@ export function DataTableFilterPanel<TData extends DataTableData>({
               }
               sx={{ minWidth: 150 }}
             >
-              {dataTableFilterOperators.map((option) => (
+              {operatorOptionsForColumn(row.columnId).map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
