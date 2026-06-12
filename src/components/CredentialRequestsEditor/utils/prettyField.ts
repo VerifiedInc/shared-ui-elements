@@ -6,11 +6,12 @@ const schemaNamePattern = /([A-Z][a-z0-9]+)/gm;
 export const prettyField = (field: string): string =>
   field
     .split(schemaNamePattern)
+    .map((word) => word.trim())
+    .filter((word) => word !== '' && word !== 'Credential')
     .map((word) => {
       if (word === 'Id') return 'ID';
       if (word === 'Zip') return 'ZIP';
       if (word === 'Ssn') return 'SSN';
       return word;
     })
-    .filter((e) => e.trim() !== '' && e !== 'Credential')
     .join(' ');
