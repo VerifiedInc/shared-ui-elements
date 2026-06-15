@@ -94,6 +94,28 @@ describe('<BillableEventsTable/>', () => {
     expect(getAllByText('Pied Piper').length).toBeGreaterThanOrEqual(2);
   });
 
+  test('renders the 1-Click Health "Checks Started" and "Autofills Started" columns', () => {
+    const data = [
+      makeRow({
+        brandUuid: 'health-uuid',
+        brand: 'Health Co',
+        metrics: { health_autofillsStarted: 7, health_checksStarted: 12 },
+      }),
+    ];
+    const { getByText } = render(
+      <BillableEventsTable
+        data={data}
+        isLoading={false}
+        isFetching={false}
+        visibleProducts={[BillableProduct.ONE_CLICK_HEALTH]}
+      />,
+    );
+    expect(getByText('Autofills Started')).toBeDefined();
+    expect(getByText('Checks Started')).toBeDefined();
+    // The checks column reads the oneClickHealthCheckStarted metric.
+    expect(getByText('12')).toBeDefined();
+  });
+
   test('renders em-dash placeholder when customerName is missing', () => {
     const data = [
       makeRow({
