@@ -94,6 +94,11 @@ export const BILLABLE_PRODUCTS: BillableProductConfig[] = [
         label: 'Autofills Started',
         metricKey: 'oneClickHealthCreated',
       },
+      {
+        key: 'health_checksStarted',
+        label: 'Checks Started',
+        metricKey: 'oneClickHealthCheckStarted',
+      },
     ],
   },
 ];
