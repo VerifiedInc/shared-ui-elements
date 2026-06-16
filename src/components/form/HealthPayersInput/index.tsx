@@ -67,13 +67,12 @@ function useHealthInsuranceProviders(
         signal,
       );
 
-      const providers = (result as HealthPayer[]) ?? [];
-
+      return Array.isArray(result) ? (result as HealthPayer[]) : [];
+    },
+    onSuccess: (providers) => {
       skipRef.current = providers.length;
       setAllProviders(providers);
       setHasMore(providers.length >= PROVIDERS_PAGE_SIZE);
-
-      return providers;
     },
     refetchOnMount: true,
     enabled: !!fetchPayers,
