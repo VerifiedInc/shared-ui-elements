@@ -407,7 +407,9 @@ h2.react-datepicker__current-month {
   margin: 0.166rem;
 }
 
-.react-datepicker__day:last-child:not(.react-datepicker__day--in-range) {
+.react-datepicker__day:last-child:not(.react-datepicker__day--in-range):not(
+    .react-datepicker__day--selected
+  ) {
   color: #eb0d28;
 }
 .react-datepicker__day:last-child:not(
