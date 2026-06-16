@@ -88,7 +88,7 @@ function useHealthInsuranceProviders(
         limit: PROVIDERS_PAGE_SIZE,
         skip: skipRef.current,
       });
-      const newProviders = (result as HealthPayer[]) ?? [];
+      const newProviders = Array.isArray(result) ? (result as HealthPayer[]) : [];
 
       setAllProviders((prev) => [...prev, ...newProviders]);
       skipRef.current += newProviders.length;
