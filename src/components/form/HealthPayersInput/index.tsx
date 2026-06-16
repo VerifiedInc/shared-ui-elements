@@ -88,7 +88,9 @@ function useHealthInsuranceProviders(
         limit: PROVIDERS_PAGE_SIZE,
         skip: skipRef.current,
       });
-      const newProviders = Array.isArray(result) ? (result as HealthPayer[]) : [];
+      const newProviders = Array.isArray(result)
+        ? (result as HealthPayer[])
+        : [];
 
       setAllProviders((prev) => [...prev, ...newProviders]);
       skipRef.current += newProviders.length;
@@ -260,13 +262,6 @@ export function HealthPayersInput({
 
   return (
     <QueryClientProvider client={queryClient ?? defaultQueryClient}>
-      <HealthPayersInputContent {...props} />
-    </QueryClientProvider>
-  );
-}
-
-  return (
-    <QueryClientProvider client={internalQueryClient}>
       <HealthPayersInputContent {...props} />
     </QueryClientProvider>
   );
