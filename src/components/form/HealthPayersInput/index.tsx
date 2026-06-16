@@ -244,9 +244,8 @@ export function HealthPayersInput({
   queryClient,
   ...props
 }: Readonly<HealthPayersInputProps>) {
-  const [internalQueryClient] = useState(
+  const [defaultQueryClient] = useState(
     () =>
-      queryClient ??
       new QueryClient({
         defaultOptions: {
           queries: {
@@ -259,6 +258,13 @@ export function HealthPayersInput({
         },
       }),
   );
+
+  return (
+    <QueryClientProvider client={queryClient ?? defaultQueryClient}>
+      <HealthPayersInputContent {...props} />
+    </QueryClientProvider>
+  );
+}
 
   return (
     <QueryClientProvider client={internalQueryClient}>
