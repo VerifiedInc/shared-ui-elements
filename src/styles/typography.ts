@@ -63,8 +63,8 @@ export const typography = {
   },
   caption: {
     fontWeight: 400,
-    fontSize: '0.75rem',
-    lineHeight: 1.66,
+    fontSize: '0.625rem',
+    lineHeight: 1.4,
   },
   overline: {
     fontWeight: 400,
