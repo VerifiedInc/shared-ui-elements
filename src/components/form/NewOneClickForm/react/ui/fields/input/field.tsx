@@ -13,7 +13,10 @@ import {
   FieldSectionTitle,
 } from '../style';
 
+import { getDisplayFieldKeys } from '../field-order';
+
 import { AddressInputField } from './address.field';
+import { PhoneInputField } from './phone.field';
 import { TextInputField } from './text.field';
 import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
@@ -47,6 +50,16 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
 
     return null;
   };
+
+  // Custom render for the phone field — uses the dedicated phone input
+  // (country selector + masking) instead of the generic text input.
+  if (field?.schema?.key === credentialKeys.phone) {
+    return (
+      <FieldRowContainer fieldKey={fieldKey}>
+        <PhoneInputField fieldKey={fieldKey} />
+      </FieldRowContainer>
+    );
+  }
 
   // Custom render for the health insurance field as a section with formatted value
   if (field?.schema?.key === credentialKeys.healthInsurance) {
@@ -115,14 +128,15 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
 export function EditFields() {
   const context = useOneClickForm();
   const { fields } = context.formContext.state.form;
+  const fieldKeys = getDisplayFieldKeys(fields, {
+    showPhone: context.options.features.field?.phone?.show,
+  });
 
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
-      {Object.entries(fields).map(([fieldKey, field]) => {
-        // We don't want to render the phone field in edit mode
-        if (field.schema.key === credentialKeys.phone) return null;
-        return <FieldContainer key={fieldKey} fieldKey={fieldKey} />;
-      })}
+      {fieldKeys.map((fieldKey) => (
+        <FieldContainer key={fieldKey} fieldKey={fieldKey} />
+      ))}
     </Stack>
   );
 }
