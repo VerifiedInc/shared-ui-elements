@@ -15,6 +15,15 @@ type OneClickOptionFeatures = {
       /** When true, masks the year portion of the DOB field as ••••. */
       redactYear?: boolean;
     };
+    phone?: {
+      /**
+       * When true, shows the phone field in the form, positioned between the
+       * name and address fields. Phone is hidden by default; enable this when
+       * the phone was not provided as input (e.g. sourced from autofill) so the
+       * user can still see and confirm it.
+       */
+      show?: boolean;
+    };
   };
 };
 

@@ -1,4 +1,6 @@
 import { phoneSchema } from '../validations';
+import { phoneFormat } from '../formats';
+
 import type { TextFieldDefinition, ExtractedFieldValueType } from './types';
 
 const phoneKey = 'phone';
@@ -11,6 +13,7 @@ export const phone = {
     placeholder: '(555) 123-4567',
   },
   zodSchema: phoneSchema,
+  format: phoneFormat,
 };
 
 declare module '../declarations' {

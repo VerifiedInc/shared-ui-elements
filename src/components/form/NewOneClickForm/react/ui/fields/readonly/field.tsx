@@ -12,6 +12,8 @@ import {
   FieldSectionTitle,
   FieldSectionContent,
 } from '../style';
+import { getDisplayFieldKeys } from '../field-order';
+
 import { MultiField } from './multi.field';
 import { SingleField } from './single.field';
 import { HealthInsuranceField } from './healthInsurance.field';
@@ -99,6 +101,9 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
 export function ReadonlyFields() {
   const context = useOneClickForm();
   const { fields } = context.formContext.state.form;
+  const fieldKeys = getDisplayFieldKeys(fields, {
+    showPhone: context.options.features.field?.phone?.show,
+  });
 
   return (
     <Stack
@@ -115,11 +120,9 @@ export function ReadonlyFields() {
         context.setEditMode(true);
       }}
     >
-      {Object.entries(fields).map(([fieldKey, field]) => {
-        // Phone credential should not be rendered
-        if (field.schema.key === credentialKeys.phone) return null;
-        return <FieldContainer key={fieldKey} fieldKey={fieldKey} />;
-      })}
+      {fieldKeys.map((fieldKey) => (
+        <FieldContainer key={fieldKey} fieldKey={fieldKey} />
+      ))}
     </Stack>
   );
 }
