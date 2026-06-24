@@ -9,7 +9,7 @@ export const phone = {
   key: phoneKey,
   characteristics: {
     inputType: 'text' as const,
-    label: 'Phone Number',
+    label: 'Phone',
     placeholder: '(555) 123-4567',
   },
   zodSchema: phoneSchema,
