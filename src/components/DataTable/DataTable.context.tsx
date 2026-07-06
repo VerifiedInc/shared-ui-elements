@@ -23,7 +23,9 @@ import type {
   DataTableBidirectionalScroll,
   DataTableCellProps,
   DataTableData,
+  DataTableFilterField,
   DataTableFilterPanelContext,
+  DataTableFilterState,
   DataTableIcons,
   DataTableRowContext,
 } from './DataTable.types';
@@ -97,6 +99,11 @@ export interface DataTableContextValue<TData extends DataTableData> {
   ) => ReactNode;
   /** Active-filter count for the Filters button badge when using renderFilterPanel. */
   activeFilterCount?: number;
+  /** Declarative filter-field spec; when set, the built-in panel renders from it. */
+  filterFields?: DataTableFilterField[];
+  /** Filter state for `filterFields` (controlled or internal, see useControllableState). */
+  filterState: DataTableFilterState;
+  onFilterStateChange: (state: DataTableFilterState) => void;
   search: string;
   onSearchChange: OnChangeFn<string>;
 

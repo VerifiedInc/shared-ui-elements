@@ -2,6 +2,7 @@ import { Box, Popover } from '@mui/material';
 
 import { useDataTableContext } from './DataTable.context';
 import { DataTableColumnMenu } from './DataTableColumnMenu';
+import { DataTableFieldFilterPanel } from './DataTableFieldFilterPanel';
 import { DataTableFilterPanel } from './DataTableFilterPanel';
 import { DataTableManageColumnsPanel } from './DataTableManageColumnsPanel';
 
@@ -19,6 +20,9 @@ export function DataTablePanels() {
     filters,
     onFiltersChange,
     renderFilterPanel,
+    filterFields,
+    filterState,
+    onFilterStateChange,
     columnPanel,
     closeColumnPanel,
     openFilterPanel,
@@ -50,7 +54,19 @@ export function DataTablePanels() {
         />
       )}
       {columnPanel?.type === 'filter' &&
-        (renderFilterPanel ? (
+        (filterFields ? (
+          // Declarative field panel: the table renders one control per field
+          // from the spec and owns the filter state.
+          <DataTableFieldFilterPanel
+            fields={filterFields}
+            filterState={filterState}
+            onFilterStateChange={onFilterStateChange}
+            anchorPosition={columnPanel.anchorPosition}
+            transformHorizontal={columnPanel.transformHorizontal}
+            icons={icons}
+            onClose={closeColumnPanel}
+          />
+        ) : renderFilterPanel ? (
           // Consumer-rendered filter panel: the table provides the popover shell + anchor,
           // the consumer owns the controls and filter state.
           <Popover

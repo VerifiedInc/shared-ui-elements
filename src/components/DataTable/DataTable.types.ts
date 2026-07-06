@@ -597,6 +597,29 @@ export interface DataTableProps<TData extends DataTableData> {
    * infer it from consumer-owned filter state). Ignored without `renderFilterPanel`.
    */
   activeFilterCount?: number;
+  /**
+   * Declarative filter-field spec. When provided, the toolbar's Filters button opens the built-in
+   * panel rendering one control per field (text / select / multiSelect / boolean / group) from this
+   * spec, the table owns the UI and derives the active-filter badge itself. State is emitted in
+   * server-value terms through `onFilterStateChange`, which a consumer maps 1:1 to its query params
+   * (pair with `manualFiltering`). Takes precedence over `renderFilterPanel` and the operator panel.
+   */
+  filterFields?: DataTableFilterField[];
+  /**
+   * Initial filter state for `filterFields`. Defaults to every field cleared. What the panel's
+   * "Clear all" restores.
+   */
+  initialFilterState?: DataTableFilterState;
+  /**
+   * Controlled filter state for `filterFields` (pair with `onFilterStateChange`). Takes precedence
+   * over `initialFilterState`. When omitted, the state is internal.
+   */
+  filterState?: DataTableFilterState;
+  /**
+   * Called with the next filter state when a `filterFields` control changes. With `manualFiltering`,
+   * map the state to the server query in response (and usually reset the page to 0).
+   */
+  onFilterStateChange?: (state: DataTableFilterState) => void;
   /** Initial quick-search query for the toolbar search input. */
   initialSearch?: string;
   /**

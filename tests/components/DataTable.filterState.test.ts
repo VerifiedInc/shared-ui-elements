@@ -80,9 +80,18 @@ describe('emptyFieldValue / buildInitialFilterState', () => {
   });
 
   test('non-text fields start cleared', () => {
-    expect(emptyFieldValue(stageField)).toEqual({ kind: 'multiSelect', values: [] });
-    expect(emptyFieldValue(billableField)).toEqual({ kind: 'boolean', value: null });
-    expect(emptyFieldValue(activityField)).toEqual({ kind: 'group', values: {} });
+    expect(emptyFieldValue(stageField)).toEqual({
+      kind: 'multiSelect',
+      values: [],
+    });
+    expect(emptyFieldValue(billableField)).toEqual({
+      kind: 'boolean',
+      value: null,
+    });
+    expect(emptyFieldValue(activityField)).toEqual({
+      kind: 'group',
+      values: {},
+    });
   });
 
   test('builds a cleared value per field', () => {
@@ -101,7 +110,10 @@ describe('isFilterFieldActive', () => {
       isFilterFieldActive(stageField, { kind: 'multiSelect', values: [] }),
     ).toBe(false);
     expect(
-      isFilterFieldActive(stageField, { kind: 'multiSelect', values: ['1042'] }),
+      isFilterFieldActive(stageField, {
+        kind: 'multiSelect',
+        values: ['1042'],
+      }),
     ).toBe(true);
   });
 
@@ -124,23 +136,35 @@ describe('isFilterFieldActive', () => {
   });
 
   test('boolean: unset inactive, set active', () => {
-    expect(isFilterFieldActive(billableField, { kind: 'boolean', value: null })).toBe(
-      false,
-    );
-    expect(isFilterFieldActive(billableField, { kind: 'boolean', value: false })).toBe(
-      true,
-    );
+    expect(
+      isFilterFieldActive(billableField, { kind: 'boolean', value: null }),
+    ).toBe(false);
+    expect(
+      isFilterFieldActive(billableField, { kind: 'boolean', value: false }),
+    ).toBe(true);
   });
 
   test('text: blank inactive, non-blank active; isEmpty always active', () => {
     expect(
-      isFilterFieldActive(customerNameField, { kind: 'text', operator: 'contains', value: '  ' }),
+      isFilterFieldActive(customerNameField, {
+        kind: 'text',
+        operator: 'contains',
+        value: '  ',
+      }),
     ).toBe(false);
     expect(
-      isFilterFieldActive(customerNameField, { kind: 'text', operator: 'contains', value: 'Abb' }),
+      isFilterFieldActive(customerNameField, {
+        kind: 'text',
+        operator: 'contains',
+        value: 'Abb',
+      }),
     ).toBe(true);
     expect(
-      isFilterFieldActive(customerNameField, { kind: 'text', operator: 'isEmpty', value: '' }),
+      isFilterFieldActive(customerNameField, {
+        kind: 'text',
+        operator: 'isEmpty',
+        value: '',
+      }),
     ).toBe(true);
   });
 
@@ -176,11 +200,17 @@ describe('effectiveFilterFieldCount', () => {
     const state: DataTableFilterState = {
       currentStage: { kind: 'multiSelect', values: ['1042'] },
       billable: { kind: 'boolean', value: null },
-      activity: { kind: 'group', values: { anyProductActivity: ['this_month'] } },
+      activity: {
+        kind: 'group',
+        values: { anyProductActivity: ['this_month'] },
+      },
     };
 
     expect(
-      effectiveFilterFieldCount([stageField, billableField, activityField], state),
+      effectiveFilterFieldCount(
+        [stageField, billableField, activityField],
+        state,
+      ),
     ).toBe(2);
   });
 });
@@ -223,7 +253,9 @@ describe('applyFieldFilters', () => {
       customerName: { kind: 'text', operator: 'contains', value: 'agi' },
     };
 
-    expect(applyFieldFilters(rows, [customerNameField], state)).toEqual([rows[2]]);
+    expect(applyFieldFilters(rows, [customerNameField], state)).toEqual([
+      rows[2],
+    ]);
   });
 
   test('boolean matches the raw boolean cell', () => {
@@ -236,7 +268,10 @@ describe('applyFieldFilters', () => {
 
   test('column-less and group fields are skipped client-side', () => {
     const state: DataTableFilterState = {
-      activity: { kind: 'group', values: { anyProductActivity: ['this_month'] } },
+      activity: {
+        kind: 'group',
+        values: { anyProductActivity: ['this_month'] },
+      },
     };
 
     expect(applyFieldFilters(rows, [activityField], state)).toBe(rows);

@@ -15,7 +15,11 @@ export function emptyFieldValue(
 ): DataTableFilterFieldValue {
   switch (field.kind) {
     case 'text':
-      return { kind: 'text', operator: field.operators?.[0] ?? 'contains', value: '' };
+      return {
+        kind: 'text',
+        operator: field.operators?.[0] ?? 'contains',
+        value: '',
+      };
     case 'select':
       return { kind: 'select', value: null };
     case 'multiSelect':
@@ -189,11 +193,10 @@ export function applyFieldFilters<TData extends DataTableData>(
   data: TData[],
   fields: DataTableFilterField[],
   state: DataTableFilterState,
-  getCellValue: (
-    row: TData,
-    columnId: string,
-    index: number,
-  ) => unknown = (row, columnId) => row[columnId],
+  getCellValue: (row: TData, columnId: string, index: number) => unknown = (
+    row,
+    columnId,
+  ) => row[columnId],
 ): TData[] {
   const active = fields.filter(
     (field) =>
@@ -212,7 +215,10 @@ export function applyFieldFilters<TData extends DataTableData>(
 
       return (
         value !== undefined &&
-        rowPassesField(getCellValue(row, field.columnId as string, index), value)
+        rowPassesField(
+          getCellValue(row, field.columnId as string, index),
+          value,
+        )
       );
     }),
   );

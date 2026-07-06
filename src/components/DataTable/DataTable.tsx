@@ -24,6 +24,7 @@ import type {
   DataTableActiveFilters,
   DataTableCellProps,
   DataTableData,
+  DataTableFilterState,
   DataTableIcons,
   DataTableProps,
 } from './DataTable.types';
@@ -41,6 +42,10 @@ import {
   useStickyHeaderHeight,
 } from './DataTable.hooks';
 import { applyFilters, applySearch, EMPTY_FILTERS } from './DataTable.filters';
+import {
+  applyFieldFilters,
+  buildInitialFilterState,
+} from './DataTable.filterState';
 import {
   applyMetaWidthsToSizes,
   getColumnMeta,
@@ -126,6 +131,10 @@ export function DataTable<TData extends DataTableData>({
   manualFiltering = false,
   renderFilterPanel,
   activeFilterCount,
+  filterFields,
+  initialFilterState,
+  filterState: controlledFilterState,
+  onFilterStateChange,
   initialSearch = '',
   search: controlledSearch,
   onSearchChange,
@@ -169,6 +178,16 @@ export function DataTable<TData extends DataTableData>({
       initialFilters,
       controlledFilters,
       onFiltersChange,
+    );
+
+  // Declarative filter-field state written by the built-in field panel.
+  // Pre-filtered client-side (applyFieldFilters), with manualFiltering the
+  // consumer maps it to the server query from onFilterStateChange.
+  const [filterState, handleFilterStateChange] =
+    useControllableState<DataTableFilterState>(
+      initialFilterState ?? buildInitialFilterState(filterFields ?? []),
+      controlledFilterState,
+      onFilterStateChange,
     );
 
   // Quick-search query written by the toolbar search input. Pre-filtered
@@ -301,11 +320,23 @@ export function DataTable<TData extends DataTableData>({
       manualFiltering
         ? data
         : applySearch(
-            applyFilters(data, filters, resolvedColumns),
+            applyFieldFilters(
+              applyFilters(data, filters, resolvedColumns),
+              filterFields ?? [],
+              filterState,
+            ),
             search,
             resolvedColumns,
           ),
-    [data, filters, search, manualFiltering, resolvedColumns],
+    [
+      data,
+      filters,
+      filterFields,
+      filterState,
+      search,
+      manualFiltering,
+      resolvedColumns,
+    ],
   );
 
   const table = useReactTable({
@@ -591,6 +622,9 @@ export function DataTable<TData extends DataTableData>({
     onFiltersChange: handleFiltersChange,
     renderFilterPanel,
     activeFilterCount,
+    filterFields,
+    filterState,
+    onFilterStateChange: handleFilterStateChange,
     search,
     onSearchChange: handleSearchChange,
     columnPanel,
