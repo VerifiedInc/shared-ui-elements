@@ -86,6 +86,95 @@ export interface DataTableFilterPanelContext<TData extends DataTableData> {
   table: Table<TData>;
 }
 
+// ---------------------------------------------------------------------------
+// Declarative filter-field spec
+//
+// The table renders its own filter panel from a `filterFields` spec: each
+// field declares a control kind (text / select / multiSelect / boolean /
+// group) plus its options, and the panel renders the matching control. State
+// is emitted in server-value terms (option `value`s, not display labels), so
+// a consumer maps it 1:1 to its query params.
+// ---------------------------------------------------------------------------
+
+/** Control kind a `DataTableFilterField` renders in the filter panel. */
+export type DataTableFilterFieldKind =
+  | 'text' // free input -> operator match (contains / startsWith / ...)
+  | 'select' // single choice from `options`
+  | 'multiSelect' // multi choice from `options`, value may differ from label
+  | 'boolean' // Yes / No tri-state (unset = no filter)
+  | 'group'; // sectioned multiSelect (each section a distinct field)
+
+/**
+ * One selectable choice. `value` is the server value carried end-to-end (a
+ * uuid, enum code, `'true'`/`'false'`, ...), `label` is what the user sees.
+ * Keeping them separate is what lets the panel disambiguate duplicate display
+ * names (options are keyed by `value`).
+ */
+export interface DataTableFilterOption {
+  label: string;
+  value: string;
+}
+
+/** One section of a `group` field, a labelled sub-list of options. */
+export interface DataTableFilterSection {
+  /** Stable key for this section within its field's state. */
+  key: string;
+  label: string;
+  options: DataTableFilterOption[];
+}
+
+/**
+ * Declarative description of one filter control. `columnId` binds the field
+ * to a table column (used for client-side filtering when `manualFiltering`
+ * is off); omit it for a non-column ("extended") filter whose meaning lives
+ * only server-side.
+ */
+export interface DataTableFilterField {
+  /** Stable key this field's value is stored under in `DataTableFilterState`. */
+  id: string;
+  /** Label shown above the control in the panel. */
+  label: string;
+  kind: DataTableFilterFieldKind;
+  /**
+   * Column this field filters, when it maps to one. Absent = a non-column
+   * filter (e.g. an activity filter spanning several server params); such
+   * fields are skipped by client-side filtering and only surface through
+   * `onFilterStateChange`.
+   */
+  columnId?: string;
+  /** Choices for `select` / `multiSelect`. */
+  options?: DataTableFilterOption[];
+  /** Sections for `group`. */
+  sections?: DataTableFilterSection[];
+  /**
+   * Text operators offered (and their order) for a `text` field. Defaults to
+   * `['contains']`. The first entry is the default operator.
+   */
+  operators?: DataTableFilterOperator[];
+  /**
+   * For `multiSelect` / `group`: treat "every option selected" the same as
+   * "none selected" - i.e. a fully-selected control applies no filter and
+   * does not count toward the active-filter badge. Defaults to `true`.
+   */
+  selectAllClears?: boolean;
+  /** Placeholder for the input (text / select / multiSelect). */
+  placeholder?: string;
+}
+
+/**
+ * The value of a single field, discriminated by `kind`. Stored under the
+ * field's `id` in `DataTableFilterState`.
+ */
+export type DataTableFilterFieldValue =
+  | { kind: 'text'; operator: DataTableFilterOperator; value: string }
+  | { kind: 'select'; value: string | null }
+  | { kind: 'multiSelect'; values: string[] }
+  | { kind: 'boolean'; value: boolean | null }
+  | { kind: 'group'; values: Record<string, string[]> };
+
+/** Full filter state: each field's value keyed by its `id`. */
+export type DataTableFilterState = Record<string, DataTableFilterFieldValue>;
+
 /**
  * Optional per-column display hints, supplied via the TanStack
  * `ColumnDef.meta` field.
