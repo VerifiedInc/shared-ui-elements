@@ -362,6 +362,95 @@ export const ConsumerFilterPanel: Story = {
   },
 };
 
+// Declarative filter-field spec: the toolbar Filters button opens the built-in panel rendering one
+// control per field (multiSelect / text / boolean here) from `filterFields`. The table owns the UI
+// and derives the badge itself. Client-side here (no `manualFiltering`) so the controls filter the
+// rows live, a real consumer pairs `manualFiltering` with `onFilterStateChange` mapping the
+// server-value state to its query. Option `value`s carry the server value (so they can differ from
+// the label, e.g. a uuid).
+export const DeclarativeFilters: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    filterFields: [
+      {
+        id: 'role',
+        label: 'Role',
+        kind: 'multiSelect',
+        columnId: 'role',
+        options: [
+          { label: 'Admin', value: 'admin' },
+          { label: 'Member', value: 'member' },
+        ],
+      },
+      {
+        id: 'status',
+        label: 'Status',
+        kind: 'multiSelect',
+        columnId: 'status',
+        options: [
+          { label: 'Accepted', value: 'accepted' },
+          { label: 'Pending', value: 'pending' },
+          { label: 'Expired', value: 'expired' },
+        ],
+      },
+      {
+        id: 'email',
+        label: 'Email',
+        kind: 'text',
+        columnId: 'email',
+        operators: ['contains', 'startsWith', 'endsWith'],
+      },
+      {
+        id: 'mfaEnabled',
+        label: 'MFA',
+        kind: 'boolean',
+        columnId: 'mfaEnabled',
+      },
+    ],
+  },
+};
+
+// A non-column ("extended") `group` field - sectioned multi-selects that map to several server
+// params, with no single column to bind to. Such fields are server-only: they surface through
+// `onFilterStateChange` (pair with `manualFiltering`) rather than filtering client-side. Shown
+// alongside a column-bound multiSelect.
+export const DeclarativeGroupFilter: Story = {
+  args: {
+    data: members,
+    showToolbar: true,
+    manualFiltering: true,
+    filterFields: [
+      {
+        id: 'role',
+        label: 'Role',
+        kind: 'multiSelect',
+        columnId: 'role',
+        options: [
+          { label: 'Admin', value: 'admin' },
+          { label: 'Member', value: 'member' },
+        ],
+      },
+      {
+        id: 'activity',
+        label: 'Activity',
+        kind: 'group',
+        sections: [
+          {
+            key: 'anyProductActivity',
+            label: 'Any product',
+            options: [
+              { label: 'This month', value: 'this_month' },
+              { label: 'Earlier', value: 'earlier' },
+              { label: 'Never', value: 'never' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+};
+
 // Export-only columns appended after the visible columns in the CSV / Excel / Print output — for
 // data shown outside the grid (e.g. ids in an expandable detail row). Open the Export menu.
 export const AdditionalExportColumns: Story = {

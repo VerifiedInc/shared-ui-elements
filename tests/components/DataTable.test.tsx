@@ -7,7 +7,9 @@ import {
   DataTable,
   dataTableFilterFn,
   type DataTableActiveFilters,
+  type DataTableFilterField,
   type DataTableFilterOperator,
+  type DataTableFilterState,
   type DataTableRowContext,
 } from '../../src/components/DataTable';
 
@@ -1709,5 +1711,150 @@ describe('dataTableFilterFn', () => {
     expect(dataTableFilterFn(rowWith(raw), 'column', { operator, value })).toBe(
       expected,
     );
+  });
+});
+
+describe('field filter panel (filterFields)', () => {
+  const roleField: DataTableFilterField = {
+    id: 'role',
+    label: 'Role',
+    kind: 'multiSelect',
+    columnId: 'role',
+    options: [
+      { label: 'Admin', value: 'admin' },
+      { label: 'Member', value: 'member' },
+    ],
+  };
+
+  const emailField: DataTableFilterField = {
+    id: 'email',
+    label: 'Email',
+    kind: 'text',
+    columnId: 'email',
+    operators: ['contains', 'startsWith'],
+  };
+
+  const billableField: DataTableFilterField = {
+    id: 'mfaEnabled',
+    label: 'MFA',
+    kind: 'boolean',
+    columnId: 'mfaEnabled',
+  };
+
+  test('opens the built-in field panel (not the operator panel) from the toolbar', () => {
+    const { getByLabelText, getByText, queryByText } = render(
+      <DataTable
+        data={members}
+        showToolbar
+        filterFields={[emailField, roleField]}
+      />,
+    );
+
+    fireEvent.click(getByLabelText('Show filters'));
+
+    // Field labels render; the operator panel's "Add filter" does not.
+    expect(getByText('Clear all')).toBeDefined();
+    expect(queryByText('Add filter')).toBeNull();
+  });
+
+  test('filters rows client-side from a text field value', () => {
+    const filterState: DataTableFilterState = {
+      email: { kind: 'text', operator: 'contains', value: 'alpha' },
+    };
+    const { container } = render(
+      <DataTable
+        data={members}
+        filterFields={[emailField]}
+        filterState={filterState}
+      />,
+    );
+
+    const rows = getBodyRowTexts(container);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toContain('alpha@verified.inc');
+  });
+
+  test('filters rows client-side from a multiSelect keyed by value', () => {
+    const filterState: DataTableFilterState = {
+      role: { kind: 'multiSelect', values: ['admin'] },
+    };
+    const { container } = render(
+      <DataTable
+        data={members}
+        filterFields={[roleField]}
+        filterState={filterState}
+      />,
+    );
+
+    const rows = getBodyRowTexts(container);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toContain('charlie@verified.inc');
+  });
+
+  test('badge counts active fields; select-all clears', () => {
+    const { getByLabelText, rerender } = render(
+      <DataTable
+        data={members}
+        showToolbar
+        filterFields={[emailField, roleField]}
+        filterState={{
+          email: { kind: 'text', operator: 'contains', value: 'a' },
+          role: { kind: 'multiSelect', values: ['admin'] },
+        }}
+      />,
+    );
+
+    expect(getByLabelText('Show filters').textContent).toBe('2');
+
+    // Fully-selecting every option of a multiSelect clears it (no filter),
+    // dropping the badge to just the active text field.
+    rerender(
+      <DataTable
+        data={members}
+        showToolbar
+        filterFields={[emailField, roleField]}
+        filterState={{
+          email: { kind: 'text', operator: 'contains', value: 'a' },
+          role: { kind: 'multiSelect', values: ['admin', 'member'] },
+        }}
+      />,
+    );
+
+    expect(getByLabelText('Show filters').textContent).toBe('1');
+  });
+
+  test('reports state changes in server-value terms from a text field', () => {
+    const onFilterStateChange = vi.fn();
+    const { getByLabelText } = render(
+      <DataTable
+        data={members}
+        showToolbar
+        manualFiltering
+        filterFields={[emailField]}
+        filterState={{
+          email: { kind: 'text', operator: 'contains', value: '' },
+        }}
+        onFilterStateChange={onFilterStateChange}
+      />,
+    );
+
+    fireEvent.click(getByLabelText('Show filters'));
+    fireEvent.change(getByLabelText('Email'), { target: { value: 'bravo' } });
+
+    expect(onFilterStateChange).toHaveBeenCalledWith({
+      email: { kind: 'text', operator: 'contains', value: 'bravo' },
+    });
+  });
+
+  test('renders a boolean field as an Any/Yes/No select', () => {
+    const { getByLabelText, getAllByRole } = render(
+      <DataTable data={members} showToolbar filterFields={[billableField]} />,
+    );
+
+    fireEvent.click(getByLabelText('Show filters'));
+    fireEvent.mouseDown(getByLabelText('MFA'));
+
+    const options = getAllByRole('option').map((option) => option.textContent);
+    expect(options).toEqual(['Any', 'Yes', 'No']);
   });
 });
