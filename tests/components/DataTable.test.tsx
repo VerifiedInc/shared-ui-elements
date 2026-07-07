@@ -1846,15 +1846,45 @@ describe('field filter panel (filterFields)', () => {
     });
   });
 
-  test('renders a boolean field as an Any/Yes/No select', () => {
+  test('renders a boolean field as a clearable Yes/No single-select', () => {
     const { getByLabelText, getAllByRole } = render(
       <DataTable data={members} showToolbar filterFields={[billableField]} />,
     );
 
     fireEvent.click(getByLabelText('Show filters'));
-    fireEvent.mouseDown(getByLabelText('MFA'));
+    // Open the Autocomplete popup (arrow keydown reveals the options).
+    fireEvent.keyDown(getByLabelText('MFA'), { key: 'ArrowDown' });
 
     const options = getAllByRole('option').map((option) => option.textContent);
-    expect(options).toEqual(['Any', 'Yes', 'No']);
+    expect(options).toEqual(['Yes', 'No']);
+  });
+
+  test('multiSelect finds an option by its value (e.g. a pasted uuid)', () => {
+    // Duplicate display names, distinct values, the option must be findable by
+    // value so a specific item can be targeted despite the shared name.
+    const tagsField: DataTableFilterField = {
+      id: 'tags',
+      label: 'Tags',
+      kind: 'multiSelect',
+      options: [
+        { label: 'Health', value: 'uuid-a' },
+        { label: 'Health', value: 'uuid-b' },
+        { label: 'Finance', value: 'uuid-c' },
+      ],
+    };
+    const { getByLabelText, getAllByRole } = render(
+      <DataTable data={members} showToolbar filterFields={[tagsField]} />,
+    );
+
+    fireEvent.click(getByLabelText('Show filters'));
+    const input = getByLabelText('Tags');
+    fireEvent.mouseDown(input);
+    input.focus();
+    fireEvent.change(input, { target: { value: 'uuid-b' } });
+
+    // Only the option whose value matches shows (not the other Health, Finance,
+    // or the "Select all" row).
+    const options = getAllByRole('option').map((option) => option.textContent);
+    expect(options).toEqual(['Health']);
   });
 });
