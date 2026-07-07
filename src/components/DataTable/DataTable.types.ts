@@ -21,7 +21,7 @@ import type { DataTableExportColumn } from './DataTable.export';
  */
 export type DataTableData = Record<string, unknown>;
 
-/** Operators available in the column filter panel (MUI DataGrid parity). */
+/** Text-match operators for a `text` filter field. */
 export type DataTableFilterOperator =
   | 'contains'
   | 'doesNotContain'
@@ -32,59 +32,6 @@ export type DataTableFilterOperator =
   | 'isEmpty'
   | 'isNotEmpty'
   | 'isAnyOf';
-
-/**
- * Low-level value shape used internally by `dataTableFilterFn` — consumed
- * from `DataTableFilterRow` when pre-filtering client-side.
- */
-export interface DataTableFilterValue {
-  operator: DataTableFilterOperator;
-  /**
-   * A single string for most operators; a `string[]` for the multi-value
-   * operators (`contains`, `isAnyOf`) — `contains` accepts either.
-   */
-  value?: string | string[];
-}
-
-/** Whether all filter rows must match (AND) or any one suffices (OR). */
-export type DataTableFilterLogicOperator = 'and' | 'or';
-
-/**
- * One row in the filter panel. Each row targets a specific column with an
- * operator and optional value. `id` is a unique key within the current
- * filter state (not the column id) so multiple rows can target the same
- * column.
- */
-export interface DataTableFilterRow {
-  id: string;
-  columnId: string;
-  operator: DataTableFilterOperator;
-  /**
-   * `string` for most operators; `string[]` for the multi-value operators
-   * (`contains`, `isAnyOf`) — `contains` accepts either. Multiple values
-   * OR within the row (the cell value matches any of them).
-   */
-  value?: string | string[];
-}
-
-/**
- * The full filter state passed to / returned from the table. With
- * `manualFiltering`, translate these into the server query in
- * `onFiltersChange`; client-side filtering is applied automatically
- * otherwise.
- */
-export interface DataTableActiveFilters {
-  rows: DataTableFilterRow[];
-  logicOperator: DataTableFilterLogicOperator;
-}
-
-/** API handed to a consumer-rendered filter panel. */
-export interface DataTableFilterPanelContext<TData extends DataTableData> {
-  /** Closes the filter popover, e.g. from an Apply/Cancel button inside the panel. */
-  onClose: () => void;
-  /** The table instance, for consumers that need column/row info. */
-  table: Table<TData>;
-}
 
 // ---------------------------------------------------------------------------
 // Declarative filter-field spec
@@ -193,19 +140,6 @@ export interface DataTableColumnMeta {
    * split the available space.
    */
   width?: number | string;
-  /**
-   * Options suggested by the filter panel's value input for this column.
-   * When omitted, suggestions are derived from the column's distinct
-   * values in `data` — with `manualFiltering`, `data` only holds the
-   * current page, so supply the full set here.
-   */
-  filterOptions?: string[];
-  /**
-   * Restricts which operators the filter panel offers for this column. When
-   * omitted or empty array, all operators are available. Useful to hide
-   * operators a column can't meaningfully support.
-   */
-  filterOperators?: DataTableFilterOperator[];
   /**
    * Hides the hover kebab (column menu) on this column even when the table
    * has `enableColumnMenu`. Use for utility columns with nothing to act on
@@ -555,54 +489,17 @@ export interface DataTableProps<TData extends DataTableData> {
    */
   additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
   /**
-   * Initial filter state. Rows are applied as AND by default; switch to OR
-   * via `logicOperator: 'or'`.
-   *
-   * @example
-   * initialFilters={{ rows: [{ id: 'f1', columnId: 'role', operator: 'equals', value: 'admin' }], logicOperator: 'and' }}
-   */
-  initialFilters?: DataTableActiveFilters;
-  /**
-   * Controlled filter state (pair with `onFiltersChange`). Takes
-   * precedence over `initialFilters`. When omitted, filter state is
-   * internal.
-   */
-  filters?: DataTableActiveFilters;
-  /**
-   * Called with the next filter state when the filter panel changes. With
-   * `manualFiltering`, fetch the matching rows from the server in response
-   * (and usually reset the page to 0).
-   */
-  onFiltersChange?: (filters: DataTableActiveFilters) => void;
-  /**
    * Server-side filtering: rows in `data` are assumed to already match the
    * active filters and search query — the filter panel and the toolbar
    * search input only update their state, nothing is filtered client-side.
    */
   manualFiltering?: boolean;
   /**
-   * Consumer-rendered filter panel. When provided, the toolbar's Filters button opens a popover
-   * rendering this content instead of the built-in operator-based panel, the consumer supplies its
-   * own filter controls (wired to its own state / server query) and the table stays filter-agnostic.
-   * Pair with `manualFiltering`. Use `activeFilterCount` to drive the Filters button badge.
-   *
-   * Receives `{ onClose, table }` so the panel can close the popover itself (e.g. an Apply/Cancel
-   * button) and read the table instance if needed.
-   */
-  renderFilterPanel?: (
-    context: DataTableFilterPanelContext<TData>,
-  ) => ReactNode;
-  /**
-   * Active-filter count for the Filters button badge when using `renderFilterPanel` (the table can't
-   * infer it from consumer-owned filter state). Ignored without `renderFilterPanel`.
-   */
-  activeFilterCount?: number;
-  /**
    * Declarative filter-field spec. When provided, the toolbar's Filters button opens the built-in
    * panel rendering one control per field (text / select / multiSelect / boolean / group) from this
-   * spec, the table owns the UI and derives the active-filter badge itself. State is emitted in
+   * spec — the table owns the UI and derives the active-filter badge itself. State is emitted in
    * server-value terms through `onFilterStateChange`, which a consumer maps 1:1 to its query params
-   * (pair with `manualFiltering`). Takes precedence over `renderFilterPanel` and the operator panel.
+   * (pair with `manualFiltering`).
    */
   filterFields?: DataTableFilterField[];
   /**

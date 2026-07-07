@@ -245,39 +245,6 @@ export const ToolbarInitialSearch: Story = {
   },
 };
 
-// Table mounted with active filters — filtered columns show a funnel
-// indicator that reopens the panel. Multiple rows combine with AND or OR.
-// With `manualFiltering`, the same state feeds a server query via
-// `onFiltersChange` instead (like the AsyncPagination story does for
-// sorting).
-export const InitialFilters: Story = {
-  args: {
-    data: members,
-    enableColumnMenu: true,
-    initialFilters: {
-      rows: [
-        { id: 'f1', columnId: 'role', operator: 'equals', value: 'admin' },
-      ],
-      logicOperator: 'and',
-    },
-  },
-};
-
-// Two filter rows with OR — shows rows matching either condition.
-export const MultiFilterOr: Story = {
-  args: {
-    data: members,
-    enableColumnMenu: true,
-    initialFilters: {
-      rows: [
-        { id: 'f1', columnId: 'role', operator: 'equals', value: 'admin' },
-        { id: 'f2', columnId: 'status', operator: 'equals', value: 'pending' },
-      ],
-      logicOperator: 'or',
-    },
-  },
-};
-
 // Columns hidden on mount — bring them back through the column menu's
 // Manage columns panel (or hide more via Hide column). The panel's Reset
 // restores this initial visibility.
@@ -331,34 +298,6 @@ export const ColumnPinning: Story = {
         header: 'Invited At',
       },
     ],
-  },
-};
-
-// Consumer-rendered filter panel: the toolbar Filters button opens a popover rendering whatever the
-// consumer supplies (here a placeholder), instead of the built-in operator panel. The consumer owns
-// the controls + filter state (typically with `manualFiltering` feeding a server query) and drives
-// the button badge via `activeFilterCount`.
-export const ConsumerFilterPanel: Story = {
-  args: {
-    data: members,
-    showToolbar: true,
-    manualFiltering: true,
-    activeFilterCount: 2,
-    renderFilterPanel: ({ onClose }) => (
-      <Box sx={{ minWidth: 260 }}>
-        <Typography variant='subtitle2' sx={{ mb: 1 }}>
-          Custom filters
-        </Typography>
-        <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5 }}>
-          The consumer renders its own controls here, wired to its own state /
-          server query.
-        </Typography>
-        {/* `onClose` lets the panel close the popover itself (e.g. an Apply/Cancel button). */}
-        <Button size='small' variant='outlined' onClick={onClose}>
-          Apply
-        </Button>
-      </Box>
-    ),
   },
 };
 

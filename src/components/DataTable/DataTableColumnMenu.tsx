@@ -10,7 +10,6 @@ import {
 import {
   ArrowDownward,
   ArrowUpward,
-  FilterAlt,
   PushPin,
   PushPinOutlined,
   ViewColumn,
@@ -39,8 +38,6 @@ interface DataTableColumnMenuProps<TData extends DataTableData> {
   /** Blocks the sort actions while a page is being fetched (manualSorting). */
   isLoading: boolean;
   onClose: () => void;
-  /** Swaps this menu for the filter panel, preselecting this column. */
-  onOpenFilter: () => void;
   /** Swaps this menu for the manage columns panel. */
   onOpenManageColumns: () => void;
 }
@@ -56,7 +53,6 @@ export function DataTableColumnMenu<TData extends DataTableData>({
   icons = {},
   isLoading,
   onClose,
-  onOpenFilter,
   onOpenManageColumns,
 }: Readonly<DataTableColumnMenuProps<TData>>) {
   // Custom icon slots — capitalized so JSX treats them as components.
@@ -66,7 +62,6 @@ export function DataTableColumnMenu<TData extends DataTableData>({
     pinLeft: PinLeftIcon = PushPinLeft,
     pinRight: PinRightIcon = PushPinRight,
     unpin: UnpinIcon = PushPinOutlined,
-    filter: FilterIcon = FilterAlt,
     hideColumn: HideColumnIcon = VisibilityOff,
     manageColumns: ManageColumnsIcon = ViewColumn,
   } = icons;
@@ -77,7 +72,6 @@ export function DataTableColumnMenu<TData extends DataTableData>({
   // opt out via `enablePinning: false`).
   const canPin = column.getCanPin();
   const isPinned = column.getIsPinned();
-  const canFilter = column.getCanFilter();
   const canHide = column.getCanHide();
 
   const handleSort = (desc: boolean): void => {
@@ -155,16 +149,7 @@ export function DataTableColumnMenu<TData extends DataTableData>({
           <ListItemText>Unpin</ListItemText>
         </MenuItem>
       )}
-      {(canSort || canPin) && canFilter && <Divider />}
-      {canFilter && (
-        <MenuItem onClick={onOpenFilter}>
-          <ListItemIcon>
-            <FilterIcon fontSize='small' />
-          </ListItemIcon>
-          <ListItemText>Filter</ListItemText>
-        </MenuItem>
-      )}
-      {(canSort || canPin || canFilter) && <Divider />}
+      {(canSort || canPin) && <Divider />}
       {canHide && (
         <MenuItem onClick={handleHide}>
           <ListItemIcon>
