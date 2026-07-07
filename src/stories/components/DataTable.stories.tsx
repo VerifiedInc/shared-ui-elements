@@ -350,38 +350,34 @@ export const DeclarativeFilters: Story = {
   },
 };
 
-// A non-column ("extended") `group` field - sectioned multi-selects that map to several server
-// params, with no single column to bind to. Such fields are server-only: they surface through
-// `onFilterStateChange` (pair with `manualFiltering`) rather than filtering client-side. Shown
-// alongside a column-bound multiSelect.
+// A `group` field - one control with a section per sub-filter. Each section
+// matches its own key (a column here, a server param in a manualFiltering
+// consumer), sections combine with AND. Filters client-side in this story.
 export const DeclarativeGroupFilter: Story = {
   args: {
     data: members,
     showToolbar: true,
-    manualFiltering: true,
     filterFields: [
       {
-        id: 'role',
-        label: 'Role',
-        kind: 'multiSelect',
-        columnId: 'role',
-        options: [
-          { label: 'Admin', value: 'admin' },
-          { label: 'Member', value: 'member' },
-        ],
-      },
-      {
-        id: 'activity',
-        label: 'Activity',
+        id: 'attributes',
+        label: 'Attributes',
         kind: 'group',
         sections: [
           {
-            key: 'anyProductActivity',
-            label: 'Any product',
+            key: 'role',
+            label: 'Role',
             options: [
-              { label: 'This month', value: 'this_month' },
-              { label: 'Earlier', value: 'earlier' },
-              { label: 'Never', value: 'never' },
+              { label: 'Admin', value: 'admin' },
+              { label: 'Member', value: 'member' },
+            ],
+          },
+          {
+            key: 'status',
+            label: 'Status',
+            options: [
+              { label: 'Accepted', value: 'accepted' },
+              { label: 'Pending', value: 'pending' },
+              { label: 'Expired', value: 'expired' },
             ],
           },
         ],

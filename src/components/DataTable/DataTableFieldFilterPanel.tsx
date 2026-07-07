@@ -6,7 +6,6 @@ import {
   Chip,
   createFilterOptions,
   Divider,
-  MenuItem,
   Popover,
   Stack,
   TextField,
@@ -123,26 +122,24 @@ export function DataTableFieldFilterPanel({
     return (
       <Stack direction='row' spacing={1} sx={{ flex: 1 }}>
         {operators.length > 1 && (
-          <TextField
-            select
+          <Autocomplete
             size='small'
-            label='Operator'
+            disableClearable
+            options={operators}
+            getOptionLabel={(operator) => TEXT_OPERATOR_LABELS[operator]}
             value={current.operator}
-            onChange={(event) =>
+            onChange={(_, operator) =>
               setValue(field, {
                 kind: 'text',
-                operator: event.target.value as DataTableFilterOperator,
+                operator,
                 value: current.value,
               })
             }
+            renderInput={(params) => (
+              <TextField {...params} size='small' label='Operator' />
+            )}
             sx={{ minWidth: 150 }}
-          >
-            {operators.map((operator) => (
-              <MenuItem key={operator} value={operator}>
-                {TEXT_OPERATOR_LABELS[operator]}
-              </MenuItem>
-            ))}
-          </TextField>
+          />
         )}
         <TextField
           size='small'
@@ -191,7 +188,12 @@ export function DataTableFieldFilterPanel({
         );
       }}
       renderInput={(params) => (
-        <TextField {...params} label={field.label} placeholder={placeholder} />
+        <TextField
+          {...params}
+          size='small'
+          label={field.label}
+          placeholder={placeholder}
+        />
       )}
       sx={{ flex: 1, minWidth }}
     />
@@ -294,6 +296,7 @@ export function DataTableFieldFilterPanel({
         renderInput={(params) => (
           <TextField
             {...params}
+            size='small'
             label={label}
             placeholder={values.length === 0 ? field.placeholder : undefined}
           />

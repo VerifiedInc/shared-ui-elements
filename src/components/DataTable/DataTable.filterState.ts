@@ -172,20 +172,47 @@ function rowPassesField(
     case 'boolean':
       return value.value == null || normalizeBoolean(cellValue) === value.value;
     case 'group':
-      // Group fields span several server params with no single column, so
-      // they aren't applied client-side (they're server-only "extended"
-      // filters). Passing here leaves them to `onFilterStateChange`.
+      // Group fields are handled by `groupPasses` (each section carries its own
+      // key), so they never reach this single-cell matcher.
       return true;
   }
 }
 
 /**
+ * Whether one row passes a `group` field: every section with a partial
+ * selection constrains its own key (row value must be one of the selected
+ * values), empty or fully-selected (when `selectAllClears`) sections add no
+ * constraint. `getSectionCell` reads the row value for a section key.
+ */
+function groupPasses(
+  field: DataTableFilterField,
+  values: Record<string, string[]>,
+  getSectionCell: (key: string) => unknown,
+): boolean {
+  const selectAllClears = field.selectAllClears ?? true;
+
+  return (field.sections ?? []).every((section) => {
+    const selected = values[section.key] ?? [];
+
+    if (
+      selected.length === 0 ||
+      isFullySelected(selected, section.options.length, selectAllClears)
+    ) {
+      return true;
+    }
+
+    return selected.includes(String(getSectionCell(section.key)));
+  });
+}
+
+/**
  * Client-side filtering for `manualFiltering` off: keeps rows passing every
- * active, column-bound field (fields AND together). Fields without a
- * `columnId` (and `group` fields) are server-only and skipped here. Returns
+ * active field (fields AND together). Column-bound fields match their
+ * `columnId`, `group` fields match each section against its own key. Fields
+ * without a `columnId` (and non-group) are server-only and skipped. Returns
  * `data` unchanged when nothing is active (no re-allocation).
  *
- * `getCellValue` resolves a column's value for a row - the DataTable passes a
+ * `getCellValue` resolves a column/key value for a row - the DataTable passes a
  * column-accessor-backed reader, the default reads the raw row key, which is
  * enough for plain-object data.
  */
@@ -198,12 +225,11 @@ export function applyFieldFilters<TData extends DataTableData>(
     columnId,
   ) => row[columnId],
 ): TData[] {
-  const active = fields.filter(
-    (field) =>
-      field.columnId !== undefined &&
-      field.kind !== 'group' &&
-      isFilterFieldActive(field, state[field.id]),
-  );
+  const active = fields.filter((field) => {
+    if (!isFilterFieldActive(field, state[field.id])) return false;
+    // Group fields carry their own per-section keys, other kinds need a column.
+    return field.kind === 'group' || field.columnId !== undefined;
+  });
 
   if (active.length === 0) {
     return data;
@@ -212,13 +238,17 @@ export function applyFieldFilters<TData extends DataTableData>(
   return data.filter((row, index) =>
     active.every((field) => {
       const value = state[field.id];
+      if (value === undefined) return true;
 
-      return (
-        value !== undefined &&
-        rowPassesField(
-          getCellValue(row, field.columnId as string, index),
-          value,
-        )
+      if (value.kind === 'group') {
+        return groupPasses(field, value.values, (key) =>
+          getCellValue(row, key, index),
+        );
+      }
+
+      return rowPassesField(
+        getCellValue(row, field.columnId as string, index),
+        value,
       );
     }),
   );

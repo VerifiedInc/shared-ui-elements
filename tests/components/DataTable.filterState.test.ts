@@ -18,8 +18,8 @@ const stageField: DataTableFilterField = {
   kind: 'multiSelect',
   columnId: 'currentStageLabel',
   options: [
-    { label: 'Paid Trial', value: '1042' },
-    { label: 'Closed Won', value: '2088' },
+    { label: 'Trial', value: '1042' },
+    { label: 'Deal', value: '2088' },
     { label: 'No deal', value: 'none' },
   ],
 };
@@ -31,9 +31,9 @@ const customersField: DataTableFilterField = {
   columnId: 'customerName',
   // Duplicate display names, distinct uuid values.
   options: [
-    { label: 'AbbVie', value: 'uuid-a' },
-    { label: 'AbbVie', value: 'uuid-b' },
-    { label: 'Agilent', value: 'uuid-c' },
+    { label: 'Acme', value: 'uuid-a' },
+    { label: 'Acme', value: 'uuid-b' },
+    { label: 'Aviato', value: 'uuid-c' },
   ],
 };
 
@@ -224,9 +224,9 @@ describe('applyFieldFilters', () => {
   }
 
   const rows: Row[] = [
-    { customerName: 'AbbVie', customerUuid: 'uuid-a', billable: true },
-    { customerName: 'AbbVie', customerUuid: 'uuid-b', billable: false },
-    { customerName: 'Agilent', customerUuid: 'uuid-c', billable: true },
+    { customerName: 'Acme', customerUuid: 'uuid-a', billable: true },
+    { customerName: 'Acme', customerUuid: 'uuid-b', billable: false },
+    { customerName: 'Aviato', customerUuid: 'uuid-c', billable: true },
   ];
 
   test('no active fields returns the same array reference', () => {
@@ -236,7 +236,7 @@ describe('applyFieldFilters', () => {
   });
 
   test('multiSelect ORs values within the field, keyed by value not label', () => {
-    // Select one of the two duplicate-named AbbVie rows by its distinct uuid.
+    // Select one of the two duplicate-named Acme rows by its distinct uuid.
     const field: DataTableFilterField = {
       ...customersField,
       columnId: 'customerUuid',
@@ -250,7 +250,7 @@ describe('applyFieldFilters', () => {
 
   test('text contains matches case-insensitively', () => {
     const state: DataTableFilterState = {
-      customerName: { kind: 'text', operator: 'contains', value: 'agi' },
+      customerName: { kind: 'text', operator: 'contains', value: 'avi' },
     };
 
     expect(applyFieldFilters(rows, [customerNameField], state)).toEqual([
@@ -266,14 +266,51 @@ describe('applyFieldFilters', () => {
     expect(applyFieldFilters(rows, [billableField], state)).toEqual([rows[1]]);
   });
 
-  test('column-less and group fields are skipped client-side', () => {
-    const state: DataTableFilterState = {
-      activity: {
-        kind: 'group',
-        values: { anyProductActivity: ['this_month'] },
-      },
+  test('a group field filters by each section key (sections AND together)', () => {
+    const field: DataTableFilterField = {
+      id: 'attrs',
+      label: 'Attributes',
+      kind: 'group',
+      sections: [
+        {
+          key: 'customerName',
+          label: 'Name',
+          options: [
+            { label: 'Acme', value: 'Acme' },
+            { label: 'Aviato', value: 'Aviato' },
+          ],
+        },
+      ],
     };
 
-    expect(applyFieldFilters(rows, [activityField], state)).toBe(rows);
+    // Partial section selection constrains the rows.
+    expect(
+      applyFieldFilters(rows, [field], {
+        attrs: { kind: 'group', values: { customerName: ['Aviato'] } },
+      }),
+    ).toEqual([rows[2]]);
+
+    // An empty group applies no filter.
+    expect(
+      applyFieldFilters(rows, [field], {
+        attrs: { kind: 'group', values: {} },
+      }),
+    ).toBe(rows);
+  });
+
+  test('a column-less non-group field is skipped client-side', () => {
+    // No columnId (server-only), so it can't match a row here.
+    const field: DataTableFilterField = {
+      id: 'server',
+      label: 'Server only',
+      kind: 'multiSelect',
+      options: [{ label: 'X', value: 'x' }],
+    };
+
+    expect(
+      applyFieldFilters(rows, [field], {
+        server: { kind: 'multiSelect', values: ['x'] },
+      }),
+    ).toBe(rows);
   });
 });
