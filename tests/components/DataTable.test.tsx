@@ -1,13 +1,11 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import type { Row } from '@tanstack/react-table';
 import { TableCell, TableRow } from '@mui/material';
 
 import {
   DataTable,
-  dataTableFilterFn,
-  type DataTableActiveFilters,
-  type DataTableFilterOperator,
+  type DataTableFilterField,
+  type DataTableFilterState,
   type DataTableRowContext,
 } from '../../src/components/DataTable';
 
@@ -324,353 +322,6 @@ describe('<DataTable/>', () => {
     });
   });
 
-  describe('column filtering', () => {
-    test('filters rows through the filter panel (single row, contains)', () => {
-      const { getByLabelText, getByText, getByPlaceholderText, container } =
-        render(<DataTable data={members} enableColumnMenu />);
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      // Panel opens preselecting the menu's column with `contains` —
-      // a multi-value operator, so values commit as chips on Enter.
-      const valueInput = getByPlaceholderText('Filter value');
-      fireEvent.change(valueInput, { target: { value: 'alpha' } });
-      fireEvent.keyDown(valueInput, { key: 'Enter' });
-
-      const rows = getBodyRowTexts(container);
-      expect(rows).toHaveLength(1);
-      expect(rows[0]).toContain('alpha@verified.inc');
-    });
-
-    test('contains accepts multiple chip values that OR within the row', () => {
-      const { getByLabelText, getByText, getByPlaceholderText, container } =
-        render(<DataTable data={members} enableColumnMenu />);
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      const valueInput = getByPlaceholderText('Filter value');
-      fireEvent.change(valueInput, { target: { value: 'alpha' } });
-      fireEvent.keyDown(valueInput, { key: 'Enter' });
-      expect(getBodyRowTexts(container)).toHaveLength(1);
-
-      // A second chip widens the match — the row ORs its values.
-      fireEvent.change(valueInput, { target: { value: 'bravo' } });
-      fireEvent.keyDown(valueInput, { key: 'Enter' });
-      expect(getBodyRowTexts(container)).toHaveLength(2);
-
-      // Deleting a chip through its close button narrows it again.
-      const chip = getByText('alpha').parentElement;
-      fireEvent.click(chip?.querySelector('.MuiChip-deleteIcon') as Element);
-
-      expect(getBodyRowTexts(container)).toHaveLength(1);
-      expect(getBodyRowTexts(container)[0]).toContain('bravo@verified.inc');
-    });
-
-    test('suggests the distinct column values in the value input', () => {
-      const {
-        getByLabelText,
-        getByText,
-        getByPlaceholderText,
-        getByRole,
-        getAllByRole,
-        container,
-      } = render(<DataTable data={members} enableColumnMenu />);
-
-      fireEvent.click(getByLabelText('Role column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      // ArrowDown opens the suggestion list: deduped and sorted.
-      fireEvent.keyDown(getByPlaceholderText('Filter value'), {
-        key: 'ArrowDown',
-      });
-      expect(
-        getAllByRole('option').map((option) => option.textContent),
-      ).toEqual(['admin', 'member']);
-
-      // Picking a suggestion commits it as a chip and filters.
-      fireEvent.click(getByRole('option', { name: 'admin' }));
-      expect(getBodyRowTexts(container)).toHaveLength(1);
-      expect(getBodyRowTexts(container)[0]).toContain('charlie@verified.inc');
-    });
-
-    test('meta.filterOptions overrides the derived suggestions', () => {
-      const { getByLabelText, getByText, getByPlaceholderText, getAllByRole } =
-        render(
-          <DataTable
-            data={members}
-            enableColumnMenu
-            columns={[
-              {
-                id: 'email',
-                accessorFn: (row) => row.email,
-                header: 'Email',
-                meta: { filterOptions: ['@verified.inc', '@example.com'] },
-              },
-            ]}
-          />,
-        );
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      fireEvent.keyDown(getByPlaceholderText('Filter value'), {
-        key: 'ArrowDown',
-      });
-      expect(
-        getAllByRole('option').map((option) => option.textContent),
-      ).toEqual(['@verified.inc', '@example.com']);
-    });
-
-    test('meta.filterOperators restricts the operator dropdown', () => {
-      const { getByLabelText, getByText, getByRole, getAllByRole } = render(
-        <DataTable
-          data={members}
-          enableColumnMenu
-          columns={[
-            {
-              id: 'email',
-              accessorFn: (row) => row.email,
-              header: 'Email',
-              meta: { filterOperators: ['equals', 'isAnyOf'] },
-            },
-          ]}
-        />,
-      );
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      fireEvent.mouseDown(getByRole('combobox', { name: 'Operator' }));
-      // Only the allowed operators are offered, in canonical display order.
-      expect(
-        getAllByRole('option').map((option) => option.textContent),
-      ).toEqual(['equals', 'is any of']);
-    });
-
-    test('defaults a new row to the first allowed operator when contains is excluded', () => {
-      const { getByLabelText, getByText, getByRole } = render(
-        <DataTable
-          data={members}
-          enableColumnMenu
-          columns={[
-            {
-              id: 'email',
-              accessorFn: (row) => row.email,
-              header: 'Email',
-              meta: { filterOperators: ['equals', 'isAnyOf'] },
-            },
-          ]}
-        />,
-      );
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      // `contains` (the usual default) isn't allowed, so the row opens on `equals`.
-      expect(getByRole('combobox', { name: 'Operator' }).textContent).toBe(
-        'equals',
-      );
-    });
-
-    test('supports operators without a value input (is empty)', () => {
-      const { getByLabelText, getByText, getByRole, container } = render(
-        <DataTable data={members} enableColumnMenu />,
-      );
-
-      fireEvent.click(getByLabelText('Mfa Enabled column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      fireEvent.mouseDown(getByRole('combobox', { name: 'Operator' }));
-      fireEvent.click(getByRole('option', { name: 'is empty' }));
-
-      // Only alpha has null mfaEnabled.
-      const rows = getBodyRowTexts(container);
-      expect(rows).toHaveLength(1);
-      expect(rows[0]).toContain('alpha@verified.inc');
-    });
-
-    test('adds a second filter row that ANDs with the first', () => {
-      const { getByLabelText, getByText, getAllByPlaceholderText, container } =
-        render(<DataTable data={members} enableColumnMenu />);
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      // First row: email contains 'a' → alpha + bravo + charlie all match.
-      const firstInput = getAllByPlaceholderText('Filter value')[0];
-      fireEvent.change(firstInput, { target: { value: 'a' } });
-      fireEvent.keyDown(firstInput, { key: 'Enter' });
-      expect(getBodyRowTexts(container)).toHaveLength(3);
-
-      // Add a second row for email contains 'charlie' → only charlie
-      // matches both.
-      fireEvent.click(getByText('Add filter'));
-      const valueInputs = getAllByPlaceholderText('Filter value');
-      const secondInput = valueInputs[valueInputs.length - 1];
-      fireEvent.change(secondInput, { target: { value: 'charlie' } });
-      fireEvent.keyDown(secondInput, { key: 'Enter' });
-      expect(getBodyRowTexts(container)).toHaveLength(1);
-      expect(getBodyRowTexts(container)[0]).toContain('charlie@verified.inc');
-    });
-
-    test('switching to OR logic makes rows match any condition', () => {
-      const {
-        getByLabelText,
-        getByText,
-        getAllByPlaceholderText,
-        getByRole,
-        container,
-      } = render(<DataTable data={members} enableColumnMenu />);
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-
-      // Row 1: email contains 'alpha'.
-      const firstInput = getAllByPlaceholderText('Filter value')[0];
-      fireEvent.change(firstInput, { target: { value: 'alpha' } });
-      fireEvent.keyDown(firstInput, { key: 'Enter' });
-
-      // Add row 2: email contains 'bravo'.
-      fireEvent.click(getByText('Add filter'));
-      const secondInput = getAllByPlaceholderText('Filter value')[1];
-      fireEvent.change(secondInput, { target: { value: 'bravo' } });
-      fireEvent.keyDown(secondInput, { key: 'Enter' });
-
-      // AND: must match both → zero rows (no email contains both 'alpha' and 'bravo').
-      expect(getBodyRowTexts(container)).toHaveLength(0);
-
-      // Switch to OR.
-      fireEvent.mouseDown(
-        getByRole('combobox', { name: 'Filter logic operator' }),
-      ); // the And/Or select
-      fireEvent.click(getByRole('option', { name: 'Or' }));
-
-      // OR: matches alpha OR bravo → 2 rows.
-      expect(getBodyRowTexts(container)).toHaveLength(2);
-    });
-
-    test('shows an indicator on a filtered column that reopens the panel', () => {
-      const { getByLabelText, getByText, container } = render(
-        <DataTable
-          data={members}
-          enableColumnMenu
-          initialFilters={{
-            rows: [
-              {
-                id: 'f1',
-                columnId: 'email',
-                operator: 'contains',
-                value: 'alpha',
-              },
-            ],
-            logicOperator: 'and',
-          }}
-        />,
-      );
-
-      expect(getBodyRowTexts(container)).toHaveLength(1);
-
-      fireEvent.click(getByLabelText('Email filter'));
-
-      // The single string value renders as one chip.
-      expect(getByText('alpha')).toBeDefined();
-    });
-
-    test('removes a single row through its X button', () => {
-      const { getByLabelText, container } = render(
-        <DataTable
-          data={members}
-          enableColumnMenu
-          initialFilters={{
-            rows: [
-              {
-                id: 'f1',
-                columnId: 'email',
-                operator: 'contains',
-                value: 'alpha',
-              },
-            ],
-            logicOperator: 'and',
-          }}
-        />,
-      );
-
-      expect(getBodyRowTexts(container)).toHaveLength(1);
-
-      fireEvent.click(getByLabelText('Email filter'));
-      fireEvent.click(getByLabelText('Remove filter row 1'));
-
-      expect(getBodyRowTexts(container)).toHaveLength(3);
-    });
-
-    test('Remove all clears every row and closes the panel', () => {
-      const { getByLabelText, getByText, queryByText, container } = render(
-        <DataTable
-          data={members}
-          enableColumnMenu
-          initialFilters={{
-            rows: [
-              {
-                id: 'f1',
-                columnId: 'email',
-                operator: 'contains',
-                value: 'alpha',
-              },
-              {
-                id: 'f2',
-                columnId: 'role',
-                operator: 'equals',
-                value: 'admin',
-              },
-            ],
-            logicOperator: 'and',
-          }}
-        />,
-      );
-
-      fireEvent.click(getByLabelText('Email filter'));
-      fireEvent.click(getByText('Remove all'));
-
-      expect(getBodyRowTexts(container)).toHaveLength(3);
-      // Panel closed — "Add filter" no longer visible.
-      expect(queryByText('Add filter')).toBeNull();
-    });
-
-    test('manual filtering reports the new filter state without filtering rows', () => {
-      const onFiltersChange = vi.fn();
-
-      const { getByLabelText, getByText, getByPlaceholderText, container } =
-        render(
-          <DataTable
-            data={members}
-            enableColumnMenu
-            manualFiltering
-            onFiltersChange={onFiltersChange}
-          />,
-        );
-
-      fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
-      const valueInput = getByPlaceholderText('Filter value');
-      fireEvent.change(valueInput, { target: { value: 'alpha' } });
-      fireEvent.keyDown(valueInput, { key: 'Enter' });
-
-      // Rows untouched — server expected to filter.
-      expect(getBodyRowTexts(container)).toHaveLength(3);
-      const lastCall = onFiltersChange.mock.calls.at(
-        -1,
-      )?.[0] as DataTableActiveFilters;
-      expect(lastCall.logicOperator).toBe('and');
-      expect(lastCall.rows[0]).toMatchObject({
-        columnId: 'email',
-        operator: 'contains',
-        value: ['alpha'],
-      });
-    });
-  });
-
   describe('toolbar', () => {
     test('renders the toolbar buttons only when showToolbar is set', () => {
       const { getByLabelText, queryByLabelText, rerender } = render(
@@ -678,33 +329,24 @@ describe('<DataTable/>', () => {
       );
 
       expect(queryByLabelText('Manage columns')).toBeNull();
-      expect(queryByLabelText('Show filters')).toBeNull();
       expect(queryByLabelText('Show search')).toBeNull();
 
       rerender(<DataTable data={members} showToolbar />);
 
       expect(getByLabelText('Manage columns')).toBeDefined();
-      expect(getByLabelText('Show filters')).toBeDefined();
       expect(getByLabelText('Show search')).toBeDefined();
-    });
+      // The Filters button appears only with a declarative filterFields spec.
+      expect(queryByLabelText('Show filters')).toBeNull();
 
-    test('filters rows through the panel opened from the toolbar', () => {
-      const { getByLabelText, getByPlaceholderText, container } = render(
-        <DataTable data={members} showToolbar />,
+      rerender(
+        <DataTable
+          data={members}
+          showToolbar
+          filterFields={[{ id: 'email', label: 'Email', kind: 'text' }]}
+        />,
       );
 
-      fireEvent.click(getByLabelText('Show filters'));
-
-      // Panel opens preselecting the first filterable column (email) with
-      // `contains` — a multi-value operator, so the value commits as a
-      // chip on Enter.
-      const valueInput = getByPlaceholderText('Filter value');
-      fireEvent.change(valueInput, { target: { value: 'alpha' } });
-      fireEvent.keyDown(valueInput, { key: 'Enter' });
-
-      const rows = getBodyRowTexts(container);
-      expect(rows).toHaveLength(1);
-      expect(rows[0]).toContain('alpha@verified.inc');
+      expect(getByLabelText('Show filters')).toBeDefined();
     });
 
     test('toggles columns through the panel opened from the toolbar', () => {
@@ -718,75 +360,6 @@ describe('<DataTable/>', () => {
       fireEvent.click(getByRole('checkbox', { name: 'Role' }));
 
       expect(getHeaderTexts(container)).not.toContain('Role');
-    });
-
-    test('shows the active filter count on the filter button badge', () => {
-      const { getByLabelText } = render(
-        <DataTable
-          data={members}
-          showToolbar
-          initialFilters={{
-            rows: [
-              {
-                id: 'f1',
-                columnId: 'email',
-                operator: 'contains',
-                value: 'alpha',
-              },
-              {
-                id: 'f2',
-                columnId: 'role',
-                operator: 'equals',
-                value: 'admin',
-              },
-            ],
-            logicOperator: 'or',
-          }}
-        />,
-      );
-
-      expect(getByLabelText('Show filters').textContent).toBe('2');
-    });
-
-    test('renders a consumer filter panel instead of the operator panel, with the supplied badge count', () => {
-      const { getByLabelText, getByText, queryByText } = render(
-        <DataTable
-          data={members}
-          showToolbar
-          renderFilterPanel={() => <div>Custom filter content</div>}
-          activeFilterCount={3}
-        />,
-      );
-
-      // The badge reflects the consumer-provided count, not the internal operator-filter rows.
-      expect(getByLabelText('Show filters').textContent).toBe('3');
-
-      fireEvent.click(getByLabelText('Show filters'));
-
-      // The consumer's content renders; the built-in operator panel ("Add filter") does not.
-      expect(getByText('Custom filter content')).toBeDefined();
-      expect(queryByText('Add filter')).toBeNull();
-    });
-
-    test('passes an onClose to renderFilterPanel so the panel can close itself', () => {
-      const { getByLabelText, getByText, queryByText } = render(
-        <DataTable
-          data={members}
-          showToolbar
-          renderFilterPanel={({ onClose }) => (
-            <button type='button' onClick={onClose}>
-              Apply filters
-            </button>
-          )}
-        />,
-      );
-
-      fireEvent.click(getByLabelText('Show filters'));
-      expect(getByText('Apply filters')).toBeDefined();
-
-      // The consumer's control closes the popover via the provided onClose.
-      fireEvent.click(getByText('Apply filters'));
-      expect(queryByText('Apply filters')).toBeNull();
     });
 
     test('searches rows through the toolbar search input', () => {
@@ -887,12 +460,14 @@ describe('<DataTable/>', () => {
         toJSON: () => ({}),
       };
       vi.spyOn(
-        getByLabelText('Show filters'),
+        getByLabelText('Manage columns'),
         'getBoundingClientRect',
       ).mockReturnValue(toolbarButtonRect);
 
+      // Open the manage columns panel from a column menu, with the toolbar
+      // shown it anchors to the toolbar button.
       fireEvent.click(getByLabelText('Email column menu'));
-      fireEvent.click(getByText('Filter'));
+      fireEvent.click(getByText('Manage columns'));
 
       // Anchored at the toolbar button's bottom edge — the column's kebab
       // has a zero rect, which would clamp to the 16px margin threshold.
@@ -1402,6 +977,7 @@ describe('<DataTable/>', () => {
           showToolbar
           enableColumnMenu
           initialSorting={[{ id: 'email', desc: false }]}
+          filterFields={[{ id: 'email', label: 'Email', kind: 'text' }]}
           icons={{
             sort: makeIcon('custom-sort'),
             columnMenu: makeIcon('custom-column-menu'),
@@ -1439,8 +1015,8 @@ describe('<DataTable/>', () => {
       expect(queryByTestId('LastPageIcon')).toBeNull();
     });
 
-    test('replaces the column menu and filter panel icons', () => {
-      const { getByLabelText, getByText, getByTestId, queryByTestId } = render(
+    test('replaces the column menu icons', () => {
+      const { getByLabelText, getByTestId, queryByTestId } = render(
         <DataTable
           data={members}
           enableColumnMenu
@@ -1451,12 +1027,8 @@ describe('<DataTable/>', () => {
             sortDesc: makeIcon('custom-sort-desc'),
             pinLeft: makeIcon('custom-pin-left'),
             pinRight: makeIcon('custom-pin-right'),
-            filter: makeIcon('custom-filter'),
             hideColumn: makeIcon('custom-hide-column'),
             manageColumns: makeIcon('custom-manage-columns'),
-            close: makeIcon('custom-close'),
-            addFilter: makeIcon('custom-add-filter'),
-            removeAllFilters: makeIcon('custom-remove-all-filters'),
           }}
         />,
       );
@@ -1467,23 +1039,44 @@ describe('<DataTable/>', () => {
       expect(getByTestId('custom-sort-desc')).toBeDefined();
       expect(getByTestId('custom-pin-left')).toBeDefined();
       expect(getByTestId('custom-pin-right')).toBeDefined();
-      expect(getByTestId('custom-filter')).toBeDefined();
       expect(getByTestId('custom-hide-column')).toBeDefined();
       expect(getByTestId('custom-manage-columns')).toBeDefined();
       expect(queryByTestId('ArrowUpwardIcon')).toBeNull();
       expect(queryByTestId('PushPinIcon')).toBeNull();
-      expect(queryByTestId('FilterAltIcon')).toBeNull();
       expect(queryByTestId('VisibilityOffIcon')).toBeNull();
+    });
 
-      // Swap the menu for the filter panel, which opens with one row.
-      fireEvent.click(getByText('Filter'));
+    test('replaces the filter panel "Clear all" and header filter icons', () => {
+      const filterField: DataTableFilterField = {
+        id: 'role',
+        label: 'Role',
+        kind: 'multiSelect',
+        columnId: 'role',
+        options: [
+          { label: 'Admin', value: 'admin' },
+          { label: 'Member', value: 'member' },
+        ],
+      };
+      const { getByLabelText, getByTestId } = render(
+        <DataTable
+          data={members}
+          showToolbar
+          enableColumnMenu
+          filterFields={[filterField]}
+          filterState={{ role: { kind: 'multiSelect', values: ['admin'] } }}
+          icons={{
+            filter: makeIcon('custom-filter'),
+            removeAllFilters: makeIcon('custom-remove-all-filters'),
+          }}
+        />,
+      );
 
-      expect(getByTestId('custom-close')).toBeDefined();
-      expect(getByTestId('custom-add-filter')).toBeDefined();
+      // The role column is filtered, so the header shows the (custom) funnel.
+      expect(getByTestId('custom-filter')).toBeDefined();
+
+      // The field panel's "Clear all" uses the removeAllFilters icon.
+      fireEvent.click(getByLabelText('Show filters'));
       expect(getByTestId('custom-remove-all-filters')).toBeDefined();
-      expect(queryByTestId('CloseIcon')).toBeNull();
-      expect(queryByTestId('AddIcon')).toBeNull();
-      expect(queryByTestId('DeleteOutlineIcon')).toBeNull();
     });
 
     test('keeps the MUI defaults for unset slots', () => {
@@ -1491,6 +1084,7 @@ describe('<DataTable/>', () => {
         <DataTable
           data={members}
           showToolbar
+          filterFields={[{ id: 'email', label: 'Email', kind: 'text' }]}
           icons={{ search: makeIcon('custom-search') }}
         />,
       );
@@ -1672,42 +1266,177 @@ describe('<DataTable/>', () => {
   });
 });
 
-describe('dataTableFilterFn', () => {
-  // Only getValue is read by the filter function.
-  function rowWith(value: unknown): Row<unknown> {
-    return { getValue: () => value } as unknown as Row<unknown>;
-  }
+describe('field filter panel (filterFields)', () => {
+  const roleField: DataTableFilterField = {
+    id: 'role',
+    label: 'Role',
+    kind: 'multiSelect',
+    columnId: 'role',
+    options: [
+      { label: 'Admin', value: 'admin' },
+      { label: 'Member', value: 'member' },
+    ],
+  };
 
-  test.each<
-    [DataTableFilterOperator, unknown, string | string[] | undefined, boolean]
-  >([
-    // Comparisons are case-insensitive over the stringified value.
-    ['contains', 'Alpha@Verified.inc', 'alpha', true],
-    ['contains', 'bravo', 'alpha', false],
-    // Multiple contains values (chips) OR within the row.
-    ['contains', 'alpha@verified.inc', ['ZULU', 'Alpha'], true],
-    ['contains', 'bravo', ['alpha', 'zulu'], false],
-    ['contains', 'anything', [], true],
-    ['doesNotContain', 'bravo', 'alpha', true],
-    ['equals', 'Admin', 'admin', true],
-    ['doesNotEqual', 'admin', 'admin', false],
-    ['startsWith', 'alpha@verified.inc', 'ALPHA', true],
-    ['endsWith', 'alpha@verified.inc', '.inc', true],
-    ['endsWith', 'alpha@verified.inc', 'alpha', false],
-    ['isEmpty', null, undefined, true],
-    ['isEmpty', '', undefined, true],
-    ['isEmpty', 'x', undefined, false],
-    ['isNotEmpty', '', undefined, false],
-    ['isNotEmpty', 0, undefined, true],
-    ['isAnyOf', 'admin', ['member', 'Admin'], true],
-    ['isAnyOf', 'owner', ['member', 'admin'], false],
-    // Filters without a usable value match every row.
-    ['contains', 'anything', '', true],
-    ['contains', 'anything', '   ', true],
-    ['isAnyOf', 'anything', [], true],
-  ])('%s on %j with %j → %s', (operator, raw, value, expected) => {
-    expect(dataTableFilterFn(rowWith(raw), 'column', { operator, value })).toBe(
-      expected,
+  const emailField: DataTableFilterField = {
+    id: 'email',
+    label: 'Email',
+    kind: 'text',
+    columnId: 'email',
+    operators: ['contains', 'startsWith'],
+  };
+
+  const billableField: DataTableFilterField = {
+    id: 'mfaEnabled',
+    label: 'MFA',
+    kind: 'boolean',
+    columnId: 'mfaEnabled',
+  };
+
+  test('opens the built-in field panel (not the operator panel) from the toolbar', () => {
+    const { getByLabelText, getByText, queryByText } = render(
+      <DataTable
+        data={members}
+        showToolbar
+        filterFields={[emailField, roleField]}
+      />,
     );
+
+    fireEvent.click(getByLabelText('Show filters'));
+
+    // Field labels render; the operator panel's "Add filter" does not.
+    expect(getByText('Clear all')).toBeDefined();
+    expect(queryByText('Add filter')).toBeNull();
+  });
+
+  test('filters rows client-side from a text field value', () => {
+    const filterState: DataTableFilterState = {
+      email: { kind: 'text', operator: 'contains', value: 'alpha' },
+    };
+    const { container } = render(
+      <DataTable
+        data={members}
+        filterFields={[emailField]}
+        filterState={filterState}
+      />,
+    );
+
+    const rows = getBodyRowTexts(container);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toContain('alpha@verified.inc');
+  });
+
+  test('filters rows client-side from a multiSelect keyed by value', () => {
+    const filterState: DataTableFilterState = {
+      role: { kind: 'multiSelect', values: ['admin'] },
+    };
+    const { container } = render(
+      <DataTable
+        data={members}
+        filterFields={[roleField]}
+        filterState={filterState}
+      />,
+    );
+
+    const rows = getBodyRowTexts(container);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toContain('charlie@verified.inc');
+  });
+
+  test('badge counts active fields; select-all clears', () => {
+    const { getByLabelText, rerender } = render(
+      <DataTable
+        data={members}
+        showToolbar
+        filterFields={[emailField, roleField]}
+        filterState={{
+          email: { kind: 'text', operator: 'contains', value: 'a' },
+          role: { kind: 'multiSelect', values: ['admin'] },
+        }}
+      />,
+    );
+
+    expect(getByLabelText('Show filters').textContent).toBe('2');
+
+    // Fully-selecting every option of a multiSelect clears it (no filter),
+    // dropping the badge to just the active text field.
+    rerender(
+      <DataTable
+        data={members}
+        showToolbar
+        filterFields={[emailField, roleField]}
+        filterState={{
+          email: { kind: 'text', operator: 'contains', value: 'a' },
+          role: { kind: 'multiSelect', values: ['admin', 'member'] },
+        }}
+      />,
+    );
+
+    expect(getByLabelText('Show filters').textContent).toBe('1');
+  });
+
+  test('reports state changes in server-value terms from a text field', () => {
+    const onFilterStateChange = vi.fn();
+    const { getByLabelText } = render(
+      <DataTable
+        data={members}
+        showToolbar
+        manualFiltering
+        filterFields={[emailField]}
+        filterState={{
+          email: { kind: 'text', operator: 'contains', value: '' },
+        }}
+        onFilterStateChange={onFilterStateChange}
+      />,
+    );
+
+    fireEvent.click(getByLabelText('Show filters'));
+    fireEvent.change(getByLabelText('Email'), { target: { value: 'bravo' } });
+
+    expect(onFilterStateChange).toHaveBeenCalledWith({
+      email: { kind: 'text', operator: 'contains', value: 'bravo' },
+    });
+  });
+
+  test('renders a boolean field as a clearable Yes/No single-select', () => {
+    const { getByLabelText, getAllByRole } = render(
+      <DataTable data={members} showToolbar filterFields={[billableField]} />,
+    );
+
+    fireEvent.click(getByLabelText('Show filters'));
+    // Open the Autocomplete popup (arrow keydown reveals the options).
+    fireEvent.keyDown(getByLabelText('MFA'), { key: 'ArrowDown' });
+
+    const options = getAllByRole('option').map((option) => option.textContent);
+    expect(options).toEqual(['Yes', 'No']);
+  });
+
+  test('multiSelect finds an option by its value (e.g. a pasted uuid)', () => {
+    // Duplicate display names, distinct values, the option must be findable by
+    // value so a specific item can be targeted despite the shared name.
+    const tagsField: DataTableFilterField = {
+      id: 'tags',
+      label: 'Tags',
+      kind: 'multiSelect',
+      options: [
+        { label: 'Health', value: 'uuid-a' },
+        { label: 'Health', value: 'uuid-b' },
+        { label: 'Finance', value: 'uuid-c' },
+      ],
+    };
+    const { getByLabelText, getAllByRole } = render(
+      <DataTable data={members} showToolbar filterFields={[tagsField]} />,
+    );
+
+    fireEvent.click(getByLabelText('Show filters'));
+    const input = getByLabelText('Tags');
+    fireEvent.mouseDown(input);
+    input.focus();
+    fireEvent.change(input, { target: { value: 'uuid-b' } });
+
+    // Only the option whose value matches shows (not the other Health, Finance,
+    // or the "Select all" row).
+    const options = getAllByRole('option').map((option) => option.textContent);
+    expect(options).toEqual(['Health']);
   });
 });

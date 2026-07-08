@@ -12,7 +12,7 @@ import {
 import { Close, FilterList, Search, ViewColumn } from '@mui/icons-material';
 
 import { useDataTableContext } from './DataTable.context';
-import { isFilterRowActive } from './DataTable.filters';
+import { effectiveFilterFieldCount } from './DataTable.filterState';
 import { DataTableExportMenu } from './DataTableExportMenu';
 
 /**
@@ -25,14 +25,13 @@ export function DataTableToolbar() {
   const {
     table,
     icons,
-    filters,
     search,
     onSearchChange,
     enableExport,
     exportFilename,
     additionalExportColumns,
-    renderFilterPanel,
-    activeFilterCount,
+    filterFields,
+    filterState,
     toolbarFilterButtonRef,
     toolbarManageColumnsButtonRef,
     openFilterPanel,
@@ -56,18 +55,12 @@ export function DataTableToolbar() {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const isSearchOpen = isSearchExpanded || search !== '';
 
-  // The badge count on the filter button, and the column preselected when
-  // it opens the panel with no active rows. The filter button is omitted
-  // when no column is filterable AND no consumer filter panel is provided.
-  // With a consumer panel the count comes from the consumer (activeFilterCount).
-  const totalActiveFilterCount = renderFilterPanel
-    ? (activeFilterCount ?? 0)
-    : filters.rows.filter(isFilterRowActive).length;
-  const firstFilterableColumnId = table
-    .getAllLeafColumns()
-    .find((column) => column.getCanFilter())?.id;
-  const showFilterButton =
-    renderFilterPanel !== undefined || firstFilterableColumnId !== undefined;
+  // The filter button shows only with a declarative `filterFields` spec; its
+  // badge is the count of active fields, derived from the table's own state.
+  const totalActiveFilterCount = filterFields
+    ? effectiveFilterFieldCount(filterFields, filterState)
+    : 0;
+  const showFilterButton = filterFields !== undefined;
 
   return (
     <Stack
@@ -93,12 +86,7 @@ export function DataTableToolbar() {
             ref={toolbarFilterButtonRef}
             size='small'
             aria-label='Show filters'
-            onClick={(event) =>
-              openFilterPanel(
-                firstFilterableColumnId ?? '',
-                event.currentTarget,
-              )
-            }
+            onClick={(event) => openFilterPanel('', event.currentTarget)}
           >
             <Badge badgeContent={totalActiveFilterCount} color='primary'>
               <OpenFilterPanelIcon fontSize='small' />

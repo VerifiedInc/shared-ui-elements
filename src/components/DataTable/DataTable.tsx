@@ -21,9 +21,9 @@ import type { SxProps, Theme } from '@mui/material';
 import { Box, Table, TableContainer } from '@mui/material';
 
 import type {
-  DataTableActiveFilters,
   DataTableCellProps,
   DataTableData,
+  DataTableFilterState,
   DataTableIcons,
   DataTableProps,
 } from './DataTable.types';
@@ -40,7 +40,11 @@ import {
   usePinnedOffsets,
   useStickyHeaderHeight,
 } from './DataTable.hooks';
-import { applyFilters, applySearch, EMPTY_FILTERS } from './DataTable.filters';
+import { applySearch, getLeafAccessorsById } from './DataTable.filters';
+import {
+  applyFieldFilters,
+  buildInitialFilterState,
+} from './DataTable.filterState';
 import {
   applyMetaWidthsToSizes,
   getColumnMeta,
@@ -120,12 +124,11 @@ export function DataTable<TData extends DataTableData>({
   enableExport = false,
   exportFilename = 'data',
   additionalExportColumns,
-  initialFilters = EMPTY_FILTERS,
-  filters: controlledFilters,
-  onFiltersChange,
   manualFiltering = false,
-  renderFilterPanel,
-  activeFilterCount,
+  filterFields,
+  initialFilterState,
+  filterState: controlledFilterState,
+  onFilterStateChange,
   initialSearch = '',
   search: controlledSearch,
   onSearchChange,
@@ -161,14 +164,14 @@ export function DataTable<TData extends DataTableData>({
       onPaginationChange,
     );
 
-  // Multi-row filter state written by the filter panel. Pre-filtered
-  // client-side (OR/AND via applyFilters); with manualFiltering the
-  // consumer handles it from onFiltersChange.
-  const [filters, handleFiltersChange] =
-    useControllableState<DataTableActiveFilters>(
-      initialFilters,
-      controlledFilters,
-      onFiltersChange,
+  // Declarative filter-field state written by the built-in field panel.
+  // Pre-filtered client-side (applyFieldFilters), with manualFiltering the
+  // consumer maps it to the server query from onFilterStateChange.
+  const [filterState, handleFilterStateChange] =
+    useControllableState<DataTableFilterState>(
+      initialFilterState ?? buildInitialFilterState(filterFields ?? []),
+      controlledFilterState,
+      onFilterStateChange,
     );
 
   // Quick-search query written by the toolbar search input. Pre-filtered
@@ -289,24 +292,47 @@ export function DataTable<TData extends DataTableData>({
     return enableColumnResizing ? applyMetaWidthsToSizes(base) : base;
   }, [columns, data, enableColumnResizing]);
 
-  // Multi-filter + quick-search pre-processing: apply the active filter
-  // rows and the search query to `data` before handing it to TanStack.
-  // Handles both AND and OR logic (TanStack can only AND column filters
-  // natively). Values resolve through the column accessors, so both match
-  // what the cells display — not raw row fields that never render. With
-  // manualFiltering the consumer receives onFiltersChange / onSearchChange
-  // and handles both on the server.
-  const filteredData = useMemo(
-    () =>
-      manualFiltering
-        ? data
-        : applySearch(
-            applyFilters(data, filters, resolvedColumns),
-            search,
-            resolvedColumns,
-          ),
-    [data, filters, search, manualFiltering, resolvedColumns],
-  );
+  // Declarative field-filter + quick-search pre-processing: apply the active
+  // `filterFields`/`filterState` and the search query to `data` before handing
+  // it to TanStack. Values resolve through the column accessors (the same leaf
+  // map `applySearch` uses), so both match what the cells display, not raw row
+  // fields that never render (e.g. accessorFn or dotted accessorKey columns).
+  // With manualFiltering the consumer receives onFilterStateChange /
+  // onSearchChange and handles both on the server.
+  const filteredData = useMemo(() => {
+    if (manualFiltering) {
+      return data;
+    }
+
+    const accessors = getLeafAccessorsById(resolvedColumns);
+    const resolveCellValue = (
+      row: TData,
+      columnId: string,
+      index: number,
+    ): unknown => {
+      const accessor = accessors[columnId];
+
+      return accessor ? accessor(row, index) : row[columnId];
+    };
+
+    return applySearch(
+      applyFieldFilters(
+        data,
+        filterFields ?? [],
+        filterState,
+        resolveCellValue,
+      ),
+      search,
+      resolvedColumns,
+    );
+  }, [
+    data,
+    filterFields,
+    filterState,
+    search,
+    manualFiltering,
+    resolvedColumns,
+  ]);
 
   const table = useReactTable({
     // filteredData is already filtered — tell TanStack not to re-filter.
@@ -587,10 +613,9 @@ export function DataTable<TData extends DataTableData>({
     bidirectionalScroll,
     renderLoading,
     renderRow,
-    filters,
-    onFiltersChange: handleFiltersChange,
-    renderFilterPanel,
-    activeFilterCount,
+    filterFields,
+    filterState,
+    onFilterStateChange: handleFilterStateChange,
     search,
     onSearchChange: handleSearchChange,
     columnPanel,

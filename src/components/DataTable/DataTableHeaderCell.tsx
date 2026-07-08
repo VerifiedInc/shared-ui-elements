@@ -13,7 +13,7 @@ import { FilterAlt, MoreVert } from '@mui/icons-material';
 
 import type { DataTableData } from './DataTable.types';
 import { useDataTableContext } from './DataTable.context';
-import { isFilterRowActive } from './DataTable.filters';
+import { isFilterFieldActive } from './DataTable.filterState';
 import { getColumnLabel, getColumnMeta } from './DataTable.utils';
 
 /** Maps a column meta align onto the header cell flex container. */
@@ -44,13 +44,14 @@ export function DataTableHeaderCell({
   const {
     icons,
     isLoading,
-    filters,
     tableLayout,
     enableColumnResizing,
     enableColumnMenu,
     hasResizedColumns,
     columnPanel,
     setColumnPanel,
+    filterFields,
+    filterState,
     openFilterPanel,
     startColumnResize,
     getPinnedOffsetStyle,
@@ -88,14 +89,14 @@ export function DataTableHeaderCell({
     enableColumnMenu && !isGroupHeader && !meta?.disableColumnMenu;
   const isMenuOpen =
     columnPanel?.type === 'menu' && columnPanel.columnId === column.id;
-  // Compute from our filter state — TanStack's columnFilters is no longer
-  // used.
-  const activeFilterCount = showColumnMenu
-    ? filters.rows.filter(
-        (r) => r.columnId === column.id && isFilterRowActive(r),
-      ).length
-    : 0;
-  const isFiltered = activeFilterCount > 0;
+  // A column is "filtered" when a declarative filter field bound to it
+  // (columnId === this column) is currently active, the funnel indicator
+  // reopens the filter panel.
+  const isFiltered = (filterFields ?? []).some(
+    (field) =>
+      field.columnId === column.id &&
+      isFilterFieldActive(field, filterState[field.id]),
+  );
 
   const label = (
     <Typography
@@ -220,11 +221,7 @@ export function DataTableHeaderCell({
         >
           {headerContent}
           {isFiltered && (
-            <Tooltip
-              title={`${activeFilterCount} active ${activeFilterCount === 1 ? 'filter' : 'filters'}`}
-              placement='bottom'
-              arrow
-            >
+            <Tooltip title='Active filter' placement='bottom' arrow>
               <IconButton
                 size='small'
                 aria-label={`${getColumnLabel(column)} filter`}

@@ -21,7 +21,7 @@ import type { DataTableExportColumn } from './DataTable.export';
  */
 export type DataTableData = Record<string, unknown>;
 
-/** Operators available in the column filter panel (MUI DataGrid parity). */
+/** Text-match operators for a `text` filter field. */
 export type DataTableFilterOperator =
   | 'contains'
   | 'doesNotContain'
@@ -33,58 +33,94 @@ export type DataTableFilterOperator =
   | 'isNotEmpty'
   | 'isAnyOf';
 
+// ---------------------------------------------------------------------------
+// Declarative filter-field spec
+//
+// The table renders its own filter panel from a `filterFields` spec: each
+// field declares a control kind (text / select / multiSelect / boolean /
+// group) plus its options, and the panel renders the matching control. State
+// is emitted in server-value terms (option `value`s, not display labels), so
+// a consumer maps it 1:1 to its query params.
+// ---------------------------------------------------------------------------
+
+/** Control kind a `DataTableFilterField` renders in the filter panel. */
+export type DataTableFilterFieldKind =
+  | 'text' // free input -> operator match (contains / startsWith / ...)
+  | 'select' // single choice from `options`
+  | 'multiSelect' // multi choice from `options`, value may differ from label
+  | 'boolean' // Yes / No tri-state (unset = no filter)
+  | 'group'; // sectioned multiSelect (each section a distinct field)
+
 /**
- * Low-level value shape used internally by `dataTableFilterFn` — consumed
- * from `DataTableFilterRow` when pre-filtering client-side.
+ * One selectable choice. `value` is the server value carried end-to-end (a
+ * uuid, enum code, `'true'`/`'false'`, ...), `label` is what the user sees.
+ * Keeping them separate is what lets the panel disambiguate duplicate display
+ * names (options are keyed by `value`).
  */
-export interface DataTableFilterValue {
-  operator: DataTableFilterOperator;
-  /**
-   * A single string for most operators; a `string[]` for the multi-value
-   * operators (`contains`, `isAnyOf`) — `contains` accepts either.
-   */
-  value?: string | string[];
+export interface DataTableFilterOption {
+  label: string;
+  value: string;
 }
 
-/** Whether all filter rows must match (AND) or any one suffices (OR). */
-export type DataTableFilterLogicOperator = 'and' | 'or';
+/** One section of a `group` field, a labelled sub-list of options. */
+export interface DataTableFilterSection {
+  /** Stable key for this section within its field's state. */
+  key: string;
+  label: string;
+  options: DataTableFilterOption[];
+}
 
 /**
- * One row in the filter panel. Each row targets a specific column with an
- * operator and optional value. `id` is a unique key within the current
- * filter state (not the column id) so multiple rows can target the same
- * column.
+ * Declarative description of one filter control. `columnId` binds the field
+ * to a table column (used for client-side filtering when `manualFiltering`
+ * is off); omit it for a non-column ("extended") filter whose meaning lives
+ * only server-side.
  */
-export interface DataTableFilterRow {
+export interface DataTableFilterField {
+  /** Stable key this field's value is stored under in `DataTableFilterState`. */
   id: string;
-  columnId: string;
-  operator: DataTableFilterOperator;
+  /** Label shown above the control in the panel. */
+  label: string;
+  kind: DataTableFilterFieldKind;
   /**
-   * `string` for most operators; `string[]` for the multi-value operators
-   * (`contains`, `isAnyOf`) — `contains` accepts either. Multiple values
-   * OR within the row (the cell value matches any of them).
+   * Column this field filters, when it maps to one. Absent = a non-column
+   * filter (e.g. an activity filter spanning several server params); such
+   * fields are skipped by client-side filtering and only surface through
+   * `onFilterStateChange`.
    */
-  value?: string | string[];
+  columnId?: string;
+  /** Choices for `select` / `multiSelect`. */
+  options?: DataTableFilterOption[];
+  /** Sections for `group`. */
+  sections?: DataTableFilterSection[];
+  /**
+   * Text operators offered (and their order) for a `text` field. Defaults to
+   * `['contains']`. The first entry is the default operator.
+   */
+  operators?: DataTableFilterOperator[];
+  /**
+   * For `multiSelect` / `group`: treat "every option selected" the same as
+   * "none selected" - i.e. a fully-selected control applies no filter and
+   * does not count toward the active-filter badge. Defaults to `true`.
+   */
+  selectAllClears?: boolean;
+  /** Placeholder for the input (text / select / multiSelect). */
+  placeholder?: string;
 }
 
 /**
- * The full filter state passed to / returned from the table. With
- * `manualFiltering`, translate these into the server query in
- * `onFiltersChange`; client-side filtering is applied automatically
- * otherwise.
+ * The value of a single field, discriminated by `kind`. Stored under the
+ * field's `id` in `DataTableFilterState`.
  */
-export interface DataTableActiveFilters {
-  rows: DataTableFilterRow[];
-  logicOperator: DataTableFilterLogicOperator;
-}
+export type DataTableFilterFieldValue =
+  | { kind: 'text'; operator: DataTableFilterOperator; value: string }
+  | { kind: 'select'; value: string | null }
+  | { kind: 'multiSelect'; values: string[] }
+  | { kind: 'boolean'; value: boolean | null }
+  | { kind: 'group'; values: Record<string, string[]> };
 
-/** API handed to a consumer-rendered filter panel. */
-export interface DataTableFilterPanelContext<TData extends DataTableData> {
-  /** Closes the filter popover, e.g. from an Apply/Cancel button inside the panel. */
-  onClose: () => void;
-  /** The table instance, for consumers that need column/row info. */
-  table: Table<TData>;
-}
+/** Full filter state: each field's value keyed by its `id`. */
+export type DataTableFilterState = Record<string, DataTableFilterFieldValue>;
 
 /**
  * Optional per-column display hints, supplied via the TanStack
@@ -104,19 +140,6 @@ export interface DataTableColumnMeta {
    * split the available space.
    */
   width?: number | string;
-  /**
-   * Options suggested by the filter panel's value input for this column.
-   * When omitted, suggestions are derived from the column's distinct
-   * values in `data` — with `manualFiltering`, `data` only holds the
-   * current page, so supply the full set here.
-   */
-  filterOptions?: string[];
-  /**
-   * Restricts which operators the filter panel offers for this column. When
-   * omitted or empty array, all operators are available. Useful to hide
-   * operators a column can't meaningfully support.
-   */
-  filterOperators?: DataTableFilterOperator[];
   /**
    * Hides the hover kebab (column menu) on this column even when the table
    * has `enableColumnMenu`. Use for utility columns with nothing to act on
@@ -466,48 +489,34 @@ export interface DataTableProps<TData extends DataTableData> {
    */
   additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
   /**
-   * Initial filter state. Rows are applied as AND by default; switch to OR
-   * via `logicOperator: 'or'`.
-   *
-   * @example
-   * initialFilters={{ rows: [{ id: 'f1', columnId: 'role', operator: 'equals', value: 'admin' }], logicOperator: 'and' }}
-   */
-  initialFilters?: DataTableActiveFilters;
-  /**
-   * Controlled filter state (pair with `onFiltersChange`). Takes
-   * precedence over `initialFilters`. When omitted, filter state is
-   * internal.
-   */
-  filters?: DataTableActiveFilters;
-  /**
-   * Called with the next filter state when the filter panel changes. With
-   * `manualFiltering`, fetch the matching rows from the server in response
-   * (and usually reset the page to 0).
-   */
-  onFiltersChange?: (filters: DataTableActiveFilters) => void;
-  /**
    * Server-side filtering: rows in `data` are assumed to already match the
    * active filters and search query — the filter panel and the toolbar
    * search input only update their state, nothing is filtered client-side.
    */
   manualFiltering?: boolean;
   /**
-   * Consumer-rendered filter panel. When provided, the toolbar's Filters button opens a popover
-   * rendering this content instead of the built-in operator-based panel, the consumer supplies its
-   * own filter controls (wired to its own state / server query) and the table stays filter-agnostic.
-   * Pair with `manualFiltering`. Use `activeFilterCount` to drive the Filters button badge.
-   *
-   * Receives `{ onClose, table }` so the panel can close the popover itself (e.g. an Apply/Cancel
-   * button) and read the table instance if needed.
+   * Declarative filter-field spec. When provided, the toolbar's Filters button opens the built-in
+   * panel rendering one control per field (text / select / multiSelect / boolean / group) from this
+   * spec — the table owns the UI and derives the active-filter badge itself. State is emitted in
+   * server-value terms through `onFilterStateChange`, which a consumer maps 1:1 to its query params
+   * (pair with `manualFiltering`).
    */
-  renderFilterPanel?: (
-    context: DataTableFilterPanelContext<TData>,
-  ) => ReactNode;
+  filterFields?: DataTableFilterField[];
   /**
-   * Active-filter count for the Filters button badge when using `renderFilterPanel` (the table can't
-   * infer it from consumer-owned filter state). Ignored without `renderFilterPanel`.
+   * Initial filter state for `filterFields`. Defaults to every field cleared. What the panel's
+   * "Clear all" restores.
    */
-  activeFilterCount?: number;
+  initialFilterState?: DataTableFilterState;
+  /**
+   * Controlled filter state for `filterFields` (pair with `onFilterStateChange`). Takes precedence
+   * over `initialFilterState`. When omitted, the state is internal.
+   */
+  filterState?: DataTableFilterState;
+  /**
+   * Called with the next filter state when a `filterFields` control changes. With `manualFiltering`,
+   * map the state to the server query in response (and usually reset the page to 0).
+   */
+  onFilterStateChange?: (state: DataTableFilterState) => void;
   /** Initial quick-search query for the toolbar search input. */
   initialSearch?: string;
   /**
