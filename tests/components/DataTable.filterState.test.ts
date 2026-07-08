@@ -126,6 +126,17 @@ describe('isFilterFieldActive', () => {
     ).toBe(false);
   });
 
+  test('multiSelect: stale/invalid values do not count toward select-all', () => {
+    // Three real options; one real value plus two stale ones (e.g. hydrated
+    // from a URL) reaches the old length threshold but is not "select all".
+    expect(
+      isFilterFieldActive(stageField, {
+        kind: 'multiSelect',
+        values: ['1042', 'stale-a', 'stale-b'],
+      }),
+    ).toBe(true);
+  });
+
   test('multiSelect: selectAllClears=false keeps a full selection active', () => {
     expect(
       isFilterFieldActive(
@@ -296,6 +307,32 @@ describe('applyFieldFilters', () => {
         attrs: { kind: 'group', values: {} },
       }),
     ).toBe(rows);
+  });
+
+  test('resolves cell values through the provided getCellValue accessor', () => {
+    // columnId points at a value not present as a raw row key, so the default
+    // resolver (row[columnId]) finds nothing, a resolver is required, matching
+    // the leaf-accessor map the DataTable builds for accessorFn/dotted columns.
+    const field: DataTableFilterField = {
+      id: 'name',
+      label: 'Name',
+      kind: 'text',
+      columnId: 'fullName',
+      operators: ['contains'],
+    };
+    const state: DataTableFilterState = {
+      name: { kind: 'text', operator: 'contains', value: 'avi' },
+    };
+
+    // Default resolver: no `fullName` row key, so nothing matches.
+    expect(applyFieldFilters(rows, [field], state)).toEqual([]);
+
+    // Custom resolver maps `fullName` onto the row's customerName.
+    expect(
+      applyFieldFilters(rows, [field], state, (row, columnId) =>
+        columnId === 'fullName' ? row.customerName : row[columnId],
+      ),
+    ).toEqual([rows[2]]);
   });
 
   test('a column-less non-group field is skipped client-side', () => {

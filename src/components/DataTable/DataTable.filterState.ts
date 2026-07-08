@@ -44,13 +44,22 @@ export function buildInitialFilterState(
   return state;
 }
 
-/** Whether every option of a `multiSelect`/section is selected (select-all). */
+/**
+ * Whether every option of a `multiSelect`/section is selected (select-all).
+ * Compares against the actual option values, so stale or invalid entries in
+ * `selected` (e.g. hydrated from a URL or the server) can't inflate the
+ * length and misclassify a partial selection as "select all".
+ */
 function isFullySelected(
   selected: string[],
-  optionCount: number,
+  optionValues: string[],
   selectAllClears: boolean,
 ): boolean {
-  return selectAllClears && optionCount > 0 && selected.length >= optionCount;
+  return (
+    selectAllClears &&
+    optionValues.length > 0 &&
+    optionValues.every((value) => selected.includes(value))
+  );
 }
 
 /**
@@ -82,7 +91,7 @@ export function isFilterFieldActive(
         value.values.length > 0 &&
         !isFullySelected(
           value.values,
-          field.options?.length ?? 0,
+          (field.options ?? []).map((option) => option.value),
           selectAllClears,
         )
       );
@@ -94,7 +103,11 @@ export function isFilterFieldActive(
 
         return (
           selected.length > 0 &&
-          !isFullySelected(selected, section.options.length, selectAllClears)
+          !isFullySelected(
+            selected,
+            section.options.map((option) => option.value),
+            selectAllClears,
+          )
         );
       });
   }
@@ -111,7 +124,7 @@ export function effectiveFilterFieldCount(
     .length;
 }
 
-/** Case-insensitive text-operator match, mirroring `dataTableFilterFn`. */
+/** Case-insensitive text-operator match for the declarative text filters. */
 function matchText(
   raw: unknown,
   operator: DataTableFilterOperator,
@@ -196,7 +209,11 @@ function groupPasses(
 
     if (
       selected.length === 0 ||
-      isFullySelected(selected, section.options.length, selectAllClears)
+      isFullySelected(
+        selected,
+        section.options.map((option) => option.value),
+        selectAllClears,
+      )
     ) {
       return true;
     }

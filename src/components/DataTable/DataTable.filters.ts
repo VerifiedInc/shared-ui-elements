@@ -25,7 +25,7 @@ function getLeafColumnId<TData>(
  * cell value accessor, so search resolves the same values the cells display.
  * Display-only columns (no accessor) are skipped.
  */
-function getLeafAccessorsById<TData extends DataTableData>(
+export function getLeafAccessorsById<TData extends DataTableData>(
   defs: Array<ColumnDef<TData, unknown>>,
 ): Record<string, DataTableRowAccessor<TData>> {
   const accessors: Record<string, DataTableRowAccessor<TData>> = {};
