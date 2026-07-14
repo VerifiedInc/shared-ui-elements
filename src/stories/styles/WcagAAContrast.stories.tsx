@@ -169,7 +169,10 @@ function RealPaletteReport({ wcagAAEnabled }: Readonly<ContrastReportProps>) {
             // `contrastText` pairing involved - so this is checked against the page
             // background instead. When enabled, `main` itself is already the corrected
             // value (see `applyWcagAAContrast`), so no extra handling is needed here.
-            const ratio = getContrastRatio(paletteColor.main, backgroundDefault);
+            const ratio = getContrastRatio(
+              paletteColor.main,
+              backgroundDefault,
+            );
             return (
               <Stack
                 key={`${key}-text`}
@@ -186,7 +189,10 @@ function RealPaletteReport({ wcagAAEnabled }: Readonly<ContrastReportProps>) {
           })}
           {FOREGROUND_KEYS.map((key) => {
             const paletteColor = (demoTheme.palette as any)[key];
-            const ratio = getContrastRatio(paletteColor.main, backgroundDefault);
+            const ratio = getContrastRatio(
+              paletteColor.main,
+              backgroundDefault,
+            );
             return (
               <Stack key={key} direction='row' spacing={2} alignItems='center'>
                 <Typography
