@@ -1,6 +1,7 @@
-import { createTheme, ThemeOptions } from '@mui/material';
+import { createTheme, Theme, ThemeOptions } from '@mui/material';
 import { colors } from './colors';
 import { typography } from './typography';
+import { ensureWcagAAContrast } from '../utils/color';
 
 declare module '@mui/material/Button' {
   interface ButtonPropsColorOverrides {
@@ -48,10 +49,108 @@ declare module '@mui/material' {
 
 interface ThemeOptionsProps extends ThemeOptions {
   primaryFontFace: Record<string, any>;
+  /**
+   * When true, adjusts every palette color's `main`/`dark` (and fill colors'
+   * `contrastText`) plus `text.primary`/`text.secondary`/`text.disabled` so they meet the
+   * WCAG level AA contrast ratio - see `applyWcagAAContrast`. `light` is left untouched, since
+   * it's also used as a background/overlay tint. This can shift a color away from its
+   * original hue (e.g. a `contained` button's fill, or its hover state), trading exact
+   * brand-color fidelity for guaranteed readability everywhere these are used, including
+   * direct `theme.palette.x.main`/`.dark` reads in app code that a theme-only fix can't
+   * otherwise reach. Off by default to preserve existing palettes.
+   */
+  wcagAAEnabled?: boolean;
 }
 
-export const theme = ({ primaryFontFace, ...options }: ThemeOptionsProps) =>
-  createTheme({
+/**
+ * Checks whether a value is a MUI-style palette color (has a `main` string), covering both
+ * fill colors (e.g. `primary`, which also has `contrastText`) and foreground-only accent
+ * colors (e.g. `neutral`, `infoContrast`, which don't).
+ * @param value The value to check.
+ * @returns Whether the value is a palette color.
+ */
+function isPaletteColor(value: unknown): value is {
+  main: string;
+  dark?: string;
+  contrastText?: string;
+} {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Record<string, unknown>).main === 'string'
+  );
+}
+
+/**
+ * Adjusts every palette color's `main`/`dark` in-place so each meets WCAG level AA contrast
+ * against the page background - this covers both fill colors (`primary`, `warning`, ...) and
+ * foreground-only accent colors (`neutral`, `infoContrast`, ...) alike, since either can be
+ * read directly as a text/icon color in both this package's components and consuming apps
+ * (not just as a `contained` button's background, or `dark` as its hover background). Fill
+ * colors then have their `contrastText` re-checked against the (possibly shifted) `main`.
+ * `text.primary`/`text.secondary`/`text.disabled` are adjusted against the page background
+ * too.
+ *
+ * `light` is deliberately left untouched - unlike `main`/`dark`, it's also used as a
+ * background/overlay tint (e.g. `alpha(palette.secondary.light, 0.4)` as a `bgcolor`), where
+ * shifting it for foreground-safety would just be an unwanted color change with no
+ * accessibility benefit.
+ *
+ * This can shift a color away from its original hue - e.g. a `contained` button's fill color
+ * may no longer exactly match the configured brand color - trading color fidelity for
+ * guaranteed readability everywhere it's used, including direct `theme.palette.x.main`
+ * (or `.dark`) reads in app code that no theme-level component override could otherwise
+ * reach.
+ * @param builtTheme The theme to adjust.
+ * @returns The same theme, with contrast-adjusted colors.
+ */
+function applyWcagAAContrast(builtTheme: Theme) {
+  const { palette } = builtTheme;
+  const pageBackground = palette.background.default;
+
+  palette.text.primary = ensureWcagAAContrast(
+    palette.text.primary,
+    pageBackground,
+  );
+  palette.text.secondary = ensureWcagAAContrast(
+    palette.text.secondary,
+    pageBackground,
+  );
+  palette.text.disabled = ensureWcagAAContrast(
+    palette.text.disabled,
+    pageBackground,
+  );
+
+  Object.values(palette).forEach((paletteColor) => {
+    if (isPaletteColor(paletteColor)) {
+      paletteColor.main = ensureWcagAAContrast(
+        paletteColor.main,
+        pageBackground,
+      );
+      if (typeof paletteColor.dark === 'string') {
+        paletteColor.dark = ensureWcagAAContrast(
+          paletteColor.dark,
+          pageBackground,
+        );
+      }
+      if (typeof paletteColor.contrastText === 'string') {
+        paletteColor.contrastText = ensureWcagAAContrast(
+          paletteColor.contrastText,
+          paletteColor.main,
+        );
+      }
+    }
+  });
+
+  return builtTheme;
+}
+
+export const theme = ({
+  primaryFontFace,
+  wcagAAEnabled,
+  ...options
+}: ThemeOptionsProps) => {
+  const builtTheme = createTheme({
     breakpoints: {
       values: {
         xs: 0,
@@ -343,3 +442,6 @@ export const theme = ({ primaryFontFace, ...options }: ThemeOptionsProps) =>
     },
     ...options,
   });
+
+  return wcagAAEnabled ? applyWcagAAContrast(builtTheme) : builtTheme;
+};

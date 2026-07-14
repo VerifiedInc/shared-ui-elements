@@ -2,7 +2,6 @@ import { Stack } from '@mui/material';
 import type { SxProps } from '@mui/material';
 
 import { BigNumber } from '..';
-import { green } from '../../../styles/colors';
 import {
   formatNumberRounded,
   formatCurrency,
@@ -32,7 +31,7 @@ export interface OverviewBigNumbersProps {
   rateCard?: BigNumberCardOverride;
 }
 
-const defaultSx: SxProps = { color: green };
+const defaultSx: SxProps = { color: 'primary.main' };
 
 export function OverviewBigNumbers({
   metrics,
