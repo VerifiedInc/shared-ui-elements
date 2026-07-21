@@ -114,6 +114,34 @@ function RequiredLabel({
   );
 }
 
+function PayerAvatar({
+  name,
+  logoUrl,
+}: Readonly<{ name: string; logoUrl?: string | null }>) {
+  const [logoFailed, setLogoFailed] = useState(false);
+  const logoSrc = logoFailed ? undefined : logoUrl || undefined;
+
+  return (
+    <Avatar
+      src={logoSrc}
+      alt={name[0]?.toUpperCase()}
+      sx={{
+        width: 32,
+        height: 32,
+        borderRadius: 1,
+        bgcolor: logoSrc ? 'transparent' : 'primary.main',
+      }}
+      slotProps={{
+        img: {
+          onError: () => setLogoFailed(true),
+        },
+      }}
+    >
+      {name[0]?.toUpperCase()}
+    </Avatar>
+  );
+}
+
 export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
   const { field, setValue, setTouched } = useFormField<'healthInsurance'>({
     key: fieldKey,
@@ -205,25 +233,7 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
         renderOption={(props, option) => (
           <Box component='li' {...props} key={option.verifiedId}>
             <Stack direction='row' spacing={1.5} alignItems='center'>
-              <Avatar
-                src={option.logoUrl ?? undefined}
-                alt={option.name[0]?.toUpperCase()}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 1,
-                  bgcolor: 'primary.main',
-                }}
-                slotProps={{
-                  img: {
-                    onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
-                      e.currentTarget.style.display = 'none';
-                    },
-                  },
-                }}
-              >
-                {option.name[0]?.toUpperCase()}
-              </Avatar>
+              <PayerAvatar name={option.name} logoUrl={option.logoUrl} />
               <Typography sx={{ textAlign: 'left' }}>{option.name}</Typography>
             </Stack>
           </Box>
