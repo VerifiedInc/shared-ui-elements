@@ -124,7 +124,7 @@ function PayerAvatar({
   return (
     <Avatar
       src={logoSrc}
-      alt={name[0]?.toUpperCase()}
+      alt={`${name} logo`}
       sx={{
         width: 32,
         height: 32,
