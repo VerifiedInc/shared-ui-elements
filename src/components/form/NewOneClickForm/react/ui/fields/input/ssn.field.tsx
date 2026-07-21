@@ -11,7 +11,9 @@ import { FieldLabel } from './label';
 import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function SSNInputField({ fieldKey }: { fieldKey: string }) {
-  const { field, setValue } = useFormField<'ssn'>({ key: fieldKey });
+  const { field, setValue, setTouched } = useFormField<'ssn'>({
+    key: fieldKey,
+  });
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   if (!field) return null;
@@ -20,6 +22,8 @@ export function SSNInputField({ fieldKey }: { fieldKey: string }) {
     if (field.isDisabled) return;
     setValue(event.target.value);
   };
+
+  const showError = (field.touched || field.isDirty) && !field.isValid;
 
   return (
     <Box width='100%'>
@@ -31,7 +35,8 @@ export function SSNInputField({ fieldKey }: { fieldKey: string }) {
         label={<FieldLabel fieldKey={fieldKey} />}
         value={field.value || ''}
         onChange={handleChange}
-        error={!field?.isValid}
+        onBlur={() => setTouched(true)}
+        error={showError}
         helperText={field?.description}
         shouldHaveCloseAdornment={false}
         disabled={field.isDisabled}

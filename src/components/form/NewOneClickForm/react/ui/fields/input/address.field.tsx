@@ -11,7 +11,9 @@ import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function AddressInputField({ fieldKey }: { fieldKey: string }) {
   const { options } = useOneClickForm();
-  const { field, setChildValue } = useFormField<'address'>({ key: fieldKey });
+  const { field, setChildValue, setTouched } = useFormField<'address'>({
+    key: fieldKey,
+  });
 
   if (field?.schema.characteristics.inputType !== fieldInputTypes.composite) {
     return null;
@@ -22,15 +24,19 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
     ?.toLowerCase()
     .startsWith('line 2');
 
+  const showError =
+    (field.touched || field.isDirty) && !!field.errors && !shouldIgnoreError;
+
   return (
     <AddressInput
       label={<FieldLabel fieldKey={fieldKey} />}
       helperText={
-        shouldIgnoreError
-          ? field?.description
-          : (field.errorMessage ?? field?.description)
+        showError
+          ? (field.errorMessage ?? field?.description)
+          : field?.description
       }
-      error={!!field.errors && !shouldIgnoreError}
+      error={showError}
+      onBlur={() => setTouched(true)}
       disabled={field.isDisabled}
       defaultValue={{
         line1: field?.value?.line1,

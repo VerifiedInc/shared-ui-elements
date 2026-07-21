@@ -7,9 +7,13 @@ import { useFormField } from '../../../core/field.hook';
 import { FieldLabel } from './label';
 
 export function PhoneInputField({ fieldKey }: { fieldKey: string }) {
-  const { field, setValue } = useFormField<'phone'>({ key: fieldKey });
+  const { field, setValue, setTouched } = useFormField<'phone'>({
+    key: fieldKey,
+  });
 
   if (!field) return null;
+
+  const showError = (field.touched || field.isDirty) && !field.isValid;
 
   return (
     <Box width='100%'>
@@ -22,7 +26,8 @@ export function PhoneInputField({ fieldKey }: { fieldKey: string }) {
           if (field.isDisabled) return;
           setValue(value);
         }}
-        error={!field.isValid}
+        onBlur={() => setTouched(true)}
+        error={showError}
         helperText={field.description}
         disabled={field.isDisabled}
         shouldHaveClearButton

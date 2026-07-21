@@ -12,7 +12,7 @@ import { useFormField } from '../../../core/field.hook';
 import { FieldLabel } from './label';
 
 export function SelectInputField({ fieldKey }: { fieldKey: string }) {
-  const { field, setValue } = useFormField({ key: fieldKey });
+  const { field, setValue, setTouched } = useFormField({ key: fieldKey });
 
   if (field?.schema.characteristics.inputType !== fieldInputTypes.select) {
     return null;
@@ -24,11 +24,13 @@ export function SelectInputField({ fieldKey }: { fieldKey: string }) {
   const currentOption =
     options.find((option) => option.value === field.value) ?? null;
 
+  const showError = (field.touched || field.isDirty) && !field.isValid;
+
   const textFieldStyle: TextFieldProps = {
     variant: 'outlined',
     size: 'small',
     label: <FieldLabel fieldKey={fieldKey} />,
-    error: !field.isValid,
+    error: showError,
     helperText: field.description,
     inputProps: {
       // Tab index for each block.
@@ -64,6 +66,10 @@ export function SelectInputField({ fieldKey }: { fieldKey: string }) {
             inputProps={{
               ...params.inputProps,
               ...textFieldStyle.inputProps,
+              onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+                params.inputProps.onBlur?.(e);
+                setTouched(true);
+              },
             }}
             InputLabelProps={
               {

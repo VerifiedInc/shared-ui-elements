@@ -21,6 +21,7 @@ export interface FormContextValue {
   setFieldTouched: (path: string, touched: boolean) => void;
   getField: (path: string) => FormField | undefined;
   validateForm: () => boolean;
+  touchAllFields: () => void;
   resetForm: () => void;
   submitForm: () => Promise<void>;
   replaceFieldWithVariant: (fieldPath: string, variantId: string) => void;
@@ -227,6 +228,25 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     [getField],
   );
 
+  const touchAllFields = useCallback(() => {
+    setState((prev) => {
+      if (!prev.form) return prev;
+
+      // Recursive function to touch a field and all its nested children
+      const touchFieldRecursively = (field: FormField) => {
+        field.touched = true;
+
+        if (field.children) {
+          Object.values(field.children).forEach(touchFieldRecursively);
+        }
+      };
+
+      Object.values(prev.form.fields).forEach(touchFieldRecursively);
+
+      return { ...prev, form: prev.form };
+    });
+  }, []);
+
   const resetForm = useCallback(() => {
     setState((prev) => {
       if (!prev.form) return prev;
@@ -268,7 +288,12 @@ export const FormProvider: React.FC<FormProviderProps> = ({
   }, []);
 
   const submitForm = useCallback(async () => {
-    if (!validateForm() || !state.form) {
+    if (!state.form) {
+      return;
+    }
+
+    if (!validateForm()) {
+      touchAllFields();
       return;
     }
 
@@ -286,7 +311,14 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     } finally {
       setSubmitting(false);
     }
-  }, [state.form, onSubmit, validateForm, setSubmitting, setSubmitSuccess]);
+  }, [
+    state.form,
+    onSubmit,
+    validateForm,
+    touchAllFields,
+    setSubmitting,
+    setSubmitSuccess,
+  ]);
 
   const replaceFieldWithVariant = useCallback(
     (fieldPath: string, variantId: string) => {
@@ -322,6 +354,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
     setFieldTouched,
     getField,
     validateForm,
+    touchAllFields,
     resetForm,
     submitForm,
     replaceFieldWithVariant,

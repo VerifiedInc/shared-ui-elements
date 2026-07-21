@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button, Portal, Stack } from '@mui/material';
+import { Box, Button, Portal, Stack } from '@mui/material';
 
 import { type CredentialRequest } from '../../../components/form/NewOneClickForm/types';
 import {
@@ -11,12 +11,21 @@ import {
 } from '../../../components/form/NewOneClickForm';
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
+  // Query after mount, not during render — on the very first render the sibling
+  // container div hasn't been committed to the DOM yet, so document.querySelector
+  // would find nothing. useEffect always runs after the whole tree commits.
+  const [container, setContainer] = useState<Element | null>(null);
+
+  useEffect(() => {
+    setContainer(
+      document.querySelector('div[data-testid="one-click-form-state-details"]'),
+    );
+  }, []);
+
+  if (!container) return null;
+
   return (
-    <Portal
-      container={document.querySelector(
-        'div[data-testid="one-click-form-state-details"]',
-      )}
-    >
+    <Portal container={container}>
       <div
         style={{
           width: 300,
@@ -228,26 +237,38 @@ const Debugger = ({ form }: { form: FormContextValue }) => {
 const FormFooter = ({ form }: { form: FormContextValue }) => {
   return (
     <>
-      <Button
-        data-testid='one-click-form-submit-button'
-        type='submit'
-        variant='contained'
-        fullWidth
-        sx={{ mt: 2 }}
-        disabled={
-          !form.state.form.isValid ||
-          form.state.form.isEmpty ||
-          form.state.isSubmitting ||
-          form.state.isSubmitSuccess
-        }
-        color={form.state.isSubmitSuccess ? 'success' : 'primary'}
+      {/* Disabled native buttons never dispatch a click, so the button itself can't
+          reveal validation errors. The wrapping span still receives the click and
+          triggers touchAllFields to surface them. */}
+      <Box
+        component='span'
+        sx={{ display: 'block', width: '100%' }}
+        onClick={() => {
+          if (!form.state.form.isValid) {
+            form.touchAllFields();
+          }
+        }}
       >
-        {form.state.isSubmitting
-          ? 'Submitting...'
-          : form.state.isSubmitSuccess
-            ? 'Success!'
-            : 'Submit'}
-      </Button>
+        <Button
+          data-testid='one-click-form-submit-button'
+          type='submit'
+          variant='contained'
+          fullWidth
+          sx={{ mt: 2 }}
+          disabled={
+            form.state.form.isEmpty ||
+            form.state.isSubmitting ||
+            form.state.isSubmitSuccess
+          }
+          color={form.state.isSubmitSuccess ? 'success' : 'primary'}
+        >
+          {form.state.isSubmitting
+            ? 'Submitting...'
+            : form.state.isSubmitSuccess
+              ? 'Success!'
+              : 'Submit'}
+        </Button>
+      </Box>
       <Debugger form={form} />
     </>
   );
@@ -427,7 +448,7 @@ const CredentialForm: React.FC = () => {
                   query.set('$skip', params.skip.toString());
 
                 const response = await fetch(
-                  `http://localhost:3010/payers?${query}`,
+                  `http://localhost:3010/1-click/health/payers?${query}`,
                 );
 
                 if (!response.ok) {
@@ -460,59 +481,59 @@ const mockCredentials = [
       phone: '+12125550010',
     },
   },
-  {
-    uuid: '174714b4-b2d3-4369-a44d-b5f940d935eb',
-    type: 'fullName',
-    value: {
-      firstName: 'Richard',
-      lastName: 'Hendricks',
-    },
-  },
-  {
-    uuid: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
-    type: 'ssn',
-    value: {
-      ssn: '•••-••-6789',
-    },
-  },
-  {
-    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde1',
-    type: 'address',
-    value: {
-      line1: '123 Main Street',
-      line2: 'Apt 1A',
-      city: 'New York',
-      state: 'NY',
-      country: 'US',
-      zipCode: '12345',
-    },
-  },
-  {
-    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde2',
-    type: 'address',
-    value: {
-      line1: '123 Main Street',
-      line2: 'Apt 1A',
-      city: 'California',
-      state: 'CA',
-      country: 'US',
-      zipCode: '10001',
-    },
-  },
-  {
-    uuid: 'sex-id-1234',
-    type: 'sex',
-    value: {
-      sex: 'Male',
-    },
-  },
-  {
-    uuid: 'dob-id-1234',
-    type: 'birthDate',
-    value: {
-      birthDate: '1989-08-01',
-    },
-  },
+  // {
+  //   uuid: '174714b4-b2d3-4369-a44d-b5f940d935eb',
+  //   type: 'fullName',
+  //   value: {
+  //     firstName: 'Richard',
+  //     lastName: 'Hendricks',
+  //   },
+  // },
+  // {
+  //   uuid: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
+  //   type: 'ssn',
+  //   value: {
+  //     ssn: '•••-••-6789',
+  //   },
+  // },
+  // {
+  //   uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde1',
+  //   type: 'address',
+  //   value: {
+  //     line1: '123 Main Street',
+  //     line2: 'Apt 1A',
+  //     city: 'New York',
+  //     state: 'NY',
+  //     country: 'US',
+  //     zipCode: '12345',
+  //   },
+  // },
+  // {
+  //   uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde2',
+  //   type: 'address',
+  //   value: {
+  //     line1: '123 Main Street',
+  //     line2: 'Apt 1A',
+  //     city: 'California',
+  //     state: 'CA',
+  //     country: 'US',
+  //     zipCode: '10001',
+  //   },
+  // },
+  // {
+  //   uuid: 'sex-id-1234',
+  //   type: 'sex',
+  //   value: {
+  //     sex: 'Male',
+  //   },
+  // },
+  // {
+  //   uuid: 'dob-id-1234',
+  //   type: 'birthDate',
+  //   value: {
+  //     birthDate: '1989-08-01',
+  //   },
+  // },
   {
     uuid: 'drivers-license-id-1234',
     type: 'driversLicense',
@@ -549,43 +570,43 @@ const mockCredentials = [
       },
     },
   },
-  {
-    uuid: 'health-insurance-id-1234',
-    type: 'healthInsurance',
-    value: {
-      id: 174,
-      memberId: '****AC02',
-      payer: {
-        verifiedId: 'V123123',
-        name: 'Aviato Health Insurance Of California',
-        logoUrl: '',
-      },
-    },
-  },
+  // {
+  //   uuid: 'health-insurance-id-1234',
+  //   type: 'healthInsurance',
+  //   value: {
+  //     id: 174,
+  //     memberId: '****AC02',
+  //     payer: {
+  //       verifiedId: 'V123123',
+  //       name: 'Aviato Health Insurance Of California',
+  //       logoUrl: '',
+  //     },
+  //   },
+  // },
 ];
 
 const mockCredentialRequests = [
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
     multi: false,
     type: 'FullNameCredential',
     children: [
       // {
       //   type: 'MiddleNameCredential',
-      //   mandatory: 'no',
+      //   mandatory: 'yes',
       //   description: 'Your middle name',
       //   // allowUserInput: true,
       // },
       {
         type: 'LastNameCredential',
-        mandatory: 'no',
+        mandatory: 'yes',
         description: 'Your last name',
         // allowUserInput: true,
       },
       {
         type: 'FirstNameCredential',
-        mandatory: 'no',
+        mandatory: 'yes',
         description: 'Your first name',
         // allowUserInput: true,
       },
@@ -593,7 +614,7 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
     type: 'PhoneCredential',
   },
   // 'AddressCredential',
@@ -606,7 +627,7 @@ const mockCredentialRequests = [
   // },
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
     multi: false,
     type: 'AddressCredential',
     description: 'Your address information',
@@ -617,7 +638,7 @@ const mockCredentialRequests = [
       },
       {
         type: 'Line2Credential',
-        mandatory: 'no',
+        mandatory: 'yes',
         description: 'Apt, Unit, etc.',
       },
       {
@@ -633,7 +654,7 @@ const mockCredentialRequests = [
         description: 'Country',
       },
       {
-        mandatory: 'no',
+        mandatory: 'yes',
         type: 'ZipCodeCredential',
         description: 'ZipCode',
       },
@@ -641,69 +662,69 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
     multi: false,
     type: 'BirthDateCredential',
     description: 'MM/DD/YYYY',
   },
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
     multi: false,
     type: 'SsnCredential',
     description: 'Your legal SSN',
   },
   {
-    allowUserInput: false,
-    mandatory: 'if_available',
+    allowUserInput: true,
+    mandatory: 'yes',
     multi: false,
     type: 'SexCredential',
     description: 'Your birth sex',
   },
   // {
   //   allowUserInput: true,
-  //   mandatory: 'no',
+  //   mandatory: 'yes',
   //   multi: false,
   //   type: 'DriversLicenseCredential',
   //   description: 'We are required by law to ask for a government ID',
   // },
   {
     allowUserInput: true,
-    mandatory: 'no',
+    mandatory: 'yes',
     multi: false,
     type: 'DriversLicenseCredential',
     description: 'We are required by law to ask for a government ID',
     children: [
       {
         allowUserInput: true,
-        mandatory: 'no',
+        mandatory: 'yes',
         multi: false,
         type: 'DocumentNumberCredential',
         description: 'Your driver’s license number',
       },
       {
         allowUserInput: true,
-        mandatory: 'no',
+        mandatory: 'yes',
         multi: false,
         type: 'IssuanceStateCredential',
       },
       {
         allowUserInput: true,
-        mandatory: 'no',
+        mandatory: 'yes',
         multi: false,
         type: 'IssuanceDateCredential',
         description: 'MM/DD/YYYY',
       },
       {
         allowUserInput: true,
-        mandatory: 'no',
+        mandatory: 'yes',
         multi: false,
         type: 'ExpirationDateCredential',
         description: 'MM/DD/YYYY',
       },
       {
         allowUserInput: true,
-        mandatory: 'no',
+        mandatory: 'yes',
         multi: false,
         type: 'AddressCredential',
         description: 'The address on the license',
@@ -714,7 +735,7 @@ const mockCredentialRequests = [
           },
           {
             type: 'Line2Credential',
-            mandatory: 'no',
+            mandatory: 'yes',
             description: 'Apt, Unit, etc.',
           },
           {
@@ -735,7 +756,7 @@ const mockCredentialRequests = [
   },
   {
     allowUserInput: true,
-    mandatory: 'if_available',
+    mandatory: 'no',
     type: 'HealthInsuranceCredential',
     description: 'Choose the right insurance plan',
   },

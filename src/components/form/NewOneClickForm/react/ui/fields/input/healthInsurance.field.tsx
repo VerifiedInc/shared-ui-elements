@@ -87,7 +87,17 @@ function useHealthInsuranceProviders(search: string) {
   };
 }
 
-function RequiredLabel({ children }: { children: React.ReactNode }) {
+function RequiredLabel({
+  children,
+  required,
+}: {
+  children: React.ReactNode;
+  required: boolean;
+}) {
+  if (!required) {
+    return <>{children}</>;
+  }
+
   return (
     <>
       {children}{' '}
@@ -105,7 +115,7 @@ function RequiredLabel({ children }: { children: React.ReactNode }) {
 }
 
 export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
-  const { field, setValue } = useFormField<'healthInsurance'>({
+  const { field, setValue, setTouched } = useFormField<'healthInsurance'>({
     key: fieldKey,
   });
 
@@ -136,6 +146,20 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
   const updateItem = (patch: Partial<HealthInsuranceValue>) => {
     setValue({ ...item, ...patch });
   };
+
+  const showError = (field.touched || field.isDirty) && !field.isValid;
+  const issues = field.errors?.error?.issues ?? [];
+  // Prefer the "Payer name is required" message over the payer.verifiedId regex
+  // issue's generic "Invalid" message — both fire when no payer is selected yet.
+  const payerErrorMessage =
+    issues.find((issue: any) => issue.path.join('.') === 'payer.name')
+      ?.message ??
+    issues.find((issue: any) => issue.path[0] === 'payer')?.message;
+  const memberIdErrorMessage = issues.find(
+    (issue: any) => issue.path[0] === 'memberId',
+  )?.message;
+  const showInsurerError = showError && !!payerErrorMessage;
+  const showMemberIdError = showError && !!memberIdErrorMessage;
 
   const selectedPayer =
     providers.find((p) => p.verifiedId === item.payer.verifiedId) ?? item.payer;
@@ -184,7 +208,12 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
               <Avatar
                 src={option.logoUrl ?? undefined}
                 alt={option.name[0]?.toUpperCase()}
-                sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 1,
+                  bgcolor: 'primary.main',
+                }}
                 slotProps={{
                   img: {
                     onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -202,8 +231,15 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
         renderInput={(params) => (
           <TextField
             {...params}
-            label={<RequiredLabel>Insurer</RequiredLabel>}
-            helperText='The company that provides your health insurance'
+            label={
+              <RequiredLabel required={field.isRequired}>Insurer</RequiredLabel>
+            }
+            error={showInsurerError}
+            helperText={
+              showInsurerError
+                ? payerErrorMessage
+                : 'The company that provides your health insurance'
+            }
             placeholder='Search...'
             size='small'
             InputLabelProps={{ shrink: true }}
@@ -214,19 +250,34 @@ export function HealthInsuranceInputField({ fieldKey }: { fieldKey: string }) {
                 endAdornment: params.InputProps.endAdornment,
               } as any
             }
+            inputProps={{
+              ...params.inputProps,
+              onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+                params.inputProps.onBlur?.(e);
+                setTouched(true);
+              },
+            }}
           />
         )}
       />
 
       <MemberIdInput
         fullWidth
-        label={<RequiredLabel>Member ID</RequiredLabel>}
+        label={
+          <RequiredLabel required={field.isRequired}>Member ID</RequiredLabel>
+        }
         placeholder='Enter member ID'
         size='small'
         disabled={field.isDisabled}
         value={item.memberId}
         onChange={(e) => updateItem({ memberId: e.target.value })}
-        helperText='From your health insurance ID card'
+        onBlur={() => setTouched(true)}
+        error={showMemberIdError}
+        helperText={
+          showMemberIdError
+            ? memberIdErrorMessage
+            : 'From your health insurance ID card'
+        }
         InputProps={
           {
             'data-mask-me': true,
