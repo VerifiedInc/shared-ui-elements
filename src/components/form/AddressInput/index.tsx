@@ -32,6 +32,7 @@ export type AddressInputProps = {
   variant?: TextFieldProps['variant'];
   size?: TextFieldProps['size'];
   helperText?: TextFieldProps['helperText'];
+  onBlur?: TextFieldProps['onBlur'];
   inputProps?: TextFieldProps['inputProps'];
   InputProps?: TextFieldProps['InputProps'];
   ClearAdornment?: ComponentType<{ onClick: () => void }>;
@@ -94,6 +95,7 @@ function AddressInputContent({
   inputProps,
   InputProps,
   ClearAdornment,
+  onBlur,
 }: AddressInputContentProps): ReactElement {
   const {
     value,
@@ -154,6 +156,7 @@ function AddressInputContent({
             size={size}
             error={error}
             helperText={helperText}
+            onBlur={onBlur}
             inputProps={{
               ...params.inputProps,
               // Tab index for each block.

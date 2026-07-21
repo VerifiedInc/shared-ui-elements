@@ -9,10 +9,12 @@ import { FieldLabel } from './label';
 import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function TextInputField({ fieldKey }: { fieldKey: string }) {
-  const { field, setValue } = useFormField({ key: fieldKey });
+  const { field, setValue, setTouched } = useFormField({ key: fieldKey });
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   if (!field) return null;
+
+  const showError = (field.touched || field.isDirty) && !field.isValid;
 
   const textFieldStyle: TextFieldProps = {
     inputRef,
@@ -25,7 +27,8 @@ export function TextInputField({ fieldKey }: { fieldKey: string }) {
       if (field.isDisabled) return;
       setValue(e.target.value);
     },
-    error: !field?.isValid,
+    onBlur: () => setTouched(true),
+    error: showError,
     helperText: field?.description,
     InputProps: {
       'data-mask-me': true,

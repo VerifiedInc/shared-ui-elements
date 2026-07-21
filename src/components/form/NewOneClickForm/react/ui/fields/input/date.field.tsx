@@ -22,7 +22,9 @@ import { ClearFieldAdornment } from './clear-field-adornment';
 
 export function DateInputField({ fieldKey }: { fieldKey: string }) {
   const { options } = useOneClickForm();
-  const { field, setValue } = useFormField<'birthDate'>({ key: fieldKey });
+  const { field, setValue, setTouched } = useFormField<'birthDate'>({
+    key: fieldKey,
+  });
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isServerMasked = /^•{4}-\d{2}-\d{2}$/.test(
     (field?.value as string) ?? '',
@@ -51,6 +53,8 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
   ) {
     return null;
   }
+
+  const showError = (field.touched || field.isDirty) && !field.isValid;
 
   const isDob = field.schema.key === credentialKeys.birthDate;
   const nowDate = new Date();
@@ -123,9 +127,12 @@ export function DateInputField({ fieldKey }: { fieldKey: string }) {
         label={<FieldLabel fieldKey={fieldKey} />}
         value={localValue}
         onChange={handleChange}
-        error={!field?.isValid}
+        onBlur={() => setTouched(true)}
+        error={showError}
         helperText={
-          field.errorMessage?.length ? field.errorMessage : field?.description
+          showError && field.errorMessage?.length
+            ? field.errorMessage
+            : field?.description
         }
         placeholder={field.schema.characteristics.placeholder}
         pickerClickOutsideBoundaryElement={

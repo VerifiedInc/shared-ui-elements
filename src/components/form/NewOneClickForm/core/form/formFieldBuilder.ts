@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
+import { z } from 'zod';
 
 import { type Credential, type CredentialRequestObject } from '../../types';
 
@@ -14,6 +15,52 @@ export interface CredentialRequestOptions {
   mandatory?: 'yes' | 'no' | 'if_available';
   multi?: boolean;
   description?: string;
+}
+
+/**
+ * Builds a schema-shaped "empty" value for a composite field that has no declared children (e.g.
+ * healthInsurance, which is edited as one custom widget rather than per-subfield inputs, so it's
+ * intentionally requested without children — see `singleFieldComposites` in formBuilder.ts).
+ *
+ * Without this, such a field's defaultValue falls back to `undefined` when no credential is
+ * available, unlike every other field type (composite-with-children and primitive fields both
+ * resolve to a concrete empty value). A component rendering that field then has nothing to bind
+ * its inputs to. This walks the field's own zodSchema to produce a real, empty instance instead —
+ * generic to any composite-without-children field, not just healthInsurance.
+ */
+function buildEmptyValueFromZodSchema(schema: z.ZodTypeAny): any {
+  if (schema instanceof z.ZodObject) {
+    const shape = schema.shape as Record<string, z.ZodTypeAny>;
+    return Object.fromEntries(
+      Object.entries(shape).map(([key, childSchema]) => [
+        key,
+        buildEmptyValueFromZodSchema(childSchema),
+      ]),
+    );
+  }
+
+  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
+    return undefined;
+  }
+
+  if (schema instanceof z.ZodEffects) {
+    return buildEmptyValueFromZodSchema(schema.innerType());
+  }
+
+  if (schema instanceof z.ZodDefault) {
+    return schema._def.defaultValue();
+  }
+
+  if (schema instanceof z.ZodLiteral) {
+    return schema.value;
+  }
+
+  if (schema instanceof z.ZodString) {
+    return '';
+  }
+
+  // Numbers, unions, and anything else: no safe, unambiguous empty value to invent.
+  return undefined;
 }
 
 export class FormFieldBuilder {
@@ -142,7 +189,10 @@ export class FormFieldBuilder {
 
         defaultValue = compositeValue;
       } else {
-        defaultValue = undefined;
+        // No declared children (e.g. healthInsurance) — fall back to a schema-shaped empty value
+        // instead of `undefined`, so a mandatory-but-unsourced field still has something concrete
+        // to render against.
+        defaultValue = buildEmptyValueFromZodSchema(fieldSchema.zodSchema);
       }
     } else {
       // For non-composite fields, use empty string as default
