@@ -448,7 +448,7 @@ const CredentialForm: React.FC = () => {
                   query.set('$skip', params.skip.toString());
 
                 const response = await fetch(
-                  `https://core-api.verified.inc/v2/1-click/health/payers?${query}`,
+                  `http://localhost:3010/1-click/health/payers?${query}`,
                 );
 
                 if (!response.ok) {
