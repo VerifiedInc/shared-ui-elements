@@ -159,6 +159,7 @@
     "@rollup/rollup-linux-x64-gnu": "4.9.5"
   },
   "overrides": {
-    "minimatch": "^9.0.7"
+    "minimatch": "^9.0.7",
+    "sharp": "^0.35.1"
   }
 }
