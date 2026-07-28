@@ -109,7 +109,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-storybook": "^0.8.0",
-    "eslint-plugin-vitest": "^0.0.53",
+    "eslint-plugin-vitest": "^0.5.4",
     "jsdom": "^24.1.0",
     "prettier": "^3.3.3",
     "storybook": "^8.3.1",
@@ -156,7 +156,7 @@
     "zod": ">=3.23.8 <4"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.9.5"
+    "@rollup/rollup-linux-x64-gnu": "4.62.3"
   },
   "overrides": {
     "minimatch": "^9.0.7",
