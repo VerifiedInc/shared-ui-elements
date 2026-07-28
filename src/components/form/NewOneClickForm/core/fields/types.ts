@@ -44,19 +44,23 @@ export interface BaseFieldDefinition<
 }
 
 // Specific field contracts
-export interface TextFieldDefinition<TKey extends string>
-  extends BaseFieldDefinition<TKey, TextFieldCharacteristics> {}
+export interface TextFieldDefinition<
+  TKey extends string,
+> extends BaseFieldDefinition<TKey, TextFieldCharacteristics> {}
 
-export interface SelectFieldDefinition<TKey extends string>
-  extends BaseFieldDefinition<TKey, SelectFieldCharacteristics> {}
+export interface SelectFieldDefinition<
+  TKey extends string,
+> extends BaseFieldDefinition<TKey, SelectFieldCharacteristics> {}
 
-export interface CompositeFieldDefinition<TKey extends string>
-  extends BaseFieldDefinition<TKey, CompositeFieldCharacteristics> {
+export interface CompositeFieldDefinition<
+  TKey extends string,
+> extends BaseFieldDefinition<TKey, CompositeFieldCharacteristics> {
   children: Record<string, BaseFieldDefinition<string>>;
 }
 
-export interface DateFieldDefinition<TKey extends string>
-  extends BaseFieldDefinition<TKey, DateFieldCharacteristics> {}
+export interface DateFieldDefinition<
+  TKey extends string,
+> extends BaseFieldDefinition<TKey, DateFieldCharacteristics> {}
 
 // Utility type to extract primitive field value types
 export type ExtractedFieldValueType<T> = T extends {

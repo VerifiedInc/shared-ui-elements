@@ -68,8 +68,10 @@ function EntryBlock({
   );
 }
 
-interface SeriesPercentageChartLegendProps
-  extends Omit<LegendProps, 'payload'> {
+interface SeriesPercentageChartLegendProps extends Omit<
+  LegendProps,
+  'payload'
+> {
   showUuid?: boolean;
   payload?: CustomPayload[];
 }

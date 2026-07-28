@@ -39,8 +39,7 @@ export function DataFieldOptionType(): React.JSX.Element {
     // Get parent path (e.g., "credentialRequests" or "credentialRequests.0.children")
     const parentPath = pathParts.slice(0, -1).join('.');
     const siblingFields = formContext.getValues(parentPath as any) as
-      | CredentialRequestsWithNew[]
-      | undefined;
+      CredentialRequestsWithNew[] | undefined;
 
     // Get types that are already used by siblings (excluding current field)
     const usedTypes = new Set(
@@ -89,8 +88,7 @@ export function DataFieldOptionType(): React.JSX.Element {
             allowUserInput: baseValue.allowUserInput,
             multi: baseValue.multi,
             children: baseValue.children as
-              | CredentialRequestsWithNew[]
-              | undefined,
+              CredentialRequestsWithNew[] | undefined,
           };
           credentialRequestField?.fieldArray.update(
             credentialRequestField?.index,

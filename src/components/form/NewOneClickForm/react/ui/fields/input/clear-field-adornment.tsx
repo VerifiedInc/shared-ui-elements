@@ -11,10 +11,7 @@ type ClearFieldAdornmentProps = Readonly<{
 }>;
 
 type QueryInputReturn =
-  | HTMLInputElement
-  | HTMLTextAreaElement
-  | null
-  | undefined;
+  HTMLInputElement | HTMLTextAreaElement | null | undefined;
 
 export function ClearFieldAdornment({
   fieldKey,

@@ -2,12 +2,7 @@ import { type RefObject, useEffect } from 'react';
 
 /** Supported event types. */
 type EventType =
-  | 'mousedown'
-  | 'mouseup'
-  | 'touchstart'
-  | 'touchend'
-  | 'focusin'
-  | 'focusout';
+  'mousedown' | 'mouseup' | 'touchstart' | 'touchend' | 'focusin' | 'focusout';
 
 /**
  * Custom hook that handles clicks outside a specified element.

@@ -63,16 +63,12 @@ export function SimpleBarChart({
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
             {...tooltip}
           />
-          {referenceLines
-            ?.filter(filterOnlyBack)
-            .map((line, index) => (
-              <ReferenceLine key={line.label ?? index} {...(line as any)} />
-            ))}
-          {referenceAreas
-            ?.filter(filterOnlyBack)
-            .map((area, index) => (
-              <ReferenceArea key={area.label ?? index} {...(area as any)} />
-            ))}
+          {referenceLines?.filter(filterOnlyBack).map((line, index) => (
+            <ReferenceLine key={line.label ?? index} {...(line as any)} />
+          ))}
+          {referenceAreas?.filter(filterOnlyBack).map((area, index) => (
+            <ReferenceArea key={area.label ?? index} {...(area as any)} />
+          ))}
           {series.map((serie) => (
             <Bar
               key={serie.key}
@@ -84,16 +80,12 @@ export function SimpleBarChart({
               {...(bar as any)}
             />
           ))}
-          {referenceLines
-            ?.filter(filterOnlyFront)
-            .map((line, index) => (
-              <ReferenceLine key={line.label ?? index} {...(line as any)} />
-            ))}
-          {referenceAreas
-            ?.filter(filterOnlyFront)
-            .map((area, index) => (
-              <ReferenceArea key={area.label ?? index} {...(area as any)} />
-            ))}
+          {referenceLines?.filter(filterOnlyFront).map((line, index) => (
+            <ReferenceLine key={line.label ?? index} {...(line as any)} />
+          ))}
+          {referenceAreas?.filter(filterOnlyFront).map((area, index) => (
+            <ReferenceArea key={area.label ?? index} {...(area as any)} />
+          ))}
         </ComposedChart>
       </ResponsiveContainer>
     </Box>
