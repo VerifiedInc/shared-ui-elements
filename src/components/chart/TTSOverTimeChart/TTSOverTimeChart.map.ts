@@ -3,8 +3,7 @@ import {
   type MapSeriesTimeSeriesDataOptions,
 } from '../SeriesChart/SeriesChart.map';
 
-export interface MapTTSTimeSeriesDataOptions
-  extends MapSeriesTimeSeriesDataOptions {
+export interface MapTTSTimeSeriesDataOptions extends MapSeriesTimeSeriesDataOptions {
   data: Array<{
     interval?: Array<{
       ttsSent: number;

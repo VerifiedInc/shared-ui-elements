@@ -87,8 +87,7 @@ function CredentialRequestField({
               allowUserInput: baseValue.allowUserInput,
               multi: baseValue.multi,
               children: baseValue.children as
-                | CredentialRequestsWithNew[]
-                | undefined,
+                CredentialRequestsWithNew[] | undefined,
               isNew: true,
             };
             fieldArray.append(newValue);

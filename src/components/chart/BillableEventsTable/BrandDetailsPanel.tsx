@@ -68,9 +68,9 @@ export function BrandDetailsPanel({
   );
   const hasHealth = Boolean(
     providers &&
-      ((providers.healthDataProviders &&
-        providers.healthDataProviders.length > 0) ||
-        providers.healthDataProviderMode),
+    ((providers.healthDataProviders &&
+      providers.healthDataProviders.length > 0) ||
+      providers.healthDataProviderMode),
   );
 
   return (

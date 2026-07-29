@@ -13,8 +13,7 @@ import type {
 export type OneClickVerificationSuccessIntervalEntry =
   OneClickVerificationIntervalEntry;
 
-export interface MapOneClickVerificationSuccessTimeSeriesDataOptions
-  extends MapSeriesTimeSeriesDataOptions {
+export interface MapOneClickVerificationSuccessTimeSeriesDataOptions extends MapSeriesTimeSeriesDataOptions {
   data: OneClickVerificationBrandData[];
 }
 
