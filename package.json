@@ -78,7 +78,7 @@
     "react-datepicker": "^7.6.0"
   },
   "devDependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.27.1",
+    "@babel/plugin-transform-react-jsx": "^8.0.1",
     "@chromatic-com/storybook": "^2.0.2",
     "@storybook/addon-essentials": "^8.6.18",
     "@storybook/addon-interactions": "^8.6.18",
