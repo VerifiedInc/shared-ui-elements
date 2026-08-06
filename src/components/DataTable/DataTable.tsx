@@ -642,16 +642,17 @@ export function DataTable<TData extends DataTableData>({
       <Box
         sx={{
           width: '100%',
-          // `height: '100%'` only resolves to an actual size when an
-          // ancestor is itself height-bound (e.g. a flex column with a
-          // fixed/percentage height) — pass maxHeight="100%" in that case
-          // and the TableContainer below grows to fill the remaining
-          // space. Otherwise this computes as `auto`, so nothing changes
-          // for consumers using the default fixed-pixel `maxHeight`.
-          height: '100%',
-          minHeight: 0,
-          display: 'flex',
-          flexDirection: 'column',
+          // Only stretch to fill the parent's height when maxHeight="100%"
+          // is explicitly opted into — otherwise consumers relying on the
+          // default fixed-pixel `maxHeight` get no layout change.
+          ...(maxHeight === '100%'
+            ? {
+                height: '100%',
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
+              }
+            : {}),
         }}
       >
         {showToolbar && <DataTableToolbar />}
