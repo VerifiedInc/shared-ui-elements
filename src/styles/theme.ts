@@ -429,6 +429,17 @@ export const theme = ({
             disableScrollLock: true,
           },
         },
+        styleOverrides: {
+          // The select value renders in a `<div>` sized with `height: auto` +
+          // `minHeight` (MUI overrides the fixed-height input box for this),
+          // so its text doesn't center the same way a plain input's does.
+          // Flexbox centering sidesteps that and keeps it visually aligned
+          // with adjacent text fields.
+          select: {
+            display: 'flex',
+            alignItems: 'center',
+          },
+        },
       },
       MuiAutocomplete: {
         defaultProps: {
