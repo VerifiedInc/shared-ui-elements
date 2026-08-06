@@ -385,6 +385,9 @@ export const theme = ({
         },
       },
       MuiInputLabel: {
+        defaultProps: {
+          shrink: true,
+        },
         styleOverrides: {
           root: {
             '&[data-shrink="false"]': {
