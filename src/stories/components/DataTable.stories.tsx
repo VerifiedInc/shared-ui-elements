@@ -805,10 +805,9 @@ export const BidirectionalScroll: Story = {
   render: () => <BidirectionalScrollExample />,
 };
 
-// `maxHeight="100%"` lets the table fill whatever vertical space its parent
-// gives it instead of growing to a fixed pixel height — the immediate
-// parent must be a flex column with a definite height (here, the outer Box
-// below) for there to be anything to fill.
+// `maxHeight="100%"` lets the table grow to fill a height-bounded parent
+// instead of using a fixed pixel max height — the parent (and its ancestors,
+// up to a sized element) must have a definite height (here: `height: 500`).
 export const FillHeight: Story = {
   render: () => (
     <Box
