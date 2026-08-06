@@ -583,11 +583,11 @@ export interface DataTableProps<TData extends DataTableData> {
   /**
    * Max height of the scroll container. Defaults to 800.
    *
-   * Pass `'100%'` to have the table fill the remaining vertical space of
-   * its parent instead of growing to a fixed pixel height — the parent
-   * (and its ancestors, up to a sized element) must be a flex column
-   * (`display: 'flex'`, `flexDirection: 'column'`) so there's a definite
-   * height to fill.
+   * Pass `'100%'` to have the table grow to fill the available height of its
+   * parent instead of using a fixed pixel max height — the parent (and its
+   * ancestors, up to a sized element) must have a definite height (e.g. via
+   * an explicit `height`, or via a flex/grid layout whose container has a
+   * bounded height).
    */
   maxHeight?: number | string;
   /**
