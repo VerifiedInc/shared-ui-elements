@@ -57,7 +57,7 @@ import { DataTableHead } from './DataTableHead';
 import { DataTablePanels } from './DataTablePanels';
 import { DataTableToolbar } from './DataTableToolbar';
 
-const DEFAULT_PAGE_SIZE = 25;
+const DEFAULT_PAGE_SIZE = 100;
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const DEFAULT_ROW_HEIGHT_ESTIMATE = 53;
 const EMPTY_ICONS: DataTableIcons = {};
@@ -639,7 +639,22 @@ export function DataTable<TData extends DataTableData>({
 
   return (
     <DataTableProvider value={contextValue}>
-      <Box sx={{ width: '100%' }}>
+      <Box
+        sx={{
+          width: '100%',
+          // Only stretch to fill the parent's height when maxHeight="100%"
+          // is explicitly opted into — otherwise consumers relying on the
+          // default fixed-pixel `maxHeight` get no layout change.
+          ...(maxHeight === '100%'
+            ? {
+                height: '100%',
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
+              }
+            : {}),
+        }}
+      >
         {showToolbar && <DataTableToolbar />}
         <TableContainer
           ref={scrollContainerRef}
@@ -648,7 +663,16 @@ export function DataTable<TData extends DataTableData>({
           // table would otherwise push the ancestors apart instead of
           // scrolling), while `minWidth: 100%` still stretches the
           // container to fill whatever width the parent actually has.
-          sx={{ maxHeight, width: 0, minWidth: '100%' }}
+          // `flex: '1 1 auto'` + `minHeight: 0` let it grow to fill the
+          // Box above when maxHeight="100%" and shrink below its content
+          // size so the scrollbar (not the page) absorbs the overflow.
+          sx={{
+            maxHeight,
+            width: 0,
+            minWidth: '100%',
+            flex: '1 1 auto',
+            minHeight: 0,
+          }}
         >
           <Table
             stickyHeader

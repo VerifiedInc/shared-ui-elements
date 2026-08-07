@@ -360,7 +360,7 @@ export interface DataTableProps<TData extends DataTableData> {
    * client-side.
    */
   manualSorting?: boolean;
-  /** Rows per page when the table mounts. Defaults to 25. */
+  /** Rows per page when the table mounts. Defaults to 100. */
   initialPageSize?: number;
   /** Options for the rows-per-page select. Defaults to [10, 25, 50, 100]. */
   pageSizeOptions?: number[];
@@ -580,7 +580,15 @@ export interface DataTableProps<TData extends DataTableData> {
    * gives pinned columns something to stick over. Defaults to 650.
    */
   minWidth?: number | string;
-  /** Max height of the scroll container. Defaults to 800. */
+  /**
+   * Max height of the scroll container. Defaults to 800.
+   *
+   * Pass `'100%'` to have the table grow to fill the available height of its
+   * parent instead of using a fixed pixel max height — the parent (and its
+   * ancestors, up to a sized element) must have a definite height (e.g. via
+   * an explicit `height`, or via a flex/grid layout whose container has a
+   * bounded height).
+   */
   maxHeight?: number | string;
   /**
    * Table layout algorithm. With the default 'auto', column widths are

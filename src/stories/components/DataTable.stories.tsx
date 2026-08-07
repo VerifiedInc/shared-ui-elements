@@ -805,6 +805,29 @@ export const BidirectionalScroll: Story = {
   render: () => <BidirectionalScrollExample />,
 };
 
+// `maxHeight="100%"` lets the table grow to fill a height-bounded parent
+// instead of using a fixed pixel max height — the parent (and its ancestors,
+// up to a sized element) must have a definite height (here: `height: 500`).
+export const FillHeight: Story = {
+  render: () => (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: 500,
+        border: '1px dashed',
+        borderColor: 'divider',
+      }}
+    >
+      <DataTable
+        data={members}
+        getRowId={(row) => row.email}
+        maxHeight='100%'
+      />
+    </Box>
+  ),
+};
+
 // Large dataset with pagination disabled — virtualization keeps it fast.
 export const VirtualizedWithoutPagination: Story = {
   args: {
