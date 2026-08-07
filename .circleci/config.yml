@@ -10,6 +10,8 @@ workflows:
             - Github-Packages
           test_script_name: test
           name: unumid/lint-and-test-branch
+          # Babel 8 tooling needs util.styleText (Node >= 20.12); align with the fleet
+          node_version: '24.14.1'
           cache_version: v6
           filters:
             branches:
