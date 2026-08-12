@@ -23,12 +23,7 @@ export function DataFieldMandatory(): React.JSX.Element {
     <DataFieldSection
       title='Optional or Required'
       description="Whether it's optional or required for the user to share this data"
-      tip={
-        <>
-          <pre>POST /1-click</pre>
-          <pre>{`{\n  mandatory?: enum\n}`}</pre>
-        </>
-      }
+      tip={<pre>{`{\n  mandatory?: enum\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,
       }}

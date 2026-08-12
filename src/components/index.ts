@@ -24,3 +24,4 @@ export * from './text-to-signup';
 export * from './logs';
 export * from './CopyableUuid';
 export * from './DataTable';
+export * from './Tip';

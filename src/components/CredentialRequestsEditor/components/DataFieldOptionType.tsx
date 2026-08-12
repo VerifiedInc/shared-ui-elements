@@ -66,12 +66,7 @@ export function DataFieldOptionType(): React.JSX.Element {
       key={JSON.stringify(selectedValue)}
       title='Field Type'
       description='What type of user data this field is for'
-      tip={
-        <>
-          <pre>POST /1-click</pre>
-          <pre>{`{\n  type: string\n}`}</pre>
-        </>
-      }
+      tip={<pre>{`{\n  type: string\n}`}</pre>}
     >
       <Autocomplete
         value={selectedValue}

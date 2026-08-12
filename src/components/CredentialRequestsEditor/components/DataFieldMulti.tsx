@@ -36,12 +36,7 @@ export function DataFieldMulti({
           ? 'This option is disabled when the Risk Signals brand setting is set to Off'
           : 'Whether multiple data values should be included if available'
       }
-      tip={
-        <>
-          <pre>POST /1-click</pre>
-          <pre>{`{\n  multi?: boolean\n}`}</pre>
-        </>
-      }
+      tip={<pre>{`{\n  multi?: boolean\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,
       }}

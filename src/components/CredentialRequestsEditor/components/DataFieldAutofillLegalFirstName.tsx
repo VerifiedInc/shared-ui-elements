@@ -25,13 +25,8 @@ export function DataFieldAutofillLegalFirstName(): React.JSX.Element {
   return (
     <DataFieldSection
       title='Always Autofill Legal First Name'
-      description='Whether to return the legal first name when a nickname is also available'
-      tip={
-        <>
-          <pre>POST /1-click</pre>
-          <pre>{`{\n  autofillLegalFirstName?: boolean\n}`}</pre>
-        </>
-      }
+      description="Whether to always autofill the user's legal first name, even if they entered another first name they go by"
+      tip={<pre>{`{\n  autofillLegalFirstName?: boolean\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,
       }}
@@ -50,7 +45,6 @@ export function DataFieldAutofillLegalFirstName(): React.JSX.Element {
         <RadioOption
           value={true}
           title='Yes'
-          description='The legal first name is always returned'
           tip='true'
           inputProps={
             {
@@ -61,10 +55,8 @@ export function DataFieldAutofillLegalFirstName(): React.JSX.Element {
           disabled={isFeatureDisabled}
         />
         <RadioOption
-          isDefault
           value={false}
           title='No'
-          description='A nickname may be returned instead'
           tip='false'
           inputProps={
             {

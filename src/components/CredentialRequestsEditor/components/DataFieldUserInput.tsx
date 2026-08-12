@@ -22,12 +22,7 @@ export function DataFieldUserInput(): React.JSX.Element {
     <DataFieldSection
       title='Allow User Input'
       description='Whether the user is allowed to add or edit data for this field'
-      tip={
-        <>
-          <pre>POST /1-click</pre>
-          <pre>{`{\n  allowUserInput?: boolean\n}`}</pre>
-        </>
-      }
+      tip={<pre>{`{\n  allowUserInput?: boolean\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,
       }}
@@ -54,7 +49,6 @@ export function DataFieldUserInput(): React.JSX.Element {
           isDefault
           value={true}
           title='Yes'
-          description='The user can add or edit data'
           tip='true'
           inputProps={
             {
@@ -66,7 +60,6 @@ export function DataFieldUserInput(): React.JSX.Element {
         <RadioOption
           value={false}
           title='No'
-          description="The user can't add or edit data"
           tip='false'
           inputProps={
             {
