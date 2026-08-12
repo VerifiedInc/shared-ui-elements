@@ -1,58 +1,55 @@
 import { RadioGroup } from '@mui/material';
-import { useController, useFormContext } from 'react-hook-form';
+import { useController } from 'react-hook-form';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
-import { propagateToChildren } from '../utils/propagateToChildren';
+
 import { RadioOption } from './RadioOption';
 import { DataFieldSection } from './DataFieldSection';
 
-export function DataFieldUserInput(): React.JSX.Element {
+/**
+ * Only rendered for a FirstNameCredential entry, which normally sits as a child of
+ * FullNameCredential. Unlike DataFieldMulti this deliberately has no `level > 0` guard: the
+ * setting belongs on the child, not the parent.
+ */
+export function DataFieldAutofillLegalFirstName(): React.JSX.Element {
   const { features } = useCredentialRequestsEditor();
-  const isFeatureDisabled = features?.description?.disabled === true;
+  const isFeatureDisabled = features?.autofillLegalFirstName?.disabled === true;
 
   const credentialRequestField = useCredentialRequestField();
-  const form = useFormContext<CredentialRequestsEditorForm>();
-  const allowUserInput = useController<CredentialRequestsEditorForm>({
-    name: `${credentialRequestField?.path as any}.allowUserInput` as any,
+  const autofillLegalFirstName = useController<CredentialRequestsEditorForm>({
+    name: `${credentialRequestField?.path as any}.autofillLegalFirstName` as any,
   });
 
   return (
     <DataFieldSection
-      title='Allow User Input'
-      description='Whether the user is allowed to add or edit data for this field'
-      tip={<pre>{`{\n  allowUserInput?: boolean\n}`}</pre>}
+      title='Always Autofill Legal First Name'
+      description="Whether to always autofill the user's legal first name, even if they entered another first name they go by"
+      tip={<pre>{`{\n  autofillLegalFirstName?: boolean\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,
       }}
     >
       <RadioGroup
-        value={allowUserInput.field.value}
+        value={autofillLegalFirstName.field.value ?? false}
         onChange={(_, value) => {
           if (isFeatureDisabled) return;
-          const boolValue = value === 'true';
 
           // Update form state
-          allowUserInput.field.onChange({
-            target: { value: boolValue },
+          autofillLegalFirstName.field.onChange({
+            target: { value: value === 'true' },
           });
-
-          // Propagate to children if this field has children
-          const currentPath = credentialRequestField?.path;
-          if (currentPath) {
-            propagateToChildren(form, boolValue, currentPath, 'allowUserInput');
-          }
         }}
       >
         <RadioOption
-          isDefault
           value={true}
           title='Yes'
           tip='true'
           inputProps={
             {
-              'data-testid': 'custom-demo-dialog-user-input-yes-radio',
+              'data-testid':
+                'custom-demo-dialog-autofill-legal-first-name-yes-radio',
             } as any
           }
           disabled={isFeatureDisabled}
@@ -63,7 +60,8 @@ export function DataFieldUserInput(): React.JSX.Element {
           tip='false'
           inputProps={
             {
-              'data-testid': 'custom-demo-dialog-user-input-no-radio',
+              'data-testid':
+                'custom-demo-dialog-autofill-legal-first-name-no-radio',
             } as any
           }
           disabled={isFeatureDisabled}

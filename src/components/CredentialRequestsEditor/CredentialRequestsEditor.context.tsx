@@ -25,6 +25,9 @@ export interface CredentialRequestsEditorFeatures {
   multi?: {
     disabled?: boolean;
   };
+  autofillLegalFirstName?: {
+    disabled?: boolean;
+  };
 }
 
 export interface CredentialRequestsEditorProps {

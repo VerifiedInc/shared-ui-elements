@@ -81,6 +81,9 @@ export const API: Story = {
       multi: {
         disabled: false,
       },
+      autofillLegalFirstName: {
+        disabled: false,
+      },
     },
   },
 };
@@ -119,6 +122,9 @@ export const SDK: Story = {
       multi: {
         disabled: false,
       },
+      autofillLegalFirstName: {
+        disabled: false,
+      },
     },
   },
 };
@@ -155,6 +161,9 @@ export const SDKWithNoRiskSignals: Story = {
         disabled: false,
       },
       multi: {
+        disabled: false,
+      },
+      autofillLegalFirstName: {
         disabled: false,
       },
     },

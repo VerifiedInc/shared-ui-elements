@@ -42,6 +42,7 @@ import { DataFieldMandatory } from './DataFieldMandatory';
 import { DataFieldUserInput } from './DataFieldUserInput';
 import { DataFieldDeleteModal } from './DataFieldDeleteModal';
 import { DataFieldMulti } from './DataFieldMulti';
+import { DataFieldAutofillLegalFirstName } from './DataFieldAutofillLegalFirstName';
 import type { RiskSignals } from '../types/riskSignals';
 
 interface DataFieldAccordionProps {
@@ -79,6 +80,16 @@ export function DataFieldAccordion(
       field.field.value && (field.field.value as CredentialRequestsWithNew).type
     );
   }, [field.field.value]);
+
+  const hasAutofillLegalFirstName = fieldName === 'FirstNameCredential';
+
+  // Non-hosted children are normally collapsed, since every option they would show is hidden for
+  // non-hosted. First Name is the exception: it carries a non-hosted-relevant option of its own, so
+  // it stays expandable or the setting would be unreachable for exactly the API-driven brands.
+  const isCollapsedChild =
+    isChild &&
+    integrationType === SdkIntegrationType.NonHosted &&
+    !hasAutofillLegalFirstName;
 
   const canDrop = useCallback(
     (item: typeof credentialRequestField) => {
@@ -230,6 +241,7 @@ export function DataFieldAccordion(
         {fieldName === 'AddressCredential' && (
           <DataFieldMulti riskSignals={riskSignals} />
         )}
+        {hasAutofillLegalFirstName && <DataFieldAutofillLegalFirstName />}
       </Stack>
     );
   };
@@ -272,10 +284,7 @@ export function DataFieldAccordion(
           >
             <AccordionSummary
               onClick={(e) => {
-                if (
-                  isChild &&
-                  integrationType === SdkIntegrationType.NonHosted
-                ) {
+                if (isCollapsedChild) {
                   e.preventDefault();
                   e.stopPropagation();
                   return;
@@ -299,8 +308,7 @@ export function DataFieldAccordion(
                       }}
                     />
                   </IconButton>
-                  {(!isChild ||
-                    integrationType !== SdkIntegrationType.NonHosted) && (
+                  {!isCollapsedChild && (
                     <Stack
                       className={chevronClassName}
                       sx={{ ml: 1, alignSelf: 'center' }}

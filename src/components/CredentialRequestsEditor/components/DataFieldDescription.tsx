@@ -35,12 +35,7 @@ export function DataFieldDescription(): React.JSX.Element {
     <DataFieldSection
       title='Field Description'
       description='What text appears under the field'
-      tip={
-        <>
-          <pre>POST /1-click</pre>
-          <pre>{`{\n  description?: string\n}`}</pre>
-        </>
-      }
+      tip={<pre>{`{\n  description?: string\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,
       }}
