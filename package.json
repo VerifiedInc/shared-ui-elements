@@ -7,8 +7,8 @@
   "keywords": [],
   "author": "VerifiedInc",
   "engines": {
-    "node": ">=20.10.0",
-    "npm": ">=10.x.x"
+    "node": ">=26.7.0",
+    "npm": ">=11.0.0"
   },
   "main": "/dist/index.mjs",
   "types": "/dist/index.d.ts",
