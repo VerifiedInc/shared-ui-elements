@@ -11,6 +11,7 @@ workflows:
           test_script_name: test
           name: unumid/lint-and-test-branch
           cache_version: v6
+          node_version: 26.7.0
           filters:
             branches:
               ignore:
