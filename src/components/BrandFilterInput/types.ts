@@ -2,7 +2,6 @@ export interface Brands {
   brandUuid: string;
   brandName: string;
   customerUuid: string;
-  integrationType: string;
   oneClickCreated?: number;
   oneClickSuccess?: number;
   isLiveBrand?: boolean;

@@ -3,12 +3,10 @@ import {
   BillableProduct,
   type BillableEventsTableRow,
 } from '../BillableEventsTable/BillableEventsTable.types';
-import { formatIntegrationType } from '../BillableEventsTable/BillableEventsTableDataMapper';
 
 type Brand = {
   brandUuid: string;
   brandName: string;
-  integrationType: string;
 };
 
 export type ChartData = {
@@ -54,7 +52,6 @@ export const mapBillableEventsProductTableData = ({
       rowMap.set(brandData.brandUuid, {
         brandUuid: brandData.brandUuid,
         brand: brand.brandName,
-        integrationType: formatIntegrationType(brand.integrationType),
         metrics,
         raw: brandData,
       });
