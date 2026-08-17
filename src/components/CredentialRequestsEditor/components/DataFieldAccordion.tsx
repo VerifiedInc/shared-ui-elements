@@ -229,10 +229,7 @@ export function DataFieldAccordion(
         {fieldName === 'AddressCredential' && (
           <DataFieldMulti riskSignals={riskSignals} />
         )}
-        <DataFieldChannelGroup
-          title='Applies to the SDK channel'
-          description='These shape what the SDK shows the user. API requests ignore them.'
-        >
+        <DataFieldChannelGroup description='The settings below affect only the SDK. API requests ignore them.'>
           <DataFieldDescription />
           <DataFieldUserInput />
         </DataFieldChannelGroup>

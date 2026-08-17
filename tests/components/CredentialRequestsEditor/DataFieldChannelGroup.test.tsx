@@ -5,7 +5,7 @@ import { CredentialRequestsEditor } from '../../../src/components/CredentialRequ
 import { MandatoryEnum } from '../../../src/components/CredentialRequestsEditor/types/mandatoryEnum';
 import type { CredentialRequestsWithNew } from '../../../src/components/CredentialRequestsEditor/types/form';
 
-const SDK_GROUP_TITLE = 'Applies to the SDK channel';
+const SDK_GROUP = 'dialog-data-field-channel-group';
 
 const makeCredentialRequest = (
   type: string,
@@ -40,15 +40,12 @@ afterEach(() => {
 });
 
 describe('<CredentialRequestsEditor/> channel grouping', () => {
-  test('groups Field Description and Allow User Input under the SDK heading', () => {
+  test('groups Field Description and Allow User Input, and only those', () => {
     const utils = renderEditor([makeCredentialRequest('AddressCredential')]);
     expand(utils, 'Address');
 
-    const heading = utils.getByText(SDK_GROUP_TITLE);
-    const group = heading.closest('div')?.parentElement?.parentElement;
-    expect(group).not.toBeNull();
-
-    const groupText = group?.textContent ?? '';
+    const groupText = utils.getByTestId(SDK_GROUP).textContent ?? '';
+    expect(groupText).toContain('affect only the SDK');
     expect(groupText).toContain('Field Description');
     expect(groupText).toContain('Allow User Input');
     // The always-applies settings stay outside the group.
@@ -60,7 +57,9 @@ describe('<CredentialRequestsEditor/> channel grouping', () => {
     const utils = renderEditor([makeCredentialRequest('AddressCredential')]);
     expand(utils, 'Address');
 
-    expect(utils.getByText(/only returned on the API channel/i)).toBeDefined();
+    const admonition = utils.getByText(/only returned on the API channel/i);
+    expect(admonition).toBeDefined();
+    expect(utils.getByTestId(SDK_GROUP).contains(admonition)).toBe(false);
   });
 
   test('renders every setting regardless of the brand, since core gates per request', () => {
