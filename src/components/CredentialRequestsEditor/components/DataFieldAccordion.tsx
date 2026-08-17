@@ -42,6 +42,7 @@ import { DataFieldUserInput } from './DataFieldUserInput';
 import { DataFieldDeleteModal } from './DataFieldDeleteModal';
 import { DataFieldMulti } from './DataFieldMulti';
 import { DataFieldAutofillLegalFirstName } from './DataFieldAutofillLegalFirstName';
+import { DataFieldChannelGroup } from './DataFieldChannelGroup';
 import type { RiskSignals } from '../types/riskSignals';
 
 interface DataFieldAccordionProps {
@@ -217,17 +218,24 @@ export function DataFieldAccordion(
     );
   };
 
+  // Settings that hold for every request come first; the ones the SDK alone acts on
+  // are grouped below so the split is visible without hiding anything.
   const renderDataFields = (): React.JSX.Element => {
     return (
       <Stack spacing={2}>
         {!isChild && <DataFieldOptionType />}
-        <DataFieldDescription />
         <DataFieldMandatory />
-        <DataFieldUserInput />
+        {hasAutofillLegalFirstName && <DataFieldAutofillLegalFirstName />}
         {fieldName === 'AddressCredential' && (
           <DataFieldMulti riskSignals={riskSignals} />
         )}
-        {hasAutofillLegalFirstName && <DataFieldAutofillLegalFirstName />}
+        <DataFieldChannelGroup
+          title='Applies to the SDK channel'
+          description='These shape what the SDK shows the user. API requests ignore them.'
+        >
+          <DataFieldDescription />
+          <DataFieldUserInput />
+        </DataFieldChannelGroup>
       </Stack>
     );
   };

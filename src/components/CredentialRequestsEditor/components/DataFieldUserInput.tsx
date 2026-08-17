@@ -10,7 +10,7 @@ import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldUserInput(): React.JSX.Element {
   const { features } = useCredentialRequestsEditor();
-  const isFeatureDisabled = features?.description?.disabled === true;
+  const isFeatureDisabled = features?.allowUserInput?.disabled === true;
 
   const credentialRequestField = useCredentialRequestField();
   const form = useFormContext<CredentialRequestsEditorForm>();
@@ -22,7 +22,6 @@ export function DataFieldUserInput(): React.JSX.Element {
     <DataFieldSection
       title='Allow User Input'
       description='Whether the user is allowed to add or edit data for this field'
-      admonition='User input only applies to the SDK channel. API requests never allow user input.'
       tip={<pre>{`{\n  allowUserInput?: boolean\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,
