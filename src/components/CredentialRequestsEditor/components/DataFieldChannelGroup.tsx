@@ -22,9 +22,9 @@ export function DataFieldChannelGroup(
         ml: '2px',
         pl: 1.75,
         borderLeft: '2px solid',
-        borderColor: 'rgba(0, 0, 0, 0.14)',
+        borderColor: 'divider',
       }}
-      data-testid='dialog-data-field-channel-group'
+      data-testid='custom-demo-dialog-data-field-channel-group'
     >
       <Typography
         variant='body2'

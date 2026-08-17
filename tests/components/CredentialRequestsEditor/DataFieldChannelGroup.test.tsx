@@ -5,7 +5,7 @@ import { CredentialRequestsEditor } from '../../../src/components/CredentialRequ
 import { MandatoryEnum } from '../../../src/components/CredentialRequestsEditor/types/mandatoryEnum';
 import type { CredentialRequestsWithNew } from '../../../src/components/CredentialRequestsEditor/types/form';
 
-const SDK_GROUP = 'dialog-data-field-channel-group';
+const SDK_GROUP = 'custom-demo-dialog-data-field-channel-group';
 
 const makeCredentialRequest = (
   type: string,
