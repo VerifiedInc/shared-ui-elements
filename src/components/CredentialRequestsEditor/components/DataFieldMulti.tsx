@@ -2,7 +2,6 @@ import { RadioGroup } from '@mui/material';
 import { useController } from 'react-hook-form';
 
 import { type CredentialRequestsEditorForm } from '../types/form';
-import { SdkIntegrationType } from '../types/sdk';
 import { useCredentialRequestsEditor } from '../CredentialRequestsEditor.context';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 
@@ -15,11 +14,9 @@ export function DataFieldMulti({
 }: Readonly<{
   riskSignals: RiskSignals;
 }>): React.JSX.Element | null {
-  const { features, integrationType } = useCredentialRequestsEditor();
+  const { features } = useCredentialRequestsEditor();
   const isFeatureDisabled =
-    integrationType === SdkIntegrationType.Hosted ||
-    features?.multi?.disabled === true ||
-    riskSignals === 'off';
+    features?.multi?.disabled === true || riskSignals === 'off';
 
   const credentialRequestField = useCredentialRequestField();
   const multi = useController<CredentialRequestsEditorForm>({
@@ -36,6 +33,7 @@ export function DataFieldMulti({
           ? 'This option is disabled when the Risk Signals brand setting is set to Off'
           : 'Whether multiple data values should be included if available'
       }
+      admonition='Multiple values are only returned on the API channel. SDK requests always receive a single value.'
       tip={<pre>{`{\n  multi?: boolean\n}`}</pre>}
       sx={{
         opacity: isFeatureDisabled ? 0.5 : 1,

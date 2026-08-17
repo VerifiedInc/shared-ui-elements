@@ -5,7 +5,6 @@ import { Box } from '@mui/material';
 
 import { buildDataFieldValue } from '../../components/CredentialRequestsEditor/utils/buildDataFieldValue';
 import { CredentialRequestsEditor } from '../../components/CredentialRequestsEditor';
-import { SdkIntegrationType } from '../../components/CredentialRequestsEditor/types/sdk';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -46,126 +45,53 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const loadCredentialRequests = async (): Promise<{
+  credentialRequests: ReturnType<typeof buildDataFieldValue>[];
+}> => ({
+  credentialRequests: [
+    buildDataFieldValue('FullNameCredential'),
+    buildDataFieldValue('PhoneCredential'),
+    buildDataFieldValue('AddressCredential'),
+    buildDataFieldValue('BirthDateCredential'),
+    buildDataFieldValue('SsnCredential'),
+  ],
+});
+
+const allFeaturesEnabled = {
+  allowUserInput: {
+    disabled: false,
+  },
+  description: {
+    disabled: false,
+  },
+  mandatory: {
+    disabled: false,
+  },
+  multi: {
+    disabled: false,
+  },
+  autofillLegalFirstName: {
+    disabled: false,
+  },
+};
+
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const API: Story = {
-  loaders: [
-    async () => {
-      const credentialRequests = [
-        buildDataFieldValue('FullNameCredential'),
-        buildDataFieldValue('PhoneCredential'),
-        buildDataFieldValue('AddressCredential'),
-        buildDataFieldValue('BirthDateCredential'),
-        buildDataFieldValue('SsnCredential'),
-      ];
-
-      return {
-        credentialRequests,
-      };
-    },
-  ],
+export const Default: Story = {
+  loaders: [loadCredentialRequests],
   args: {
     riskSignals: 'on',
-    integrationType: SdkIntegrationType.NonHosted,
     credentialRequests: [],
     onChange: fn() as any,
-    features: {
-      allowUserInput: {
-        disabled: false,
-      },
-      description: {
-        disabled: false,
-      },
-      mandatory: {
-        disabled: false,
-      },
-      multi: {
-        disabled: false,
-      },
-      autofillLegalFirstName: {
-        disabled: false,
-      },
-    },
+    features: allFeaturesEnabled,
   },
 };
 
-export const SDK: Story = {
-  loaders: [
-    async () => {
-      const credentialRequests = [
-        buildDataFieldValue('FullNameCredential'),
-        buildDataFieldValue('PhoneCredential'),
-        buildDataFieldValue('AddressCredential'),
-        buildDataFieldValue('BirthDateCredential'),
-        buildDataFieldValue('SsnCredential'),
-      ];
-
-      return {
-        credentialRequests,
-      };
-    },
-  ],
-  args: {
-    riskSignals: 'on',
-    integrationType: SdkIntegrationType.Hosted,
-    credentialRequests: [],
-    onChange: fn() as any,
-    features: {
-      allowUserInput: {
-        disabled: false,
-      },
-      description: {
-        disabled: false,
-      },
-      mandatory: {
-        disabled: false,
-      },
-      multi: {
-        disabled: false,
-      },
-      autofillLegalFirstName: {
-        disabled: false,
-      },
-    },
-  },
-};
-
-export const SDKWithNoRiskSignals: Story = {
-  loaders: [
-    async () => {
-      const credentialRequests = [
-        buildDataFieldValue('FullNameCredential'),
-        buildDataFieldValue('PhoneCredential'),
-        buildDataFieldValue('AddressCredential'),
-        buildDataFieldValue('BirthDateCredential'),
-        buildDataFieldValue('SsnCredential'),
-      ];
-
-      return {
-        credentialRequests,
-      };
-    },
-  ],
+export const WithNoRiskSignals: Story = {
+  loaders: [loadCredentialRequests],
   args: {
     riskSignals: 'off',
-    integrationType: SdkIntegrationType.Hosted,
     credentialRequests: [],
     onChange: fn() as any,
-    features: {
-      allowUserInput: {
-        disabled: false,
-      },
-      description: {
-        disabled: false,
-      },
-      mandatory: {
-        disabled: false,
-      },
-      multi: {
-        disabled: false,
-      },
-      autofillLegalFirstName: {
-        disabled: false,
-      },
-    },
+    features: allFeaturesEnabled,
   },
 };

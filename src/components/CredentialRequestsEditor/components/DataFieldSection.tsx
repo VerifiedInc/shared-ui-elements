@@ -1,12 +1,16 @@
 import { type ReactNode } from 'react';
 import { Stack, SxProps, Typography } from '@mui/material';
 
+import { Alert } from '../../Alert';
 import { Tip } from '../../Tip';
 
 interface DataFieldSectionProps {
   children: ReactNode;
   title: string;
   description?: string;
+  // Explains a channel-specific caveat that the backend enforces per request, so the
+  // control stays editable while the user learns when the value actually applies.
+  admonition?: ReactNode;
   tip?: ReactNode;
   sx?: SxProps;
 }
@@ -14,7 +18,7 @@ interface DataFieldSectionProps {
 export function DataFieldSection(
   props: DataFieldSectionProps,
 ): React.JSX.Element {
-  const { children, title, description, tip, sx } = props;
+  const { children, title, description, admonition, tip, sx } = props;
 
   return (
     <Stack sx={sx}>
@@ -41,6 +45,16 @@ export function DataFieldSection(
         >
           {description}
         </Typography>
+      )}
+      {admonition && (
+        <Alert
+          severity='info'
+          variant='outlined'
+          sx={{ mt: 1, py: 0, fontSize: '12px' }}
+          data-testid='custom-demo-dialog-data-field-admonition'
+        >
+          {admonition}
+        </Alert>
       )}
       <Stack sx={{ mt: 3 }}>{children}</Stack>
     </Stack>
