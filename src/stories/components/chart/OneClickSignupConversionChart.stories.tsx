@@ -10,7 +10,6 @@ const sampleLegendBrand = {
   value: 'Aviato Health',
   color: green,
   brandName: 'Aviato Health Production',
-  integrationType: 'Hosted',
 };
 
 const meta = {

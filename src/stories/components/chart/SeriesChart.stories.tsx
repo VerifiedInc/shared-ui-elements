@@ -59,7 +59,6 @@ const mockData = [
     uuid: '4c8ccbe5-ce86-44d7-a463-8ac9955af937',
     name: 'Blue Brand',
     color: '#0000ff',
-    description: 'hosted',
     chartData: [
       {
         date: 1739971140000,
@@ -84,7 +83,6 @@ const mockData = [
     uuid: '7d9ccbe5-ce86-44d7-a463-8ac9955af123',
     name: 'Red Brand',
     color: '#ff0000',
-    description: 'semi-hosted',
     chartData: [
       { date: 1734973560000, value: 2 },
       { date: 1734969240000, value: 4 },
@@ -165,7 +163,6 @@ export const OverlappingSeries: Story = {
         uuid: '4c8ccbe5-ce86-44d7-a463-8ac9955af937',
         name: 'Brand A',
         color: '#2196f3', // Blue
-        description: 'hosted',
         chartData: [
           { date: 1734973560000, value: 150 },
           { date: 1734969240000, value: 200 },
@@ -178,7 +175,6 @@ export const OverlappingSeries: Story = {
         uuid: '7d9ccbe5-ce86-44d7-a463-8ac9955af123',
         name: 'Brand B',
         color: '#f44336', // Red
-        description: 'semi-hosted',
         chartData: [
           { date: 1734973560000, value: 180 },
           { date: 1734969240000, value: 160 },
@@ -191,7 +187,6 @@ export const OverlappingSeries: Story = {
         uuid: '9e7ccbe5-ce86-44d7-a463-8ac9955af456',
         name: 'Brand C',
         color: '#4caf50', // Green
-        description: 'hosted',
         chartData: [
           { date: 1734973560000, value: 200 },
           { date: 1734969240000, value: 180 },

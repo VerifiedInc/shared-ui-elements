@@ -12,7 +12,6 @@ type CustomPayload = {
   value: string;
   color: string;
   dataKey: string;
-  integrationType?: string;
   brandName?: string;
 };
 
@@ -48,9 +47,6 @@ function EntryBlock({
         <Typography variant='body1'>{entry.value}</Typography>
         {entry.brandName && (
           <Typography variant='body2'>{entry.brandName}</Typography>
-        )}
-        {entry.integrationType && (
-          <Typography variant='body2'>{entry.integrationType}</Typography>
         )}
         {showUuid && entry.uuid && (
           <CopyableUuid
