@@ -108,7 +108,6 @@ export type BillableEventsTableRow = {
   brand: string;
   customerUuid?: string;
   customerName?: string;
-  integrationType: string;
   metrics: Record<string, number>;
   raw: ChartData;
   challengePrompts?: ChallengePrompt[];

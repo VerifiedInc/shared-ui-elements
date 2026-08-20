@@ -22,7 +22,7 @@ import { useBillableSort } from '../BillableEventsTable/useBillableSort.hook';
 import { CopyableUuid } from '../../CopyableUuid';
 import { white } from '../../../styles';
 
-const DIRECT_KEYS = ['brand', 'integrationType'];
+const DIRECT_KEYS = ['brand'];
 
 export const BillableEventsProductTable: React.FC<
   BillableEventsProductTableProps
@@ -68,9 +68,6 @@ export const BillableEventsProductTable: React.FC<
           <TableRow>
             <TableCell>{sortLabel('brand', 'Brand Name')}</TableCell>
             <TableCell>Brand UUID</TableCell>
-            <TableCell>
-              {sortLabel('integrationType', 'Integration Type')}
-            </TableCell>
             {columns.map((col: BillableEventColumn) => (
               <TableCell key={col.key} align='right'>
                 {sortLabel(col.key, col.label, 'right')}
@@ -94,7 +91,6 @@ export const BillableEventsProductTable: React.FC<
                   typographyProps={{ variant: 'inherit', color: 'inherit' }}
                 />
               </TableCell>
-              <TableCell>{row.integrationType}</TableCell>
               {columns.map((col: BillableEventColumn) => (
                 <TableCell key={col.key} align='right'>
                   {columnSlots?.[col.key]

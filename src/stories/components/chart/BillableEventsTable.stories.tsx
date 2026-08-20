@@ -29,7 +29,6 @@ const mockData: BillableEventsTableRow[] = [
     brand: 'Hooli Health',
     customerUuid: HOOLI_CUSTOMER_UUID,
     customerName: 'Hooli',
-    integrationType: 'SDK',
     raw: {
       brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
       brandName: 'Hooli Health',
@@ -60,7 +59,6 @@ const mockData: BillableEventsTableRow[] = [
     brand: 'Pied Piper',
     customerUuid: PIED_PIPER_CUSTOMER_UUID,
     customerName: 'Pied Piper',
-    integrationType: 'API',
     raw: { brandUuid: '', brandName: 'Pied Piper', overall: {} },
     metrics: {
       tts_smsKeywordsReceived: 12,
@@ -84,7 +82,6 @@ const mockData: BillableEventsTableRow[] = [
     brand: 'Aviato',
     customerUuid: HOOLI_CUSTOMER_UUID,
     customerName: 'Hooli',
-    integrationType: 'Semi-Hosted',
     raw: {
       brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
       brandName: 'Aviato',

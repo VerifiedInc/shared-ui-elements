@@ -20,9 +20,6 @@ function makeRow(
     brand: has('brand') ? overrides.brand! : 'Brand 1',
     customerUuid: has('customerUuid') ? overrides.customerUuid : HOOLI_CUSTOMER,
     customerName: has('customerName') ? overrides.customerName : 'Hooli',
-    integrationType: has('integrationType')
-      ? overrides.integrationType!
-      : 'SDK',
     metrics: has('metrics')
       ? overrides.metrics!
       : { signup_autofillsSucceeded: 1 },
@@ -381,7 +378,7 @@ describe('exportBillableEventsToCsv', () => {
     });
   });
 
-  test('header includes Customer Name + Customer UUID + Brand Name + Brand UUID + Integration Type', async () => {
+  test('header includes Customer Name + Customer UUID + Brand Name + Brand UUID', async () => {
     exportBillableEventsToCsv({
       data: baseData,
       filename: 'test',
@@ -398,20 +395,18 @@ describe('exportBillableEventsToCsv', () => {
     });
     const lines = text.split('\n');
 
-    // Row 0: product group header, 5 leading empty cells for the fixed columns.
-    expect(lines[0].startsWith(',,,,,')).toBe(true);
+    // Row 0: product group header, 4 leading empty cells for the fixed columns.
+    expect(lines[0].startsWith(',,,,')).toBe(true);
     // Row 1: column header.
     expect(
-      lines[1].startsWith(
-        'Customer Name,Customer UUID,Brand Name,Brand UUID,Integration Type',
-      ),
+      lines[1].startsWith('Customer Name,Customer UUID,Brand Name,Brand UUID'),
     ).toBe(true);
     // Row 2+: data rows include both customer columns.
     expect(
       lines
         .slice(2)
         .some((l) =>
-          l.startsWith(`Hooli,${HOOLI_CUSTOMER},Aviato,aviato-uuid,SDK`),
+          l.startsWith(`Hooli,${HOOLI_CUSTOMER},Aviato,aviato-uuid`),
         ),
     ).toBe(true);
   });

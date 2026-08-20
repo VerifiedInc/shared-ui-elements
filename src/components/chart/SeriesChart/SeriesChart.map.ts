@@ -53,7 +53,6 @@ export function mapSeriesTimeSeriesData(
       brandUuid: string;
       brandName: string;
       brandColor?: string;
-      brandIntegrationType: string;
       chartData: TimeSeriesDataPoint[];
     }
   >();
@@ -99,7 +98,6 @@ export function mapSeriesTimeSeriesData(
           brandUuid: brand.brandUuid,
           brandName: brand.brandName,
           brandColor: colorMap.get(brand.brandUuid),
-          brandIntegrationType: brand.integrationType,
           chartData: consolidatedChartData,
         });
       } else {
@@ -108,23 +106,11 @@ export function mapSeriesTimeSeriesData(
           brandUuid: brand.brandUuid,
           brandName: brand.brandName,
           brandColor: colorMap.get(brand.brandUuid),
-          brandIntegrationType: brand.integrationType,
           chartData,
         });
       }
     });
   });
-
-  const getIntegrationType = (integrationType: string) => {
-    if (integrationType === 'hosted' || integrationType === 'sdk') {
-      return 'SDK';
-    }
-    if (integrationType === 'non-hosted' || integrationType === 'api') {
-      return 'API';
-    }
-
-    return integrationType;
-  };
 
   const getColor = ({
     keyword,
@@ -143,17 +129,9 @@ export function mapSeriesTimeSeriesData(
 
   // Convert map to array of TimeSeriesChartData
   const mappedData = Array.from(keywordDataMap.values()).map(
-    ({
-      keyword,
-      brandUuid,
-      brandName,
-      brandColor,
-      brandIntegrationType,
-      chartData,
-    }) => ({
+    ({ keyword, brandUuid, brandName, brandColor, chartData }) => ({
       uuid: keyword ?? brandUuid, // Use keyword as uuid since we're grouping by keyword, fallback to brandUuid
       name: keyword ?? brandName, // Display keyword as the name, fallback to brandName
-      description: keyword ? '' : getIntegrationType(brandIntegrationType),
       color: getColor({ keyword, brandColor, brandUuid }),
       chartData,
       brandUuid: keyword ? brandUuid : undefined,

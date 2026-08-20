@@ -3,7 +3,6 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { CredentialRequestsEditor } from '../../../src/components/CredentialRequestsEditor';
 import { MandatoryEnum } from '../../../src/components/CredentialRequestsEditor/types/mandatoryEnum';
-import { SdkIntegrationType } from '../../../src/components/CredentialRequestsEditor/types/sdk';
 import type { CredentialRequestsWithNew } from '../../../src/components/CredentialRequestsEditor/types/form';
 
 const YES_RADIO = 'custom-demo-dialog-autofill-legal-first-name-yes-radio';
@@ -35,13 +34,11 @@ const makeFullName = (
 
 const renderEditor = (
   credentialRequests: CredentialRequestsWithNew[],
-  integrationType: SdkIntegrationType = SdkIntegrationType.Hosted,
 ): { onChange: ReturnType<typeof vi.fn> } & ReturnType<typeof render> => {
   const onChange = vi.fn();
   const utils = render(
     <CredentialRequestsEditor
       credentialRequests={credentialRequests}
-      integrationType={integrationType}
       riskSignals='on'
       onChange={onChange}
     />,
@@ -129,10 +126,9 @@ describe('<CredentialRequestsEditor/> autofillLegalFirstName', () => {
     expect(emitted?.[0]?.children?.[0].autofillLegalFirstName).toBe(false);
   });
 
-  test('stays reachable for non-hosted brands, unlike other children', () => {
-    const utils = renderEditor(makeFullName(), SdkIntegrationType.NonHosted);
+  test('renders only on the First Name child, not its siblings', () => {
+    const utils = renderEditor(makeFullName());
 
-    // Last Name has no non-hosted-relevant option, so it stays collapsed.
     expand(utils, 'Last Name');
     expect(utils.queryByTestId(YES_RADIO)).toBeNull();
 

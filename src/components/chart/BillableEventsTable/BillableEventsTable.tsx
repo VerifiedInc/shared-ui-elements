@@ -23,7 +23,7 @@ import { BrandDetailsPanel } from './BrandDetailsPanel';
 import { useBillableSort } from './useBillableSort.hook';
 import { white } from '../../../styles';
 
-const DIRECT_KEYS = ['customerName', 'brand', 'integrationType'];
+const DIRECT_KEYS = ['customerName', 'brand'];
 
 export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   data,
@@ -62,8 +62,8 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
       .filter((c) => !topLevelColumnKeys.has(c.key));
   }, [activeProducts, topLevelColumnKeys]);
 
-  // Brand Name + Integration Type = 2 fixed cells, plus Customer Name when shown.
-  const fixedColumnCount = 2 + (showCustomerColumn ? 1 : 0);
+  // Brand Name fixed cell, plus Customer Name when shown.
+  const fixedColumnCount = 1 + (showCustomerColumn ? 1 : 0);
   const totalColumnCount =
     fixedColumnCount + topLevelColumns.length + allColumns.length;
 
@@ -103,9 +103,6 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
             )}
             <TableCell rowSpan={2}>
               {sortLabel('brand', 'Brand Name')}
-            </TableCell>
-            <TableCell rowSpan={2}>
-              {sortLabel('integrationType', 'Integration Type')}
             </TableCell>
             {topLevelColumns.map((col) => (
               <TableCell key={col.key} rowSpan={2}>
@@ -159,7 +156,6 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
                     <TableCell>{row.customerName ?? '—'}</TableCell>
                   )}
                   <TableCell>{row.brand}</TableCell>
-                  <TableCell>{row.integrationType}</TableCell>
                   {topLevelColumns.map((col: BillableEventColumn) => (
                     <TableCell key={col.key}>
                       {columnSlots?.[col.key]

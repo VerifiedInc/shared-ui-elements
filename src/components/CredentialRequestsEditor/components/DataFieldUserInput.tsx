@@ -10,7 +10,7 @@ import { DataFieldSection } from './DataFieldSection';
 
 export function DataFieldUserInput(): React.JSX.Element {
   const { features } = useCredentialRequestsEditor();
-  const isFeatureDisabled = features?.description?.disabled === true;
+  const isFeatureDisabled = features?.allowUserInput?.disabled === true;
 
   const credentialRequestField = useCredentialRequestField();
   const form = useFormContext<CredentialRequestsEditorForm>();

@@ -31,7 +31,6 @@ interface SeriesChartData {
   uuid: string;
   name?: string;
   color?: string;
-  integrationType?: string;
   chartData: ChartDataPoint[];
 }
 
@@ -194,31 +193,8 @@ export function SeriesPercentageChart(
                   .forEach((keyValue) => {
                     const dataKey = `${series.uuid}_${keyValue.key}`;
                     dataKeyToUuid.set(dataKey, series.uuid);
-                    dataKeyToUuid.set(
-                      `${dataKey}_integrationType`,
-                      series.integrationType ?? '',
-                    );
                   });
               });
-
-              const getIntegrationType = (entry: any) => {
-                const integrationType = dataKeyToUuid.get(
-                  `${entry.dataKey as string}_integrationType`,
-                );
-
-                if (integrationType === 'hosted' || integrationType === 'sdk') {
-                  return 'SDK';
-                }
-
-                if (
-                  integrationType === 'non-hosted' ||
-                  integrationType === 'api'
-                ) {
-                  return 'API';
-                }
-
-                return integrationType;
-              };
 
               return (
                 <SeriesPercentageChartLegend
@@ -227,7 +203,6 @@ export function SeriesPercentageChart(
                     uuid: dataKeyToUuid.get(entry.dataKey as string) ?? '',
                     value: entry.value,
                     color: entry.color ?? theme.palette.primary.main,
-                    integrationType: getIntegrationType(entry),
                     dataKey: entry.dataKey as string,
                   }))}
                 />

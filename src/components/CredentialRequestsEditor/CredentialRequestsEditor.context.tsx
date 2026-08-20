@@ -9,7 +9,6 @@ import {
   type CredentialRequestsEditorForm,
   type CredentialRequestsWithNew,
 } from './types/form';
-import { SdkIntegrationType } from './types/sdk';
 import { RiskSignals } from './types/riskSignals';
 
 export interface CredentialRequestsEditorFeatures {
@@ -34,7 +33,6 @@ export interface CredentialRequestsEditorProps {
   addButtonText?: string;
   credentialRequests: CredentialRequestsWithNew[];
   children: ReactNode;
-  integrationType: SdkIntegrationType;
   riskSignals: RiskSignals;
   onChange: (credentialRequests: CredentialRequests[]) => void;
   features?: CredentialRequestsEditorFeatures;
@@ -44,7 +42,6 @@ export interface CredentialRequestsEditorContext {
   addButtonText?: string;
   riskSignals: RiskSignals;
   features?: CredentialRequestsEditorFeatures;
-  integrationType: SdkIntegrationType;
 }
 
 const Context = createContext<CredentialRequestsEditorContext | null>(null);
@@ -96,7 +93,6 @@ export function CredentialRequestsEditorProvider(
           addButtonText: props.addButtonText,
           riskSignals: props.riskSignals,
           features: props.features,
-          integrationType: props.integrationType,
         }}
       >
         {props.children}

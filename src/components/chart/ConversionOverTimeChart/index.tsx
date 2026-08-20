@@ -147,7 +147,6 @@ export interface ConversionOverTimeChartLegendBrand {
   color: string;
   dataKey?: string;
   brandName?: string;
-  integrationType?: string;
 }
 
 export interface ConversionOverTimeChartProps {
@@ -409,7 +408,6 @@ export function ConversionOverTimeChart({
               color: legendBrand.color,
               dataKey: legendBrand.dataKey ?? legendBrand.uuid,
               brandName: legendBrand.brandName,
-              integrationType: legendBrand.integrationType,
             },
           ]}
           showUuid={showLegendUuid}

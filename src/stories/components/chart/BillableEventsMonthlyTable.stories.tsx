@@ -18,7 +18,6 @@ const mockData = [
   {
     brandUuid: 'c44d24d0-8cef-4fcc-ad37-1fe154d97e57',
     brand: 'Hooli Health',
-    integrationType: 'SDK',
     metrics: {
       tts_smsKeywordsReceived: 10,
       tts_verificationsSucceeded: 8,
@@ -37,7 +36,6 @@ const mockData = [
   {
     brandUuid: '',
     brand: 'Pied Piper',
-    integrationType: 'API',
     metrics: {
       tts_smsKeywordsReceived: 27,
       tts_verificationsSucceeded: 23,
@@ -56,7 +54,6 @@ const mockData = [
   {
     brandUuid: '42f12a06-47a7-46bf-901b-e4a8227266d0',
     brand: 'Aviato',
-    integrationType: 'Semi-Hosted',
     metrics: {
       tts_smsKeywordsReceived: 1,
       tts_verificationsSucceeded: 0,

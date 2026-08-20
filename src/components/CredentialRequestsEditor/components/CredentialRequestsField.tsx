@@ -56,10 +56,7 @@ function CredentialRequestField({
               (parentFieldArray ?? fieldArray)?.remove(parentIndex);
             }}
           >
-            <DataFieldAccordion
-              riskSignals={customConfig.riskSignals}
-              integrationType={customConfig.integrationType}
-            />
+            <DataFieldAccordion riskSignals={customConfig.riskSignals} />
             {Array.isArray(field.children) && (
               <CredentialRequestField
                 key={`${_path}.children`}

@@ -9,7 +9,6 @@ export interface OneClickVerificationChartData {
   uuid: string;
   name?: string;
   color?: string;
-  integrationType?: string;
   chartData: Array<{
     date: string;
     verificationPercentage: number;

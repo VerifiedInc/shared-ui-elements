@@ -34,7 +34,6 @@ import {
   type CredentialRequestsWithNew,
 } from '../types/form';
 import { MandatoryEnum } from '../types/mandatoryEnum';
-import { SdkIntegrationType } from '../types/sdk';
 import { useCredentialRequestField } from '../contexts/CredentialRequestFieldContext';
 import { DataFieldOptionType } from './DataFieldOptionType';
 import { DataFieldDescription } from './DataFieldDescription';
@@ -43,18 +42,18 @@ import { DataFieldUserInput } from './DataFieldUserInput';
 import { DataFieldDeleteModal } from './DataFieldDeleteModal';
 import { DataFieldMulti } from './DataFieldMulti';
 import { DataFieldAutofillLegalFirstName } from './DataFieldAutofillLegalFirstName';
+import { DataFieldChannelGroup } from './DataFieldChannelGroup';
 import type { RiskSignals } from '../types/riskSignals';
 
 interface DataFieldAccordionProps {
   defaultExpanded?: boolean;
-  integrationType: SdkIntegrationType;
   riskSignals: RiskSignals;
 }
 
 export function DataFieldAccordion(
   props: Readonly<DataFieldAccordionProps>,
 ): React.JSX.Element {
-  const { defaultExpanded, integrationType, riskSignals } = props;
+  const { defaultExpanded, riskSignals } = props;
   const credentialRequestField = useCredentialRequestField();
   const formContext = useFormContext<CredentialRequestsEditorForm>();
   const field = useController<CredentialRequestsEditorForm>({
@@ -82,14 +81,6 @@ export function DataFieldAccordion(
   }, [field.field.value]);
 
   const hasAutofillLegalFirstName = fieldName === 'FirstNameCredential';
-
-  // Non-hosted children are normally collapsed, since every option they would show is hidden for
-  // non-hosted. First Name is the exception: it carries a non-hosted-relevant option of its own, so
-  // it stays expandable or the setting would be unreachable for exactly the API-driven brands.
-  const isCollapsedChild =
-    isChild &&
-    integrationType === SdkIntegrationType.NonHosted &&
-    !hasAutofillLegalFirstName;
 
   const canDrop = useCallback(
     (item: typeof credentialRequestField) => {
@@ -227,21 +218,21 @@ export function DataFieldAccordion(
     );
   };
 
+  // Settings that hold for every request come first; the ones the SDK alone acts on
+  // are grouped below so the split is visible without hiding anything.
   const renderDataFields = (): React.JSX.Element => {
     return (
       <Stack spacing={2}>
         {!isChild && <DataFieldOptionType />}
-        {integrationType !== SdkIntegrationType.NonHosted && (
-          <DataFieldDescription />
-        )}
         <DataFieldMandatory />
-        {integrationType !== SdkIntegrationType.NonHosted && (
-          <DataFieldUserInput />
-        )}
+        {hasAutofillLegalFirstName && <DataFieldAutofillLegalFirstName />}
         {fieldName === 'AddressCredential' && (
           <DataFieldMulti riskSignals={riskSignals} />
         )}
-        {hasAutofillLegalFirstName && <DataFieldAutofillLegalFirstName />}
+        <DataFieldChannelGroup description='The settings below affect only the SDK. API requests ignore them.'>
+          <DataFieldDescription />
+          <DataFieldUserInput />
+        </DataFieldChannelGroup>
       </Stack>
     );
   };
@@ -283,12 +274,7 @@ export function DataFieldAccordion(
             data-testid='custom-demo-dialog-data-field-accordion'
           >
             <AccordionSummary
-              onClick={(e) => {
-                if (isCollapsedChild) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  return;
-                }
+              onClick={() => {
                 setOpen((prev) => !prev);
               }}
               expandIcon={
@@ -308,20 +294,18 @@ export function DataFieldAccordion(
                       }}
                     />
                   </IconButton>
-                  {!isCollapsedChild && (
-                    <Stack
-                      className={chevronClassName}
-                      sx={{ ml: 1, alignSelf: 'center' }}
-                    >
-                      <ChevronLeft
-                        fontSize='small'
-                        sx={{
-                          color: '#0dbc3d',
-                          transform: 'rotate(0deg)',
-                        }}
-                      />
-                    </Stack>
-                  )}
+                  <Stack
+                    className={chevronClassName}
+                    sx={{ ml: 1, alignSelf: 'center' }}
+                  >
+                    <ChevronLeft
+                      fontSize='small'
+                      sx={{
+                        color: '#0dbc3d',
+                        transform: 'rotate(0deg)',
+                      }}
+                    />
+                  </Stack>
                 </>
               }
               sx={{
