@@ -28,11 +28,26 @@ import type {
 } from './SynchronizedMetricsChart.types';
 import { mapSynchronizedSubCharts } from './SynchronizedMetricsChart.map';
 import { SynchronizedChartTooltip } from './SynchronizedMetricsChart.tooltip';
+import { trendSeries } from '../trend';
+import type { MetricsIntervalType } from '../../../constants/metrics';
 
 const SYNC_ID = 'synchronized-metrics';
 const CHART_HEIGHT = 200;
 const TOTAL_KEY = '__total__';
 const TOTAL_NAME = 'Total';
+const TREND_KEY = '__trend__';
+const TREND_NAME = 'Trend';
+
+/**
+ * Which series the trend is fitted to.
+ */
+function trendTargetKey(
+  brands: SeriesChartData[],
+  isPercentage: boolean,
+): string | null {
+  if (!isPercentage) return TOTAL_KEY;
+  return brands.length === 1 ? brands[0].uuid : null;
+}
 
 /**
  * Merges per-brand SeriesChartData into a flat array for chart-level data.
@@ -85,10 +100,9 @@ interface SubChartProps {
   syncId: string;
   isPercentage: boolean;
   showTotal: boolean;
+  showTrend: boolean;
+  interval?: MetricsIntervalType;
   logScale: boolean;
-  /** Whether the pointer is inside this sub-chart. */
-  isHovered: boolean;
-  onHoverChange: (hovered: boolean) => void;
   tooltipFormatter?: (value: number | string) => string;
   yAxisTickFormatter?: (value: number) => string;
   yAxisDomain?: [number | string, number | string];
@@ -102,9 +116,9 @@ function SubChart({
   syncId,
   isPercentage,
   showTotal,
+  showTrend,
+  interval,
   logScale,
-  isHovered,
-  onHoverChange,
   tooltipFormatter,
   yAxisTickFormatter,
   yAxisDomain,
@@ -114,17 +128,38 @@ function SubChart({
   const showTotalLine = showTotal && !isPercentage && brands.length > 1;
   const yAxisScale = useLogScale ? scaleSymlog() : undefined;
 
+  const trendTarget = trendTargetKey(brands, isPercentage);
+  const trend = useMemo(
+    () =>
+      trendTarget
+        ? trendSeries(mergedData, trendTarget, {
+            clampTo: isPercentage ? [0, 100] : undefined,
+          })
+        : null,
+    [mergedData, trendTarget, isPercentage],
+  );
+
+  // A straight fit is two endpoints, so it rides along as a computed column
+  // rather than needing its own dataset.
+  const chartData = useMemo(
+    () =>
+      showTrend && trend
+        ? mergedData.map((entry, i) => ({
+            ...entry,
+            [TREND_KEY]: trend.values[i],
+          }))
+        : mergedData,
+    [mergedData, showTrend, trend],
+  );
+
   return (
-    <Stack
-      onMouseEnter={() => onHoverChange(true)}
-      onMouseLeave={() => onHoverChange(false)}
-    >
+    <Stack>
       <Typography variant='h5' sx={{ mb: 0.5, fontSize: '1.15rem' }}>
         {title}
       </Typography>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <RechartsLineChart
-          data={mergedData}
+          data={chartData}
           syncId={syncId}
           margin={chartDefaultProps.margin}
         >
@@ -156,9 +191,13 @@ function SubChart({
             wrapperStyle={{ zIndex: theme.zIndex.tooltip }}
             content={
               <SynchronizedChartTooltip
-                isHovered={isHovered}
                 timezone={timezone}
                 totalDataKey={TOTAL_KEY}
+                trendDataKey={TREND_KEY}
+                trendSlope={showTrend ? trend?.slopePerPoint : undefined}
+                trendStepMs={trend?.stepMs}
+                trendInterval={interval}
+                trendUnit={isPercentage ? 'percent' : 'count'}
                 valueFormatter={
                   tooltipFormatter ??
                   ((value: number | string) => Number(value).toLocaleString())
@@ -191,6 +230,21 @@ function SubChart({
               dot={false}
             />
           )}
+          {showTrend && trend && (
+            <Line
+              key={TREND_KEY}
+              dataKey={TREND_KEY}
+              name={TREND_NAME}
+              stroke={theme.palette.secondary.main}
+              strokeWidth={2}
+              strokeDasharray='7 5'
+              type='linear'
+              isAnimationActive={false}
+              dot={false}
+              activeDot={false}
+              legendType='none'
+            />
+          )}
         </RechartsLineChart>
       </ResponsiveContainer>
     </Stack>
@@ -211,8 +265,8 @@ export function SynchronizedMetricsChart({
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
   const [showTotal, setShowTotal] = useState(false);
+  const [showTrend, setShowTrend] = useState(false);
   const [logScale, setLogScale] = useState(false);
-  const [hoveredSubChart, setHoveredSubChart] = useState<number | null>(null);
 
   const resolvedSubCharts: readonly [SubChartConfig, ...SubChartConfig[]] =
     chartData
@@ -242,6 +296,9 @@ export function SynchronizedMetricsChart({
   const hasAbsoluteMultiBrand = resolvedSubCharts.some(
     (sc) => !sc.isPercentage && sc.data.length > 1,
   );
+  const hasTrendableSubChart = resolvedSubCharts.some(
+    (sc) => trendTargetKey(sc.data, sc.isPercentage ?? false) !== null,
+  );
 
   const legendPayload = useMemo(
     () =>
@@ -263,7 +320,8 @@ export function SynchronizedMetricsChart({
     return <EmptyChartSection />;
   }
 
-  const showControls = hasAbsoluteSubChart || hasAbsoluteMultiBrand;
+  const showControls =
+    hasAbsoluteSubChart || hasAbsoluteMultiBrand || hasTrendableSubChart;
 
   return (
     <Stack sx={{ width: '100%', ...sx }}>
@@ -284,6 +342,18 @@ export function SynchronizedMetricsChart({
               aria-pressed={showTotal}
             >
               Show Total
+            </ToggleButton>
+          )}
+          {hasTrendableSubChart && (
+            <ToggleButton
+              value='trend'
+              selected={showTrend}
+              onChange={() => setShowTrend((v) => !v)}
+              size='small'
+              aria-label='Show trend line'
+              aria-pressed={showTrend}
+            >
+              Show Trend
             </ToggleButton>
           )}
           {hasAbsoluteSubChart && (
@@ -311,13 +381,9 @@ export function SynchronizedMetricsChart({
             syncId={syncId}
             isPercentage={sc.isPercentage ?? false}
             showTotal={showTotal}
+            showTrend={showTrend}
+            interval={filter.interval}
             logScale={logScale}
-            isHovered={hoveredSubChart === i}
-            onHoverChange={(hovered) =>
-              setHoveredSubChart((prev) =>
-                hovered ? i : prev === i ? null : prev,
-              )
-            }
             tooltipFormatter={sc.tooltipFormatter}
             yAxisTickFormatter={sc.yAxisTickFormatter}
             yAxisDomain={sc.yAxisDomain}

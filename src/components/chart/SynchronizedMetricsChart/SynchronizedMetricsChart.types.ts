@@ -3,6 +3,7 @@ import type { SxProps } from '@mui/material';
 import type { SeriesChartData } from '../SeriesChart';
 import type { BrandFilter } from '../../../components/BrandFilterInput';
 import type { BrandIntervalData } from '../ConversionOverTimeChart';
+import type { MetricsIntervalType } from '../../../constants/metrics';
 
 export interface SubChartConfig {
   title: string;
@@ -43,6 +44,11 @@ type SynchronizedMetricsChartBaseProps = {
   filter: {
     timezone?: string;
     brands: BrandFilter[];
+    /**
+     * The selected bucket size. The trend readout reports its slope per this
+     * interval; when omitted it is named from the spacing in the data.
+     */
+    interval?: MetricsIntervalType;
   };
   sx?: SxProps;
 };

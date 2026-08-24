@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 
 import { formatExtendedDate } from '../../../utils/date';
+import { formatSlope } from '../trend';
+import type { MetricsIntervalType } from '../../../constants/metrics';
 
 /**
  * Brand rows rendered before the remainder is collapsed into a count. Sized so
@@ -34,14 +36,16 @@ interface TooltipRow {
 }
 
 interface SynchronizedChartTooltipProps {
-  /**
-   * Whether the pointer is inside this sub-chart. Recharts' `syncId` activates
-   * the tooltip on every synced chart at once; only the one being pointed at
-   * should render a box, otherwise they stack on top of each other.
-   */
-  isHovered: boolean;
   timezone: string;
   totalDataKey: string;
+  /** Excluded from the ranked rows; reported as a slope instead. */
+  trendDataKey: string;
+  /** Change per interval bucket. Undefined when the trend is off. */
+  trendSlope?: number;
+  /** Measured bucket spacing, used to name the interval if it isn't given. */
+  trendStepMs?: number;
+  trendInterval?: MetricsIntervalType;
+  trendUnit: 'count' | 'percent';
   valueFormatter: (value: number | string) => string;
   /** Injected by Recharts. */
   active?: boolean;
@@ -100,18 +104,22 @@ function Row({
  * over the charts below it.
  */
 export function SynchronizedChartTooltip({
-  isHovered,
   timezone,
   totalDataKey,
+  trendDataKey,
+  trendSlope,
+  trendStepMs,
+  trendInterval,
+  trendUnit,
   valueFormatter,
   active,
   payload,
   label,
 }: Readonly<SynchronizedChartTooltipProps>): React.ReactNode {
-  if (!isHovered || !active || !payload?.length) return null;
+  if (!active || !payload?.length) return null;
 
   const rows: TooltipRow[] = payload
-    .filter((entry) => entry.dataKey != null)
+    .filter((entry) => entry.dataKey != null && entry.dataKey !== trendDataKey)
     .map((entry) => ({
       key: String(entry.dataKey),
       name: String(entry.name ?? entry.dataKey),
@@ -183,6 +191,28 @@ export function SynchronizedChartTooltip({
         >
           + {hidden} more
         </Typography>
+      )}
+      {trendSlope !== undefined && (
+        <Stack
+          direction='row'
+          spacing={2}
+          sx={{
+            mt: 0.75,
+            pt: 0.75,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography sx={{ ...rowTextSx, fontWeight: 700 }}>Trend</Typography>
+          <Typography sx={{ ...rowTextSx, fontWeight: 700 }}>
+            {formatSlope(trendSlope, {
+              unit: trendUnit,
+              interval: trendInterval,
+              stepMs: trendStepMs,
+            })}
+          </Typography>
+        </Stack>
       )}
     </Box>
   );
