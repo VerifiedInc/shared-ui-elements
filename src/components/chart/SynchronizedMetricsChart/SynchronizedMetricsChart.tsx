@@ -40,13 +40,15 @@ const TREND_NAME = 'Trend';
 
 /**
  * Which series the trend is fitted to.
+ *
+ * Percentage sub-charts have no summed Total, so they fit the pooled rate when
+ * the mapper supplied one, and fall back to the only brand's own series when a
+ * caller passes pre-mapped sub-charts without it.
  */
-function trendTargetKey(
-  brands: SeriesChartData[],
-  isPercentage: boolean,
-): string | null {
-  if (!isPercentage) return TOTAL_KEY;
-  return brands.length === 1 ? brands[0].uuid : null;
+function trendTargetKey(subChart: SubChartConfig): string | null {
+  if (!subChart.isPercentage) return TOTAL_KEY;
+  if (subChart.totalByDate) return TOTAL_KEY;
+  return subChart.data.length === 1 ? subChart.data[0].uuid : null;
 }
 
 /**
@@ -101,6 +103,8 @@ interface SubChartProps {
   isPercentage: boolean;
   showTotal: boolean;
   showTrend: boolean;
+  /** Series the fit is drawn for; null when this sub-chart has none. */
+  trendTarget: string | null;
   interval?: MetricsIntervalType;
   logScale: boolean;
   tooltipFormatter?: (value: number | string) => string;
@@ -117,6 +121,7 @@ function SubChart({
   isPercentage,
   showTotal,
   showTrend,
+  trendTarget,
   interval,
   logScale,
   tooltipFormatter,
@@ -128,7 +133,6 @@ function SubChart({
   const showTotalLine = showTotal && !isPercentage && brands.length > 1;
   const yAxisScale = useLogScale ? scaleSymlog() : undefined;
 
-  const trendTarget = trendTargetKey(brands, isPercentage);
   const trend = useMemo(
     () =>
       trendTarget
@@ -286,7 +290,17 @@ export function SynchronizedMetricsChart({
     () =>
       resolvedSubCharts.map((sc) => {
         const merged = mergeChartData(sc.data);
-        if (sc.isPercentage) return merged;
+        if (sc.isPercentage) {
+          // Rates can't be summed, so the pooled rate comes from the mapper,
+          // which still has the raw numerator and denominator counts.
+          const pooled = sc.totalByDate;
+          return pooled
+            ? merged.map((entry) => ({
+                ...entry,
+                [TOTAL_KEY]: pooled[entry.date] ?? 0,
+              }))
+            : merged;
+        }
         const visibleKeys = sc.data.map((brand) => brand.uuid);
         return enrichWithTotal(merged, visibleKeys);
       }),
@@ -297,9 +311,8 @@ export function SynchronizedMetricsChart({
   const hasAbsoluteMultiBrand = resolvedSubCharts.some(
     (sc) => !sc.isPercentage && sc.data.length > 1,
   );
-  const hasTrendableSubChart = resolvedSubCharts.some(
-    (sc) => trendTargetKey(sc.data, sc.isPercentage ?? false) !== null,
-  );
+  const trendTargets = resolvedSubCharts.map((sc) => trendTargetKey(sc));
+  const hasTrendableSubChart = trendTargets.some((target) => target !== null);
 
   const legendPayload = useMemo(
     () =>
@@ -383,6 +396,7 @@ export function SynchronizedMetricsChart({
             isPercentage={sc.isPercentage ?? false}
             showTotal={showTotal}
             showTrend={showTrend}
+            trendTarget={trendTargets[i]}
             interval={filter.interval}
             logScale={logScale}
             tooltipFormatter={sc.tooltipFormatter}

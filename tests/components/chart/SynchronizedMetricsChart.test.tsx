@@ -22,6 +22,7 @@ import {
 } from '../../../src/components/chart/SynchronizedMetricsChart/SynchronizedMetricsChart';
 import type { SubChartConfig } from '../../../src/components/chart/SynchronizedMetricsChart/SynchronizedMetricsChart.types';
 import type { SeriesChartData } from '../../../src/components/chart/SeriesChart';
+import { pooledPercentageByDate } from '../../../src/components/chart/SynchronizedMetricsChart/SynchronizedMetricsChart.map';
 
 // Minimal theme — just enough to satisfy theme.palette.neutral access.
 const testTheme = createTheme({
@@ -216,5 +217,80 @@ describe('<SynchronizedMetricsChart/> controls gating', () => {
     expect(total.getAttribute('aria-pressed')).toBe('false');
     fireEvent.click(total);
     expect(total.getAttribute('aria-pressed')).toBe('true');
+  });
+});
+
+describe('pooledPercentageByDate', () => {
+  const brandFilter = (uuid: string) =>
+    ({ name: uuid, value: uuid, _raw: { brandUuid: uuid } }) as any;
+
+  const raw = [
+    {
+      brandUuid: 'big',
+      brandName: 'Big',
+      interval: [
+        { date: new Date(DATE_A).toISOString(), sent: 2000, ok: 1000 },
+      ],
+    },
+    {
+      brandUuid: 'small',
+      brandName: 'Small',
+      interval: [{ date: new Date(DATE_A).toISOString(), sent: 2, ok: 2 }],
+    },
+  ];
+
+  test('pools the counts instead of averaging the rates', () => {
+    const pooled = pooledPercentageByDate({
+      chartData: raw,
+      brands: [brandFilter('big'), brandFilter('small')],
+      numerator: 'ok',
+      denominator: 'sent',
+    });
+
+    // 1002 / 2002 = 50.05%. Averaging 50% and 100% would say 75%.
+    expect(pooled[DATE_A]).toBeCloseTo(50.05, 2);
+    expect(pooled[DATE_A]).not.toBeCloseTo(75, 0);
+  });
+
+  test('only counts brands that are selected', () => {
+    const pooled = pooledPercentageByDate({
+      chartData: raw,
+      brands: [brandFilter('small')],
+      numerator: 'ok',
+      denominator: 'sent',
+    });
+    expect(pooled[DATE_A]).toBe(100);
+  });
+
+  test('is 0 rather than NaN when the denominator is empty', () => {
+    const pooled = pooledPercentageByDate({
+      chartData: [
+        {
+          brandUuid: 'b',
+          brandName: 'B',
+          interval: [{ date: new Date(DATE_A).toISOString(), sent: 0, ok: 0 }],
+        },
+      ],
+      brands: [brandFilter('b')],
+      numerator: 'ok',
+      denominator: 'sent',
+    });
+    expect(pooled[DATE_A]).toBe(0);
+  });
+
+  test('caps at 100 when the numerator overshoots', () => {
+    const pooled = pooledPercentageByDate({
+      chartData: [
+        {
+          brandUuid: 'b',
+          brandName: 'B',
+          interval: [{ date: new Date(DATE_A).toISOString(), sent: 5, ok: 9 }],
+        },
+      ],
+      brands: [brandFilter('b')],
+      numerator: 'ok',
+      denominator: 'sent',
+    });
+    expect(pooled[DATE_A]).toBe(100);
   });
 });

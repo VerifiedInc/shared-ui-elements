@@ -16,6 +16,16 @@ export interface SubChartConfig {
    * opt out of the Total line and the Log Scale toggle.
    */
   isPercentage?: boolean;
+  /**
+   * Pooled value per timestamp for a percentage sub-chart:
+   * `sum(numerator) / sum(denominator)` across the visible brands, which is the
+   * overall rate. Averaging the per-brand rates instead would weight a brand
+   * with two events the same as one with two thousand.
+   *
+   * Not drawn - percentage sub-charts have no Total line. It exists so the
+   * trend has a series to fit when more than one brand is selected.
+   */
+  totalByDate?: Record<number, number>;
 }
 
 export type SynchronizedSubChartConfig =
