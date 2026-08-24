@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
+import { formatDateMMYY } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -27,6 +27,7 @@ import type {
   SynchronizedMetricsChartProps,
 } from './SynchronizedMetricsChart.types';
 import { mapSynchronizedSubCharts } from './SynchronizedMetricsChart.map';
+import { SynchronizedChartTooltip } from './SynchronizedMetricsChart.tooltip';
 
 const SYNC_ID = 'synchronized-metrics';
 const CHART_HEIGHT = 200;
@@ -85,6 +86,9 @@ interface SubChartProps {
   isPercentage: boolean;
   showTotal: boolean;
   logScale: boolean;
+  /** Whether the pointer is inside this sub-chart. */
+  isHovered: boolean;
+  onHoverChange: (hovered: boolean) => void;
   tooltipFormatter?: (value: number | string) => string;
   yAxisTickFormatter?: (value: number) => string;
   yAxisDomain?: [number | string, number | string];
@@ -99,6 +103,8 @@ function SubChart({
   isPercentage,
   showTotal,
   logScale,
+  isHovered,
+  onHoverChange,
   tooltipFormatter,
   yAxisTickFormatter,
   yAxisDomain,
@@ -109,7 +115,10 @@ function SubChart({
   const yAxisScale = useLogScale ? scaleSymlog() : undefined;
 
   return (
-    <Stack>
+    <Stack
+      onMouseEnter={() => onHoverChange(true)}
+      onMouseLeave={() => onHoverChange(false)}
+    >
       <Typography variant='h5' sx={{ mb: 0.5, fontSize: '1.15rem' }}>
         {title}
       </Typography>
@@ -142,17 +151,20 @@ function SubChart({
           />
           <Tooltip
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
-            formatter={
-              tooltipFormatter ??
-              ((value: number | string) => Number(value).toLocaleString())
+            // Lifts the box above sibling sections, which otherwise paint over
+            // it - `.recharts-tooltip-wrapper` carries no stacking order.
+            wrapperStyle={{ zIndex: theme.zIndex.tooltip }}
+            content={
+              <SynchronizedChartTooltip
+                isHovered={isHovered}
+                timezone={timezone}
+                totalDataKey={TOTAL_KEY}
+                valueFormatter={
+                  tooltipFormatter ??
+                  ((value: number | string) => Number(value).toLocaleString())
+                }
+              />
             }
-            labelFormatter={(value) =>
-              formatExtendedDate(value, {
-                timeZone: timezone,
-                hour12: false,
-              })
-            }
-            itemSorter={(item) => -Number(item?.value ?? 0)}
           />
           {brands.map((brand) => (
             <Line
@@ -200,6 +212,7 @@ export function SynchronizedMetricsChart({
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
   const [showTotal, setShowTotal] = useState(false);
   const [logScale, setLogScale] = useState(false);
+  const [hoveredSubChart, setHoveredSubChart] = useState<number | null>(null);
 
   const resolvedSubCharts: readonly [SubChartConfig, ...SubChartConfig[]] =
     chartData
@@ -299,6 +312,12 @@ export function SynchronizedMetricsChart({
             isPercentage={sc.isPercentage ?? false}
             showTotal={showTotal}
             logScale={logScale}
+            isHovered={hoveredSubChart === i}
+            onHoverChange={(hovered) =>
+              setHoveredSubChart((prev) =>
+                hovered ? i : prev === i ? null : prev,
+              )
+            }
             tooltipFormatter={sc.tooltipFormatter}
             yAxisTickFormatter={sc.yAxisTickFormatter}
             yAxisDomain={sc.yAxisDomain}
