@@ -15,6 +15,21 @@ const HOUR = 3_600_000;
 const DAY = 86_400_000;
 
 describe('olsFit', () => {
+  test('fits against x when given, so uneven spacing is honoured', () => {
+    // Same values, but the middle sample sits far from the others.
+    const ys = [0, 10, 11];
+    const even = olsFit(ys);
+    const timed = olsFit(ys, [0, 100, 101]);
+    expect(even.slope).toBeCloseTo(5.5, 10);
+    // 704 / 6734 - roughly fifty times shallower than the index-based fit
+    expect(timed.slope).toBeCloseTo(704 / 6734, 10);
+    expect(Math.abs(timed.slope)).toBeLessThan(Math.abs(even.slope) / 50);
+  });
+
+  test('is flat when every x is identical', () => {
+    expect(olsFit([1, 2, 3], [5, 5, 5]).slope).toBe(0);
+  });
+
   test('recovers an exact line', () => {
     const fit = olsFit([2, 4, 6, 8, 10]);
     expect(fit.slope).toBeCloseTo(2, 10);
@@ -107,16 +122,57 @@ describe('trendSeries', () => {
   });
 
   test('reports the slope per bucket, not per day', () => {
-    // +2 per bucket stays +2 whatever the bucket happens to be
+    // +2 per 8h bucket, reported against the measured 8h spacing
     const trend = trendSeries(rows, 'value')!;
-    expect(trend.slopePerPoint).toBeCloseTo(2, 10);
+    expect(trend.slopePerInterval).toBeCloseTo(2, 10);
     expect(trend.stepMs).toBe(8 * HOUR);
+  });
+
+  test('reports the slope in the requested interval', () => {
+    // +2 per 8h == +0.25 per hour == +6 per day
+    expect(
+      trendSeries(rows, 'value', { interval: MetricsInterval.HOUR })!
+        .slopePerInterval,
+    ).toBeCloseTo(0.25, 10);
+    expect(
+      trendSeries(rows, 'value', { interval: MetricsInterval.DAY })!
+        .slopePerInterval,
+    ).toBeCloseTo(6, 10);
+  });
+
+  test('measures elapsed time, not row count, when buckets are missing', () => {
+    // The metrics API returns only non-empty buckets, so an "hourly" series can
+    // jump four days between rows. Fitting the index would call this -1/hour.
+    const sparse = [
+      { date: Date.UTC(2026, 7, 17, 13), value: 4 },
+      { date: Date.UTC(2026, 7, 21, 10), value: 20 },
+      { date: Date.UTC(2026, 7, 21, 11), value: 2 },
+    ];
+    const perHour = trendSeries(sparse, 'value', {
+      interval: MetricsInterval.HOUR,
+    })!.slopePerInterval;
+
+    expect(Math.abs(perHour)).toBeLessThan(0.2);
+    expect(perHour).not.toBeCloseTo(-1, 1);
+  });
+
+  test('places fitted values at their real timestamps', () => {
+    const sparse = [
+      { date: 0, value: 0 },
+      { date: 100 * HOUR, value: 100 },
+      { date: 101 * HOUR, value: 101 },
+    ];
+    const values = trendSeries(sparse, 'value')!.values;
+    // y = x is the exact fit, so each point sits on its own timestamp
+    expect(values[0]).toBeCloseTo(0, 6);
+    expect(values[1]).toBeCloseTo(100, 6);
+    expect(values[2]).toBeCloseTo(101, 6);
   });
 
   test('treats missing keys as zero rather than NaN', () => {
     const trend = trendSeries(rows, 'absent')!;
     expect(trend.values.every((v) => Number.isFinite(v))).toBe(true);
-    expect(trend.slopePerPoint).toBe(0);
+    expect(trend.slopePerInterval).toBe(0);
   });
 
   test('clamps to the given range so a fit cannot leave the plot area', () => {

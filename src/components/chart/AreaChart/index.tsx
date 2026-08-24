@@ -2,8 +2,9 @@ import { type ComponentProps, type ReactElement } from 'react';
 import { Box, useTheme, type SxProps } from '@mui/material';
 import {
   Area,
-  AreaChart as RechartsAreaChart,
   CartesianGrid,
+  ComposedChart,
+  Line,
   ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
@@ -23,6 +24,17 @@ export interface AreaSeriesChartData {
   key: string;
   dataKey: string;
   color?: string;
+}
+
+/**
+ * A straight best-fit line drawn over the areas. Recharts' `AreaChart` accepts
+ * only `Area` children, which is why this renders a `ComposedChart`.
+ */
+export interface AreaTrendLine {
+  /** Column holding the fitted values. Must not collide with a series dataKey. */
+  dataKey: string;
+  color?: string;
+  name?: string;
 }
 
 interface AreaChartProps {
@@ -46,6 +58,8 @@ interface AreaChartProps {
   tooltip?: ComponentProps<typeof Tooltip>;
   /** Override props applied to every Area element in the chart. */
   area?: ComponentProps<typeof Area>;
+  /** Straight best-fit overlays, drawn above the areas. */
+  trendLines?: AreaTrendLine[];
   /** Reference lines to highlight specific values or thresholds. */
   referenceLines?: Array<ComponentProps<typeof ReferenceLine>>;
   /** Shaded reference areas to highlight specific ranges. */
@@ -67,20 +81,21 @@ export function AreaChart({
   yAxis,
   tooltip,
   area,
+  trendLines,
   referenceLines,
   referenceAreas,
   sx,
   isAnimationActive = false,
   areaType = 'monotone',
   stackMode = 'none',
-}: AreaChartProps): ReactElement {
+}: Readonly<AreaChartProps>): ReactElement {
   const theme = useTheme();
   const defaultColor = color ?? theme.palette.primary.main;
 
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
-        <RechartsAreaChart
+        <ComposedChart
           data={data}
           stackOffset={stackMode === 'expand' ? 'expand' : undefined}
           {...chartDefaultProps}
@@ -136,7 +151,24 @@ export function AreaChart({
               />
             );
           })}
-        </RechartsAreaChart>
+          {trendLines?.map((line) => (
+            // Prefixed key: reusing a series' key here silently makes Recharts
+            // render the series instead of the fitted column.
+            <Line
+              key={`trend-${line.dataKey}`}
+              dataKey={line.dataKey}
+              name={line.name ?? line.dataKey}
+              stroke={line.color ?? defaultColor}
+              strokeWidth={2}
+              strokeDasharray='7 5'
+              type='linear'
+              dot={false}
+              activeDot={false}
+              isAnimationActive={false}
+              legendType='none'
+            />
+          ))}
+        </ComposedChart>
       </ResponsiveContainer>
     </Box>
   );

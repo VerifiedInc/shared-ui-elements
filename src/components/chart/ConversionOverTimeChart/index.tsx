@@ -10,6 +10,9 @@ import {
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import { AreaChart, type AreaSeriesChartData } from '../AreaChart';
+import { ConversionChartTooltip } from './ConversionOverTimeChart.tooltip';
+import { trendSeries } from '../trend';
+import type { MetricsIntervalType } from '../../../constants/metrics';
 import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
 import { useStyle } from '../styles';
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
@@ -19,6 +22,9 @@ import type { BrandFilter } from '../../BrandFilterInput';
 export type { AreaSeriesChartData } from '../AreaChart';
 
 type ViewMode = 'absolute' | 'percent';
+
+/** Namespaces fitted columns so they can't collide with a series dataKey. */
+const TREND_PREFIX = '__trend_';
 
 /**
  * How percentages are computed:
@@ -160,6 +166,11 @@ export interface ConversionOverTimeChartProps {
   filter: {
     timezone?: string;
     brands?: BrandFilter[];
+    /**
+     * The selected bucket size. The trend readout reports its slope per this
+     * interval; when omitted it is named from the spacing in the data.
+     */
+    interval?: MetricsIntervalType;
   };
   sx?: SxProps;
   stackMode?: 'stack' | 'none';
@@ -232,6 +243,9 @@ export function ConversionOverTimeChart({
   const [activeViewKey, setActiveViewKey] = useState<string>(
     defaultViewKey ?? effectiveViews[0]?.key ?? 'absolute',
   );
+  // Declared before the early returns below - see the hooks-order trap this
+  // component hit previously.
+  const [showTrend, setShowTrend] = useState(false);
 
   const activeView =
     effectiveViews.find((v) => v.key === activeViewKey) ?? effectiveViews[0];
@@ -317,6 +331,49 @@ export function ConversionOverTimeChart({
     ? (item: { value?: unknown }) => -(Number(item?.value) || 0)
     : undefined;
 
+  const chartRows = normalizedData ?? resolved.data;
+  const isPercentMode = mode === 'percent';
+
+  // Stacked bands sit at cumulative heights, so a fit on a stage's own values
+  // would float away from the band it describes. Only the unstacked charts -
+  // which is every funnel chart in both apps - offer a trend.
+  const canShowTrend = rechartsStackMode === 'none' && chartRows.length > 1;
+
+  // Product chose one fit per stage. Plain computation rather than useMemo:
+  // this sits after the early returns above, where a hook would break the
+  // rules of hooks.
+  const fits = canShowTrend
+    ? resolved.series
+        .map((serie) => {
+          const fit = trendSeries(
+            chartRows as Array<Record<string, number>>,
+            serie.dataKey,
+            {
+              // percent mode carries fractions, so the fit is clamped to 0..1
+              clampTo: isPercentMode ? [0, 1] : undefined,
+              interval: filter.interval,
+            },
+          );
+          return fit ? { serie, fit } : null;
+        })
+        .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    : [];
+
+  const trendDataKeys = fits.map(
+    ({ serie }) => `${TREND_PREFIX}${serie.dataKey}`,
+  );
+
+  const dataWithTrends =
+    showTrend && fits.length
+      ? chartRows.map((row, i) => {
+          const next: Record<string, number | string> = { ...row };
+          for (const { serie, fit } of fits) {
+            next[`${TREND_PREFIX}${serie.dataKey}`] = fit.values[i];
+          }
+          return next;
+        })
+      : chartRows;
+
   return (
     <Stack>
       <Box
@@ -328,6 +385,18 @@ export function ConversionOverTimeChart({
         }}
       >
         <Stack direction='row' spacing={1} justifyContent='flex-end'>
+          {canShowTrend && (
+            <ToggleButton
+              value='trend'
+              selected={showTrend}
+              onChange={() => setShowTrend((v) => !v)}
+              size='small'
+              aria-label='Show trend line'
+              aria-pressed={showTrend}
+            >
+              Show Trend
+            </ToggleButton>
+          )}
           {extraToggles?.map((toggle) => (
             <ToggleButton
               key={toggle.id}
@@ -362,8 +431,17 @@ export function ConversionOverTimeChart({
           <EmptyChartSection />
         ) : (
           <AreaChart
-            data={normalizedData ?? resolved.data}
+            data={dataWithTrends}
             series={resolved.series}
+            trendLines={
+              showTrend
+                ? fits.map(({ serie }) => ({
+                    dataKey: `${TREND_PREFIX}${serie.dataKey}`,
+                    color: serie.color,
+                    name: `${serie.key} trend`,
+                  }))
+                : undefined
+            }
             stackMode={rechartsStackMode}
             isAnimationActive={true}
             xAxis={{
@@ -387,6 +465,36 @@ export function ConversionOverTimeChart({
                   timeZone: timezone,
                   hour12: false,
                 }),
+              content: (
+                <ConversionChartTooltip
+                  trendDataKeys={trendDataKeys}
+                  trends={
+                    showTrend
+                      ? fits.map(({ serie, fit }) => ({
+                          name: serie.key,
+                          color: serie.color,
+                          // percent mode fits fractions; report percentage points
+                          slope: isPercentMode
+                            ? fit.slopePerInterval * 100
+                            : fit.slopePerInterval,
+                          stepMs: fit.stepMs,
+                        }))
+                      : []
+                  }
+                  interval={filter.interval}
+                  unit={isPercentMode ? 'percent' : 'count'}
+                  sortByValueDesc={sortTooltipByValueDesc}
+                  valueFormatter={(value, name, entry) =>
+                    (tooltipFormatter as any)(value, name, entry)
+                  }
+                  labelFormatter={(value: number) =>
+                    formatExtendedDate(value, {
+                      timeZone: timezone,
+                      hour12: false,
+                    })
+                  }
+                />
+              ),
             }}
             sx={{
               ...style.regularChartWrapper,

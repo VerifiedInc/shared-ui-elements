@@ -134,9 +134,10 @@ function SubChart({
       trendTarget
         ? trendSeries(mergedData, trendTarget, {
             clampTo: isPercentage ? [0, 100] : undefined,
+            interval,
           })
         : null,
-    [mergedData, trendTarget, isPercentage],
+    [mergedData, trendTarget, isPercentage, interval],
   );
 
   // A straight fit is two endpoints, so it rides along as a computed column
@@ -194,7 +195,7 @@ function SubChart({
                 timezone={timezone}
                 totalDataKey={TOTAL_KEY}
                 trendDataKey={TREND_KEY}
-                trendSlope={showTrend ? trend?.slopePerPoint : undefined}
+                trendSlope={showTrend ? trend?.slopePerInterval : undefined}
                 trendStepMs={trend?.stepMs}
                 trendInterval={interval}
                 trendUnit={isPercentage ? 'percent' : 'count'}

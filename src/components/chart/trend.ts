@@ -10,22 +10,28 @@ export interface TrendFit {
 }
 
 /**
- * Ordinary least squares against the point index, which is what a "line of best
- * fit" means here: one straight line over the window currently in view. Points
- * are treated as evenly spaced, matching how the charts render them.
+ * Ordinary least squares of `values` against `xs`, so the slope is per unit of
+ * x. Pass timestamps for `xs` whenever the samples are not evenly spaced - the
+ * metrics API only returns buckets that contain data, so a series can jump four
+ * days between two "hourly" points. Fitting against the index there would
+ * measure change per *returned row* and report it as change per hour.
+ *
+ * `xs` defaults to the point index, which is only correct for evenly spaced
+ * input.
  */
-export function olsFit(values: number[]): TrendFit {
+export function olsFit(values: number[], xs?: number[]): TrendFit {
   const n = values.length;
   if (n < 2) return { slope: 0, intercept: values[0] ?? 0 };
 
-  const meanX = (n - 1) / 2;
+  const x = xs ?? values.map((_, i) => i);
+  const meanX = x.reduce((sum, value) => sum + value, 0) / n;
   const meanY = values.reduce((sum, value) => sum + value, 0) / n;
 
   let numerator = 0;
   let denominator = 0;
   for (let i = 0; i < n; i += 1) {
-    numerator += (i - meanX) * (values[i] - meanY);
-    denominator += (i - meanX) ** 2;
+    numerator += (x[i] - meanX) * (values[i] - meanY);
+    denominator += (x[i] - meanX) ** 2;
   }
 
   const slope = denominator === 0 ? 0 : numerator / denominator;
@@ -93,36 +99,45 @@ export interface TrendSeries {
   /** Fitted value per point, aligned with the input rows. */
   values: number[];
   /**
-   * Change per data point. One point is one interval bucket, so this is
-   * already the change per interval - no conversion, and nothing to get wrong
-   * when the operator switches from minutes to years.
+   * Change per interval bucket, measured against elapsed time rather than row
+   * count so gaps in the data don't inflate it.
    */
-  slopePerPoint: number;
+  slopePerInterval: number;
   /** Measured spacing, so the caller can name the bucket. */
   stepMs: number;
 }
 
 /**
- * Fits `dataKey` across `rows` and returns the fitted column plus its slope.
- * Returns null when there is nothing meaningful to fit.
+ * Fits `dataKey` across `rows` against their timestamps and returns the fitted
+ * column plus its slope per interval. Returns null when there is nothing
+ * meaningful to fit.
  */
 export function trendSeries(
   rows: Array<Record<string, number>>,
   dataKey: string,
-  options: { clampTo?: [number, number] } = {},
+  options: {
+    clampTo?: [number, number];
+    /** Bucket the slope is reported in. Defaults to the measured spacing. */
+    interval?: MetricsIntervalType;
+  } = {},
 ): TrendSeries | null {
   if (rows.length < 2) return null;
 
   const values = rows.map((row) => Number(row[dataKey]) || 0);
-  const fit = olsFit(values);
+  const dates = rows.map((row) => Number(row.date));
+  const fit = olsFit(values, dates);
   const [min, max] = options.clampTo ?? [0, Number.POSITIVE_INFINITY];
+  const stepMs = medianStepMs(dates);
+  const bucketMs = options.interval ? INTERVAL_MS[options.interval] : stepMs;
 
   return {
-    values: values.map((_, i) =>
-      Math.min(max, Math.max(min, fit.intercept + fit.slope * i)),
+    // Evaluated at each point's real timestamp, so the fitted value lines up
+    // with the moment it describes.
+    values: dates.map((date) =>
+      Math.min(max, Math.max(min, fit.intercept + fit.slope * date)),
     ),
-    slopePerPoint: fit.slope,
-    stepMs: medianStepMs(rows.map((row) => Number(row.date))),
+    slopePerInterval: fit.slope * bucketMs,
+    stepMs,
   };
 }
 
