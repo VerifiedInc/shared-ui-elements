@@ -164,7 +164,7 @@ export function AreaChart({
               type='linear'
               dot={false}
               activeDot={false}
-              isAnimationActive={false}
+              isAnimationActive={isAnimationActive}
               legendType='none'
             />
           ))}

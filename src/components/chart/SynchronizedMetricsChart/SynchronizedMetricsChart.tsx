@@ -144,18 +144,19 @@ function SubChart({
     [mergedData, trendTarget, isPercentage, interval],
   );
 
-  // A straight fit is two endpoints, so it rides along as a computed column
-  // rather than needing its own dataset.
-  const chartData = useMemo(
-    () =>
-      showTrend && trend
-        ? mergedData.map((entry, i) => ({
-            ...entry,
-            [TREND_KEY]: trend.values[i],
-          }))
-        : mergedData,
-    [mergedData, showTrend, trend],
-  );
+  // Only the endpoints are plotted, joined by `connectNulls`. The x-axis is
+  // categorical - points sit at even intervals however far apart in time they
+  // actually are - so evaluating the fit at every point would draw a line that
+  // kinks wherever the spacing changes. Two endpoints, both at their true
+  // fitted values, render as the straight line a best fit should be.
+  const chartData = useMemo(() => {
+    if (!showTrend || !trend) return mergedData;
+    const last = mergedData.length - 1;
+    return mergedData.map((entry, i) => ({
+      ...entry,
+      ...(i === 0 || i === last ? { [TREND_KEY]: trend.values[i] } : {}),
+    }));
+  }, [mergedData, showTrend, trend]);
 
   return (
     <Stack>
@@ -240,6 +241,7 @@ function SubChart({
               key={TREND_KEY}
               dataKey={TREND_KEY}
               name={TREND_NAME}
+              connectNulls
               stroke={theme.palette.secondary.main}
               strokeWidth={2}
               strokeDasharray='7 5'
