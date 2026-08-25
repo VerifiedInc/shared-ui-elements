@@ -149,6 +149,20 @@ export interface FormatSlopeOptions {
   stepMs?: number;
 }
 
+/** A flat slope is neither a rise nor a fall, so it carries no sign. */
+function slopeSign(value: number): string {
+  if (value > 0) return '+';
+  if (value < 0) return '-';
+  return '';
+}
+
+/** Fewer decimals as the number grows, so the readout keeps a steady width. */
+function slopeDigits(magnitude: number): number {
+  if (magnitude >= 10) return 0;
+  if (magnitude >= 1) return 1;
+  return 2;
+}
+
 /**
  * `+4.2 / day`, `+18 / hour`, `+150 / month` - the slope is always reported per
  * whichever interval the operator is looking at.
@@ -158,11 +172,10 @@ export function formatSlope(
   { unit = 'count', interval, stepMs = 0 }: FormatSlopeOptions = {},
 ): string {
   const magnitude = Math.abs(value);
-  const sign = value > 0 ? '+' : value < 0 ? '-' : '';
-  const digits = magnitude >= 10 ? 0 : magnitude >= 1 ? 1 : 2;
-  const amount = `${sign}${magnitude.toFixed(digits)}${
-    unit === 'percent' ? ' pp' : ''
-  }`;
+  const suffix = unit === 'percent' ? ' pp' : '';
+  const amount = `${slopeSign(value)}${magnitude.toFixed(
+    slopeDigits(magnitude),
+  )}${suffix}`;
 
   const bucket =
     interval ?? intervalFromStep(stepMs) ?? formatStepShort(stepMs);
