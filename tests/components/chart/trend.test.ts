@@ -186,6 +186,32 @@ describe('trendSeries', () => {
     expect(Math.min(...trend.values)).toBeGreaterThanOrEqual(0);
   });
 
+  test('clamping flattens the drawn segment without changing the slope', () => {
+    // A rate that sits at 100% and then drops fits a line whose intercept is
+    // above 100%. Clamping pulls that endpoint down, so the segment the user
+    // sees is shallower than the number in the tooltip. The reported slope is
+    // the true one - measuring the line with a ruler will disagree with it.
+    const rate = [
+      { date: 0, value: 100 },
+      { date: 7 * DAY, value: 100 },
+      { date: 14 * DAY, value: 100 },
+      { date: 28 * DAY, value: 100 },
+      { date: 63 * DAY, value: 100 },
+      { date: 105 * DAY, value: (18 / 26) * 100 },
+    ];
+    const trend = trendSeries(rate, 'value', {
+      clampTo: [0, 100],
+      interval: MetricsInterval.WEEK,
+    })!;
+
+    expect(trend.slopePerInterval).toBeCloseTo(-1.814, 3);
+    expect(trend.values[0]).toBe(100); // unclamped this is 104.24
+    expect(trend.values.at(-1)).toBeCloseTo(77.04, 2);
+
+    const drawnPerWeek = (trend.values.at(-1)! - trend.values[0]) / 15;
+    expect(drawnPerWeek).toBeCloseTo(-1.53, 2);
+  });
+
   test('returns null when there is nothing to fit', () => {
     expect(trendSeries([], 'value')).toBeNull();
     expect(trendSeries([{ date: 0, value: 1 }], 'value')).toBeNull();
