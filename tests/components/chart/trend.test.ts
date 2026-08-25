@@ -216,6 +216,15 @@ describe('trendSeries', () => {
     expect(trendSeries([], 'value')).toBeNull();
     expect(trendSeries([{ date: 0, value: 1 }], 'value')).toBeNull();
   });
+
+  test('returns null rather than a NaN readout for an unparseable date', () => {
+    const broken = [
+      { date: 0, value: 1 },
+      { date: Number(new Date('not a date')), value: 2 },
+      { date: 2 * DAY, value: 3 },
+    ];
+    expect(trendSeries(broken, 'value')).toBeNull();
+  });
 });
 
 describe('formatSlope', () => {

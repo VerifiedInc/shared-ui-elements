@@ -125,6 +125,11 @@ export function trendSeries(
 
   const values = rows.map((row) => Number(row[dataKey]) || 0);
   const dates = rows.map((row) => Number(row.date));
+  // A malformed bucket makes every fitted number NaN, which reads as
+  // "NaN / week" in the tooltip rather than as an absent trend. Falling back to
+  // an index fit would be worse - it would report a confident wrong slope.
+  if (dates.some((date) => !Number.isFinite(date))) return null;
+
   const fit = olsFit(values, dates);
   const [min, max] = options.clampTo ?? [0, Number.POSITIVE_INFINITY];
   const stepMs = medianStepMs(dates);
