@@ -405,6 +405,18 @@ export const theme = ({
           },
         },
       },
+      // The floated label above needs a gap in the outline to sit in. TextField opens one by
+      // deriving `notched` from `InputLabelProps.shrink`, but a component that supplies its own
+      // InputLabelProps replaces that default wholesale - Autocomplete passes only `htmlFor`
+      // and `id` - and the derivation is lost, leaving the label floating over a closed outline
+      // that is drawn straight through it. Notch by default so the outline follows the label.
+      // TextField still passes `notched` explicitly whenever `shrink` is given, so a field that
+      // opts out of floating keeps its outline closed.
+      MuiOutlinedInput: {
+        defaultProps: {
+          notched: true,
+        },
+      },
       MuiTextField: {
         defaultProps: {
           variant: 'outlined',
