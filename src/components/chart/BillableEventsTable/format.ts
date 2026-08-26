@@ -1,5 +1,8 @@
+import { formatNumberRounded } from '../../../utils/number/formatters';
+
 /**
- * Display formatters for brand-settings panel content.
+ * Display formatters for the billable-events tables and the brand-settings
+ * panel content.
  *
  * Each map uses lookup-and-fallback so a new enum member shows its raw
  * value rather than breaking compilation.
@@ -31,4 +34,13 @@ export function formatPromptForChallenge(prompt: string): string {
 
 export function formatHealthDataProviderMode(mode: string): string {
   return HEALTH_DATA_PROVIDER_MODE_LABELS[mode] ?? mode;
+}
+
+/**
+ * Single definition of how a billable event count is displayed, so every
+ * column of every billable table (including the ones consumers render
+ * through `columnSlots` or their own DataTable columns) reads the same.
+ */
+export function formatBillableMetric(value: number | undefined): string {
+  return formatNumberRounded(value ?? 0);
 }

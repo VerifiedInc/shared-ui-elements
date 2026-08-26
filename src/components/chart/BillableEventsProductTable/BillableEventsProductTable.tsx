@@ -18,6 +18,7 @@ import {
   type BillableEventsProductTableProps,
   type BillableEventsTableRow,
 } from '../BillableEventsTable/BillableEventsTable.types';
+import { formatBillableMetric } from '../BillableEventsTable/format';
 import { useBillableSort } from '../BillableEventsTable/useBillableSort.hook';
 import { CopyableUuid } from '../../CopyableUuid';
 import { white } from '../../../styles';
@@ -95,7 +96,7 @@ export const BillableEventsProductTable: React.FC<
                 <TableCell key={col.key} align='right'>
                   {columnSlots?.[col.key]
                     ? columnSlots[col.key](row)
-                    : (row.metrics[col.key] ?? 0)}
+                    : formatBillableMetric(row.metrics[col.key])}
                 </TableCell>
               ))}
             </TableRow>

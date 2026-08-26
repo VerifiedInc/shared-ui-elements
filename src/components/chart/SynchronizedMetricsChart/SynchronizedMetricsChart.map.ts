@@ -9,6 +9,45 @@ import type {
   SynchronizedSubChartConfig,
 } from './SynchronizedMetricsChart.types';
 
+/**
+ * Overall rate per timestamp across the visible brands, pooling the raw counts
+ * before dividing. Exported for testing.
+ */
+export function pooledPercentageByDate({
+  chartData,
+  brands,
+  numerator,
+  denominator,
+}: {
+  chartData: BrandIntervalData[];
+  brands: BrandFilter[];
+  numerator: string;
+  denominator: string;
+}): Record<number, number> {
+  const visible = new Set(brands.map((brand) => brand._raw.brandUuid));
+  const totals = new Map<number, { numerator: number; denominator: number }>();
+
+  for (const brand of chartData) {
+    if (!visible.has(brand.brandUuid)) continue;
+    for (const item of brand.interval ?? []) {
+      const date = +new Date(item.date);
+      const running = totals.get(date) ?? { numerator: 0, denominator: 0 };
+      running.numerator += Number(item[numerator]) || 0;
+      running.denominator += Number(item[denominator]) || 0;
+      totals.set(date, running);
+    }
+  }
+
+  const pooled: Record<number, number> = {};
+  for (const [date, sums] of totals) {
+    pooled[date] =
+      sums.denominator > 0
+        ? Math.min((sums.numerator / sums.denominator) * 100, 100)
+        : 0;
+  }
+  return pooled;
+}
+
 export function mapSynchronizedSubCharts({
   chartData,
   subChartConfig,
@@ -76,6 +115,12 @@ export function mapSynchronizedSubCharts({
       yAxisTickFormatter: config.yAxisTickFormatter,
       yAxisDomain: config.yAxisDomain,
       isPercentage: true,
+      totalByDate: pooledPercentageByDate({
+        chartData,
+        brands,
+        numerator,
+        denominator,
+      }),
     };
   });
 

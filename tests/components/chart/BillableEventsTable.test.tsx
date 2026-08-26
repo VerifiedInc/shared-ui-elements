@@ -2,11 +2,13 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, fireEvent, render, within } from '@testing-library/react';
 
 import {
+  BILLABLE_PRODUCTS,
   BillableEventsTable,
   BillableProduct,
   exportBillableEventsToCsv,
   type BillableEventsTableRow,
 } from '../../../src/components/chart/BillableEventsTable';
+import { BillableEventsProductTable } from '../../../src/components/chart/BillableEventsProductTable';
 
 const HOOLI_CUSTOMER = 'a0000000-0000-0000-0000-000000000001';
 const PIED_PIPER_CUSTOMER = 'a0000000-0000-0000-0000-000000000002';
@@ -111,6 +113,33 @@ describe('<BillableEventsTable/>', () => {
     expect(getByText('Checks Started')).toBeDefined();
     // The checks column reads the oneClickHealthCheckStarted metric.
     expect(getByText('12')).toBeDefined();
+  });
+
+  test('every metric column is thousands-separated, relocated columns included', () => {
+    const riskSignalsColumn = BILLABLE_PRODUCTS.find(
+      (p) => p.product === BillableProduct.ONE_CLICK_SIGNUP,
+    )!.columns.find((c) => c.key === 'signup_riskSignalsReturned')!;
+    const data = [
+      makeRow({
+        brandUuid: 'big-numbers-uuid',
+        brand: 'Big Numbers',
+        metrics: {
+          signup_autofillsSucceeded: 1234567,
+          signup_riskSignalsReturned: 89012,
+        },
+      }),
+    ];
+    const { getByText } = render(
+      <BillableEventsTable
+        data={data}
+        isLoading={false}
+        isFetching={false}
+        visibleProducts={[BillableProduct.ONE_CLICK_SIGNUP]}
+        topLevelColumns={[riskSignalsColumn]}
+      />,
+    );
+    expect(getByText('1,234,567')).toBeDefined();
+    expect(getByText('89,012')).toBeDefined();
   });
 
   test('renders em-dash placeholder when customerName is missing', () => {
@@ -332,6 +361,31 @@ describe('<BillableEventsTable/>', () => {
   });
 });
 
+describe('<BillableEventsProductTable/>', () => {
+  test('metric columns are thousands-separated', () => {
+    const data = [
+      makeRow({
+        brandUuid: 'big-numbers-uuid',
+        brand: 'Big Numbers',
+        metrics: {
+          signup_autofillsSucceeded: 1234567,
+          signup_riskSignalsReturned: 89012,
+        },
+      }),
+    ];
+    const { getByText } = render(
+      <BillableEventsProductTable
+        data={data}
+        isLoading={false}
+        isFetching={false}
+        product={BillableProduct.ONE_CLICK_SIGNUP}
+      />,
+    );
+    expect(getByText('1,234,567')).toBeDefined();
+    expect(getByText('89,012')).toBeDefined();
+  });
+});
+
 describe('exportBillableEventsToCsv', () => {
   let capturedBlob: Blob | null;
   // `vi.restoreAllMocks()` only restores `vi.spyOn` targets — it does NOT
@@ -378,6 +432,37 @@ describe('exportBillableEventsToCsv', () => {
     });
   });
 
+  // jsdom's Blob lacks .text(); read via FileReader.
+  const readCapturedCsv = async (): Promise<string> => {
+    expect(capturedBlob).not.toBeNull();
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(capturedBlob!);
+    });
+  };
+
+  // The table displays separated counts; the CSV must stay machine-readable.
+  test('metric values are exported unformatted', async () => {
+    exportBillableEventsToCsv({
+      data: [
+        makeRow({
+          brandUuid: 'big-numbers-uuid',
+          brand: 'Big Numbers',
+          metrics: { signup_autofillsSucceeded: 1234567 },
+        }),
+      ],
+      filename: 'test',
+      visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
+    });
+
+    const text = await readCapturedCsv();
+
+    expect(text).toContain('1234567');
+    expect(text).not.toContain('1,234,567');
+  });
+
   test('header includes Customer Name + Customer UUID + Brand Name + Brand UUID', async () => {
     exportBillableEventsToCsv({
       data: baseData,
@@ -385,15 +470,7 @@ describe('exportBillableEventsToCsv', () => {
       visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
     });
 
-    expect(capturedBlob).not.toBeNull();
-    // jsdom's Blob lacks .text(); read via FileReader.
-    const text = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsText(capturedBlob!);
-    });
-    const lines = text.split('\n');
+    const lines = (await readCapturedCsv()).split('\n');
 
     // Row 0: product group header, 4 leading empty cells for the fixed columns.
     expect(lines[0].startsWith(',,,,')).toBe(true);

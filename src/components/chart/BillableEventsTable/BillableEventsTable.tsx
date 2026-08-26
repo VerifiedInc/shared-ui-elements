@@ -20,6 +20,7 @@ import {
   type BillableEventsTableRow,
 } from './BillableEventsTable.types';
 import { BrandDetailsPanel } from './BrandDetailsPanel';
+import { formatBillableMetric } from './format';
 import { useBillableSort } from './useBillableSort.hook';
 import { white } from '../../../styles';
 
@@ -160,14 +161,14 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
                     <TableCell key={col.key}>
                       {columnSlots?.[col.key]
                         ? columnSlots[col.key](row)
-                        : (row.metrics[col.key] ?? 0)}
+                        : formatBillableMetric(row.metrics[col.key])}
                     </TableCell>
                   ))}
                   {allColumns.map((col: BillableEventColumn) => (
                     <TableCell key={col.key} align='right'>
                       {columnSlots?.[col.key]
                         ? columnSlots[col.key](row)
-                        : (row.metrics[col.key] ?? 0)}
+                        : formatBillableMetric(row.metrics[col.key])}
                     </TableCell>
                   ))}
                 </TableRow>

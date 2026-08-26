@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
+import { formatDateMMYY } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -27,11 +27,29 @@ import type {
   SynchronizedMetricsChartProps,
 } from './SynchronizedMetricsChart.types';
 import { mapSynchronizedSubCharts } from './SynchronizedMetricsChart.map';
+import { SynchronizedChartTooltip } from './SynchronizedMetricsChart.tooltip';
+import { trendSeries } from '../trend';
+import type { MetricsIntervalType } from '../../../constants/metrics';
 
 const SYNC_ID = 'synchronized-metrics';
 const CHART_HEIGHT = 200;
 const TOTAL_KEY = '__total__';
 const TOTAL_NAME = 'Total';
+const TREND_KEY = '__trend__';
+const TREND_NAME = 'Trend';
+
+/**
+ * Which series the trend is fitted to.
+ *
+ * Percentage sub-charts have no summed Total, so they fit the pooled rate when
+ * the mapper supplied one, and fall back to the only brand's own series when a
+ * caller passes pre-mapped sub-charts without it.
+ */
+function trendTargetKey(subChart: SubChartConfig): string | null {
+  if (!subChart.isPercentage) return TOTAL_KEY;
+  if (subChart.totalByDate) return TOTAL_KEY;
+  return subChart.data.length === 1 ? subChart.data[0].uuid : null;
+}
 
 /**
  * Merges per-brand SeriesChartData into a flat array for chart-level data.
@@ -84,6 +102,10 @@ interface SubChartProps {
   syncId: string;
   isPercentage: boolean;
   showTotal: boolean;
+  showTrend: boolean;
+  /** Series the fit is drawn for; null when this sub-chart has none. */
+  trendTarget: string | null;
+  interval?: MetricsIntervalType;
   logScale: boolean;
   tooltipFormatter?: (value: number | string) => string;
   yAxisTickFormatter?: (value: number) => string;
@@ -98,6 +120,9 @@ function SubChart({
   syncId,
   isPercentage,
   showTotal,
+  showTrend,
+  trendTarget,
+  interval,
   logScale,
   tooltipFormatter,
   yAxisTickFormatter,
@@ -108,6 +133,31 @@ function SubChart({
   const showTotalLine = showTotal && !isPercentage && brands.length > 1;
   const yAxisScale = useLogScale ? scaleSymlog() : undefined;
 
+  const trend = useMemo(
+    () =>
+      trendTarget
+        ? trendSeries(mergedData, trendTarget, {
+            clampTo: isPercentage ? [0, 100] : undefined,
+            interval,
+          })
+        : null,
+    [mergedData, trendTarget, isPercentage, interval],
+  );
+
+  // Only the endpoints are plotted, joined by `connectNulls`. The x-axis is
+  // categorical - points sit at even intervals however far apart in time they
+  // actually are - so evaluating the fit at every point would draw a line that
+  // kinks wherever the spacing changes. Two endpoints, both at their true
+  // fitted values, render as the straight line a best fit should be.
+  const chartData = useMemo(() => {
+    if (!showTrend || !trend) return mergedData;
+    const last = mergedData.length - 1;
+    return mergedData.map((entry, i) => ({
+      ...entry,
+      ...(i === 0 || i === last ? { [TREND_KEY]: trend.values[i] } : {}),
+    }));
+  }, [mergedData, showTrend, trend]);
+
   return (
     <Stack>
       <Typography variant='h5' sx={{ mb: 0.5, fontSize: '1.15rem' }}>
@@ -115,7 +165,7 @@ function SubChart({
       </Typography>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <RechartsLineChart
-          data={mergedData}
+          data={chartData}
           syncId={syncId}
           margin={chartDefaultProps.margin}
         >
@@ -142,17 +192,24 @@ function SubChart({
           />
           <Tooltip
             cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
-            formatter={
-              tooltipFormatter ??
-              ((value: number | string) => Number(value).toLocaleString())
+            // Lifts the box above sibling sections, which otherwise paint over
+            // it - `.recharts-tooltip-wrapper` carries no stacking order.
+            wrapperStyle={{ zIndex: theme.zIndex.tooltip }}
+            content={
+              <SynchronizedChartTooltip
+                timezone={timezone}
+                totalDataKey={TOTAL_KEY}
+                trendDataKey={TREND_KEY}
+                trendSlope={showTrend ? trend?.slopePerInterval : undefined}
+                trendStepMs={trend?.stepMs}
+                trendInterval={interval}
+                trendUnit={isPercentage ? 'percent' : 'count'}
+                valueFormatter={
+                  tooltipFormatter ??
+                  ((value: number | string) => Number(value).toLocaleString())
+                }
+              />
             }
-            labelFormatter={(value) =>
-              formatExtendedDate(value, {
-                timeZone: timezone,
-                hour12: false,
-              })
-            }
-            itemSorter={(item) => -Number(item?.value ?? 0)}
           />
           {brands.map((brand) => (
             <Line
@@ -179,6 +236,22 @@ function SubChart({
               dot={false}
             />
           )}
+          {showTrend && trend && (
+            <Line
+              key={TREND_KEY}
+              dataKey={TREND_KEY}
+              name={TREND_NAME}
+              connectNulls
+              stroke={theme.palette.secondary.main}
+              strokeWidth={2}
+              strokeDasharray='7 5'
+              type='linear'
+              isAnimationActive={false}
+              dot={false}
+              activeDot={false}
+              legendType='none'
+            />
+          )}
         </RechartsLineChart>
       </ResponsiveContainer>
     </Stack>
@@ -199,6 +272,7 @@ export function SynchronizedMetricsChart({
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
   const [showTotal, setShowTotal] = useState(false);
+  const [showTrend, setShowTrend] = useState(false);
   const [logScale, setLogScale] = useState(false);
 
   const resolvedSubCharts: readonly [SubChartConfig, ...SubChartConfig[]] =
@@ -218,7 +292,17 @@ export function SynchronizedMetricsChart({
     () =>
       resolvedSubCharts.map((sc) => {
         const merged = mergeChartData(sc.data);
-        if (sc.isPercentage) return merged;
+        if (sc.isPercentage) {
+          // Rates can't be summed, so the pooled rate comes from the mapper,
+          // which still has the raw numerator and denominator counts.
+          const pooled = sc.totalByDate;
+          return pooled
+            ? merged.map((entry) => ({
+                ...entry,
+                [TOTAL_KEY]: pooled[entry.date] ?? 0,
+              }))
+            : merged;
+        }
         const visibleKeys = sc.data.map((brand) => brand.uuid);
         return enrichWithTotal(merged, visibleKeys);
       }),
@@ -229,6 +313,8 @@ export function SynchronizedMetricsChart({
   const hasAbsoluteMultiBrand = resolvedSubCharts.some(
     (sc) => !sc.isPercentage && sc.data.length > 1,
   );
+  const trendTargets = resolvedSubCharts.map((sc) => trendTargetKey(sc));
+  const hasTrendableSubChart = trendTargets.some((target) => target !== null);
 
   const legendPayload = useMemo(
     () =>
@@ -250,7 +336,8 @@ export function SynchronizedMetricsChart({
     return <EmptyChartSection />;
   }
 
-  const showControls = hasAbsoluteSubChart || hasAbsoluteMultiBrand;
+  const showControls =
+    hasAbsoluteSubChart || hasAbsoluteMultiBrand || hasTrendableSubChart;
 
   return (
     <Stack sx={{ width: '100%', ...sx }}>
@@ -271,6 +358,18 @@ export function SynchronizedMetricsChart({
               aria-pressed={showTotal}
             >
               Show Total
+            </ToggleButton>
+          )}
+          {hasTrendableSubChart && (
+            <ToggleButton
+              value='trend'
+              selected={showTrend}
+              onChange={() => setShowTrend((v) => !v)}
+              size='small'
+              aria-label='Show trend line'
+              aria-pressed={showTrend}
+            >
+              Show Trend
             </ToggleButton>
           )}
           {hasAbsoluteSubChart && (
@@ -298,6 +397,9 @@ export function SynchronizedMetricsChart({
             syncId={syncId}
             isPercentage={sc.isPercentage ?? false}
             showTotal={showTotal}
+            showTrend={showTrend}
+            trendTarget={trendTargets[i]}
+            interval={filter.interval}
             logScale={logScale}
             tooltipFormatter={sc.tooltipFormatter}
             yAxisTickFormatter={sc.yAxisTickFormatter}
