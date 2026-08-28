@@ -115,6 +115,29 @@ describe('<BillableEventsTable/>', () => {
     expect(getByText('12')).toBeDefined();
   });
 
+  test('renders the 1-Click Verify channel success columns', () => {
+    const data = [
+      makeRow({
+        brandUuid: 'verify-uuid',
+        brand: 'Verify Co',
+        metrics: { verify_autofillsSucceeded: 9, verify_silentSucceeded: 4 },
+      }),
+    ];
+    const { getByText, getAllByText } = render(
+      <BillableEventsTable
+        data={data}
+        isLoading={false}
+        isFetching={false}
+        visibleProducts={[BillableProduct.ONE_CLICK_VERIFY]}
+      />,
+    );
+    expect(getByText('Autofills Succeeded')).toBeDefined();
+    expect(getByText('Silent Succeeded')).toBeDefined();
+    expect(getByText('9')).toBeDefined();
+    expect(getByText('4')).toBeDefined();
+    expect(getAllByText('0').length).toBeGreaterThan(0);
+  });
+
   test('every metric column is thousands-separated, relocated columns included', () => {
     const riskSignalsColumn = BILLABLE_PRODUCTS.find(
       (p) => p.product === BillableProduct.ONE_CLICK_SIGNUP,
@@ -461,6 +484,25 @@ describe('exportBillableEventsToCsv', () => {
 
     expect(text).toContain('1234567');
     expect(text).not.toContain('1,234,567');
+  });
+
+  test('1-Click Verify header includes the channel success columns', async () => {
+    exportBillableEventsToCsv({
+      data: [
+        makeRow({
+          brandUuid: 'verify-uuid',
+          brand: 'Verify Co',
+          metrics: { verify_autofillsSucceeded: 9, verify_silentSucceeded: 4 },
+        }),
+      ],
+      filename: 'test',
+      visibleProducts: [BillableProduct.ONE_CLICK_VERIFY],
+    });
+
+    const header = (await readCapturedCsv()).split('\n')[1];
+
+    expect(header).toContain('Autofills Succeeded');
+    expect(header).toContain('Silent Succeeded');
   });
 
   test('header includes Customer Name + Customer UUID + Brand Name + Brand UUID', async () => {
