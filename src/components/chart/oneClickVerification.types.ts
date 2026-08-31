@@ -12,6 +12,8 @@ export interface OneClickVerificationIntervalEntry {
   oneClickVerificationAutofillVerified?: number;
   oneClickVerificationSilentCreated?: number;
   oneClickVerificationSilentVerified?: number;
+  oneClickVerificationTotalCreated?: number;
+  oneClickVerificationTotalVerified?: number;
   [key: string]: any;
 }
 
