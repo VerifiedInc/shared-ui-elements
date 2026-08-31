@@ -63,6 +63,17 @@ export const BILLABLE_PRODUCTS: BillableProductConfig[] = [
         metricKey: 'oneClickVerificationAutofillCreated',
       },
       {
+        key: 'verify_autofillsSucceeded',
+        label: 'Autofills Succeeded',
+        metricKey: 'oneClickVerificationAutofillVerified',
+      },
+      {
+        key: 'verify_silentSucceeded',
+        label: 'Silent Succeeded',
+        metricKey: 'oneClickVerificationSilentVerified',
+      },
+      // Billed on every success, whichever channel got there.
+      {
         key: 'verify_verificationsSucceeded',
         label: 'Verifications Succeeded',
         metricKey: 'oneClickVerificationVerified',

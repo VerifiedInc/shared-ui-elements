@@ -10,6 +10,10 @@ export interface OneClickVerificationIntervalEntry {
   oneClickVerificationExpired: number;
   oneClickVerificationAutofillCreated?: number;
   oneClickVerificationAutofillVerified?: number;
+  oneClickVerificationSilentCreated?: number;
+  oneClickVerificationSilentVerified?: number;
+  oneClickVerificationTotalCreated?: number;
+  oneClickVerificationTotalVerified?: number;
   [key: string]: any;
 }
 
