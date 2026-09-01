@@ -35,16 +35,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Enough options to exercise scrolling in the menu and the +N chip collapse.
+const manyOptions = Array.from({ length: 30 }, (_, index) => ({
+  id: String(index + 1),
+  label: `Option ${index + 1}`,
+}));
+
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Default: Story = {};
 
 export const Multiple: Story = {
   args: {
     multiple: true,
-    defaultOption: [
-      { label: 'Option 1', id: '1' },
-      { label: 'Option 2', id: '2' },
-    ],
+    options: manyOptions,
+    defaultOption: manyOptions.slice(0, 4),
     onChange: fn(),
     // Wide enough for chips to flow inline. At the meta's 200px, one ~95px chip
     // plus the ~60px end adornments exhausts a row, so every chip wraps to its
