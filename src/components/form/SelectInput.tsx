@@ -12,22 +12,45 @@ interface Option {
   id: string;
 }
 
-interface SelectInputProps {
+interface SelectInputBaseProps {
   name?: string;
-  onChange?: (value: Option | null) => void;
   onClear?: () => void;
   options: Option[];
-  value?: Option | null; // Controlled value
-  defaultOption?: Option;
   InputProps?: TextFieldProps;
   disableClearable?: boolean;
 }
 
+interface SelectInputSingleProps extends SelectInputBaseProps {
+  multiple?: false;
+  onChange?: (value: Option | null) => void;
+  value?: Option | null; // Controlled value
+  defaultOption?: Option;
+}
+
+interface SelectInputMultipleProps extends SelectInputBaseProps {
+  multiple: true;
+  onChange?: (value: Option[]) => void;
+  value?: Option[]; // Controlled value
+  defaultOption?: Option[];
+}
+
+type SelectInputProps = SelectInputSingleProps | SelectInputMultipleProps;
+
 /**
  * This component manages the input of type Select.
+ * Pass `multiple` to select many options; `value`, `defaultOption`, and
+ * `onChange` then work with `Option[]` instead of `Option | null`.
  * @constructor
  */
-export function SelectInput({
+export function SelectInput(props: SelectInputProps): React.JSX.Element {
+  if (props.multiple) {
+    return <MultipleSelectInput {...props} />;
+  }
+
+  return <SingleSelectInput {...props} />;
+}
+
+function SingleSelectInput({
   options,
   defaultOption,
   value: controlledValue,
@@ -35,7 +58,7 @@ export function SelectInput({
   onClear,
   disableClearable,
   ...props
-}: SelectInputProps): React.JSX.Element {
+}: SelectInputSingleProps): React.JSX.Element {
   const [internalValue, setInternalValue] = useState<Option | null>(
     defaultOption ?? null,
   );
@@ -85,6 +108,72 @@ export function SelectInput({
         }
 
         handleChange(newInputValue);
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          {...textFieldStyle}
+          inputProps={{
+            ...params.inputProps,
+            ...textFieldStyle.inputProps,
+          }}
+        />
+      )}
+    />
+  );
+}
+
+function MultipleSelectInput({
+  options,
+  defaultOption,
+  value: controlledValue,
+  onChange,
+  onClear,
+  disableClearable,
+  ...props
+}: SelectInputMultipleProps): React.JSX.Element {
+  const [internalValue, setInternalValue] = useState<Option[]>(
+    defaultOption ?? [],
+  );
+
+  // Determine the value to display
+  const isControlled = controlledValue !== undefined;
+  const value = isControlled ? controlledValue : internalValue;
+
+  const handleChange = (selected: Option[]): void => {
+    if (!isControlled) {
+      setInternalValue(selected); // Update internal state only if uncontrolled
+    }
+    if (onChange) {
+      onChange(selected);
+    }
+  };
+
+  const textFieldStyle: TextFieldProps = {
+    inputProps: {
+      tabIndex: 0,
+    },
+    fullWidth: true,
+    ...props.InputProps,
+  };
+
+  return (
+    <Autocomplete
+      multiple
+      disablePortal
+      autoHighlight
+      defaultValue={defaultOption}
+      options={options}
+      disableClearable={disableClearable}
+      isOptionEqualToValue={(option, value) => option?.id === value?.id}
+      value={value}
+      onChange={(_event, newValue) => {
+        handleChange(newValue);
+
+        // User removed the last option or clicked the clear button.
+        if (newValue.length === 0 && onClear) {
+          onClear();
+        }
       }}
       renderInput={(params) => (
         <TextField
