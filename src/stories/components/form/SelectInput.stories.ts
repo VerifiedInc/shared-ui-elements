@@ -37,3 +37,14 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Default: Story = {};
+
+export const Multiple: Story = {
+  args: {
+    multiple: true,
+    defaultOption: [
+      { label: 'Option 1', id: '1' },
+      { label: 'Option 2', id: '2' },
+    ],
+    onChange: fn(),
+  },
+};
