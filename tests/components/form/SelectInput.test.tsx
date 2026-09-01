@@ -1,6 +1,10 @@
-import { expect, test, describe, vi } from 'vitest';
-import { fireEvent, render, within } from '@testing-library/react';
+import { afterEach, expect, test, describe, vi } from 'vitest';
+import { cleanup, fireEvent, render, within } from '@testing-library/react';
 import { SelectInput } from '../../../src/components/form/SelectInput';
+
+afterEach(() => {
+  cleanup();
+});
 
 const options = [
   { label: 'Option 1', id: '1' },
