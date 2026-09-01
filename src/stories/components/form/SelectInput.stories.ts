@@ -46,5 +46,13 @@ export const Multiple: Story = {
       { label: 'Option 2', id: '2' },
     ],
     onChange: fn(),
+    // Wide enough for chips to flow inline. At the meta's 200px, one ~95px chip
+    // plus the ~60px end adornments exhausts a row, so every chip wraps to its
+    // own line — which reads as a bug but is just a too-narrow container.
+    InputProps: {
+      name: 'Select Input',
+      label: 'Select Input',
+      sx: { width: '360px' },
+    },
   },
 };
