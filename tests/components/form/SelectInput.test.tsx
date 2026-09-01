@@ -106,6 +106,19 @@ describe('<SelectInput/> Component', () => {
       expect(utils.queryByRole('listbox')).not.toBeNull();
     });
 
+    test('renders options with checkboxes reflecting the selection', () => {
+      const utils = render(
+        <SelectInput multiple options={options} defaultOption={[options[0]]} />,
+      );
+
+      const listbox = openListbox(utils);
+      const checkboxes = within(listbox).getAllByRole('checkbox');
+
+      expect(checkboxes).toHaveLength(options.length);
+      expect((checkboxes[0] as HTMLInputElement).checked).toBe(true);
+      expect((checkboxes[1] as HTMLInputElement).checked).toBe(false);
+    });
+
     test('collapses chips past limitTags into +N while unfocused', () => {
       const utils = render(
         <SelectInput multiple options={options} defaultOption={options} />,
