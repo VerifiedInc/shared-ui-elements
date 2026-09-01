@@ -1,5 +1,6 @@
 import {
   Autocomplete,
+  Checkbox,
   TextField,
   type TextFieldProps as InternalFieldProps,
 } from '@mui/material';
@@ -32,6 +33,11 @@ interface SelectInputMultipleProps extends SelectInputBaseProps {
   onChange?: (value: Option[]) => void;
   value?: Option[]; // Controlled value
   defaultOption?: Option[];
+  /**
+   * How many chips to show while the input is not focused; the rest collapse into `+N`.
+   * Focusing the input always reveals the full selection. Pass -1 to never collapse.
+   */
+  limitTags?: number;
 }
 
 type SelectInputProps = SelectInputSingleProps | SelectInputMultipleProps;
@@ -130,6 +136,7 @@ function MultipleSelectInput({
   onChange,
   onClear,
   disableClearable,
+  limitTags = 2,
   ...props
 }: SelectInputMultipleProps): React.JSX.Element {
   const [internalValue, setInternalValue] = useState<Option[]>(
@@ -160,6 +167,10 @@ function MultipleSelectInput({
   return (
     <Autocomplete
       multiple
+      // Picking one value is rarely the end of a multi-select interaction — keep the
+      // menu open so users can pick several in one go.
+      disableCloseOnSelect
+      limitTags={limitTags}
       disablePortal
       autoHighlight
       defaultValue={defaultOption}
@@ -174,6 +185,19 @@ function MultipleSelectInput({
         if (newValue.length === 0 && onClear) {
           onClear();
         }
+      }}
+      // Checkboxes make the selection state legible while the menu stays open,
+      // matching BrandFilterInput's multi-select pattern.
+      renderOption={(optionProps, option, { selected }) => {
+        const { key, ...rest } = optionProps as typeof optionProps & {
+          key: React.Key;
+        };
+        return (
+          <li key={key} {...rest}>
+            <Checkbox checked={selected} sx={{ mr: 1 }} />
+            {option.label}
+          </li>
+        );
       }}
       renderInput={(params) => (
         <TextField
