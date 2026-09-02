@@ -29,13 +29,24 @@
   ],
   "overrides": {
     "SimpleBarChart": {
-      "skip": ["components-chart-simplebarchart--default", "components-chart-simplebarchart--three-series", "components-chart-simplebarchart--custom-styling"]
+      "skip": [
+        "components-chart-simplebarchart--default",
+        "components-chart-simplebarchart--three-series",
+        "components-chart-simplebarchart--custom-styling"
+      ]
     },
     "CredentialRequestsEditor": {
-      "skip": ["components-credentialrequestseditor--default", "components-credentialrequestseditor--with-no-risk-signals"]
+      "skip": [
+        "components-credentialrequestseditor--default",
+        "components-credentialrequestseditor--with-no-risk-signals"
+      ]
     },
     "CalendlyDialog": {
-      "skip": ["components-dialog-calendlydialog--basic", "components-dialog-calendlydialog--custom-url", "components-dialog-calendlydialog--ref-methods"]
+      "skip": [
+        "components-dialog-calendlydialog--basic",
+        "components-dialog-calendlydialog--custom-url",
+        "components-dialog-calendlydialog--ref-methods"
+      ]
     },
     "SeriesPercentageChart": {
       "skip": ["components-chart-seriespercentagechart--empty"],
@@ -62,7 +73,10 @@
     "RiskScoreBarChart": { "cardMode": "column" },
     "RiskScorePieChart": { "cardMode": "column" },
     "SeriesChart": { "cardMode": "column" },
-    "SeriesChartLegend": { "cardMode": "column", "skip": ["components-chart-serieschartlegend--horizontal"] },
+    "SeriesChartLegend": {
+      "cardMode": "column",
+      "skip": ["components-chart-serieschartlegend--horizontal"]
+    },
     "OTPInput": { "skip": ["components-form-otpinput--otp-within-iframe"] },
     "SynchronizedMetricsChart": { "cardMode": "column" },
     "TTSOverTimeChart": { "cardMode": "column" },

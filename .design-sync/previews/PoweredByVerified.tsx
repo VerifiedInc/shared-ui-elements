@@ -15,9 +15,13 @@ export const Default = () => (
   <PoweredByVerified variant='default' containerProps={{}} />
 );
 
-export const Green = () => <PoweredByVerified variant='green' containerProps={{}} />;
+export const Green = () => (
+  <PoweredByVerified variant='green' containerProps={{}} />
+);
 
-export const Gray = () => <PoweredByVerified variant='gray' containerProps={{}} />;
+export const Gray = () => (
+  <PoweredByVerified variant='gray' containerProps={{}} />
+);
 
 export const White = () => (
   <Box sx={{ bgcolor: '#333333', p: 2, display: 'inline-flex' }}>
@@ -25,7 +29,9 @@ export const White = () => (
   </Box>
 );
 
-export const Black = () => <PoweredByVerified variant='black' containerProps={{}} />;
+export const Black = () => (
+  <PoweredByVerified variant='black' containerProps={{}} />
+);
 
 export const WhiteGreen = () => (
   <Box sx={{ bgcolor: '#333333', p: 2, display: 'inline-flex' }}>

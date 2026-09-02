@@ -84,11 +84,28 @@ export const STORY_LOADERS = {
   // jsx is a strict syntax superset of js - JSX-in-.js story files are a
   // common convention and plain .js parses identically.
   '.js': 'jsx',
-  '.css': 'empty', '.scss': 'empty', '.sass': 'empty', '.less': 'empty', '.styl': 'empty',
-  '.png': 'dataurl', '.jpg': 'dataurl', '.jpeg': 'dataurl', '.gif': 'dataurl',
-  '.webp': 'dataurl', '.avif': 'dataurl', '.svg': 'dataurl', '.ico': 'dataurl',
-  '.woff': 'dataurl', '.woff2': 'dataurl', '.ttf': 'dataurl', '.eot': 'empty',
-  '.md': 'text', '.mdx': 'empty', '.mp4': 'empty', '.webm': 'empty', '.mov': 'empty',
+  '.css': 'empty',
+  '.scss': 'empty',
+  '.sass': 'empty',
+  '.less': 'empty',
+  '.styl': 'empty',
+  '.png': 'dataurl',
+  '.jpg': 'dataurl',
+  '.jpeg': 'dataurl',
+  '.gif': 'dataurl',
+  '.webp': 'dataurl',
+  '.avif': 'dataurl',
+  '.svg': 'dataurl',
+  '.ico': 'dataurl',
+  '.woff': 'dataurl',
+  '.woff2': 'dataurl',
+  '.ttf': 'dataurl',
+  '.eot': 'empty',
+  '.md': 'text',
+  '.mdx': 'empty',
+  '.mp4': 'empty',
+  '.webm': 'empty',
+  '.mov': 'empty',
 };
 
 // Which exported component (if any) does a resolved file path look like the
@@ -112,9 +129,14 @@ export function storybookStubPlugin() {
   return {
     name: 'sb-stub',
     setup(b) {
-      b.onResolve({ filter: /^(@storybook\/|storybook(\/|$)|msw(\/|$)|@mswjs\/)/ }, (a) => ({ path: a.path, namespace: 'sb-stub' }));
+      b.onResolve(
+        { filter: /^(@storybook\/|storybook(\/|$)|msw(\/|$)|@mswjs\/)/ },
+        (a) => ({ path: a.path, namespace: 'sb-stub' }),
+      );
       b.onLoad({ filter: /.*/, namespace: 'sb-stub' }, (a) => ({
-        contents: /(^|\/)(manager|preview|client)-api$/.test(a.path) ? MANAGER_API_STUB : INERT_STUB,
+        contents: /(^|\/)(manager|preview|client)-api$/.test(a.path)
+          ? MANAGER_API_STUB
+          : INERT_STUB,
         loader: 'js',
       }));
     },
@@ -126,16 +148,29 @@ export function storybookStubPlugin() {
 // IMPORTANT for callers: any tsconfig-paths plugin must be registered AFTER
 // these (buildPreviews does this) - the policy plugin resolves aliases via
 // b.resolve, so a paths plugin registered first would bypass rule 2.
-export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, cfg, pkgDir }) {
+export function storyImportPlugins({
+  PKG,
+  GLOBAL,
+  extraEntries = [],
+  exported,
+  cfg,
+  pkgDir,
+}) {
   // Path-form entries (./, ../, absolute) are repo files bundled by path -
   // they must never enter import-SPECIFIER matching below, where a story's
   // relative import could coincidentally equal the config string and get
   // wrongly shimmed to the global. Bare package specifiers only.
-  extraEntries = extraEntries.filter((e) => !/^(\.\.?\/|\/|[A-Za-z]:[\\/])/.test(e));
+  extraEntries = extraEntries.filter(
+    (e) => !/^(\.\.?\/|\/|[A-Za-z]:[\\/])/.test(e),
+  );
   const escRx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pkgRx = new RegExp(`^(?:${[PKG, ...extraEntries].map(escRx).join('|')})(?:/.*)?$`);
+  const pkgRx = new RegExp(
+    `^(?:${[PKG, ...extraEntries].map(escRx).join('|')})(?:/.*)?$`,
+  );
   const force = cfg?.storyImports ?? {};
-  const matches = (p, pats) => Array.isArray(pats) && pats.some((s) => typeof s === 'string' && p.includes(s));
+  const matches = (p, pats) =>
+    Array.isArray(pats) &&
+    pats.some((s) => typeof s === 'string' && p.includes(s));
   // ESM facade shim, NOT CJS: in a `"type":"module"` repo esbuild applies
   // node's ESM-CJS interop to the importing file - `default` becomes the
   // whole exports object and `__esModule` is ignored - which breaks every
@@ -145,9 +180,14 @@ export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, c
   // (hooks, constants - anything on the global beyond the component list).
   const shimFor = (name) =>
     `export * from "__ds_raw__";var g=window.${GLOBAL};export default ${
-      name ? `g[${JSON.stringify(name)}]!==void 0?g[${JSON.stringify(name)}]:g` : `"default" in g?g.default:g`
+      name
+        ? `g[${JSON.stringify(name)}]!==void 0?g[${JSON.stringify(name)}]:g`
+        : `"default" in g?g.default:g`
     };`;
-  const shimResult = (name) => ({ path: name ? `ds:${name}` : 'ds', namespace: 'ds-shim' });
+  const shimResult = (name) => ({
+    path: name ? `ds:${name}` : 'ds',
+    namespace: 'ds-shim',
+  });
 
   const dsShim = {
     name: 'ds-global',
@@ -161,7 +201,10 @@ export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, c
           // (undefined members), a missing module is loud, and the loud
           // path's fix is named (cfg.extraEntries / node_modules symlink in
           // the package's own source repo).
-          const name = (a.path.split('/').pop() ?? '').replace(/\.[cm]?[jt]sx?$/, '');
+          const name = (a.path.split('/').pop() ?? '').replace(
+            /\.[cm]?[jt]sx?$/,
+            '',
+          );
           return exported.has(name) ? shimResult(name) : null;
         }
         return shimResult(null);
@@ -176,15 +219,36 @@ export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, c
       // .design-sync/previews/ after a promote. Extensionless - esbuild
       // appends its resolve extensions.
       b.onResolve({ filter: /^@ds-stories\// }, (a) => {
-        const base = resolve(process.cwd(), a.path.slice('@ds-stories/'.length));
-        for (const ext of ['', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.cjs', '.mdx']) {
+        const base = resolve(
+          process.cwd(),
+          a.path.slice('@ds-stories/'.length),
+        );
+        for (const ext of [
+          '',
+          '.tsx',
+          '.ts',
+          '.jsx',
+          '.js',
+          '.mjs',
+          '.cjs',
+          '.mdx',
+        ]) {
           if (existsSync(base + ext)) return { path: base + ext };
         }
-        return { errors: [{ text: `@ds-stories path not found: ${a.path} (resolved against ${process.cwd()})` }] };
+        return {
+          errors: [
+            {
+              text: `@ds-stories path not found: ${a.path} (resolved against ${process.cwd()})`,
+            },
+          ],
+        };
       });
       // The raw CJS module the ESM facade star-re-exports - dynamic names
       // (everything on the global) without a static export list.
-      b.onResolve({ filter: /^__ds_raw__$/ }, () => ({ path: '__ds_raw__', namespace: 'ds-raw' }));
+      b.onResolve({ filter: /^__ds_raw__$/ }, () => ({
+        path: '__ds_raw__',
+        namespace: 'ds-raw',
+      }));
       b.onLoad({ filter: /.*/, namespace: 'ds-raw' }, () => ({
         contents: `module.exports=window.${GLOBAL};`,
         loader: 'js',
@@ -204,14 +268,30 @@ export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, c
   // realpath both roots - esbuild's resolver returns symlink-resolved paths,
   // and a merely-resolve()'d root (symlinked tmpdir, symlinked package dir)
   // would never prefix-match them.
-  const real = (p) => { try { return realpathSync(p).replace(/\\/g, '/'); } catch { return null; } };
-  const barrelRoots = [...new Set([CWD, real(process.cwd()), pkgDir && resolve(pkgDir).replace(/\\/g, '/'), pkgDir && real(pkgDir)].filter(Boolean))];
+  const real = (p) => {
+    try {
+      return realpathSync(p).replace(/\\/g, '/');
+    } catch {
+      return null;
+    }
+  };
+  const barrelRoots = [
+    ...new Set(
+      [
+        CWD,
+        real(process.cwd()),
+        pkgDir && resolve(pkgDir).replace(/\\/g, '/'),
+        pkgDir && real(pkgDir),
+      ].filter(Boolean),
+    ),
+  ];
   const policyRedirect = {
     name: 'ds-import-policy',
     setup(b) {
       b.onResolve({ filter: /.*/ }, async (a) => {
         if (a.pluginData === 'ds-resolving') return null; // our own re-entry
-        if (a.kind === 'entry-point' || (a.namespace && a.namespace !== 'file')) return null;
+        if (a.kind === 'entry-point' || (a.namespace && a.namespace !== 'file'))
+          return null;
         // FORK (perf): an import whose IMPORTER already lives under
         // node_modules is guaranteed third-party too (rule 2 only ever needs
         // to catch a DS component reached from the story's own module graph,
@@ -224,18 +304,25 @@ export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, c
         // DataTable's preview build (memory climbed into tens of GB) where a
         // plain esbuild bundle of the same file finishes in ~2.5s. See
         // .design-sync/NOTES.md.
-        if (a.importer && a.importer.replace(/\\/g, '/').includes('/node_modules/')) return null;
+        if (
+          a.importer &&
+          a.importer.replace(/\\/g, '/').includes('/node_modules/')
+        )
+          return null;
         const r = await b.resolve(a.path, {
-          kind: a.kind, resolveDir: a.resolveDir, importer: a.importer,
+          kind: a.kind,
+          resolveDir: a.resolveDir,
+          importer: a.importer,
           pluginData: 'ds-resolving',
         });
         if (r.errors.length > 0 || !r.path) return null;
-        if (r.namespace && r.namespace !== 'file') return r;  // claimed by another plugin
+        if (r.namespace && r.namespace !== 'file') return r; // claimed by another plugin
         const p = r.path.replace(/\\/g, '/');
-        if (STORY_FILE_RE.test(p)) return r;                  // never the story itself
-        if (matches(p, force.bundle)) return r;               // explicit bundle wins
-        if (matches(p, force.shim)) return shimResult(exportedComponentFor(p, exported));
-        if (p.includes('/node_modules/')) return r;           // third-party stays put
+        if (STORY_FILE_RE.test(p)) return r; // never the story itself
+        if (matches(p, force.bundle)) return r; // explicit bundle wins
+        if (matches(p, force.shim))
+          return shimResult(exportedComponentFor(p, exported));
+        if (p.includes('/node_modules/')) return r; // third-party stays put
         // relative() instead of a startsWith prefix - case-insensitive on
         // win32, where the pkgDir roots carry user-typed casing (a lowercase
         // d:\ drive from --node-modules) while p carries cwd casing, and JS
@@ -245,8 +332,14 @@ export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, c
         // case-sensitively here (path.posix.relative) - a blanket lowercase
         // compare would be wrong on case-SENSITIVE volumes, so mis-cased
         // --node-modules on mac remains the user's to fix.
-        if (barrelRoots.some((root) => /^src\/index\.[cm]?[jt]sx?$/.test(relative(root, p).replace(/\\/g, '/')))) {
-          return shimResult(null);                            // package source barrel
+        if (
+          barrelRoots.some((root) =>
+            /^src\/index\.[cm]?[jt]sx?$/.test(
+              relative(root, p).replace(/\\/g, '/'),
+            ),
+          )
+        ) {
+          return shimResult(null); // package source barrel
         }
         const name = exportedComponentFor(p, exported);
         return name ? shimResult(name) : r;
@@ -260,8 +353,14 @@ export function storyImportPlugins({ PKG, GLOBAL, extraEntries = [], exported, c
   const consoleStub = {
     name: 'node-console-stub',
     setup(b) {
-      b.onResolve({ filter: /^(node:)?console$/ }, () => ({ path: 'console', namespace: 'node-console' }));
-      b.onLoad({ filter: /.*/, namespace: 'node-console' }, () => ({ contents: 'module.exports=console;', loader: 'js' }));
+      b.onResolve({ filter: /^(node:)?console$/ }, () => ({
+        path: 'console',
+        namespace: 'node-console',
+      }));
+      b.onLoad({ filter: /.*/, namespace: 'node-console' }, () => ({
+        contents: 'module.exports=console;',
+        loader: 'js',
+      }));
     },
   };
 
