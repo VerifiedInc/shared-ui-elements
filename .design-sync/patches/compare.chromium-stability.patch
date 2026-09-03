@@ -1,0 +1,17 @@
+--- /private/tmp/claude-501/bundled-skills/2.1.258/66d6ab9707e657e9fbf6c3bd0243dcb0/design-sync/storybook/compare.mjs	2026-09-02 11:23:55
++++ .ds-sync/storybook/compare.mjs	2026-09-02 12:40:15
+@@ -289,9 +289,11 @@
+ let warnedStaleRef = false;
+ let browser;
+ try {
+-  browser = await pw.chromium.launch(
+-    process.env.DS_CHROMIUM_PATH ? { executablePath: process.env.DS_CHROMIUM_PATH } : {},
+-  );
++  browser = await pw.chromium.launch({
++    ...(process.env.DS_CHROMIUM_PATH ? { executablePath: process.env.DS_CHROMIUM_PATH } : {}),
++    // See package-validate.mjs's launch() for why - same crash, same fix.
++    args: ['--disable-gpu'],
++  });
+   const sbPage = await browser.newPage({ viewport: { width: 900, height: 700 } });
+   const dsPage = await browser.newPage({ viewport: { width: 900, height: 700 } });
+   // Sandboxed shells (Claude Code's Bash sandbox, CI egress policies) are

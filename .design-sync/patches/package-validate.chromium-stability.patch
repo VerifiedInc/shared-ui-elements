@@ -1,0 +1,82 @@
+--- /private/tmp/claude-501/bundled-skills/2.1.258/66d6ab9707e657e9fbf6c3bd0243dcb0/design-sync/package-validate.mjs	2026-09-02 11:23:55
++++ .ds-sync/package-validate.mjs	2026-09-02 12:52:12
+@@ -436,10 +436,16 @@
+   const results = [];
+   let browser;
+   try {
+-    browser = await pw.chromium.launch(
+-      process.env.DS_CHROMIUM_PATH ? { executablePath: process.env.DS_CHROMIUM_PATH } : {},
+-    );
+-    const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
++    browser = await pw.chromium.launch({
++      ...(process.env.DS_CHROMIUM_PATH ? { executablePath: process.env.DS_CHROMIUM_PATH } : {}),
++      // This repo's environment: default (GPU-enabled) headless chromium
++      // crashes ("Target crashed"/"Page crashed") partway through a long
++      // sequential render-check run (~15-20 chart/canvas-heavy previews in),
++      // after which every subsequent page.goto() on the same dead page fails
++      // identically. --disable-gpu avoids it. See .design-sync/NOTES.md.
++      args: ['--disable-gpu'],
++    });
++    let page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+     let pageErrs = [];
+     page.on('pageerror', (e) => pageErrs.push(String(e).split('\n')[0]));
+ 
+@@ -479,12 +485,29 @@
+       }
+     }
+ 
++    let sinceRefresh = 0;
+     for (const rel of sample) {
++      // This repo's environment: reusing one page across the full sequential
++      // render-check run accumulates enough per-navigation state (retained
++      // ResizeObservers/canvas/animation-frame state from mounting many
++      // heavy React trees - MUI + recharts + framer-motion) that the
++      // renderer reliably crashes ("Target crashed"/"Page crashed") ~20
++      // previews in, after which every later page.goto() on the same dead
++      // page fails identically. Recycling the page periodically bounds that
++      // growth. See .design-sync/NOTES.md.
++      if (sinceRefresh >= 5) {
++        await page.close().catch(() => {});
++        page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
++        page.on('pageerror', (e) => pageErrs.push(String(e).split('\n')[0]));
++        sinceRefresh = 0;
++      }
++      sinceRefresh++;
+       pageErrs = [];
+       // components/<group>/<Name>/<Name>.html -> <group>__<Name>.png
+       const [, group, name] = rel.match(/^components\/([^/]+)\/([^/]+)\//) ?? [,'misc', rel.split('/').pop()];
+       const shot = join(shotDir, `${group}__${name}.png`);
+       let pngBytes = 0, rootEmpty = true, err = null, caught = 0, firstCaught = null, texts = [], nEls = 0, variantsIdentical = false, hollow = [], maxHeight = 0, nPlaceholder = 0, nFallback = 0, gridOverflow = null, gridOverflowCells = [], storyExports = [];
++      for (let attempt = 0; ; attempt++) {
+       try {
+         await page.goto(`http://127.0.0.1:${port}/${rel}`, { waitUntil: 'networkidle', timeout: 15000 });
+         // Per-mount try/catch in the preview writes `\u26A0 <message>` into the
+@@ -642,7 +665,27 @@
+         }));
+         const buf = await page.screenshot({ path: shot, fullPage: true });
+         pngBytes = buf.length;
+-      } catch (e) { err = e.message.split('\n')[0]; }
++        break;
++      } catch (e) {
++        err = e.message.split('\n')[0];
++        // A crashed target poisons every later page.goto() on the same page
++        // identically - recreate it and retry this one item once before
++        // giving up. Observed headless-chromium crashes here have not been
++        // reliably reproducible per-component (retrying the identical item
++        // sometimes succeeds), consistent with resource contention on this
++        // host rather than a deterministic bug in one preview.
++        if (attempt < 2 && /crashed/i.test(err)) {
++          await page.close().catch(() => {});
++          page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
++          page.on('pageerror', (e2) => pageErrs.push(String(e2).split('\n')[0]));
++          sinceRefresh = 0;
++          pageErrs = [];
++          err = null;
++          continue;
++        }
++        break;
++      }
++      }
+       const blank = pngBytes > 0 && pngBytes < 5000;
+       const errs = pageErrs.length + caught;
+       // nameOnly: at least one mount's text is just the component-name
