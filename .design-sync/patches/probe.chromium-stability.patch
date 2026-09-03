@@ -1,0 +1,17 @@
+--- /private/tmp/claude-501/bundled-skills/2.1.258/66d6ab9707e657e9fbf6c3bd0243dcb0/design-sync/storybook/probe.mjs	2026-09-02 11:23:55
++++ .ds-sync/storybook/probe.mjs	2026-09-02 12:40:18
+@@ -82,9 +82,11 @@
+   const { srv, port } = await serveDir(sbStatic);
+   let browser;
+   try {
+-    browser = await pw.chromium.launch(
+-      process.env.DS_CHROMIUM_PATH ? { executablePath: process.env.DS_CHROMIUM_PATH } : {},
+-    );
++    browser = await pw.chromium.launch({
++      ...(process.env.DS_CHROMIUM_PATH ? { executablePath: process.env.DS_CHROMIUM_PATH } : {}),
++      // See package-validate.mjs's launch() for why - same crash, same fix.
++      args: ['--disable-gpu'],
++    });
+     const page = await browser.newPage();
+     await page.goto(`http://127.0.0.1:${port}/iframe.html?id=${encodeURIComponent(firstStoryId)}&viewMode=story`, { waitUntil: 'networkidle', timeout: 30_000 });
+     // Storybook 7+ renders into #storybook-root; v6 into #root. Wait for

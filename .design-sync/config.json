@@ -1,0 +1,115 @@
+{
+  "projectId": "160a3330-4990-485d-a08f-e8cd955b7589",
+  "pkg": "@verifiedinc-public/shared-ui-elements",
+  "shape": "storybook",
+  "storybookStatic": ".design-sync/sb-reference",
+  "buildCmd": "npm run build",
+  "readmeHeader": ".design-sync/conventions.md",
+  "extraEntries": ["./.design-sync/extra/provider-entry.mjs"],
+  "libOverrides": {
+    "story-imports.mjs": "perf: skip the extra async b.resolve() round-trip once the importer is already under node_modules - DataTable's story named-imports ~20 icons from @mui/icons-material, whose barrel re-exports ~2100 leaves, and the unforked plugin's double-resolve on every one of them made that component's preview build take 10+ minutes and balloon memory into tens of GB (a plain esbuild bundle of the same file finishes in ~2.5s)"
+  },
+  "provider": {
+    "component": "ThemeProvider",
+    "props": { "theme": { "$ref": "previewTheme" } },
+    "inner": {
+      "component": "CssBaseline",
+      "inner": {
+        "component": "SnackbarProvider",
+        "props": { "maxSnack": 3, "autoHideDuration": 5000 }
+      }
+    }
+  },
+  "extraFonts": [
+    "node_modules/@fontsource/lato/300.css",
+    "node_modules/@fontsource/lato/400.css",
+    "node_modules/@fontsource/lato/700.css",
+    "node_modules/@fontsource/lato/900.css",
+    "node_modules/@fontsource/material-icons/index.css"
+  ],
+  "overrides": {
+    "SimpleBarChart": {
+      "skip": [
+        "components-chart-simplebarchart--default",
+        "components-chart-simplebarchart--three-series",
+        "components-chart-simplebarchart--custom-styling"
+      ]
+    },
+    "CredentialRequestsEditor": {
+      "skip": [
+        "components-credentialrequestseditor--default",
+        "components-credentialrequestseditor--with-no-risk-signals"
+      ]
+    },
+    "CalendlyDialog": {
+      "skip": [
+        "components-dialog-calendlydialog--basic",
+        "components-dialog-calendlydialog--custom-url",
+        "components-dialog-calendlydialog--ref-methods"
+      ]
+    },
+    "SeriesPercentageChart": {
+      "skip": ["components-chart-seriespercentagechart--empty"],
+      "cardMode": "column"
+    },
+    "AddressInput": { "cardMode": "column" },
+    "AreaChart": { "cardMode": "column" },
+    "BrandFilterInput": { "cardMode": "column" },
+    "ConversionOverTimeChart": { "cardMode": "column" },
+    "DateInput": { "cardMode": "column" },
+    "DateRangeInput": { "cardMode": "column" },
+    "ErrorCodesChart": { "cardMode": "column" },
+    "ExportToPdfButton": { "cardMode": "column" },
+    "NewOneClickForm": { "cardMode": "column", "viewport": "900x1500" },
+    "OneClickVerificationEventsOverTimeChart": { "cardMode": "column" },
+    "OneClickVerificationFunnelChart": { "cardMode": "column" },
+    "OneClickVerificationSuccessOverTimeChart": { "cardMode": "column" },
+    "OverviewBigNumbers": { "cardMode": "column" },
+    "PageHeader": { "cardMode": "column" },
+    "PageSectionHeader": { "cardMode": "column" },
+    "PieChart": { "cardMode": "column" },
+    "RadioOption": { "cardMode": "column" },
+    "ReasonCodesChart": { "cardMode": "column" },
+    "RiskScoreBarChart": { "cardMode": "column" },
+    "RiskScorePieChart": { "cardMode": "column" },
+    "SeriesChart": { "cardMode": "column" },
+    "SeriesChartLegend": {
+      "cardMode": "column",
+      "skip": ["components-chart-serieschartlegend--horizontal"]
+    },
+    "OTPInput": { "skip": ["components-form-otpinput--otp-within-iframe"] },
+    "SynchronizedMetricsChart": { "cardMode": "column" },
+    "TTSOverTimeChart": { "cardMode": "column" },
+    "Typography": { "cardMode": "column" }
+  },
+  "titleMap": {
+    "useCallbackRef": null,
+    "useCopyToClipboard": null,
+    "useCounter": null,
+    "useDebounceValue": null,
+    "useDisclosure": null,
+    "useInlineScript": null,
+    "useIntersectionObserver": null,
+    "useLocalStorage": null,
+    "useNavigatorOnline": null,
+    "useNetworkType": null,
+    "useOnClickOutside": null,
+    "usePersistedState": null,
+    "usePrevious": null,
+    "useResizeObserver": null,
+    "useScript": null,
+    "useSearchParams": null,
+    "useStyledQRCode": null,
+    "useThrottle": null,
+    "useToggle": null,
+    "useWindowScroll": null,
+    "useWindowSize": null,
+    "WCAGAAContrast": null,
+    "Color": null,
+    "Phone": null,
+    "Counter": null,
+    "AnimateHeight": null,
+    "TextField": null,
+    "OneClickVerificationOutcomeOverTimeChart": "ConversionOverTimeChart"
+  }
+}
