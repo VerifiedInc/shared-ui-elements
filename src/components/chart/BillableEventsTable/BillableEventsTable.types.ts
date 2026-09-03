@@ -58,11 +58,6 @@ export const BILLABLE_PRODUCTS: BillableProductConfig[] = [
         metricKey: 'oneClickVerificationSending',
       },
       {
-        key: 'verify_autofillsStarted',
-        label: 'Autofills Started',
-        metricKey: 'oneClickVerificationAutofillCreated',
-      },
-      {
         key: 'verify_autofillsSucceeded',
         label: 'Autofills Succeeded',
         metricKey: 'oneClickVerificationAutofillVerified',
