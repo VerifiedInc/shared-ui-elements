@@ -2,6 +2,17 @@ import { credentialKeys } from '../fields';
 
 import { FormField } from './formField';
 
+const trimStrings = (value: unknown): unknown => {
+  if (typeof value === 'string') return value.trim();
+  if (Array.isArray(value)) return value.map(trimStrings);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, trimStrings(item)]),
+    );
+  }
+  return value;
+};
+
 export class Form {
   fields: Record<string, FormField>;
 
@@ -36,7 +47,7 @@ export class Form {
     return Object.fromEntries(
       Object.values(this.fields).map((field) => [
         field.schema.key,
-        field.value,
+        trimStrings(field.value),
       ]),
     );
   }

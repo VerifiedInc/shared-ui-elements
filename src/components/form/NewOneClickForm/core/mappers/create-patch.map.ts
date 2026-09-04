@@ -84,7 +84,7 @@ export function toCreatePatchCredentials(form: Form): CategorizedCredentials {
       return cleaned;
     }
 
-    return value;
+    return typeof value === 'string' ? value.trim() : value;
   };
 
   const map = (field: FormField): UnknownCredentials => {

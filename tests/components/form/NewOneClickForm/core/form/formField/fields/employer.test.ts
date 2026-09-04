@@ -167,4 +167,20 @@ describe('employer', () => {
       },
     ]);
   });
+
+  test('trims string values when patching', () => {
+    field.value = {
+      employer: {
+        ...field.value.employer,
+        name: ' Walmart Stores ',
+        legalName: ' WALMART INC. ',
+      },
+    };
+
+    const result = toCreatePatchCredentials(form);
+
+    expect(result.toPatch[0]?.value).toEqual({
+      employer: { name: 'Walmart Stores', legalName: 'WALMART INC.', address },
+    });
+  });
 });

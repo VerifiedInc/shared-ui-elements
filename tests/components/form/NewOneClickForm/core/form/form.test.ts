@@ -348,4 +348,35 @@ describe('Form', () => {
       });
     });
   });
+
+  describe('values', () => {
+    test('trims string leaves', () => {
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [
+          makeCredential({
+            uuid: 'employer-id-1234',
+            type: 'employer',
+            value: {
+              employer: {
+                name: ' Walmart ',
+                legalName: ' WALMART INC. ',
+                address: { line1: ' 702 SW 8th St ', city: 'Bentonville' },
+              },
+            },
+          }),
+        ],
+        [makeCredentialRequest({ type: 'EmployerCredential' })],
+      );
+
+      expect(form.values).toEqual({
+        employer: {
+          employer: {
+            name: 'Walmart',
+            legalName: 'WALMART INC.',
+            address: { line1: '702 SW 8th St', city: 'Bentonville' },
+          },
+        },
+      });
+    });
+  });
 });
