@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stack, TextField } from '@mui/material';
+import { Box, Stack, TextField } from '@mui/material';
 
 import { AddressInput } from '../../../../../AddressInput';
 
@@ -52,6 +52,7 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
   return (
     <Stack spacing={2}>
       <TextField
+        data-testid='data-field-atomic-employer.name'
         fullWidth
         size='small'
         label={<RequiredLabel required={field.isRequired}>Name</RequiredLabel>}
@@ -68,6 +69,7 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
         inputProps={{ autoCorrect: 'off' }}
       />
       <TextField
+        data-testid='data-field-atomic-employer.legalName'
         fullWidth
         size='small'
         label='Legal Name'
@@ -83,43 +85,46 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
         InputProps={{ 'data-mask-me': true } as any}
         inputProps={{ autoCorrect: 'off' }}
       />
-      <AddressInput
-        size='small'
-        label={
-          <RequiredLabel required={field.isRequired}>Address</RequiredLabel>
-        }
-        defaultValue={{
-          line1: details.address.line1,
-          city: details.address.city,
-          state: details.address.state,
-          zipCode: details.address.zipCode,
-          country: details.address.country ?? 'US',
-        }}
-        onChange={(value) => {
-          if (typeof value === 'string') return;
-          const address: EmployerDetails['address'] = {
-            line1: value?.line1,
-            line2: details.address.line2 ?? '',
-            city: value?.city,
-            state: value?.state,
-            zipCode: value?.zipCode,
-            country: value?.country === 'US' ? 'US' : undefined,
-          };
-          updateDetails({ address });
-          touchPart('address');
-        }}
-        onBlur={() => touchPart('address')}
-        error={!!addressError}
-        helperText={addressError}
-        disabled={field.isDisabled}
-        InputProps={{ 'data-mask-me': true } as any}
-        service={{
-          googlePlacesAutocompletePlaces:
-            options.servicePaths.googlePlacesAutocompletePlaces,
-          googlePlacesGetPlace: options.servicePaths.googlePlacesGetPlace,
-        }}
-      />
+      <Box data-testid='data-field-composite-employer.address' width='100%'>
+        <AddressInput
+          size='small'
+          label={
+            <RequiredLabel required={field.isRequired}>Address</RequiredLabel>
+          }
+          defaultValue={{
+            line1: details.address.line1,
+            city: details.address.city,
+            state: details.address.state,
+            zipCode: details.address.zipCode,
+            country: details.address.country ?? 'US',
+          }}
+          onChange={(value) => {
+            if (typeof value === 'string') return;
+            const address: EmployerDetails['address'] = {
+              line1: value?.line1,
+              line2: details.address.line2 ?? '',
+              city: value?.city,
+              state: value?.state,
+              zipCode: value?.zipCode,
+              country: value?.country === 'US' ? 'US' : undefined,
+            };
+            updateDetails({ address });
+            touchPart('address');
+          }}
+          onBlur={() => touchPart('address')}
+          error={!!addressError}
+          helperText={addressError}
+          disabled={field.isDisabled}
+          InputProps={{ 'data-mask-me': true } as any}
+          service={{
+            googlePlacesAutocompletePlaces:
+              options.servicePaths.googlePlacesAutocompletePlaces,
+            googlePlacesGetPlace: options.servicePaths.googlePlacesGetPlace,
+          }}
+        />
+      </Box>
       <TextField
+        data-testid='data-field-atomic-employer.address.line2'
         fullWidth
         size='small'
         label='Line 2'
