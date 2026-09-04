@@ -7,6 +7,8 @@ import { useFormField } from '../../../core/field.hook';
 
 import { useOneClickForm } from '../../form.context';
 
+import { toFieldValueAttribute } from '../shared';
+
 import {
   FieldLabelBase,
   FieldSectionContent,
@@ -25,7 +27,7 @@ function EmployerRow({
   label: string;
   value: string;
   testId: string;
-  fieldValue?: string;
+  fieldValue?: string | null;
 }) {
   return (
     <Stack
@@ -52,9 +54,8 @@ function EmployerRow({
 
 function EmployerRows({ item }: { item: EmployerDetails }) {
   const { options } = useOneClickForm();
+  const userPrivacyEnabled = options.features.enableUserPrivacy;
   const address = addressFormat(item.address);
-  const fieldValue = (value: string | null | undefined) =>
-    options.features.enableUserPrivacy ? undefined : (value ?? undefined);
 
   return (
     <Stack spacing={1.25}>
@@ -62,21 +63,21 @@ function EmployerRows({ item }: { item: EmployerDetails }) {
         label='Name'
         value={item.name}
         testId='data-field-atomic-employer.name'
-        fieldValue={fieldValue(item.name)}
+        fieldValue={toFieldValueAttribute(item.name, userPrivacyEnabled)}
       />
       {item.legalName && (
         <EmployerRow
           label='Legal Name'
           value={item.legalName}
           testId='data-field-atomic-employer.legalName'
-          fieldValue={fieldValue(item.legalName)}
+          fieldValue={toFieldValueAttribute(item.legalName, userPrivacyEnabled)}
         />
       )}
       <EmployerRow
         label='Address'
         value={address ?? '-'}
         testId='data-field-composite-employer.address'
-        fieldValue={fieldValue(address)}
+        fieldValue={toFieldValueAttribute(address, userPrivacyEnabled)}
       />
     </Stack>
   );

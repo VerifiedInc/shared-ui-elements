@@ -3,11 +3,12 @@ import { Box, Stack, TextField } from '@mui/material';
 
 import { AddressInput } from '../../../../../AddressInput';
 
+import { addressFormat } from '../../../../core/formats';
 import { EmployerValue } from '../../../../core/validations';
 
 import { useFormField } from '../../../core/field.hook';
 
-import { RequiredLabel } from '../shared';
+import { RequiredLabel, toFieldValueAttribute } from '../shared';
 
 import { useOneClickForm } from '../../form.context';
 
@@ -39,6 +40,8 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
     setValue({ employer: { ...details, ...patch } });
   };
 
+  const userPrivacyEnabled = options.features.enableUserPrivacy;
+
   const issues = field.errors?.error?.issues ?? [];
   const errorFor = (part: EmployerPart): string | undefined => {
     if (!field.touched && !touchedParts[part]) return undefined;
@@ -53,6 +56,10 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
     <Stack spacing={2}>
       <TextField
         data-testid='data-field-atomic-employer.name'
+        data-verified-sdk-field-value={toFieldValueAttribute(
+          details.name,
+          userPrivacyEnabled,
+        )}
         fullWidth
         size='small'
         label={<RequiredLabel required={field.isRequired}>Name</RequiredLabel>}
@@ -70,6 +77,10 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
       />
       <TextField
         data-testid='data-field-atomic-employer.legalName'
+        data-verified-sdk-field-value={toFieldValueAttribute(
+          details.legalName,
+          userPrivacyEnabled,
+        )}
         fullWidth
         size='small'
         label='Legal Name'
@@ -85,7 +96,14 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
         InputProps={{ 'data-mask-me': true } as any}
         inputProps={{ autoCorrect: 'off' }}
       />
-      <Box data-testid='data-field-composite-employer.address' width='100%'>
+      <Box
+        data-testid='data-field-composite-employer.address'
+        data-verified-sdk-field-value={toFieldValueAttribute(
+          addressFormat(details.address),
+          userPrivacyEnabled,
+        )}
+        width='100%'
+      >
         <AddressInput
           size='small'
           label={
@@ -125,6 +143,10 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
       </Box>
       <TextField
         data-testid='data-field-atomic-employer.address.line2'
+        data-verified-sdk-field-value={toFieldValueAttribute(
+          details.address.line2,
+          userPrivacyEnabled,
+        )}
         fullWidth
         size='small'
         label='Line 2'
