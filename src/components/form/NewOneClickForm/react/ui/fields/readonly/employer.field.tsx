@@ -5,6 +5,8 @@ import { EmployerValue } from '../../../../core/validations';
 
 import { useFormField } from '../../../core/field.hook';
 
+import { useOneClickForm } from '../../form.context';
+
 import {
   FieldLabelBase,
   FieldSectionContent,
@@ -14,9 +16,23 @@ import { VariantSelectField } from './variantSelect.field';
 
 type EmployerDetails = EmployerValue['employer'];
 
-function EmployerRow({ label, value }: { label: string; value: string }) {
+function EmployerRow({
+  label,
+  value,
+  testId,
+  fieldValue,
+}: {
+  label: string;
+  value: string;
+  testId: string;
+  fieldValue?: string;
+}) {
   return (
-    <Stack direction='row'>
+    <Stack
+      direction='row'
+      data-testid={testId}
+      data-verified-sdk-field-value={fieldValue}
+    >
       <FieldLabelBase label={label} />
       <Typography
         data-mask-me
@@ -35,13 +51,33 @@ function EmployerRow({ label, value }: { label: string; value: string }) {
 }
 
 function EmployerRows({ item }: { item: EmployerDetails }) {
+  const { options } = useOneClickForm();
+  const address = addressFormat(item.address);
+  const fieldValue = (value: string | null | undefined) =>
+    options.features.enableUserPrivacy ? undefined : (value ?? undefined);
+
   return (
     <Stack spacing={1.25}>
-      <EmployerRow label='Name' value={item.name} />
+      <EmployerRow
+        label='Name'
+        value={item.name}
+        testId='data-field-atomic-employer.name'
+        fieldValue={fieldValue(item.name)}
+      />
       {item.legalName && (
-        <EmployerRow label='Legal Name' value={item.legalName} />
+        <EmployerRow
+          label='Legal Name'
+          value={item.legalName}
+          testId='data-field-atomic-employer.legalName'
+          fieldValue={fieldValue(item.legalName)}
+        />
       )}
-      <EmployerRow label='Address' value={addressFormat(item.address) ?? '-'} />
+      <EmployerRow
+        label='Address'
+        value={address ?? '-'}
+        testId='data-field-composite-employer.address'
+        fieldValue={fieldValue(address)}
+      />
     </Stack>
   );
 }
