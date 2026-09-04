@@ -5,6 +5,17 @@ import { FormField } from '../../../core/form';
 import type { OneClickFormOptions } from '../form.context';
 
 /**
+ * Value for the `data-verified-sdk-field-value` attribute, withheld when user privacy is enabled.
+ * @param value The field value to expose.
+ * @param userPrivacyEnabled Whether the user privacy feature is enabled.
+ * @returns The value to expose, or undefined.
+ */
+export const toFieldValueAttribute = <T,>(
+  value: T,
+  userPrivacyEnabled?: boolean,
+): T | undefined => (userPrivacyEnabled ? undefined : value);
+
+/**
  * Makes attributes for a field.
  * @param field The field to make attributes for.
  * @returns The attributes for the field.
@@ -27,16 +38,12 @@ export const makeAttributes = ({
       field?.schema.characteristics.inputType === fieldInputTypes.composite
         ? `data-field-composite-${fieldKey}`
         : `data-field-atomic-${fieldKey}`,
-    'data-verified-sdk-field-value': undefined as ReturnType<
-      typeof getFieldValue
-    >,
+    'data-verified-sdk-field-value': toFieldValueAttribute(
+      field ? getFieldValue(field, options) : undefined,
+      userPrivacyEnabled,
+    ),
   };
 
-  if (!userPrivacyEnabled) {
-    attributes['data-verified-sdk-field-value'] = field
-      ? getFieldValue(field, options)
-      : undefined;
-  }
   return attributes;
 };
 
