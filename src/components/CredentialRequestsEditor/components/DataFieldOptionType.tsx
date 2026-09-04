@@ -77,8 +77,6 @@ export function DataFieldOptionType(): React.JSX.Element {
           const baseValue = buildDataFieldValue(value.id);
           const newValue: CredentialRequestsWithNew = {
             type: baseValue.type,
-            issuers: baseValue.issuers,
-            required: baseValue.required,
             mandatory: baseValue.mandatory as MandatoryEnum | undefined,
             description: baseValue.description,
             allowUserInput: baseValue.allowUserInput,
