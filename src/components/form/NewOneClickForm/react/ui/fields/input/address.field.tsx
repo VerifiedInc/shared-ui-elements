@@ -29,6 +29,7 @@ export function AddressInputField({ fieldKey }: { fieldKey: string }) {
 
   return (
     <AddressInput
+      size='small'
       label={<FieldLabel fieldKey={fieldKey} />}
       helperText={
         showError

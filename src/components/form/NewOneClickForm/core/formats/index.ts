@@ -1,5 +1,6 @@
 export * from './address.format';
 export * from './date.format';
+export * from './employer.format';
 export * from './healthInsurance.format';
 export * from './phone.format';
 export * from './ssn.format';

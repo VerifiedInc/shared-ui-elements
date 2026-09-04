@@ -41,7 +41,7 @@ export class FormBuilder {
           const fieldSchema = fields[requestType];
 
           // List of composite fields that should NOT be auto-expanded
-          const singleFieldComposites = ['healthInsurance'];
+          const singleFieldComposites = ['healthInsurance', 'employer'];
 
           if (
             fieldSchema &&

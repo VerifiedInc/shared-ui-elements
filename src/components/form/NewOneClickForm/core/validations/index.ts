@@ -12,3 +12,6 @@ export * from './healthInsurance';
 
 // Other field validations
 export * from './other';
+
+// Employer field validations
+export * from './employer';

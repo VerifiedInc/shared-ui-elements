@@ -22,6 +22,8 @@ import { useFormField } from '../../../core/field.hook';
 
 import { useOneClickForm } from '../../form.context';
 
+import { RequiredLabel } from '../shared';
+
 type Payer = HealthInsuranceValue['payer'];
 
 const PROVIDERS_PAGE_SIZE = 20;
@@ -85,33 +87,6 @@ function useHealthInsuranceProviders(search: string) {
     hasMore,
     loadMore,
   };
-}
-
-function RequiredLabel({
-  children,
-  required,
-}: {
-  children: React.ReactNode;
-  required: boolean;
-}) {
-  if (!required) {
-    return <>{children}</>;
-  }
-
-  return (
-    <>
-      {children}{' '}
-      <Typography
-        data-asterisk
-        component='span'
-        color='error'
-        variant='subtitle2'
-        sx={{ fontSize: 'inherit' }}
-      >
-        ✽
-      </Typography>
-    </>
-  );
 }
 
 function PayerAvatar({
