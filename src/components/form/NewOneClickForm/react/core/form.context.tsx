@@ -265,11 +265,7 @@ export const FormProvider: React.FC<FormProviderProps> = ({
       // Reset all top-level fields recursively
       Object.values(prev.form.fields).forEach(resetFieldRecursively);
 
-      return {
-        ...prev,
-        isSubmitting: false,
-        isSubmitSuccess: false,
-      };
+      return { ...prev };
     });
   }, []);
 

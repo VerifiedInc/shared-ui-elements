@@ -217,4 +217,40 @@ describe('FormBuilder', () => {
       expect(form.fields.ssn.children).toBeUndefined();
     });
   });
+
+  describe('Empty composite fields', () => {
+    test('children inherit the parent mandatory when there is no credential', () => {
+      const credentialRequests: CredentialRequest[] = [
+        {
+          allowUserInput: true,
+          mandatory: 'yes',
+          multi: false,
+          type: 'AddressCredential',
+          children: [
+            { type: 'Line1Credential' },
+            { type: 'Line2Credential', mandatory: 'no' },
+            { type: 'CityCredential' },
+            { type: 'StateCredential' },
+            { type: 'CountryCredential' },
+            { type: 'ZipCodeCredential' },
+          ],
+        },
+      ];
+
+      const form = formBuilder.createFromCredentialAndRequests(
+        [],
+        credentialRequests,
+      );
+      const address = form.fields.address;
+
+      expect(address.isRequired).toBe(true);
+      expect(address.children?.line1.isRequired).toBe(true);
+      expect(address.children?.line2.isRequired).toBe(false);
+      expect(address.children?.city.isRequired).toBe(true);
+      expect(address.children?.state.isRequired).toBe(true);
+      expect(address.children?.country.isRequired).toBe(true);
+      expect(address.children?.zipCode.isRequired).toBe(true);
+      expect(address.isValid).toBe(false);
+    });
+  });
 });

@@ -29,6 +29,7 @@ export function DataFieldOptionType(): React.JSX.Element {
       BirthDateCredential: 3,
       SsnCredential: 4,
       SexCredential: 5,
+      EmployerCredential: 6,
     };
 
     // Get all sibling fields at the same level to check for duplicates
@@ -76,8 +77,6 @@ export function DataFieldOptionType(): React.JSX.Element {
           const baseValue = buildDataFieldValue(value.id);
           const newValue: CredentialRequestsWithNew = {
             type: baseValue.type,
-            issuers: baseValue.issuers,
-            required: baseValue.required,
             mandatory: baseValue.mandatory as MandatoryEnum | undefined,
             description: baseValue.description,
             allowUserInput: baseValue.allowUserInput,

@@ -2,8 +2,6 @@ import { type MandatoryEnum } from './mandatoryEnum';
 
 export interface CredentialRequests {
   type: string;
-  issuers?: string[];
-  required?: boolean;
   mandatory?: MandatoryEnum;
   description?: string;
   allowUserInput?: boolean;
@@ -17,8 +15,6 @@ export interface CredentialRequests {
 
 export interface CredentialRequestsWithNew {
   type: string;
-  issuers?: string[];
-  required?: boolean;
   mandatory?: MandatoryEnum;
   description?: string;
   allowUserInput?: boolean;

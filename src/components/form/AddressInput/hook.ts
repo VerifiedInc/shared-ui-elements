@@ -111,17 +111,16 @@ export function useDataFieldAddressInput({
         handleChange('', undefined);
       }
 
-      if (
-        !debouncedInputValue ||
-        debouncedInputValue.length <= 3 ||
-        debouncedInputValue === previousInputValue
-      ) {
+      if (!debouncedInputValue || debouncedInputValue === previousInputValue) {
         return;
       }
 
       // Handle value change without validation
       handleChange(debouncedInputValue, undefined);
-      // Trigger autocomplete request
+
+      // Trigger autocomplete request only when there is enough input
+      if (debouncedInputValue.length <= 3) return;
+
       handleAutoComplete(debouncedInputValue).catch(console.error);
     };
     handle();

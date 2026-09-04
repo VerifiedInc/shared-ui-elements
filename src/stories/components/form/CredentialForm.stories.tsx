@@ -481,59 +481,59 @@ const mockCredentials = [
       phone: '+12125550010',
     },
   },
-  // {
-  //   uuid: '174714b4-b2d3-4369-a44d-b5f940d935eb',
-  //   type: 'fullName',
-  //   value: {
-  //     firstName: 'Richard',
-  //     lastName: 'Hendricks',
-  //   },
-  // },
-  // {
-  //   uuid: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
-  //   type: 'ssn',
-  //   value: {
-  //     ssn: '•••-••-6789',
-  //   },
-  // },
-  // {
-  //   uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde1',
-  //   type: 'address',
-  //   value: {
-  //     line1: '123 Main Street',
-  //     line2: 'Apt 1A',
-  //     city: 'New York',
-  //     state: 'NY',
-  //     country: 'US',
-  //     zipCode: '12345',
-  //   },
-  // },
-  // {
-  //   uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde2',
-  //   type: 'address',
-  //   value: {
-  //     line1: '123 Main Street',
-  //     line2: 'Apt 1A',
-  //     city: 'California',
-  //     state: 'CA',
-  //     country: 'US',
-  //     zipCode: '10001',
-  //   },
-  // },
-  // {
-  //   uuid: 'sex-id-1234',
-  //   type: 'sex',
-  //   value: {
-  //     sex: 'Male',
-  //   },
-  // },
-  // {
-  //   uuid: 'dob-id-1234',
-  //   type: 'birthDate',
-  //   value: {
-  //     birthDate: '1989-08-01',
-  //   },
-  // },
+  {
+    uuid: '174714b4-b2d3-4369-a44d-b5f940d935eb',
+    type: 'fullName',
+    value: {
+      firstName: 'Richard',
+      lastName: 'Hendricks',
+    },
+  },
+  {
+    uuid: '99fb267d-c1d0-4b12-a296-5533317dc5c2',
+    type: 'ssn',
+    value: {
+      ssn: '•••-••-6789',
+    },
+  },
+  {
+    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde1',
+    type: 'address',
+    value: {
+      line1: '123 Main Street',
+      line2: 'Apt 1A',
+      city: 'New York',
+      state: 'NY',
+      country: 'US',
+      zipCode: '12345',
+    },
+  },
+  {
+    uuid: 'a1b2c3d4-e5f6-7890-1234-567890abcde2',
+    type: 'address',
+    value: {
+      line1: '123 Main Street',
+      line2: 'Apt 1A',
+      city: 'California',
+      state: 'CA',
+      country: 'US',
+      zipCode: '10001',
+    },
+  },
+  {
+    uuid: 'sex-id-1234',
+    type: 'sex',
+    value: {
+      sex: 'Male',
+    },
+  },
+  {
+    uuid: 'dob-id-1234',
+    type: 'birthDate',
+    value: {
+      birthDate: '1989-08-01',
+    },
+  },
   {
     uuid: 'drivers-license-id-1234',
     type: 'driversLicense',
@@ -570,43 +570,77 @@ const mockCredentials = [
       },
     },
   },
-  // {
-  //   uuid: 'health-insurance-id-1234',
-  //   type: 'healthInsurance',
-  //   value: {
-  //     id: 174,
-  //     memberId: '****AC02',
-  //     payer: {
-  //       verifiedId: 'V123123',
-  //       name: 'Aviato Health Insurance Of California',
-  //       logoUrl: '',
-  //     },
-  //   },
-  // },
+  {
+    uuid: 'employer-id-1234',
+    type: 'employer',
+    value: {
+      employer: {
+        name: 'Walmart',
+        legalName: 'WALMART INC.',
+        address: {
+          line1: '702 SW 8th St',
+          city: 'Bentonville',
+          state: 'AR',
+          country: 'US',
+          zipCode: '72716',
+        },
+      },
+    },
+  },
+  {
+    uuid: 'employer-id-1235',
+    type: 'employer',
+    value: {
+      employer: {
+        name: 'Google',
+        legalName: 'GOOGLE LLC',
+        address: {
+          line1: '702 SW 8th St',
+          city: 'Bentonville',
+          state: 'AR',
+          country: 'US',
+          zipCode: '72716-1234',
+        },
+      },
+    },
+  },
+  {
+    uuid: 'health-insurance-id-1234',
+    type: 'healthInsurance',
+    value: {
+      id: 174,
+      memberId: '****AC02',
+      payer: {
+        verifiedId: 'V123123',
+        name: 'Aviato Health Insurance Of California',
+        logoUrl: '',
+      },
+    },
+  },
 ];
 
 const mockCredentialRequests = [
   {
     allowUserInput: true,
-    mandatory: 'yes',
+    mandatory: 'no',
     multi: false,
     type: 'FullNameCredential',
     children: [
       // {
       //   type: 'MiddleNameCredential',
-      //   mandatory: 'yes',
+      //   mandatory: 'no',
       //   description: 'Your middle name',
       //   // allowUserInput: true,
       // },
       {
         type: 'LastNameCredential',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Your last name',
         // allowUserInput: true,
       },
       {
         type: 'FirstNameCredential',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Your first name',
         // allowUserInput: true,
       },
@@ -638,7 +672,7 @@ const mockCredentialRequests = [
       },
       {
         type: 'Line2Credential',
-        mandatory: 'yes',
+        mandatory: 'no',
         description: 'Apt, Unit, etc.',
       },
       {
@@ -654,7 +688,6 @@ const mockCredentialRequests = [
         description: 'Country',
       },
       {
-        mandatory: 'yes',
         type: 'ZipCodeCredential',
         description: 'ZipCode',
       },
@@ -753,6 +786,12 @@ const mockCredentialRequests = [
         ],
       },
     ],
+  },
+  {
+    allowUserInput: true,
+    mandatory: 'no',
+    type: 'EmployerCredential',
+    description: 'Where you currently work',
   },
   {
     allowUserInput: true,

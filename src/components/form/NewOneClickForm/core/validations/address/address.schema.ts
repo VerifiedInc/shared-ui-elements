@@ -101,3 +101,21 @@ export const addressSchema = z
       }
     }
   });
+
+const requiredAddressParts = [
+  ['line1', line1ValidationMessage],
+  ['city', cityValidationMessage],
+  ['state', stateValidationMessage],
+  ['zipCode', zipCodeValidationMessage],
+  ['country', countryValidationMessage],
+] as const;
+
+export const requiredAddressSchema = addressSchema.superRefine(
+  (address, ctx) => {
+    requiredAddressParts.forEach(([part, message]) => {
+      if (!address[part]) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [part], message });
+      }
+    });
+  },
+);

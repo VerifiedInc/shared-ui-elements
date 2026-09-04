@@ -22,6 +22,7 @@ import { SelectInputField } from './select.field';
 import { SSNInputField } from './ssn.field';
 import { DateInputField } from './date.field';
 import { HealthInsuranceInputField } from './healthInsurance.field';
+import { EmployerInputField } from './employer.field';
 
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
@@ -71,6 +72,17 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
         />
         <FieldSectionContent spacing={1.25}>
           <HealthInsuranceInputField fieldKey={fieldKey} />
+        </FieldSectionContent>
+      </FieldRowContainer>
+    );
+  }
+
+  if (field?.schema?.key === credentialKeys.employer) {
+    return (
+      <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
+        <FieldSectionTitle fieldKey={fieldKey} />
+        <FieldSectionContent spacing={1.25}>
+          <EmployerInputField fieldKey={fieldKey} />
         </FieldSectionContent>
       </FieldRowContainer>
     );

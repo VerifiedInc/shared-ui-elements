@@ -18,6 +18,7 @@ import { MultiField } from './multi.field';
 import { SingleField } from './single.field';
 import { HealthInsuranceField } from './healthInsurance.field';
 import { DriversLicenseField } from './driversLicense.field';
+import { EmployerField } from './employer.field';
 
 function FieldContainer({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
@@ -35,10 +36,18 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
   }
 
   // Custom render for the health insurance field — section title is managed inside the component
-  if (field?.schema?.key === credentialKeys.healthInsurance) {
+  if (field?.schema?.key === credentialKeys.healthInsurance && !field.isEmpty) {
     return (
       <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
         <HealthInsuranceField fieldKey={fieldKey} />
+      </FieldRowContainer>
+    );
+  }
+
+  if (field?.schema?.key === credentialKeys.employer && !field.isEmpty) {
+    return (
+      <FieldRowContainer fieldKey={fieldKey} spacing={1.25}>
+        <EmployerField fieldKey={fieldKey} />
       </FieldRowContainer>
     );
   }
@@ -118,6 +127,7 @@ export function ReadonlyFields() {
         }
 
         context.setEditMode(true);
+        context.setUserInitiatedEdit(true);
       }}
     >
       {fieldKeys.map((fieldKey) => (

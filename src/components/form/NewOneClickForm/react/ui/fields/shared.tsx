@@ -1,3 +1,5 @@
+import { Typography } from '@mui/material';
+
 import { credentialKeys, fieldInputTypes } from '../../../core/fields';
 import { FormField } from '../../../core/form';
 import type { OneClickFormOptions } from '../form.context';
@@ -75,7 +77,8 @@ export const getFieldValue = (
   if (typeof field.value === 'object') {
     if (
       field.schema.key !== credentialKeys.address &&
-      field.schema.key !== credentialKeys.healthInsurance
+      field.schema.key !== credentialKeys.healthInsurance &&
+      field.schema.key !== credentialKeys.employer
     ) {
       return;
     }
@@ -115,3 +118,30 @@ export const getFieldDisplayValue = (
 
   return displayValue;
 };
+
+export function RequiredLabel({
+  children,
+  required,
+}: {
+  children: React.ReactNode;
+  required: boolean;
+}) {
+  if (!required) {
+    return <>{children}</>;
+  }
+
+  return (
+    <>
+      {children}{' '}
+      <Typography
+        data-asterisk
+        component='span'
+        color='error'
+        variant='subtitle2'
+        sx={{ fontSize: 'inherit' }}
+      >
+        ✽
+      </Typography>
+    </>
+  );
+}

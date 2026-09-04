@@ -77,8 +77,6 @@ function CredentialRequestField({
             const baseValue = buildDataFieldValue('');
             const newValue: CredentialRequestsWithNew = {
               type: baseValue.type,
-              issuers: baseValue.issuers,
-              required: baseValue.required,
               mandatory: baseValue.mandatory as MandatoryEnum | undefined,
               description: baseValue.description,
               allowUserInput: baseValue.allowUserInput,

@@ -138,14 +138,16 @@ export class FormFieldBuilder {
   createFromSchema(
     requestObj: CredentialRequestObject,
     fieldSchema: BaseFieldDefinition<string>,
+    parentRequestObj?: CredentialRequestObject,
   ): FormField {
     let defaultValue: any;
     let finalChildren: Record<string, FormField> | undefined;
 
     // Extract request options
     const options: CredentialRequestOptions = {
-      allowUserInput: requestObj.allowUserInput ?? true,
-      mandatory: requestObj.mandatory ?? 'no',
+      allowUserInput:
+        requestObj.allowUserInput ?? parentRequestObj?.allowUserInput ?? true,
+      mandatory: requestObj.mandatory ?? parentRequestObj?.mandatory ?? 'no',
       multi: requestObj.multi ?? false,
       description: requestObj.description,
     };
@@ -167,6 +169,7 @@ export class FormFieldBuilder {
           const childField = this.createFromSchema(
             childRequest,
             childFieldSchema,
+            requestObj,
           );
           childFields[childFieldSchema.key] = childField;
         }

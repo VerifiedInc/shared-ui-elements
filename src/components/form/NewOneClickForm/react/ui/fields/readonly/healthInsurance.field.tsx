@@ -1,4 +1,4 @@
-import { Avatar, MenuItem, Stack, SxProps, Typography } from '@mui/material';
+import { Avatar, MenuItem, Stack, Typography } from '@mui/material';
 
 import { maskMemberId } from '../../../../core/formats';
 import { HealthInsuranceValue } from '../../../../core/validations';
@@ -14,10 +14,6 @@ import {
 import { VariantSelectField } from './variantSelect.field';
 
 const LOGO_SIZE = 48;
-
-const fieldInputDisabledStyle: SxProps = {
-  pointerEvents: 'auto',
-};
 
 function InsuranceRows({ item }: { item: HealthInsuranceValue }) {
   return (
@@ -97,23 +93,10 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
   if (!field.hasVariants) {
     const item = field.value;
 
-    if (!item?.payer?.name) {
-      return (
-        <Typography sx={{ textAlign: 'left' }}>
-          No health insurance information available.
-        </Typography>
-      );
-    }
+    if (!item) return null;
 
     return (
-      <Stack
-        spacing={1.25}
-        sx={fieldInputDisabledStyle}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      >
+      <Stack spacing={1.25}>
         <FieldSectionTitle fieldKey={fieldKey} />
         <FieldSectionContent spacing={1.25}>
           <InsuranceRows item={item} />
