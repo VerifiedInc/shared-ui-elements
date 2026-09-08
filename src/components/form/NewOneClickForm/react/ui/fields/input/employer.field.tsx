@@ -43,6 +43,12 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
     setValue({ employer: { ...details, ...patch } });
   };
 
+  const updateAddress = (nextAddress: EmployerAddress) => {
+    const hasParts = Object.values(nextAddress).some(Boolean);
+    updateDetails({ address: hasParts ? nextAddress : undefined });
+    touchPart('address');
+  };
+
   const issues = field.errors?.error?.issues ?? [];
   const errorFor = (part: EmployerPart): string | undefined => {
     if (!field.touched && !touchedParts[part]) return undefined;
@@ -95,21 +101,14 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
           }}
           onChange={(value) => {
             if (typeof value === 'string') return;
-            if (value === null) {
-              updateDetails({ address: undefined });
-              touchPart('address');
-              return;
-            }
-            const nextAddress: EmployerAddress = {
-              line1: value.line1,
+            updateAddress({
+              line1: value?.line1,
               line2: address.line2 ?? '',
-              city: value.city,
-              state: value.state,
-              zipCode: value.zipCode,
-              country: value.country === 'US' ? 'US' : undefined,
-            };
-            updateDetails({ address: nextAddress });
-            touchPart('address');
+              city: value?.city,
+              state: value?.state,
+              zipCode: value?.zipCode,
+              country: value?.country === 'US' ? 'US' : undefined,
+            });
           }}
           onBlur={() => touchPart('address')}
           error={!!addressError}
@@ -133,9 +132,7 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
         size='small'
         label='Line 2'
         value={address.line2 ?? ''}
-        onChange={(e) =>
-          updateDetails({ address: { ...address, line2: e.target.value } })
-        }
+        onChange={(e) => updateAddress({ ...address, line2: e.target.value })}
         disabled={field.isDisabled}
         InputProps={{ 'data-mask-me': true } as any}
         inputProps={{ autoCorrect: 'off' }}
