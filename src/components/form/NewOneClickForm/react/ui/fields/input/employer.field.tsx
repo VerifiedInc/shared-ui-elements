@@ -13,7 +13,8 @@ import { RequiredLabel, toFieldValueAttribute } from '../shared';
 import { useOneClickForm } from '../../form.context';
 
 type EmployerDetails = EmployerValue['employer'];
-type EmployerPart = 'name' | 'legalName' | 'address';
+type EmployerAddress = NonNullable<EmployerDetails['address']>;
+type EmployerPart = 'name' | 'address';
 
 export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
   const { options } = useOneClickForm();
@@ -31,6 +32,8 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
   if (!item) return null;
 
   const details: EmployerDetails = item.employer;
+  const address: EmployerAddress = details.address ?? {};
+  const userPrivacyEnabled = options.features.enableUserPrivacy;
 
   const touchPart = (part: EmployerPart) => {
     setTouchedParts((prev) => (prev[part] ? prev : { ...prev, [part]: true }));
@@ -40,8 +43,6 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
     setValue({ employer: { ...details, ...patch } });
   };
 
-  const userPrivacyEnabled = options.features.enableUserPrivacy;
-
   const issues = field.errors?.error?.issues ?? [];
   const errorFor = (part: EmployerPart): string | undefined => {
     if (!field.touched && !touchedParts[part]) return undefined;
@@ -49,7 +50,6 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
   };
 
   const nameError = errorFor('name');
-  const legalNameError = errorFor('legalName');
   const addressError = errorFor('address');
 
   return (
@@ -75,58 +75,40 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
         InputProps={{ 'data-mask-me': true } as any}
         inputProps={{ autoCorrect: 'off' }}
       />
-      <TextField
-        data-testid='data-field-atomic-employer.legalName'
-        data-verified-sdk-field-value={toFieldValueAttribute(
-          details.legalName,
-          userPrivacyEnabled,
-        )}
-        fullWidth
-        size='small'
-        label='Legal Name'
-        value={details.legalName ?? ''}
-        onChange={(e) => {
-          updateDetails({ legalName: e.target.value || undefined });
-          touchPart('legalName');
-        }}
-        onBlur={() => touchPart('legalName')}
-        error={!!legalNameError}
-        helperText={legalNameError}
-        disabled={field.isDisabled}
-        InputProps={{ 'data-mask-me': true } as any}
-        inputProps={{ autoCorrect: 'off' }}
-      />
       <Box
         data-testid='data-field-composite-employer.address'
         data-verified-sdk-field-value={toFieldValueAttribute(
-          addressFormat(details.address),
+          address.line1 ? addressFormat(address) : undefined,
           userPrivacyEnabled,
         )}
         width='100%'
       >
         <AddressInput
           size='small'
-          label={
-            <RequiredLabel required={field.isRequired}>Address</RequiredLabel>
-          }
+          label='Address'
           defaultValue={{
-            line1: details.address.line1,
-            city: details.address.city,
-            state: details.address.state,
-            zipCode: details.address.zipCode,
-            country: details.address.country ?? 'US',
+            line1: address.line1,
+            city: address.city,
+            state: address.state,
+            zipCode: address.zipCode,
+            country: address.country ?? 'US',
           }}
           onChange={(value) => {
             if (typeof value === 'string') return;
-            const address: EmployerDetails['address'] = {
-              line1: value?.line1,
-              line2: details.address.line2 ?? '',
-              city: value?.city,
-              state: value?.state,
-              zipCode: value?.zipCode,
-              country: value?.country === 'US' ? 'US' : undefined,
+            if (value === null) {
+              updateDetails({ address: undefined });
+              touchPart('address');
+              return;
+            }
+            const nextAddress: EmployerAddress = {
+              line1: value.line1,
+              line2: address.line2 ?? '',
+              city: value.city,
+              state: value.state,
+              zipCode: value.zipCode,
+              country: value.country === 'US' ? 'US' : undefined,
             };
-            updateDetails({ address });
+            updateDetails({ address: nextAddress });
             touchPart('address');
           }}
           onBlur={() => touchPart('address')}
@@ -144,17 +126,15 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
       <TextField
         data-testid='data-field-atomic-employer.address.line2'
         data-verified-sdk-field-value={toFieldValueAttribute(
-          details.address.line2,
+          address.line2,
           userPrivacyEnabled,
         )}
         fullWidth
         size='small'
         label='Line 2'
-        value={details.address.line2 ?? ''}
+        value={address.line2 ?? ''}
         onChange={(e) =>
-          updateDetails({
-            address: { ...details.address, line2: e.target.value },
-          })
+          updateDetails({ address: { ...address, line2: e.target.value } })
         }
         disabled={field.isDisabled}
         InputProps={{ 'data-mask-me': true } as any}
