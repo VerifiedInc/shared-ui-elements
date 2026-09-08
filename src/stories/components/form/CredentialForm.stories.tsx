@@ -605,6 +605,15 @@ const mockCredentials = [
     },
   },
   {
+    uuid: 'employer-id-1236',
+    type: 'employer',
+    value: {
+      employer: {
+        name: 'Google',
+      },
+    },
+  },
+  {
     uuid: 'health-insurance-id-1234',
     type: 'healthInsurance',
     value: {

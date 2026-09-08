@@ -9,7 +9,7 @@ export const employerSchema = z.object({
   employer: z.object({
     name: employerNameSchema,
     legalName: legalNameSchema.optional(),
-    address: requiredAddressSchema,
+    address: requiredAddressSchema.optional(),
   }),
 });
 

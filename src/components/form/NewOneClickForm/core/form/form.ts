@@ -2,12 +2,14 @@ import { credentialKeys } from '../fields';
 
 import { FormField } from './formField';
 
-const trimStrings = (value: unknown): unknown => {
+const normalizeValue = (value: unknown): unknown => {
   if (typeof value === 'string') return value.trim();
-  if (Array.isArray(value)) return value.map(trimStrings);
+  if (Array.isArray(value)) return value.map(normalizeValue);
   if (value && typeof value === 'object') {
     return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [key, trimStrings(item)]),
+      Object.entries(value)
+        .filter(([, item]) => item !== undefined)
+        .map(([key, item]) => [key, normalizeValue(item)]),
     );
   }
   return value;
@@ -47,7 +49,7 @@ export class Form {
     return Object.fromEntries(
       Object.values(this.fields).map((field) => [
         field.schema.key,
-        trimStrings(field.value),
+        normalizeValue(field.value),
       ]),
     );
   }

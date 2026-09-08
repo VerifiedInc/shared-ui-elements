@@ -89,6 +89,12 @@ describe('employer', () => {
       expect(field.isValid).toBe(true);
     });
 
+    test('address is optional', () => {
+      field.value = { employer: { name: 'Walmart' } };
+
+      expect(field.isValid).toBe(true);
+    });
+
     test('address with a second line is valid', () => {
       field.value = {
         employer: {
@@ -142,6 +148,10 @@ describe('employer', () => {
 
       expect(emptyForm.fields.employer.isValid).toBe(false);
     });
+  });
+
+  test('displays the name and state', () => {
+    expect(field.displayValue).toBe('Walmart — AR');
   });
 
   test('patches the credentials package shape', () => {

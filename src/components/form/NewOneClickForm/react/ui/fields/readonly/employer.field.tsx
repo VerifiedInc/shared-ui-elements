@@ -27,7 +27,7 @@ function EmployerRow({
   label: string;
   value: string;
   testId: string;
-  fieldValue?: string | null;
+  fieldValue?: string;
 }) {
   return (
     <Stack
@@ -55,7 +55,7 @@ function EmployerRow({
 function EmployerRows({ item }: { item: EmployerDetails }) {
   const { options } = useOneClickForm();
   const userPrivacyEnabled = options.features.enableUserPrivacy;
-  const address = addressFormat(item.address);
+  const address = item.address?.line1 ? addressFormat(item.address) : null;
 
   return (
     <Stack spacing={1.25}>
@@ -65,20 +65,14 @@ function EmployerRows({ item }: { item: EmployerDetails }) {
         testId='data-field-atomic-employer.name'
         fieldValue={toFieldValueAttribute(item.name, userPrivacyEnabled)}
       />
-      {item.legalName && (
+      {address && (
         <EmployerRow
-          label='Legal Name'
-          value={item.legalName}
-          testId='data-field-atomic-employer.legalName'
-          fieldValue={toFieldValueAttribute(item.legalName, userPrivacyEnabled)}
+          label='Address'
+          value={address}
+          testId='data-field-composite-employer.address'
+          fieldValue={toFieldValueAttribute(address, userPrivacyEnabled)}
         />
       )}
-      <EmployerRow
-        label='Address'
-        value={address ?? '-'}
-        testId='data-field-composite-employer.address'
-        fieldValue={toFieldValueAttribute(address, userPrivacyEnabled)}
-      />
     </Stack>
   );
 }
