@@ -378,5 +378,22 @@ describe('Form', () => {
         },
       });
     });
+
+    test('drops undefined properties', () => {
+      const form = new FormBuilder().createFromCredentialAndRequests(
+        [
+          makeCredential({
+            uuid: 'employer-id-1234',
+            type: 'employer',
+            value: { employer: { name: 'Google' } },
+          }),
+        ],
+        [makeCredentialRequest({ type: 'EmployerCredential' })],
+      );
+
+      expect(form.values).toStrictEqual({
+        employer: { employer: { name: 'Google' } },
+      });
+    });
   });
 });
