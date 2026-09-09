@@ -15,8 +15,8 @@ const meta = {
   tags: ['autodocs'],
   // Docgen cannot see through `Readonly<PhoneInputProps>`, so it documents these two as "other" (object control).
   argTypes: {
-    pretty: { type: 'boolean', table: { type: { summary: 'boolean' } } },
-    loading: { type: 'boolean', table: { type: { summary: 'boolean' } } },
+    pretty: { control: 'boolean', table: { type: { summary: 'boolean' } } },
+    loading: { control: 'boolean', table: { type: { summary: 'boolean' } } },
   },
   args: {
     shouldHaveClearButton: true,
