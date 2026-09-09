@@ -4,6 +4,7 @@ import { fn } from '@storybook/test';
 import { Box } from '@mui/material';
 
 import { PrettyPhoneInput } from '../../../components/form/PrettyPhoneInput';
+import { Iframe, IframeContent } from '../../../components/__for-stories';
 
 // Wrapper component with black background for color testing
 const BlackBoxWrapper = (props: any) => (
@@ -24,6 +25,7 @@ const meta = {
   tags: ['autodocs'],
   args: {
     shouldHaveClearButton: true,
+    loading: false,
   },
 } satisfies Meta<typeof PrettyPhoneInput>;
 
@@ -106,4 +108,59 @@ export const Disabled: Story = {
     disabled: true,
     onBlur: fn(),
   },
+};
+
+export const Loading: Story = {
+  args: {
+    name: 'phone',
+    label: 'Phone Number',
+    initialValue: '12065550123',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Looking up this number…',
+    loading: true,
+    onBlur: fn(),
+  },
+};
+
+export const LoadingWithError: Story = {
+  args: {
+    name: 'phone',
+    label: 'Phone Number',
+    initialValue: '12065550123',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: true,
+    helperText: 'Retrying…',
+    loading: true,
+    onBlur: fn(),
+  },
+};
+
+/**
+ * The 1-Click web client renders the input inside a nested iframe with its own Emotion cache
+ * (see its `StyledIframe`), so the animation must work when styles land in another document.
+ */
+export const InsideIframe: Story = {
+  args: {
+    name: 'phone',
+    label: 'Phone Number',
+    initialValue: '12065550123',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Rendered inside an iframe',
+    loading: true,
+    onBlur: fn(),
+  },
+  render: (args) => (
+    <Iframe style={{ width: 400, height: 160 }}>
+      <IframeContent>
+        <Box sx={{ p: 2 }}>
+          <PrettyPhoneInput {...args} />
+        </Box>
+      </IframeContent>
+    </Iframe>
+  ),
 };

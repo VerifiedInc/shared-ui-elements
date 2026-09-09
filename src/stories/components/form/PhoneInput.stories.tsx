@@ -13,8 +13,15 @@ const meta = {
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
+  // Docgen cannot see through `Readonly<PhoneInputProps>`, so it documents these two as "other" (object control).
+  argTypes: {
+    pretty: { control: 'boolean', table: { type: { summary: 'boolean' } } },
+    loading: { control: 'boolean', table: { type: { summary: 'boolean' } } },
+  },
   args: {
     shouldHaveClearButton: true,
+    pretty: false,
+    loading: false,
   },
 } satisfies Meta<typeof PhoneInput>;
 
@@ -45,6 +52,22 @@ export const Pretty: Story = {
     helperText: 'Helper text',
     onBlur: fn(),
     pretty: true,
+  },
+};
+
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const PrettyLoading: Story = {
+  args: {
+    name: 'date',
+    label: 'Label',
+    initialValue: '12065550123',
+    onChange: fn(),
+    onValidPhone: fn(),
+    error: false,
+    helperText: 'Looking up this number…',
+    onBlur: fn(),
+    pretty: true,
+    loading: true,
   },
 };
 
