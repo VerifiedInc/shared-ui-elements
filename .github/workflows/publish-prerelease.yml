@@ -6,8 +6,9 @@ name: publish-prerelease
 #
 # Trigger: a PR comment `/prerelease`, `/prerelease alpha` or `/prerelease rc`. Only users with
 # write access to this repo are honoured, and only for open PRs from branches of this repo (never
-# forks), since the build runs with the npm token. Like every issue_comment workflow, this runs the
-# file from the default branch.
+# forks), since the build runs with the npm token. The token lives in the `npm-prerelease`
+# environment, so every run waits for one of its required reviewers before any step executes.
+# Like every issue_comment workflow, this runs the file from the default branch.
 #
 # User-controlled values (comment text, PR data, derived outputs) only reach shell steps through
 # environment variables, never by expression interpolation into `run` blocks.
@@ -30,6 +31,7 @@ jobs:
       && startsWith(github.event.comment.body, '/prerelease')
       && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-latest
+    environment: npm-prerelease
     permissions:
       contents: read
       pull-requests: write
