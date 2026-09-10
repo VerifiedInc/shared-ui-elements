@@ -9,10 +9,12 @@ name: publish-prerelease
 # - A PR comment: `/prerelease`, `/prerelease alpha` or `/prerelease rc`. Only users with write
 #   access to this repo are honoured, and only for branches of this repo (never forks), since the
 #   build runs with the npm token. Comment triggers use the workflow file on the default branch.
+#
+# User-controlled values (inputs, comment text, derived outputs) only reach shell steps through
+# environment variables, never by expression interpolation into `run` blocks.
 
 permissions:
   contents: read
-  pull-requests: write
 
 on:
   workflow_dispatch:
@@ -40,6 +42,10 @@ jobs:
     name: Resolve request
     if: github.event_name == 'workflow_dispatch' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '/prerelease'))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write
     outputs:
       ref: ${{ steps.dispatch.outputs.ref || steps.comment.outputs.ref }}
       preid: ${{ steps.dispatch.outputs.preid || steps.comment.outputs.preid }}
@@ -49,11 +55,22 @@ jobs:
       - name: From the Actions tab
         id: dispatch
         if: github.event_name == 'workflow_dispatch'
+        env:
+          INPUT_PREID: ${{ inputs.preid }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
+          case "$INPUT_PREID" in
+            beta|alpha|rc) ;;
+            *) echo "::error::Unknown prerelease id '$INPUT_PREID'."; exit 1 ;;
+          esac
+          if [ -n "$INPUT_VERSION" ] && ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::'$INPUT_VERSION' is not a valid semver version."
+            exit 1
+          fi
           {
             echo "ref=$GITHUB_SHA"
-            echo "preid=${{ inputs.preid }}"
-            echo "version=${{ inputs.version }}"
+            echo "preid=$INPUT_PREID"
+            echo "version=$INPUT_VERSION"
           } >> "$GITHUB_OUTPUT"
 
       - name: From a PR comment
@@ -71,7 +88,7 @@ jobs:
             *) echo "::error::$AUTHOR has '$PERMISSION' access; write access is required to publish."; exit 1 ;;
           esac
 
-          PREID=$(echo "$COMMENT" | awk 'NR==1 { print ($2 == "" ? "beta" : $2) }')
+          PREID=$(printf '%s\n' "$COMMENT" | awk 'NR==1 { print ($2 == "" ? "beta" : $2) }')
           case "$PREID" in
             beta|alpha|rc) ;;
             *) echo "::error::Unknown prerelease id '$PREID'. Use /prerelease, /prerelease alpha or /prerelease rc."; exit 1 ;;
@@ -93,17 +110,22 @@ jobs:
         if: github.event_name == 'issue_comment'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api "repos/$GITHUB_REPOSITORY/issues/comments/${{ github.event.comment.id }}/reactions" -f content=rocket --silent
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
 
   publish:
     name: Publish prerelease
     needs: params
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.params.outputs.ref }}
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
@@ -128,16 +150,18 @@ jobs:
           echo "Publishing $VERSION with dist-tag $PREID"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Set package version
-        run: npm --no-git-tag-version version ${{ steps.version.outputs.version }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npm --no-git-tag-version version "$VERSION"
 
       - name: Build package
         run: npm run build
 
       - name: Publish to npm
-        uses: JS-DevTools/npm-publish@v4
+        uses: JS-DevTools/npm-publish@0fd2f4369c5d6bcfcde6091a7c527d810b9b5c3f # v4
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
