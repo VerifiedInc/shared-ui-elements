@@ -1,4 +1,4 @@
-import { Fragment, useState, type UIEvent } from 'react';
+import { Fragment, useState, type ReactNode, type UIEvent } from 'react';
 import {
   Autocomplete,
   Box,
@@ -57,6 +57,17 @@ export function RemoteValuesInput({
       listbox.scrollHeight - LOAD_MORE_THRESHOLD_PX;
     if (nearEnd) search.loadMore();
   };
+
+  let noOptionsText: ReactNode = inputValue.trim()
+    ? 'No matches'
+    : 'Type to search';
+  if (search.error) {
+    noOptionsText = (
+      <Button size='small' onClick={search.retry}>
+        Search failed. Retry
+      </Button>
+    );
+  }
 
   if (!search.isSupported) {
     return (
@@ -125,17 +136,7 @@ export function RemoteValuesInput({
         onChange(multi ? nextValues : nextValues.slice(-1));
         setInputValue('');
       }}
-      noOptionsText={
-        search.error ? (
-          <Button size='small' onClick={search.retry}>
-            Search failed. Retry
-          </Button>
-        ) : inputValue.trim() ? (
-          'No matches'
-        ) : (
-          'Type to search'
-        )
-      }
+      noOptionsText={noOptionsText}
       renderOption={(props, option, { selected: isSelected }) => {
         const { key, ...rest } = props as typeof props & { key: string };
         return (
