@@ -35,7 +35,7 @@ export function NotesField({
       // Enter picks the highlighted suggestion instead of submitting the dialog.
       autoHighlight
       options={presets as NoteOption[]}
-      value={value}
+      value={null}
       inputValue={value}
       disabled={disabled}
       getOptionLabel={optionLabel}

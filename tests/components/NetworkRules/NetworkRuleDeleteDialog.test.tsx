@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
+import { ThemeProvider } from '@mui/material';
 
 import {
   NetworkRuleDeleteDialog,
@@ -7,21 +8,28 @@ import {
   type NetworkRuleDeleteDialogProps,
 } from '../../../src/components/NetworkRules';
 
+import { theme } from '../../../src/styles/theme';
+
 import { createServices, rules } from './fixtures';
+
+// The dialogs use the theme's `neutral` color, which the default MUI theme lacks.
+const appTheme = theme({ primaryFontFace: { style: { fontFamily: 'Lato' } } });
 
 function renderDialog(props: Partial<NetworkRuleDeleteDialogProps> = {}) {
   const onConfirm = vi.fn();
   const onClose = vi.fn();
   const utils = render(
-    <NetworkRulesProvider services={createServices()}>
-      <NetworkRuleDeleteDialog
-        open
-        rule={rules[0]}
-        onConfirm={onConfirm}
-        onClose={onClose}
-        {...props}
-      />
-    </NetworkRulesProvider>,
+    <ThemeProvider theme={appTheme}>
+      <NetworkRulesProvider services={createServices()}>
+        <NetworkRuleDeleteDialog
+          open
+          rule={rules[0]}
+          onConfirm={onConfirm}
+          onClose={onClose}
+          {...props}
+        />
+      </NetworkRulesProvider>
+    </ThemeProvider>,
   );
   return { ...utils, onConfirm, onClose };
 }
@@ -64,15 +72,17 @@ describe('<NetworkRuleDeleteDialog/>', () => {
     expect(onConfirm).not.toHaveBeenCalled();
 
     rerender(
-      <NetworkRulesProvider services={createServices()}>
-        <NetworkRuleDeleteDialog
-          open
-          rule={rules[0]}
-          onConfirm={onConfirm}
-          onClose={onClose}
-          isDeleting
-        />
-      </NetworkRulesProvider>,
+      <ThemeProvider theme={appTheme}>
+        <NetworkRulesProvider services={createServices()}>
+          <NetworkRuleDeleteDialog
+            open
+            rule={rules[0]}
+            onConfirm={onConfirm}
+            onClose={onClose}
+            isDeleting
+          />
+        </NetworkRulesProvider>
+      </ThemeProvider>,
     );
     expect(
       (getByRole('button', { name: 'Delete' }) as HTMLButtonElement).disabled,

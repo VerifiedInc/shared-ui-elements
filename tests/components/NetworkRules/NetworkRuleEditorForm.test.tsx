@@ -25,17 +25,29 @@ function renderForm(props: Partial<NetworkRuleEditorFormProps> = {}) {
   return { ...utils, onSubmit };
 }
 
-/** Opens a MUI Select (role=combobox) and picks the option with the given name. */
+/**
+ * Opens a MUI Select (role=combobox) and returns its listbox. Matched by the
+ * select's label id and taking the newest match, since a closing menu stays in
+ * the DOM (aria-hidden) for its exit transition.
+ */
+async function openSelect(select: HTMLElement): Promise<HTMLElement> {
+  const labelId = select.getAttribute('aria-labelledby')?.split(' ')[0];
+  fireEvent.mouseDown(select);
+  return await waitFor(() => {
+    const matches = document.body.querySelectorAll(
+      `[role="listbox"][aria-labelledby="${labelId}"]`,
+    );
+    const element = matches[matches.length - 1];
+    if (!element) throw new Error('listbox not open');
+    return element as HTMLElement;
+  });
+}
+
 async function pickSelectOption(
   select: HTMLElement,
   optionName: string | RegExp,
 ): Promise<void> {
-  fireEvent.mouseDown(select);
-  const listbox = await waitFor(() => {
-    const element = document.body.querySelector('[role="listbox"]');
-    if (!element) throw new Error('listbox not open');
-    return element as HTMLElement;
-  });
+  const listbox = await openSelect(select);
   fireEvent.click(within(listbox).getByRole('option', { name: optionName }));
 }
 
@@ -77,13 +89,9 @@ describe('<NetworkRuleEditorForm/>', () => {
 
     // Inline-options key → pick-list.
     await pickSelectOption(getByRole('combobox', { name: /^key/i }), 'Color');
-    const operator = getByRole('combobox', { name: /operator/i });
-    fireEvent.mouseDown(operator);
-    const listbox = await waitFor(() => {
-      const element = document.body.querySelector('[role="listbox"]');
-      if (!element) throw new Error('listbox not open');
-      return element as HTMLElement;
-    });
+    const listbox = await openSelect(
+      getByRole('combobox', { name: /operator/i }),
+    );
     const options = within(listbox)
       .getAllByRole('option')
       .map((option) => option.textContent);

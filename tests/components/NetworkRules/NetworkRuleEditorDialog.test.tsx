@@ -1,24 +1,32 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { ThemeProvider } from '@mui/material';
 
 import {
   NetworkRuleEditorDialog,
   NetworkRulesProvider,
 } from '../../../src/components/NetworkRules';
 
+import { theme } from '../../../src/styles/theme';
+
 import { createServices, rules } from './fixtures';
+
+// The dialogs use the theme's `neutral` color, which the default MUI theme lacks.
+const appTheme = theme({ primaryFontFace: { style: { fontFamily: 'Lato' } } });
 
 function renderDialog() {
   const onClose = vi.fn();
   const utils = render(
-    <NetworkRulesProvider services={createServices()}>
-      <NetworkRuleEditorDialog
-        open
-        rule={rules[0]}
-        onClose={onClose}
-        onSubmit={vi.fn()}
-      />
-    </NetworkRulesProvider>,
+    <ThemeProvider theme={appTheme}>
+      <NetworkRulesProvider services={createServices()}>
+        <NetworkRuleEditorDialog
+          open
+          rule={rules[0]}
+          onClose={onClose}
+          onSubmit={vi.fn()}
+        />
+      </NetworkRulesProvider>
+    </ThemeProvider>,
   );
   return { ...utils, onClose };
 }
@@ -64,15 +72,17 @@ describe('<NetworkRuleEditorDialog/>', () => {
 
   test('titles itself for adding a condition', async () => {
     const { findByText } = render(
-      <NetworkRulesProvider services={createServices()}>
-        <NetworkRuleEditorDialog
-          open
-          rule={rules[0]}
-          appendEmptyCondition
-          onClose={vi.fn()}
-          onSubmit={vi.fn()}
-        />
-      </NetworkRulesProvider>,
+      <ThemeProvider theme={appTheme}>
+        <NetworkRulesProvider services={createServices()}>
+          <NetworkRuleEditorDialog
+            open
+            rule={rules[0]}
+            appendEmptyCondition
+            onClose={vi.fn()}
+            onSubmit={vi.fn()}
+          />
+        </NetworkRulesProvider>
+      </ThemeProvider>,
     );
     expect(await findByText('Add Condition', { selector: 'h2' })).toBeDefined();
   });
