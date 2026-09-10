@@ -6,9 +6,13 @@ name: publish-prerelease
 #
 # Trigger: a PR comment `/prerelease`, `/prerelease alpha` or `/prerelease rc`. Only users with
 # write access to this repo are honoured, and only for open PRs from branches of this repo (never
-# forks), since the build runs with the npm token. The token lives in the `npm-prerelease`
-# environment, so every run waits for one of its required reviewers before any step executes.
-# Like every issue_comment workflow, this runs the file from the default branch.
+# forks), since the build runs with the npm token.
+#
+# Two jobs on purpose. `request` has no environment: it filters every other PR comment out, checks
+# the commenter and the PR, and pins the head commit. Only then does `publish` start, and it is the
+# one bound to the `npm-prerelease` environment, so reviewers are asked to approve a specific
+# commit and never hear about unrelated comments. Like every issue_comment workflow, this runs the
+# file from the default branch.
 #
 # User-controlled values (comment text, PR data, derived outputs) only reach shell steps through
 # environment variables, never by expression interpolation into `run` blocks.
@@ -24,18 +28,20 @@ concurrency:
   group: publish-prerelease-${{ github.event.issue.number }}
 
 jobs:
-  publish:
-    name: Publish prerelease
+  request:
+    name: Validate request
     if: >-
       github.event.issue.pull_request
       && startsWith(github.event.comment.body, '/prerelease')
       && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-latest
-    environment: npm-prerelease
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
       issues: write
+    outputs:
+      sha: ${{ steps.head.outputs.sha }}
+      preid: ${{ steps.request.outputs.preid }}
     steps:
       - name: Validate the request
         id: request
@@ -44,7 +50,6 @@ jobs:
           COMMENT: ${{ github.event.comment.body }}
           AUTHOR: ${{ github.event.comment.user.login }}
           PR: ${{ github.event.issue.number }}
-          COMMENT_ID: ${{ github.event.comment.id }}
         run: |
           PERMISSION=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$AUTHOR/permission" --jq .permission)
           case "$PERMISSION" in
@@ -70,15 +75,15 @@ jobs:
           fi
 
           echo "preid=$PREID" >> "$GITHUB_OUTPUT"
-          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
 
-      # The commit is pinned here, right after the checks, so a push to the PR between the
-      # check and the build cannot change what gets published.
+      # Pinned before the approval, so what the reviewer approves is exactly what gets built.
       - name: Resolve the PR head commit
         id: head
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.issue.number }}
+          PREID: ${{ steps.request.outputs.preid }}
+          COMMENT_ID: ${{ github.event.comment.id }}
         run: |
           SHA=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)
           if ! [[ "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
@@ -86,11 +91,28 @@ jobs:
             exit 1
           fi
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Prerelease requested"
+            echo
+            echo "PR: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$PR · Commit: \`$SHA\` · dist-tag: \`$PREID\`"
+            echo
+            echo "Approving the \`npm-prerelease\` deployment publishes this exact commit."
+          } >> "$GITHUB_STEP_SUMMARY"
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
 
-      - name: Checkout the PR head commit
+  publish:
+    name: Publish prerelease
+    needs: request
+    runs-on: ubuntu-latest
+    environment: npm-prerelease
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout the approved commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ steps.head.outputs.sha }}
+          ref: ${{ needs.request.outputs.sha }}
           persist-credentials: false
 
       - name: Set up Node.js
@@ -101,7 +123,7 @@ jobs:
       - name: Resolve version
         id: version
         env:
-          PREID: ${{ steps.request.outputs.preid }}
+          PREID: ${{ needs.request.outputs.preid }}
         run: |
           BASE=$(node -p "require('./package.json').version")
           if ! [[ "$BASE" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
@@ -130,7 +152,7 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
-          tag: ${{ steps.request.outputs.preid }}
+          tag: ${{ needs.request.outputs.preid }}
 
       - name: Fail if nothing was published
         if: steps.publish.outputs.type == ''
@@ -143,8 +165,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.issue.number }}
           VERSION: ${{ steps.version.outputs.version }}
-          PREID: ${{ steps.request.outputs.preid }}
-          SHA: ${{ steps.head.outputs.sha }}
+          PREID: ${{ needs.request.outputs.preid }}
+          SHA: ${{ needs.request.outputs.sha }}
         run: |
           BODY=$(cat <<NOTES
           Published \`@verifiedinc-public/shared-ui-elements@$VERSION\` from \`${SHA::7}\` with dist-tag \`$PREID\`.
