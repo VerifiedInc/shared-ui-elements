@@ -7,10 +7,12 @@ name: publish-prerelease
 # Two ways to run it:
 # - Actions tab → Run workflow, on any branch.
 # - A PR comment: `/prerelease`, `/prerelease alpha` or `/prerelease rc`. Only users with write
-#   access to this repo are honoured, and only for branches of this repo (never forks), since the
-#   build runs with the npm token. Comment triggers use the workflow file on the default branch.
+#   access to this repo are honoured, and only for branches of this repo (never forks). The comment
+#   job checks nothing out and holds no publish secret: it only dispatches this same workflow on
+#   the PR's branch, so publishing always runs as a workflow_dispatch of a branch of this repo.
+#   Comment triggers use the workflow file on the default branch.
 #
-# User-controlled values (inputs, comment text, derived outputs) only reach shell steps through
+# User-controlled values (inputs, comment text, PR data) only reach shell steps through
 # environment variables, never by expression interpolation into `run` blocks.
 
 permissions:
@@ -31,56 +33,34 @@ on:
         description: Full version to publish (optional). Defaults to the next patch of package.json with -<preid>.<run number>
         type: string
         required: false
+      pr:
+        description: Pull request number to report back to (set by the /prerelease comment; leave empty)
+        type: string
+        required: false
   issue_comment:
     types: [created]
 
 concurrency:
-  group: publish-prerelease-${{ github.event.issue.number || github.ref }}
+  group: publish-prerelease-${{ github.ref }}
 
 jobs:
-  params:
-    name: Resolve request
-    if: github.event_name == 'workflow_dispatch' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '/prerelease'))
+  dispatch-from-comment:
+    name: Dispatch from PR comment
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request && startsWith(github.event.comment.body, '/prerelease')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
       issues: write
-    outputs:
-      ref: ${{ steps.dispatch.outputs.ref || steps.comment.outputs.ref }}
-      preid: ${{ steps.dispatch.outputs.preid || steps.comment.outputs.preid }}
-      version: ${{ steps.dispatch.outputs.version }}
-      pr: ${{ steps.comment.outputs.pr }}
+      actions: write
     steps:
-      - name: From the Actions tab
-        id: dispatch
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          INPUT_PREID: ${{ inputs.preid }}
-          INPUT_VERSION: ${{ inputs.version }}
-        run: |
-          case "$INPUT_PREID" in
-            beta|alpha|rc) ;;
-            *) echo "::error::Unknown prerelease id '$INPUT_PREID'."; exit 1 ;;
-          esac
-          if [ -n "$INPUT_VERSION" ] && ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::'$INPUT_VERSION' is not a valid semver version."
-            exit 1
-          fi
-          {
-            echo "ref=$GITHUB_SHA"
-            echo "preid=$INPUT_PREID"
-            echo "version=$INPUT_VERSION"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: From a PR comment
-        id: comment
-        if: github.event_name == 'issue_comment'
+      - name: Validate the request and dispatch the publish run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMENT: ${{ github.event.comment.body }}
           AUTHOR: ${{ github.event.comment.user.login }}
           PR: ${{ github.event.issue.number }}
+          COMMENT_ID: ${{ github.event.comment.id }}
         run: |
           PERMISSION=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$AUTHOR/permission" --jq .permission)
           case "$PERMISSION" in
@@ -94,37 +74,47 @@ jobs:
             *) echo "::error::Unknown prerelease id '$PREID'. Use /prerelease, /prerelease alpha or /prerelease rc."; exit 1 ;;
           esac
 
-          HEAD=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefOid,isCrossRepository)
+          HEAD=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefName,isCrossRepository)
           if [ "$(echo "$HEAD" | jq -r .isCrossRepository)" = "true" ]; then
             echo "::error::PR #$PR comes from a fork; prereleases are only published from branches of this repo."
             exit 1
           fi
+          BRANCH=$(echo "$HEAD" | jq -r .headRefName)
 
-          {
-            echo "ref=$(echo "$HEAD" | jq -r .headRefOid)"
-            echo "preid=$PREID"
-            echo "pr=$PR"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Acknowledge the comment
-        if: github.event_name == 'issue_comment'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMMENT_ID: ${{ github.event.comment.id }}
-        run: gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
+          gh workflow run publish-prerelease.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH" \
+            -f "preid=$PREID" -f "pr=$PR"
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
 
   publish:
     name: Publish prerelease
-    needs: params
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
     steps:
+      - name: Validate inputs
+        env:
+          INPUT_PREID: ${{ inputs.preid }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PR: ${{ inputs.pr }}
+        run: |
+          case "$INPUT_PREID" in
+            beta|alpha|rc) ;;
+            *) echo "::error::Unknown prerelease id '$INPUT_PREID'."; exit 1 ;;
+          esac
+          if [ -n "$INPUT_VERSION" ] && ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::'$INPUT_VERSION' is not a valid semver version."
+            exit 1
+          fi
+          if [ -n "$INPUT_PR" ] && ! [[ "$INPUT_PR" =~ ^[0-9]+$ ]]; then
+            echo "::error::'$INPUT_PR' is not a pull request number."
+            exit 1
+          fi
+
       - name: Checkout repo
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.params.outputs.ref }}
           persist-credentials: false
 
       - name: Set up Node.js
@@ -136,8 +126,8 @@ jobs:
       - name: Resolve version
         id: version
         env:
-          PREID: ${{ needs.params.outputs.preid }}
-          REQUESTED: ${{ needs.params.outputs.version }}
+          PREID: ${{ inputs.preid }}
+          REQUESTED: ${{ inputs.version }}
         run: |
           if [ -n "$REQUESTED" ]; then
             VERSION="$REQUESTED"
@@ -165,18 +155,17 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
-          tag: ${{ needs.params.outputs.preid }}
+          tag: ${{ inputs.preid }}
 
       - name: Write install instructions
         id: notes
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          PREID: ${{ needs.params.outputs.preid }}
-          REF: ${{ needs.params.outputs.ref }}
+          PREID: ${{ inputs.preid }}
         run: |
           {
             echo "body<<NOTES"
-            echo "Published \`@verifiedinc-public/shared-ui-elements@$VERSION\` from \`${REF::7}\` with dist-tag \`$PREID\`."
+            echo "Published \`@verifiedinc-public/shared-ui-elements@$VERSION\` from \`$GITHUB_REF_NAME\` (\`${GITHUB_SHA::7}\`) with dist-tag \`$PREID\`."
             echo
             echo '```sh'
             echo "npm install @verifiedinc-public/shared-ui-elements@$VERSION"
@@ -188,7 +177,7 @@ jobs:
           {
             echo "## Published \`@verifiedinc-public/shared-ui-elements@$VERSION\`"
             echo
-            echo "Commit: \`${REF::7}\` · dist-tag: \`$PREID\`"
+            echo "Branch: \`$GITHUB_REF_NAME\` · Commit: \`${GITHUB_SHA::7}\` · dist-tag: \`$PREID\`"
             echo
             echo '```sh'
             echo "npm install @verifiedinc-public/shared-ui-elements@$VERSION"
@@ -196,18 +185,18 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment on the PR
-        if: needs.params.outputs.pr != ''
+        if: inputs.pr != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ needs.params.outputs.pr }}
+          PR: ${{ inputs.pr }}
           BODY: ${{ steps.notes.outputs.body }}
         run: gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$BODY"
 
       - name: Report a failure on the PR
-        if: failure() && needs.params.outputs.pr != ''
+        if: failure() && inputs.pr != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ needs.params.outputs.pr }}
+          PR: ${{ inputs.pr }}
         run: |
           gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
             --body "Prerelease publish failed: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
