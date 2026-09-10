@@ -1,0 +1,90 @@
+name: publish-prerelease
+
+# Publishes the current branch to npm under a prerelease dist-tag (beta by default) so a
+# consumer can install it fresh, e.g. `npm i @verifiedinc-public/shared-ui-elements@beta`.
+# Nothing is committed or tagged in git; the version only exists on the registry.
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      preid:
+        description: Prerelease id, also used as the npm dist-tag
+        type: choice
+        default: beta
+        options:
+          - beta
+          - alpha
+          - rc
+      version:
+        description: Full version to publish (optional). Defaults to the next patch of package.json with -<preid>.<run number>
+        type: string
+        required: false
+
+concurrency:
+  group: publish-prerelease-${{ github.ref }}
+
+jobs:
+  prerelease:
+    name: Publish prerelease
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26.7.x
+          registry-url: https://registry.npmjs.org
+
+      - name: Resolve version
+        id: version
+        env:
+          PREID: ${{ inputs.preid }}
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          if [ -n "$REQUESTED" ]; then
+            VERSION="$REQUESTED"
+          else
+            BASE=$(node -p "require('./package.json').version")
+            IFS=. read -r MAJOR MINOR PATCH <<< "${BASE%%-*}"
+            VERSION="$MAJOR.$MINOR.$((PATCH + 1))-$PREID.$GITHUB_RUN_NUMBER"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing $VERSION with dist-tag $PREID"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set package version
+        run: npm --no-git-tag-version version ${{ steps.version.outputs.version }}
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to npm
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public
+          tag: ${{ inputs.preid }}
+
+      - name: Summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PREID: ${{ inputs.preid }}
+        run: |
+          {
+            echo "## Published \`@verifiedinc-public/shared-ui-elements@$VERSION\`"
+            echo
+            echo "Branch: \`${GITHUB_REF_NAME}\` · Commit: \`${GITHUB_SHA::7}\` · dist-tag: \`$PREID\`"
+            echo
+            echo '```sh'
+            echo "npm install @verifiedinc-public/shared-ui-elements@$VERSION"
+            echo "# or the moving tag"
+            echo "npm install @verifiedinc-public/shared-ui-elements@$PREID"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
