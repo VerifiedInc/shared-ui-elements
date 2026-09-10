@@ -57,28 +57,38 @@ jobs:
           fi
           PREID=${BASH_REMATCH[2]:-beta}
 
-          HEAD=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefName,headRefOid,isCrossRepository,state)
-          if [ "$(echo "$HEAD" | jq -r .state)" != "OPEN" ]; then
+          STATE=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json state,isCrossRepository)
+          if [ "$(echo "$STATE" | jq -r .state)" != "OPEN" ]; then
             echo "::error::PR #$PR is not open."
             exit 1
           fi
-          if [ "$(echo "$HEAD" | jq -r .isCrossRepository)" = "true" ]; then
+          if [ "$(echo "$STATE" | jq -r .isCrossRepository)" = "true" ]; then
             echo "::error::PR #$PR comes from a fork; prereleases are only published from branches of this repo."
             exit 1
           fi
 
-          {
-            echo "ref=$(echo "$HEAD" | jq -r .headRefOid)"
-            echo "branch=$(echo "$HEAD" | jq -r .headRefName)"
-            echo "preid=$PREID"
-          } >> "$GITHUB_OUTPUT"
-
+          echo "preid=$PREID" >> "$GITHUB_OUTPUT"
           gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
 
-      - name: Checkout the PR head
+      # The commit is pinned here, right after the checks, so a push to the PR between the
+      # check and the build cannot change what gets published.
+      - name: Resolve the PR head commit
+        id: head
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.issue.number }}
+        run: |
+          SHA=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)
+          if ! [[ "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Could not resolve the head commit of PR #$PR."
+            exit 1
+          fi
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the PR head commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ steps.request.outputs.ref }}
+          ref: ${{ steps.head.outputs.sha }}
           persist-credentials: false
 
       - name: Set up Node.js
@@ -132,11 +142,10 @@ jobs:
           PR: ${{ github.event.issue.number }}
           VERSION: ${{ steps.version.outputs.version }}
           PREID: ${{ steps.request.outputs.preid }}
-          BRANCH: ${{ steps.request.outputs.branch }}
-          REF: ${{ steps.request.outputs.ref }}
+          SHA: ${{ steps.head.outputs.sha }}
         run: |
           BODY=$(cat <<NOTES
-          Published \`@verifiedinc-public/shared-ui-elements@$VERSION\` from \`$BRANCH\` (\`${REF::7}\`) with dist-tag \`$PREID\`.
+          Published \`@verifiedinc-public/shared-ui-elements@$VERSION\` from \`${SHA::7}\` with dist-tag \`$PREID\`.
 
           \`\`\`sh
           npm install @verifiedinc-public/shared-ui-elements@$VERSION
@@ -149,7 +158,7 @@ jobs:
           {
             echo "## Published \`@verifiedinc-public/shared-ui-elements@$VERSION\`"
             echo
-            echo "Branch: \`$BRANCH\` · Commit: \`${REF::7}\` · dist-tag: \`$PREID\`"
+            echo "Commit: \`${SHA::7}\` · dist-tag: \`$PREID\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report a failure on the PR
