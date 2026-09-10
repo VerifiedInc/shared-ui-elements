@@ -37,7 +37,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      # Reacting to a comment on a pull request needs write on pull requests, not only issues.
+      pull-requests: write
       issues: write
     outputs:
       sha: ${{ steps.head.outputs.sha }}
