@@ -95,12 +95,6 @@ export const Edit: Story = {
   render: (args) => <DialogHarness {...args} rule={exampleRules[0]} />,
 };
 
-export const AddCondition: Story = {
-  render: (args) => (
-    <DialogHarness {...args} rule={exampleRules[1]} appendEmptyCondition />
-  ),
-};
-
 const serverErrors: NetworkRuleServerError[] = [
   {
     index: 1,

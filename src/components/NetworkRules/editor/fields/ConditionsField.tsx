@@ -1,4 +1,10 @@
-import { Button, FormHelperText, Stack, Typography } from '@mui/material';
+import {
+  Alert,
+  Button,
+  FormHelperText,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -41,6 +47,12 @@ export function ConditionsField({
           Add Condition
         </Button>
       </Stack>
+
+      <Alert severity='info'>
+        If multiple values are selected for a given condition, that condition
+        applies if any of the values match. In other words, multiple values map
+        to an inclusive OR.
+      </Alert>
 
       {fields.length === 0 && (
         <Typography variant='body2' color='text.secondary'>

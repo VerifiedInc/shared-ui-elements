@@ -42,6 +42,8 @@ import { networkRuleFormSchema } from './schema';
 export interface NetworkRuleEditorFormProps {
   /** Omit for a new rule. */
   rule?: Partial<NetworkRule> | null;
+  /** Pre-filled, editable name for a new rule, e.g. "Rule #7". */
+  defaultName?: string;
   notePresets?: readonly string[];
   /** Offer "Add … as a preset" for a typed note; new presets arrive with `onSubmit`. */
   canCreateNotePresets?: boolean;
@@ -53,8 +55,6 @@ export interface NetworkRuleEditorFormProps {
   isSubmitting?: boolean;
   /** Indexed errors highlight their condition row; the rest show at the top. */
   serverErrors?: readonly NetworkRuleServerError[];
-  /** Open with one extra empty condition row. */
-  appendEmptyCondition?: boolean;
   focusConditionIndex?: number;
   submitLabel?: string;
   cancelLabel?: string;
@@ -67,11 +67,14 @@ export interface NetworkRuleEditorFormProps {
 
 function buildDefaultValues(
   rule: Partial<NetworkRule> | null | undefined,
-  appendEmptyCondition: boolean,
+  defaultName: string | undefined,
 ): NetworkRuleFormValues {
   const values = toNetworkRuleFormValues(rule);
-  if (appendEmptyCondition || values.conditions.length === 0) {
-    values.conditions = [...values.conditions, emptyConditionFormValues()];
+  if (!rule?.uuid && !values.name && defaultName) {
+    values.name = defaultName;
+  }
+  if (values.conditions.length === 0) {
+    values.conditions = [emptyConditionFormValues()];
   }
   return values;
 }
@@ -117,13 +120,13 @@ function LoadingFields() {
 
 export function NetworkRuleEditorForm({
   rule,
+  defaultName,
   notePresets,
   canCreateNotePresets = false,
   onSubmit,
   onCancel,
   isSubmitting = false,
   serverErrors,
-  appendEmptyCondition = false,
   focusConditionIndex,
   submitLabel = 'Save',
   cancelLabel = 'Cancel',
@@ -137,11 +140,11 @@ export function NetworkRuleEditorForm({
   const statuses = useNetworkRuleStatuses() ?? catalog?.statuses ?? [];
 
   // Defaults are rebuilt only when the rule being edited changes, never on a re-render.
-  const loadKey = `${rule?.uuid ?? 'new'}:${String(appendEmptyCondition)}`;
+  const loadKey = rule?.uuid ?? 'new';
   const [loadedKey, setLoadedKey] = useState(loadKey);
 
   const form = useForm<NetworkRuleFormValues>({
-    defaultValues: buildDefaultValues(rule, appendEmptyCondition),
+    defaultValues: buildDefaultValues(rule, defaultName),
     resolver: zodResolver(networkRuleFormSchema),
     mode: 'onSubmit',
     reValidateMode: 'onChange',
@@ -152,10 +155,10 @@ export function NetworkRuleEditorForm({
 
   useEffect(() => {
     if (loadKey === loadedKey) return;
-    form.reset(buildDefaultValues(rule, appendEmptyCondition));
+    form.reset(buildDefaultValues(rule, defaultName));
     setNewNotePresets([]);
     setLoadedKey(loadKey);
-  }, [form, rule, appendEmptyCondition, loadKey, loadedKey]);
+  }, [form, rule, defaultName, loadKey, loadedKey]);
 
   const appliedServerErrorPaths = useRef<ConditionValuesPath[]>([]);
   useEffect(() => {
@@ -179,11 +182,6 @@ export function NetworkRuleEditorForm({
   const startDate = useWatch({ control: form.control, name: 'startDate' });
   const startDay = ruleDateToDay(startDate);
   const endMinDate = startDay ? addDays(startDay, 1) : undefined;
-  const focusIndex =
-    focusConditionIndex ??
-    (appendEmptyCondition
-      ? toNetworkRuleFormValues(rule).conditions.length
-      : undefined);
 
   const allNotePresets = useMemo(
     () => [...(notePresets ?? []), ...newNotePresets],
@@ -275,7 +273,7 @@ export function NetworkRuleEditorForm({
                       error={fieldState.error !== undefined}
                       helperText={
                         fieldState.error?.message ??
-                        'Applies from the start of this day (UTC)'
+                        'Starts applying at the start of this day (UTC)'
                       }
                     />
                   )}
@@ -333,7 +331,7 @@ export function NetworkRuleEditorForm({
               <ConditionsField
                 catalog={catalog}
                 disabled={busy}
-                focusIndex={focusIndex}
+                focusIndex={focusConditionIndex}
               />
             </>
           )}

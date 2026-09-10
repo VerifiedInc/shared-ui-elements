@@ -68,6 +68,17 @@ describe('<NetworkRuleEditorForm/>', () => {
     );
   });
 
+  test('pre-fills the name of a new rule and leaves an existing name alone', async () => {
+    const { findByDisplayValue, unmount } = renderForm({
+      defaultName: 'Rule #4',
+    });
+    expect(await findByDisplayValue('Rule #4')).toBeDefined();
+    unmount();
+
+    const existing = renderForm({ rule: rules[0], defaultName: 'Rule #4' });
+    expect(await existing.findByDisplayValue('First rule')).toBeDefined();
+  });
+
   test('blocks submit on shape errors and shows the messages', async () => {
     const { findByLabelText, getByRole, findByText, onSubmit } = renderForm();
     await findByLabelText(/rule name/i);
@@ -171,6 +182,7 @@ describe('<NetworkRuleEditorForm/>', () => {
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
+    // One note: the new preset replaced the loaded one.
     expect(onSubmit.mock.calls[0][0].notes).toBe('Brand new preset');
     expect(onSubmit.mock.calls[0][1]).toEqual({
       newNotePresets: ['Brand new preset'],
@@ -192,16 +204,5 @@ describe('<NetworkRuleEditorForm/>', () => {
     );
     expect(await findByText('Bad remote value')).toBeDefined();
     expect(await findByText('Duplicate of another rule')).toBeDefined();
-  });
-
-  test('appendEmptyCondition adds a row to an existing rule', async () => {
-    const { findByDisplayValue, getAllByRole } = renderForm({
-      rule: rules[0],
-      appendEmptyCondition: true,
-    });
-    await findByDisplayValue('First rule');
-    expect(getAllByRole('button', { name: /remove condition/i })).toHaveLength(
-      4,
-    );
   });
 });

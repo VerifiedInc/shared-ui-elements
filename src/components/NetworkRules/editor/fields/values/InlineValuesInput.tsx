@@ -48,6 +48,9 @@ export function InlineValuesInput({
           <li key={key} {...rest}>
             {multi && <Checkbox checked={isSelected} sx={{ mr: 1 }} />}
             <Typography>{option.label}</Typography>
+            <Typography variant='caption' color='text.secondary' sx={{ ml: 1 }}>
+              {option.value}
+            </Typography>
           </li>
         );
       }}

@@ -9,7 +9,6 @@ import { formatRuleDate } from '../utils/date';
 export const NETWORK_RULES_COLUMN_IDS = {
   enabled: 'enabled',
   name: 'name',
-  conditions: 'conditions',
   status: 'status',
   startDate: 'startDate',
   endDate: 'endDate',
@@ -29,7 +28,7 @@ const dashWhenEmpty = ({
 }: CellContext<NetworkRule, unknown>): string =>
   getValue<string | undefined>() ?? '-';
 
-// Accessors return what the cell displays, so search, filters and exports see the same text.
+// Accessors return what the cell displays, so search and filters see the same text.
 export function buildNetworkRulesColumns(): Array<
   ColumnDef<NetworkRule, unknown>
 > {
@@ -50,15 +49,7 @@ export function buildNetworkRulesColumns(): Array<
       accessorFn: (rule) => rule.name,
       enableSorting: true,
       enableColumnFilter: false,
-      meta: { width: 300 },
-    },
-    {
-      id: NETWORK_RULES_COLUMN_IDS.conditions,
-      header: 'Conditions',
-      accessorFn: (rule) => rule.conditions.length,
-      enableSorting: true,
-      enableColumnFilter: false,
-      meta: { width: 140 },
+      meta: { width: 320 },
     },
     {
       id: NETWORK_RULES_COLUMN_IDS.status,

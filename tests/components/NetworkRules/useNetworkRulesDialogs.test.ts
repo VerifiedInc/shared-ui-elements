@@ -14,28 +14,17 @@ describe('useNetworkRulesDialogs()', () => {
     expect(result.current.deleteDialogProps.open).toBe(false);
   });
 
-  test('opens the editor for create, edit, add-condition and edit-condition', () => {
+  test('opens the editor for create, edit and edit-condition', () => {
     const { result } = renderHook(() => useNetworkRulesDialogs());
 
     act(() => result.current.openCreate());
-    expect(result.current.editor).toEqual({
-      open: true,
-      appendEmptyCondition: false,
-    });
+    expect(result.current.editor).toEqual({ open: true });
 
     act(() => result.current.tableHandlers.onEdit(rules[0]));
-    expect(result.current.editor).toEqual({
-      open: true,
-      rule: rules[0],
-      appendEmptyCondition: false,
-    });
-
-    act(() => result.current.tableHandlers.onAddCondition(rules[0]));
-    expect(result.current.editor.appendEmptyCondition).toBe(true);
+    expect(result.current.editor).toEqual({ open: true, rule: rules[0] });
 
     act(() => result.current.tableHandlers.onEditCondition(rules[0], 2));
     expect(result.current.editor.focusConditionIndex).toBe(2);
-    expect(result.current.editor.appendEmptyCondition).toBe(false);
   });
 
   test('closing the editor keeps its content for the exit transition and clears server errors', () => {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Autocomplete, TextField, createFilterOptions } from '@mui/material';
 import { useController, useFormContext } from 'react-hook-form';
 
@@ -19,6 +20,10 @@ const filter = createFilterOptions<NoteOption>();
 const optionLabel = (option: NoteOption): string =>
   typeof option === 'string' ? option : option.label;
 
+/**
+ * One note, a preset or free text, shown as a chip so a preset reads as one.
+ * `multiple` is only for the chip rendering: picking or typing replaces it.
+ */
 export function NotesField({
   presets = [],
   onCreatePreset,
@@ -27,33 +32,44 @@ export function NotesField({
 }: Readonly<NotesFieldProps>) {
   const { control } = useFormContext<NetworkRuleFormValues>();
   const { field, fieldState } = useController({ control, name: 'notes' });
-  const value = field.value ?? '';
+  const [inputValue, setInputValue] = useState('');
+  const note = field.value?.trim() ? field.value : null;
 
   return (
-    <Autocomplete<NoteOption, false, false, true>
+    <Autocomplete<NoteOption, true, false, true>
+      multiple
       freeSolo
       // Enter picks the highlighted suggestion instead of submitting the dialog.
       autoHighlight
       options={presets as NoteOption[]}
-      value={null}
-      inputValue={value}
+      value={note ? [note] : []}
+      inputValue={inputValue}
       disabled={disabled}
       getOptionLabel={optionLabel}
+      isOptionEqualToValue={(option, selected) =>
+        optionLabel(option) === optionLabel(selected)
+      }
       onInputChange={(_event, next, reason) => {
-        if (reason === 'reset') return;
-        field.onChange(next === '' ? null : next);
+        if (reason !== 'reset') setInputValue(next);
       }}
       onChange={(_event, next) => {
-        if (next === null) {
+        const last = next[next.length - 1];
+        if (last === undefined) {
           field.onChange(null);
-          return;
+        } else if (typeof last === 'string') {
+          field.onChange(last);
+        } else {
+          field.onChange(last.inputValue);
+          void onCreatePreset?.(last.inputValue);
         }
-        if (typeof next === 'string') {
-          field.onChange(next);
-          return;
+        setInputValue('');
+      }}
+      onBlur={() => {
+        if (inputValue.trim()) {
+          field.onChange(inputValue.trim());
+          setInputValue('');
         }
-        field.onChange(next.inputValue);
-        void onCreatePreset?.(next.inputValue);
+        field.onBlur();
       }}
       filterOptions={(options, state) => {
         const filtered = filter(options, state);
@@ -75,7 +91,7 @@ export function NotesField({
         <TextField
           {...params}
           label='Notes'
-          onBlur={field.onBlur}
+          placeholder={note ? undefined : 'Pick a preset or type a note'}
           error={fieldState.error !== undefined}
           helperText={fieldState.error?.message ?? helperText}
         />

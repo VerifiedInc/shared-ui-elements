@@ -37,7 +37,6 @@ const meta: Meta<typeof NetworkRulesTable> = {
     onToggleEnabled: fn(),
     onEdit: fn(),
     onDelete: fn(),
-    onAddCondition: fn(),
     onEditCondition: fn(),
     onDeleteCondition: fn(),
   },

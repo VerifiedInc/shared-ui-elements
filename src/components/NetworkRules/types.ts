@@ -57,6 +57,8 @@ export type NetworkRuleCondition = {
 /** Dates are calendar days, `YYYY-MM-DD`: from the start day up to, not including, the end day. */
 export type NetworkRule = {
   uuid: string;
+  /** Per-brand sequence the server assigns on create; absent until then. */
+  number?: number;
   name: string;
   status: string;
   notes?: string | null;

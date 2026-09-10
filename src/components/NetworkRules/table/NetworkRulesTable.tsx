@@ -9,19 +9,13 @@ import {
 } from '@mui/material';
 
 import { DataTable } from '../../DataTable/DataTable';
-import type { DataTableExportColumn } from '../../DataTable/DataTable.export';
 import type { DataTableFilterField } from '../../DataTable/DataTable.types';
 import { EXPAND_COLUMN_ID } from '../../DataTable/DataTableExpandRow';
 
 import { useNetworkRuleStatuses } from '../NetworkRules.context';
 import { useNetworkRulesCatalog } from '../hooks/useNetworkRulesCatalog';
-import type { NetworkRule, NetworkRuleCatalog } from '../types';
-import {
-  getKeyLabel,
-  getOperatorLabel,
-  getStatusLabel,
-} from '../utils/catalog';
-import { normalizeConditionValues } from '../utils/condition';
+import type { NetworkRule } from '../types';
+import { getStatusLabel } from '../utils/catalog';
 import { buildNetworkRulesColumns, NETWORK_RULES_COLUMN_IDS } from './columns';
 import type { NetworkRuleRowHandlers } from './NetworkRuleExpandedPanel';
 import { NetworkRuleRow } from './NetworkRuleRow';
@@ -54,8 +48,6 @@ export interface NetworkRulesTableProps extends NetworkRuleRowHandlers {
   maxHeight?: number | string;
   /** Defaults to 900. */
   minWidth?: number | string;
-  /** Defaults to 'network-rules'. */
-  exportFilename?: string;
 }
 
 function buildFilterFields(
@@ -81,33 +73,6 @@ function buildFilterFields(
   ];
 }
 
-// Export-only columns for what the grid shows inside the expanded row.
-function buildExportColumns(
-  catalog: NetworkRuleCatalog | undefined,
-): Array<DataTableExportColumn<NetworkRule>> {
-  return [
-    { header: 'Rule UUID', value: (rule) => rule.uuid },
-    {
-      header: 'Condition Details',
-      value: (rule) =>
-        rule.conditions
-          .map(
-            (condition) =>
-              `${getKeyLabel(catalog, condition.key)} ${getOperatorLabel(
-                catalog,
-                condition.operator,
-              )} ${normalizeConditionValues(condition.value).join(' | ')}`,
-          )
-          .join('; '),
-    },
-  ];
-}
-
-/**
- * One expandable row per rule. Presentation only: every change is reported
- * through a callback. Rows render once the catalog is available, so codes
- * never flash before their labels.
- */
 export function NetworkRulesTable({
   rules,
   isLoading = false,
@@ -115,7 +80,6 @@ export function NetworkRulesTable({
   emptyMessage = 'No network rules yet',
   maxHeight = 640,
   minWidth = 900,
-  exportFilename = 'network-rules',
   ...handlers
 }: Readonly<NetworkRulesTableProps>) {
   const catalogQuery = useNetworkRulesCatalog();
@@ -124,7 +88,6 @@ export function NetworkRulesTable({
   const catalogReady = catalog !== undefined;
   const columns = useMemo(() => buildNetworkRulesColumns(), []);
   const filterFields = useMemo(() => buildFilterFields(statuses), [statuses]);
-  const exportColumns = useMemo(() => buildExportColumns(catalog), [catalog]);
   const fillHeight = maxHeight === '100%';
 
   if (!catalogReady && catalogQuery.isError) {
@@ -155,7 +118,7 @@ export function NetworkRulesTable({
         columns={columns}
         getRowId={(rule) => rule.uuid}
         isLoading={isLoading || !catalogReady}
-        disablePagination
+        initialPageSize={10}
         showToolbar
         enableColumnMenu
         enableColumnResizing
@@ -169,9 +132,6 @@ export function NetworkRulesTable({
           right: [],
         }}
         filterFields={filterFields}
-        enableExport
-        exportFilename={exportFilename}
-        additionalExportColumns={exportColumns}
         tableLayout='fixed'
         minWidth={minWidth}
         maxHeight={maxHeight}
