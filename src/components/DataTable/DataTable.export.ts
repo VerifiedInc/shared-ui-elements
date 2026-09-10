@@ -112,10 +112,22 @@ function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-function escapeCsvValue(value: DataTableExportValue): string {
-  const text = String(value);
+// Spreadsheets evaluate a cell starting with one of these as a formula (CSV injection). A
+// leading apostrophe turns it back into text, the same way papaparse's `escapeFormulae` does.
+const FORMULA_PREFIX = /^[=+\-@\t\r]/;
 
-  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+function escapeCsvValue(value: DataTableExportValue): string {
+  let text = String(value);
+
+  if (
+    typeof value === 'string' &&
+    text.length > 1 &&
+    FORMULA_PREFIX.test(text)
+  ) {
+    text = `'${text}`;
+  }
+
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
 /** Downloads the export snapshot as `<filename>.csv`. */
