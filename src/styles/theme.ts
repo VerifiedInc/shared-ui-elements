@@ -289,6 +289,13 @@ export const theme = ({
           },
         },
       },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            fontWeight: 400,
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: {
