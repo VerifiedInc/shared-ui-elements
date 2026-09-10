@@ -82,11 +82,10 @@ function rankPayers(search: string): ExamplePayer[] {
     const aliasPrefix = ids.some((id) => id.startsWith(raw)) ? 7 : 0;
     const idPrefix = payer.verifiedId.toLowerCase().startsWith(raw) ? 1 : 0;
 
-    const score = exactId
-      ? 1000
-      : nameScore > 0 || aliasPrefix > 0 || idPrefix > 0
-        ? nameScore + exactName + aliasPrefix + idPrefix
-        : 0;
+    const matched = nameScore > 0 || aliasPrefix > 0 || idPrefix > 0;
+    let score = 0;
+    if (exactId) score = 1000;
+    else if (matched) score = nameScore + exactName + aliasPrefix + idPrefix;
 
     return { payer, index, score };
   });

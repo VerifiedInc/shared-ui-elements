@@ -28,6 +28,22 @@ import { NetworkRuleRow } from './NetworkRuleRow';
 
 const SKELETON_ROWS = 4;
 
+function LoadingRows({ columnCount }: Readonly<{ columnCount: number }>) {
+  return (
+    <>
+      {Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
+        <TableRow key={rowIndex}>
+          {Array.from({ length: columnCount }, (_, cellIndex) => (
+            <TableCell key={cellIndex}>
+              <Skeleton variant='text' />
+            </TableCell>
+          ))}
+        </TableRow>
+      ))}
+    </>
+  );
+}
+
 export interface NetworkRulesTableProps extends NetworkRuleRowHandlers {
   rules: NetworkRule[];
   isLoading?: boolean;
@@ -169,17 +185,7 @@ export function NetworkRulesTable({
           />
         )}
         renderLoading={(columnCount: number) => (
-          <>
-            {Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
-              <TableRow key={rowIndex}>
-                {Array.from({ length: columnCount }, (_, cellIndex) => (
-                  <TableCell key={cellIndex}>
-                    <Skeleton variant='text' />
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </>
+          <LoadingRows columnCount={columnCount} />
         )}
       />
     </Box>

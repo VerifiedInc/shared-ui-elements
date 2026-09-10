@@ -42,7 +42,9 @@ export default meta;
 type Story = StoryObj<typeof NetworkRuleEditorDialog>;
 
 function DialogHarness(
-  props: Omit<NetworkRuleEditorDialogProps, 'open' | 'onClose' | 'onSubmit'>,
+  props: Readonly<
+    Omit<NetworkRuleEditorDialogProps, 'open' | 'onClose' | 'onSubmit'>
+  >,
 ) {
   const [open, setOpen] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);

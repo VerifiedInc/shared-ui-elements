@@ -43,7 +43,9 @@ export function useResolvedConditionOptions(
 
   const unresolved = useMemo(
     () =>
-      values.filter((value) => !known.some((k) => k.value === value)).sort(),
+      values
+        .filter((value) => !known.some((k) => k.value === value))
+        .sort((a, b) => a.localeCompare(b)),
     [values, known],
   );
   const canResolve = resolve !== undefined && unresolved.length > 0;

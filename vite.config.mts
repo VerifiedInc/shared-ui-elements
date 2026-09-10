@@ -34,6 +34,9 @@ export default defineConfig({
           'src/components/animation/index.ts',
         ),
         'components/chart': resolvePath('src/components/chart/index.ts'),
+        'components/NetworkRules': resolvePath(
+          'src/components/NetworkRules/index.ts',
+        ),
         'components/typographies': resolvePath(
           'src/components/typographies/index.ts',
         ),
