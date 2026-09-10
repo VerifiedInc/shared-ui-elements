@@ -32,7 +32,7 @@ export function useResolvedConditionOptions(
   values: string[],
   { known = [] }: UseResolvedConditionOptionsParams = {},
 ): UseResolvedConditionOptionsResult {
-  const { sources } = useNetworkRulesServices();
+  const { scope, sources } = useNetworkRulesServices();
 
   const inline = hasInlineOptions(keyDef);
   const source = hasRemoteSource(keyDef) ? keyDef.values.source : undefined;
@@ -51,7 +51,7 @@ export function useResolvedConditionOptions(
   const canResolve = resolve !== undefined && unresolved.length > 0;
 
   const query = useQuery({
-    queryKey: ['network-rules', 'resolve', source, unresolved],
+    queryKey: ['network-rules', scope, 'resolve', source, unresolved],
     queryFn: async ({ signal }) => {
       if (!resolve) return [];
       return await resolve(unresolved, signal);

@@ -6,8 +6,14 @@ const RULE_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 export function ruleDateToDay(value?: string | null): Date | null {
   const match = value ? RULE_DATE.exec(value) : null;
   if (!match) return null;
-  const [, year, month, day] = match;
-  return new Date(Number(year), Number(month) - 1, Number(day));
+  const [year, month, day] = match.slice(1).map(Number);
+  const date = new Date(year, month - 1, day);
+  // `new Date` rolls an impossible day (2026-02-31) over into the next month.
+  const isSameDay =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
+  return isSameDay ? date : null;
 }
 
 /** A picked Date → `YYYY-MM-DD` from its local calendar fields. */

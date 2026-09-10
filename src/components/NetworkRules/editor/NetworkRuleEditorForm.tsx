@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Button,
@@ -76,18 +76,21 @@ function buildDefaultValues(
   return values;
 }
 
+type ConditionValuesPath = `conditions.${number}.values`;
+
+/** Applies the errors and returns the condition paths it touched, so they can be cleared later. */
 function applyServerErrors(
   form: UseFormReturn<NetworkRuleFormValues>,
   serverErrors: readonly NetworkRuleServerError[],
-): void {
+): ConditionValuesPath[] {
   const formLevel: string[] = [];
+  const paths: ConditionValuesPath[] = [];
   for (const error of serverErrors) {
     const message = error.message ?? error.code;
     if (typeof error.index === 'number') {
-      form.setError(`conditions.${error.index}.values`, {
-        type: 'server',
-        message,
-      });
+      const path: ConditionValuesPath = `conditions.${error.index}.values`;
+      form.setError(path, { type: 'server', message });
+      paths.push(path);
     } else {
       formLevel.push(message);
     }
@@ -98,6 +101,7 @@ function applyServerErrors(
       message: formLevel.join(' '),
     });
   }
+  return paths;
 }
 
 function LoadingFields() {
@@ -143,17 +147,26 @@ export function NetworkRuleEditorForm({
     reValidateMode: 'onChange',
   });
 
+  // Presets stay in the form until submit, so cancelling discards them too.
+  const [newNotePresets, setNewNotePresets] = useState<string[]>([]);
+
   useEffect(() => {
     if (loadKey === loadedKey) return;
     form.reset(buildDefaultValues(rule, appendEmptyCondition));
+    setNewNotePresets([]);
     setLoadedKey(loadKey);
   }, [form, rule, appendEmptyCondition, loadKey, loadedKey]);
 
+  const appliedServerErrorPaths = useRef<ConditionValuesPath[]>([]);
   useEffect(() => {
     form.clearErrors('root.server');
-    if (serverErrors && serverErrors.length > 0) {
-      applyServerErrors(form, serverErrors);
+    if (appliedServerErrorPaths.current.length > 0) {
+      form.clearErrors(appliedServerErrorPaths.current);
     }
+    appliedServerErrorPaths.current = applyServerErrors(
+      form,
+      serverErrors ?? [],
+    );
   }, [form, serverErrors]);
 
   const { isDirty } = form.formState;
@@ -172,8 +185,6 @@ export function NetworkRuleEditorForm({
       ? toNetworkRuleFormValues(rule).conditions.length
       : undefined);
 
-  // Presets stay in the form until submit, so cancelling discards them too.
-  const [newNotePresets, setNewNotePresets] = useState<string[]>([]);
   const allNotePresets = useMemo(
     () => [...(notePresets ?? []), ...newNotePresets],
     [notePresets, newNotePresets],
@@ -185,6 +196,8 @@ export function NetworkRuleEditorForm({
   };
 
   const submit = form.handleSubmit(async (values) => {
+    // The dialog's Save button is outside the form and cannot see the catalog state.
+    if (catalog === undefined) return;
     await onSubmit(fromNetworkRuleFormValues(values), { newNotePresets });
   });
 

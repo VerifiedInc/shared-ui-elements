@@ -91,6 +91,8 @@ function ConditionRow({
               size='small'
               color='error'
               aria-label={`Delete condition ${index + 1}`}
+              // A rule needs at least one condition; delete the rule instead.
+              disabled={rule.conditions.length <= 1}
               onClick={() => onDeleteCondition(rule, index)}
             >
               <Delete fontSize='small' />

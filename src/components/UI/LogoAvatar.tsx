@@ -22,8 +22,8 @@ export function LogoAvatar({
   slotProps,
   ...avatarProps
 }: Readonly<LogoAvatarProps>) {
-  const [logoFailed, setLogoFailed] = useState(false);
-  const logoSrc = !logoFailed && logoUrl ? logoUrl : undefined;
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const logoSrc = logoUrl && logoUrl !== failedUrl ? logoUrl : undefined;
 
   return (
     <Avatar
@@ -46,7 +46,7 @@ export function LogoAvatar({
         img: {
           ...slotProps?.img,
           onError: () => {
-            setLogoFailed(true);
+            setFailedUrl(logoUrl ?? null);
           },
         },
       }}

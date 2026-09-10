@@ -2,6 +2,7 @@ import { Fragment, useState, type UIEvent } from 'react';
 import {
   Autocomplete,
   Box,
+  Button,
   Checkbox,
   Chip,
   CircularProgress,
@@ -124,7 +125,17 @@ export function RemoteValuesInput({
         onChange(multi ? nextValues : nextValues.slice(-1));
         setInputValue('');
       }}
-      noOptionsText={inputValue.trim() ? 'No matches' : 'Type to search'}
+      noOptionsText={
+        search.error ? (
+          <Button size='small' onClick={search.retry}>
+            Search failed. Retry
+          </Button>
+        ) : inputValue.trim() ? (
+          'No matches'
+        ) : (
+          'Type to search'
+        )
+      }
       renderOption={(props, option, { selected: isSelected }) => {
         const { key, ...rest } = props as typeof props & { key: string };
         return (

@@ -119,8 +119,10 @@ describe('date utils', () => {
     expect(dayToRuleDate(new Date(2026, 9, 1, 20, 30))).toBe('2026-10-01');
   });
 
-  test('rejects anything that is not YYYY-MM-DD', () => {
+  test('rejects anything that is not a real YYYY-MM-DD day', () => {
     expect(ruleDateToDay('10/01/2026')).toBeNull();
+    expect(ruleDateToDay('2026-02-31')).toBeNull();
+    expect(ruleDateToDay('2026-13-01')).toBeNull();
     expect(ruleDateToDay('')).toBeNull();
     expect(ruleDateToDay(null)).toBeNull();
     expect(dayToRuleDate(null)).toBeNull();

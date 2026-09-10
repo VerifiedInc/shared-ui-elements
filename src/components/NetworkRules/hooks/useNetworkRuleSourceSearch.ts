@@ -27,6 +27,8 @@ export interface UseNetworkRuleSourceSearchResult {
   isSupported: boolean;
   service: NetworkRuleSourceService | undefined;
   error: unknown;
+  /** Re-runs the current search after a failure. */
+  retry: () => void;
 }
 
 /** Paged search-as-you-type against `services.sources[source]`. */
@@ -39,14 +41,21 @@ export function useNetworkRuleSourceSearch(
     enabled = true,
   }: UseNetworkRuleSourceSearchOptions = {},
 ): UseNetworkRuleSourceSearchResult {
-  const { sources } = useNetworkRulesServices();
+  const { scope, sources } = useNetworkRulesServices();
   const service: NetworkRuleSourceService | undefined = source
     ? sources?.[source]
     : undefined;
   const debouncedSearch = useDebounceValue(search.trim(), debounceMs);
 
   const query = useInfiniteQuery({
-    queryKey: ['network-rules', 'source', source, debouncedSearch, limit],
+    queryKey: [
+      'network-rules',
+      scope,
+      'source',
+      source,
+      debouncedSearch,
+      limit,
+    ],
     queryFn: async ({ pageParam, signal }) => {
       if (!service) return [];
       return await service.search(
@@ -72,7 +81,13 @@ export function useNetworkRuleSourceSearch(
     return [...byValue.values()];
   }, [query.data]);
 
-  const { hasNextPage, isFetching, isFetchingNextPage, fetchNextPage } = query;
+  const {
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    fetchNextPage,
+    refetch,
+  } = query;
 
   return {
     options,
@@ -85,5 +100,8 @@ export function useNetworkRuleSourceSearch(
     isSupported: service !== undefined,
     service,
     error: query.error,
+    retry: () => {
+      void refetch();
+    },
   };
 }

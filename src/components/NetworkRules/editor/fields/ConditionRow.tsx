@@ -96,7 +96,14 @@ export function ConditionRow({
         label='Operator'
         value={operatorField.field.value}
         onChange={(event) => {
-          operatorField.field.onChange(event.target.value);
+          const nextOperator = event.target.value;
+          operatorField.field.onChange(nextOperator);
+          if (!isOperatorMulti(catalog, nextOperator) && values.length > 1) {
+            setValue(`conditions.${index}.values`, values.slice(0, 1), {
+              shouldDirty: true,
+              shouldValidate,
+            });
+          }
         }}
         onBlur={operatorField.field.onBlur}
         inputRef={operatorField.field.ref}

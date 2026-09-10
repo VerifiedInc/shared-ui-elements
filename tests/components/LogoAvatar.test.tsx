@@ -27,4 +27,15 @@ describe('<LogoAvatar/>', () => {
     fireEvent.error(getByRole('img', { name: 'Aetna logo' }));
     expect(getByText('A')).toBeDefined();
   });
+
+  test('tries again when the url changes after a failure', () => {
+    const { getByRole, getByText, rerender } = render(
+      <LogoAvatar name='Aetna' logoUrl='https://example.test/broken.png' />,
+    );
+    fireEvent.error(getByRole('img', { name: 'Aetna logo' }));
+    expect(getByText('A')).toBeDefined();
+
+    rerender(<LogoAvatar name='Aetna' logoUrl='https://example.test/ok.png' />);
+    expect(getByRole('img', { name: 'Aetna logo' })).toBeDefined();
+  });
 });

@@ -134,6 +134,8 @@ export type NetworkRuleSourceService<TData = unknown> = {
 };
 
 export type NetworkRulesServices = {
+  /** Namespaces the query keys when several providers share one query client, e.g. `${env}:${brandUuid}`. */
+  scope?: string;
   getCatalog: (signal?: AbortSignal) => Promise<NetworkRuleCatalog>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- each source carries its own record type
   sources?: Record<string, NetworkRuleSourceService<any>>;

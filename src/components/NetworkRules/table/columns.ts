@@ -1,4 +1,4 @@
-import type { ColumnDef, Row } from '@tanstack/react-table';
+import type { CellContext, ColumnDef, Row } from '@tanstack/react-table';
 
 import { expandColumn } from '../../DataTable/DataTableExpandRow';
 
@@ -16,14 +16,18 @@ export const NETWORK_RULES_COLUMN_IDS = {
   notes: 'notes',
 } as const;
 
-// Missing dates sort last.
+// Sorts on the stored `YYYY-MM-DD`; rows without a date are kept out by `sortUndefined`.
 function byRuleDate(
   pick: (rule: NetworkRule) => string | null | undefined,
 ): (a: Row<NetworkRule>, b: Row<NetworkRule>) => number {
-  const value = (row: Row<NetworkRule>): string =>
-    pick(row.original) ?? '9999-99-99';
-  return (a, b) => value(a).localeCompare(value(b));
+  return (a, b) =>
+    (pick(a.original) ?? '').localeCompare(pick(b.original) ?? '');
 }
+
+const dashWhenEmpty = ({
+  getValue,
+}: CellContext<NetworkRule, unknown>): string =>
+  getValue<string | undefined>() ?? '-';
 
 // Accessors return what the cell displays, so search, filters and exports see the same text.
 export function buildNetworkRulesColumns(): Array<
@@ -67,8 +71,10 @@ export function buildNetworkRulesColumns(): Array<
     {
       id: NETWORK_RULES_COLUMN_IDS.startDate,
       header: 'Starts',
-      accessorFn: (rule) => formatRuleDate(rule.startDate) ?? '-',
+      accessorFn: (rule) => formatRuleDate(rule.startDate) ?? undefined,
+      cell: dashWhenEmpty,
       sortingFn: byRuleDate((rule) => rule.startDate),
+      sortUndefined: 'last',
       enableSorting: true,
       enableColumnFilter: false,
       meta: { width: 280 },
@@ -76,8 +82,10 @@ export function buildNetworkRulesColumns(): Array<
     {
       id: NETWORK_RULES_COLUMN_IDS.endDate,
       header: 'Ends',
-      accessorFn: (rule) => formatRuleDate(rule.endDate) ?? '-',
+      accessorFn: (rule) => formatRuleDate(rule.endDate) ?? undefined,
+      cell: dashWhenEmpty,
       sortingFn: byRuleDate((rule) => rule.endDate),
+      sortUndefined: 'last',
       enableSorting: true,
       enableColumnFilter: false,
       meta: { width: 280 },
