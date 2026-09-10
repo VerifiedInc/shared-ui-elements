@@ -1,0 +1,173 @@
+name: publish-prerelease
+
+# Publishes a PR's branch to npm under a prerelease dist-tag (beta by default), so a consumer can
+# install it fresh: `npm i @verifiedinc-public/shared-ui-elements@beta`. Nothing is committed or
+# tagged in git; the version only exists on the registry.
+#
+# Trigger: a PR comment `/prerelease`, `/prerelease alpha` or `/prerelease rc`. Only users with
+# write access to this repo are honoured, and only for open PRs from branches of this repo (never
+# forks), since the build runs with the npm token. The token lives in the `npm-prerelease`
+# environment, so every run waits for one of its required reviewers before any step executes.
+# Like every issue_comment workflow, this runs the file from the default branch.
+#
+# User-controlled values (comment text, PR data, derived outputs) only reach shell steps through
+# environment variables, never by expression interpolation into `run` blocks.
+
+permissions:
+  contents: read
+
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: publish-prerelease-${{ github.event.issue.number }}
+
+jobs:
+  publish:
+    name: Publish prerelease
+    if: >-
+      github.event.issue.pull_request
+      && startsWith(github.event.comment.body, '/prerelease')
+      && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    environment: npm-prerelease
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Validate the request
+        id: request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMENT: ${{ github.event.comment.body }}
+          AUTHOR: ${{ github.event.comment.user.login }}
+          PR: ${{ github.event.issue.number }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          PERMISSION=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$AUTHOR/permission" --jq .permission)
+          case "$PERMISSION" in
+            admin|maintain|write) ;;
+            *) echo "::error::$AUTHOR has '$PERMISSION' access; write access is required to publish."; exit 1 ;;
+          esac
+
+          FIRST_LINE=$(printf '%s\n' "$COMMENT" | tr -d '\r' | head -n1)
+          if ! [[ "$FIRST_LINE" =~ ^/prerelease([[:space:]]+(beta|alpha|rc))?[[:space:]]*$ ]]; then
+            echo "::error::Use /prerelease, /prerelease alpha or /prerelease rc."
+            exit 1
+          fi
+          PREID=${BASH_REMATCH[2]:-beta}
+
+          STATE=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json state,isCrossRepository)
+          if [ "$(echo "$STATE" | jq -r .state)" != "OPEN" ]; then
+            echo "::error::PR #$PR is not open."
+            exit 1
+          fi
+          if [ "$(echo "$STATE" | jq -r .isCrossRepository)" = "true" ]; then
+            echo "::error::PR #$PR comes from a fork; prereleases are only published from branches of this repo."
+            exit 1
+          fi
+
+          echo "preid=$PREID" >> "$GITHUB_OUTPUT"
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
+
+      # The commit is pinned here, right after the checks, so a push to the PR between the
+      # check and the build cannot change what gets published.
+      - name: Resolve the PR head commit
+        id: head
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.issue.number }}
+        run: |
+          SHA=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)
+          if ! [[ "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Could not resolve the head commit of PR #$PR."
+            exit 1
+          fi
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the PR head commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.head.outputs.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26.7.x
+
+      - name: Resolve version
+        id: version
+        env:
+          PREID: ${{ steps.request.outputs.preid }}
+        run: |
+          BASE=$(node -p "require('./package.json').version")
+          if ! [[ "$BASE" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+            echo "::error::package.json version '$BASE' is not semver."
+            exit 1
+          fi
+          IFS=. read -r MAJOR MINOR PATCH <<< "${BASE%%-*}"
+          VERSION="$MAJOR.$MINOR.$((PATCH + 1))-$PREID.$GITHUB_RUN_NUMBER"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing $VERSION with dist-tag $PREID"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Set package version
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npm --no-git-tag-version --ignore-scripts version "$VERSION"
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to npm
+        id: publish
+        uses: JS-DevTools/npm-publish@0fd2f4369c5d6bcfcde6091a7c527d810b9b5c3f # v4.1.5
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public
+          tag: ${{ steps.request.outputs.preid }}
+
+      - name: Fail if nothing was published
+        if: steps.publish.outputs.type == ''
+        run: |
+          echo "::error::The registry already has this version, so nothing was published."
+          exit 1
+
+      - name: Comment on the PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.issue.number }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PREID: ${{ steps.request.outputs.preid }}
+          SHA: ${{ steps.head.outputs.sha }}
+        run: |
+          BODY=$(cat <<NOTES
+          Published \`@verifiedinc-public/shared-ui-elements@$VERSION\` from \`${SHA::7}\` with dist-tag \`$PREID\`.
+
+          \`\`\`sh
+          npm install @verifiedinc-public/shared-ui-elements@$VERSION
+          # or the moving tag
+          npm install @verifiedinc-public/shared-ui-elements@$PREID
+          \`\`\`
+          NOTES
+          )
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$BODY"
+          {
+            echo "## Published \`@verifiedinc-public/shared-ui-elements@$VERSION\`"
+            echo
+            echo "Commit: \`${SHA::7}\` · dist-tag: \`$PREID\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report a failure on the PR
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.issue.number }}
+        run: |
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+            --body "Prerelease publish failed: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
