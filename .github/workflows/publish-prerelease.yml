@@ -68,13 +68,18 @@ jobs:
             *) echo "::error::$AUTHOR has '$PERMISSION' access; write access is required to publish."; exit 1 ;;
           esac
 
-          PREID=$(printf '%s\n' "$COMMENT" | awk 'NR==1 { print ($2 == "" ? "beta" : $2) }')
-          case "$PREID" in
-            beta|alpha|rc) ;;
-            *) echo "::error::Unknown prerelease id '$PREID'. Use /prerelease, /prerelease alpha or /prerelease rc."; exit 1 ;;
-          esac
+          FIRST_LINE=$(printf '%s\n' "$COMMENT" | tr -d '\r' | head -n1)
+          if ! [[ "$FIRST_LINE" =~ ^/prerelease([[:space:]]+(beta|alpha|rc))?[[:space:]]*$ ]]; then
+            echo "::error::Use /prerelease, /prerelease alpha or /prerelease rc."
+            exit 1
+          fi
+          PREID=${BASH_REMATCH[2]:-beta}
 
-          HEAD=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefName,isCrossRepository)
+          HEAD=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefName,isCrossRepository,state)
+          if [ "$(echo "$HEAD" | jq -r .state)" != "OPEN" ]; then
+            echo "::error::PR #$PR is not open."
+            exit 1
+          fi
           if [ "$(echo "$HEAD" | jq -r .isCrossRepository)" = "true" ]; then
             echo "::error::PR #$PR comes from a fork; prereleases are only published from branches of this repo."
             exit 1
@@ -103,8 +108,8 @@ jobs:
             beta|alpha|rc) ;;
             *) echo "::error::Unknown prerelease id '$INPUT_PREID'."; exit 1 ;;
           esac
-          if [ -n "$INPUT_VERSION" ] && ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::'$INPUT_VERSION' is not a valid semver version."
+          if [ -n "$INPUT_VERSION" ] && ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-${INPUT_PREID}\.[0-9]+$ ]]; then
+            echo "::error::'$INPUT_VERSION' must look like X.Y.Z-$INPUT_PREID.N; a stable version would be what consumers install."
             exit 1
           fi
           if [ -n "$INPUT_PR" ] && ! [[ "$INPUT_PR" =~ ^[0-9]+$ ]]; then
@@ -113,15 +118,14 @@ jobs:
           fi
 
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 26.7.x
-          registry-url: https://registry.npmjs.org
 
       - name: Resolve version
         id: version
@@ -133,6 +137,10 @@ jobs:
             VERSION="$REQUESTED"
           else
             BASE=$(node -p "require('./package.json').version")
+            if ! [[ "$BASE" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+              echo "::error::package.json version '$BASE' is not semver."
+              exit 1
+            fi
             IFS=. read -r MAJOR MINOR PATCH <<< "${BASE%%-*}"
             VERSION="$MAJOR.$MINOR.$((PATCH + 1))-$PREID.$GITHUB_RUN_NUMBER"
           fi
@@ -145,17 +153,24 @@ jobs:
       - name: Set package version
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: npm --no-git-tag-version version "$VERSION"
+        run: npm --no-git-tag-version --ignore-scripts version "$VERSION"
 
       - name: Build package
         run: npm run build
 
       - name: Publish to npm
-        uses: JS-DevTools/npm-publish@0fd2f4369c5d6bcfcde6091a7c527d810b9b5c3f # v4
+        id: publish
+        uses: JS-DevTools/npm-publish@0fd2f4369c5d6bcfcde6091a7c527d810b9b5c3f # v4.1.5
         with:
           token: ${{ secrets.NPM_TOKEN }}
           access: public
           tag: ${{ inputs.preid }}
+
+      - name: Fail if nothing was published
+        if: steps.publish.outputs.type == ''
+        run: |
+          echo "::error::The registry already has this version, so nothing was published."
+          exit 1
 
       - name: Write install instructions
         id: notes
