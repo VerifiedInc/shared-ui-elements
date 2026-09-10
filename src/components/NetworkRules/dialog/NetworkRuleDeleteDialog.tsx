@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -96,6 +97,11 @@ export function NetworkRuleDeleteDialog({
           color='error'
           variant='contained'
           disabled={isDeleting || rule === undefined}
+          startIcon={
+            isDeleting ? (
+              <CircularProgress size={16} color='inherit' />
+            ) : undefined
+          }
           onClick={() => {
             if (rule === undefined) return;
             void onConfirm(rule, conditionIndex);

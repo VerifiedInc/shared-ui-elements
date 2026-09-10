@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -100,6 +101,11 @@ export function NetworkRuleEditorDialog({
           form={formId}
           variant='contained'
           disabled={disabled || isSubmitting}
+          startIcon={
+            isSubmitting ? (
+              <CircularProgress size={16} color='inherit' />
+            ) : undefined
+          }
         >
           {submitLabel}
         </Button>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Button,
+  CircularProgress,
   FormControlLabel,
   Skeleton,
   Stack,
@@ -347,6 +348,11 @@ export function NetworkRuleEditorForm({
                 type='submit'
                 variant='contained'
                 disabled={busy || catalog === undefined}
+                startIcon={
+                  isSubmitting ? (
+                    <CircularProgress size={16} color='inherit' />
+                  ) : undefined
+                }
               >
                 {submitLabel}
               </Button>

@@ -9,7 +9,10 @@ import {
 } from '@mui/material';
 
 import { DataTable } from '../../DataTable/DataTable';
-import type { DataTableFilterField } from '../../DataTable/DataTable.types';
+import type {
+  DataTableFilterField,
+  DataTableProps,
+} from '../../DataTable/DataTable.types';
 import { EXPAND_COLUMN_ID } from '../../DataTable/DataTableExpandRow';
 
 import { useNetworkRuleStatuses } from '../NetworkRules.context';
@@ -38,7 +41,17 @@ function LoadingRows({ columnCount }: Readonly<{ columnCount: number }>) {
   );
 }
 
-export interface NetworkRulesTableProps extends NetworkRuleRowHandlers {
+type PaginationProps = Pick<
+  DataTableProps<NetworkRule>,
+  | 'pagination'
+  | 'onPaginationChange'
+  | 'manualPagination'
+  | 'rowCount'
+  | 'pageSizeOptions'
+>;
+
+export interface NetworkRulesTableProps
+  extends NetworkRuleRowHandlers, PaginationProps {
   rules: NetworkRule[];
   isLoading?: boolean;
   /** No toggle, no row or condition actions. */
@@ -80,6 +93,11 @@ export function NetworkRulesTable({
   emptyMessage = 'No network rules yet',
   maxHeight = 640,
   minWidth = 900,
+  pagination,
+  onPaginationChange,
+  manualPagination,
+  rowCount,
+  pageSizeOptions,
   ...handlers
 }: Readonly<NetworkRulesTableProps>) {
   const catalogQuery = useNetworkRulesCatalog();
@@ -119,6 +137,11 @@ export function NetworkRulesTable({
         getRowId={(rule) => rule.uuid}
         isLoading={isLoading || !catalogReady}
         initialPageSize={10}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        manualPagination={manualPagination}
+        rowCount={rowCount}
+        pageSizeOptions={pageSizeOptions}
         showToolbar
         enableColumnMenu
         enableColumnResizing
