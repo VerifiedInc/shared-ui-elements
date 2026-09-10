@@ -1,0 +1,109 @@
+import type { ReactNode } from 'react';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from '@mui/material';
+
+import { useHeldWhileClosed } from '../hooks/useHeldWhileClosed';
+import { useNetworkRulesCatalog } from '../hooks/useNetworkRulesCatalog';
+import type { NetworkRule } from '../types';
+import { getKeyLabel, getOperatorLabel } from '../utils/catalog';
+import { normalizeConditionValues } from '../utils/condition';
+
+export interface NetworkRuleDeleteDialogProps {
+  open: boolean;
+  rule?: NetworkRule | null;
+  /** When set, one condition of `rule` is being deleted instead of the rule. */
+  conditionIndex?: number | null;
+  onConfirm: (
+    rule: NetworkRule,
+    conditionIndex?: number,
+  ) => void | Promise<void>;
+  onClose: () => void;
+  isDeleting?: boolean;
+  title?: string;
+  description?: ReactNode;
+  confirmLabel?: string;
+  cancelLabel?: string;
+}
+
+export function NetworkRuleDeleteDialog({
+  open,
+  rule: ruleProp,
+  conditionIndex: conditionIndexProp,
+  onConfirm,
+  onClose,
+  isDeleting = false,
+  title,
+  description,
+  confirmLabel = 'Delete',
+  cancelLabel = 'Cancel',
+}: Readonly<NetworkRuleDeleteDialogProps>) {
+  const { data: catalog } = useNetworkRulesCatalog();
+  const rule = useHeldWhileClosed(open, ruleProp ?? undefined);
+  const conditionIndex = useHeldWhileClosed(
+    open,
+    conditionIndexProp ?? undefined,
+  );
+
+  const condition =
+    rule !== undefined && conditionIndex !== undefined
+      ? rule.conditions[conditionIndex]
+      : undefined;
+  const isCondition = conditionIndex !== undefined;
+
+  const resolvedTitle =
+    title ?? (isCondition ? 'Delete condition?' : 'Delete rule?');
+
+  let resolvedDescription: ReactNode = description;
+  if (resolvedDescription === undefined && rule !== undefined) {
+    if (isCondition) {
+      const summary = condition
+        ? `${getKeyLabel(catalog, condition.key)} ${getOperatorLabel(
+            catalog,
+            condition.operator,
+          )} ${normalizeConditionValues(condition.value).join(', ')}`
+        : `Condition ${conditionIndex + 1}`;
+      resolvedDescription = `"${summary}" will be removed from "${rule.name}". The rule keeps its other conditions.`;
+    } else {
+      const count = rule.conditions.length;
+      resolvedDescription = `"${rule.name}" and its ${count} ${
+        count === 1 ? 'condition' : 'conditions'
+      } will be removed. This cannot be undone.`;
+    }
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onClose={isDeleting ? undefined : onClose}
+      maxWidth='xs'
+      fullWidth
+    >
+      <DialogTitle>{resolvedTitle}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>{resolvedDescription}</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button color='neutral' onClick={onClose} disabled={isDeleting}>
+          {cancelLabel}
+        </Button>
+        <Button
+          color='error'
+          variant='contained'
+          disabled={isDeleting || rule === undefined}
+          onClick={() => {
+            if (rule === undefined) return;
+            void onConfirm(rule, conditionIndex);
+          }}
+        >
+          {confirmLabel}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
