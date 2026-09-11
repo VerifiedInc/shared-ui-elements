@@ -246,3 +246,142 @@ describe('ConversionOverTimeChart — extraToggles', () => {
     expect(percentages.getAttribute('aria-pressed')).toBe('true');
   });
 });
+
+describe('ConversionOverTimeChart — toggleGroup', () => {
+  const pressed = (name: RegExp): string | null =>
+    screen.getByRole('button', { name }).getAttribute('aria-pressed');
+
+  function GroupHarness({
+    options,
+    initial = null,
+    onValue,
+  }: {
+    options: Array<{ key: string; label: string }>;
+    initial?: string | null;
+    onValue?: (value: string | null) => void;
+  }): ReturnType<typeof ConversionOverTimeChart> {
+    const [value, setValue] = useState<string | null>(initial);
+    return (
+      <ThemeProvider theme={testTheme}>
+        <ConversionOverTimeChart
+          chartData={[
+            {
+              brandUuid: 'b1',
+              brandName: 'Brand 1',
+              interval: [
+                { date: '2026-01-10T12:00:00Z', a: 10 },
+                { date: '2026-01-11T12:00:00Z', a: 12 },
+              ],
+            },
+          ]}
+          seriesConfig={[{ key: 'A', dataKey: 'a', color: '#111' }]}
+          stackMode='none'
+          isLoading={false}
+          isSuccess={true}
+          isFetching={false}
+          filter={{ timezone: 'UTC' }}
+          extraToggles={[
+            { id: 'x', label: 'Extra', selected: false, onChange: () => {} },
+          ]}
+          toggleGroup={{
+            value,
+            options,
+            onChange: (next) => {
+              setValue(next);
+              onValue?.(next);
+            },
+          }}
+        />
+      </ThemeProvider>
+    );
+  }
+
+  const twoOptions = [
+    { key: 'providers', label: 'Succeeded From' },
+    { key: 'network', label: 'Network Status' },
+  ];
+
+  test('renders nothing for an undefined or empty group', () => {
+    renderChart({
+      toggleGroup: { value: null, options: [], onChange: () => {} },
+    });
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+  });
+
+  test('selecting one member deselects the other', () => {
+    render(<GroupHarness options={twoOptions} initial='providers' />);
+    fireEvent.click(screen.getByRole('button', { name: /network status/i }));
+    expect(pressed(/network status/i)).toBe('true');
+    expect(pressed(/succeeded from/i)).toBe('false');
+  });
+
+  test('clicking the selected member clears the selection', () => {
+    const values: Array<string | null> = [];
+    render(
+      <GroupHarness
+        options={twoOptions}
+        initial='network'
+        onValue={(v) => values.push(v)}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /network status/i }));
+    expect(values).toEqual([null]);
+    expect(pressed(/network status/i)).toBe('false');
+    expect(pressed(/succeeded from/i)).toBe('false');
+  });
+
+  test('uses ariaLabel for a member when supplied, falling back to label', () => {
+    renderChart({
+      toggleGroup: {
+        value: null,
+        onChange: () => {},
+        options: [
+          {
+            key: 'network',
+            label: 'Network Status',
+            ariaLabel: 'Break down by network status',
+          },
+          { key: 'providers', label: 'Succeeded From' },
+        ],
+      },
+    });
+    expect(
+      screen.getByRole('button', { name: /break down by network status/i }),
+    ).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: /succeeded from/i }),
+    ).not.toBeNull();
+  });
+
+  test('a single-member group behaves as an on/off toggle', () => {
+    render(<GroupHarness options={[twoOptions[1]]} />);
+    const button = screen.getByRole('button', { name: /network status/i });
+    fireEvent.click(button);
+    expect(pressed(/network status/i)).toBe('true');
+    fireEvent.click(button);
+    expect(pressed(/network status/i)).toBe('false');
+  });
+
+  test('the group does not disturb the Numbers / Percentages selection', () => {
+    render(<GroupHarness options={twoOptions} />);
+    fireEvent.click(screen.getByRole('button', { name: /percentages/i }));
+    fireEvent.click(screen.getByRole('button', { name: /network status/i }));
+    fireEvent.click(screen.getByRole('button', { name: /network status/i }));
+    expect(pressed(/percentages/i)).toBe('true');
+  });
+
+  test('sits between the auxiliary toggles and Numbers / Percentages, after Show Trend', () => {
+    render(<GroupHarness options={twoOptions} />);
+    const names = screen
+      .getAllByRole('button')
+      .map((button) => button.getAttribute('aria-label') ?? button.textContent);
+    expect(names).toEqual([
+      'Show trend line',
+      'Extra',
+      'Succeeded From',
+      'Network Status',
+      'Numbers',
+      'Percentages',
+    ]);
+  });
+});

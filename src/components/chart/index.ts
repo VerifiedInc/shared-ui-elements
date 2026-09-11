@@ -16,6 +16,8 @@ export * from './LoadingChartSection';
 export * from './EmptyChartSection';
 export * from './MetricLastUpdated';
 export * from './OverviewBigNumbers';
+export * from './OverviewBreakdownBigNumbers';
+export * from './oneClickHealthNetworkStatus';
 export * from './TTSOverTimeChart';
 export * from './OneClickVerificationEventsOverTimeChart';
 export * from './OneClickVerificationSuccessOverTimeChart';
