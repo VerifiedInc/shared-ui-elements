@@ -3,7 +3,6 @@ import type { CellContext, ColumnDef } from '@tanstack/react-table';
 import { expandColumn } from '../../DataTable/DataTableExpandRow';
 
 import type { NetworkRule } from '../types';
-import { getStatusLabel } from '../utils/catalog';
 import { formatRuleDate } from '../utils/date';
 
 export const NETWORK_RULES_COLUMN_IDS = {
@@ -20,7 +19,9 @@ const dashWhenEmpty = ({
 }: CellContext<NetworkRule, unknown>): string =>
   getValue<string | undefined>() ?? '-';
 
-// Accessors return what the cell displays, so search and filters see the same text.
+// Accessors return what the cell displays, so search and filters see the same text; status is the
+// exception, its code is what the status filter carries. Sorting is on for the columns the rules
+// API sorts by.
 export function buildNetworkRulesColumns(): Array<
   ColumnDef<NetworkRule, unknown>
 > {
@@ -32,6 +33,7 @@ export function buildNetworkRulesColumns(): Array<
       accessorFn: (rule) => rule.enabled ?? true,
       enableColumnFilter: false,
       enableResizing: false,
+      enableSorting: true,
       meta: { width: 100, disableColumnMenu: true },
     },
     {
@@ -39,13 +41,15 @@ export function buildNetworkRulesColumns(): Array<
       header: 'Rule Name',
       accessorFn: (rule) => rule.name,
       enableColumnFilter: false,
+      enableSorting: true,
       meta: { width: 320 },
     },
     {
       id: NETWORK_RULES_COLUMN_IDS.status,
       header: 'Status',
-      accessorFn: (rule) => getStatusLabel(rule.status),
+      accessorFn: (rule) => rule.status,
       enableColumnFilter: false,
+      enableSorting: true,
       meta: { width: 200 },
     },
     {

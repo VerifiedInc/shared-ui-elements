@@ -23,6 +23,7 @@ import { Box, Table, TableContainer } from '@mui/material';
 import type {
   DataTableCellProps,
   DataTableData,
+  DataTableFilterOption,
   DataTableFilterState,
   DataTableIcons,
   DataTableProps,
@@ -173,6 +174,10 @@ export function DataTable<TData extends DataTableData>({
       controlledFilterState,
       onFilterStateChange,
     );
+
+  // What the filter panel has picked, kept here because the panel itself is unmounted whenever it
+  // closes; a searched option would otherwise come back as a bare value.
+  const pickedFilterOptions = useRef(new Map<string, DataTableFilterOption>());
 
   // Quick-search query written by the toolbar search input. Pre-filtered
   // client-side across the columns' cell values; with manualFiltering the
@@ -614,6 +619,7 @@ export function DataTable<TData extends DataTableData>({
     renderLoading,
     renderRow,
     filterFields,
+    pickedFilterOptions,
     filterState,
     onFilterStateChange: handleFilterStateChange,
     search,

@@ -9,17 +9,17 @@ import {
 } from '@mui/material';
 
 import { DataTable } from '../../DataTable/DataTable';
-import type {
-  DataTableFilterField,
-  DataTableProps,
-} from '../../DataTable/DataTable.types';
+import type { DataTableProps } from '../../DataTable/DataTable.types';
 import { EXPAND_COLUMN_ID } from '../../DataTable/DataTableExpandRow';
 
-import { useNetworkRuleStatuses } from '../NetworkRules.context';
+import {
+  useNetworkRulesServices,
+  useNetworkRuleStatuses,
+} from '../NetworkRules.context';
 import { useNetworkRulesCatalog } from '../hooks/useNetworkRulesCatalog';
 import type { NetworkRule } from '../types';
-import { getStatusLabel } from '../utils/catalog';
 import { buildNetworkRulesColumns, NETWORK_RULES_COLUMN_IDS } from './columns';
+import { buildNetworkRulesFilterFields } from './filters';
 import type { NetworkRuleRowHandlers } from './NetworkRuleExpandedPanel';
 import { NetworkRuleRow } from './NetworkRuleRow';
 
@@ -41,17 +41,29 @@ function LoadingRows({ columnCount }: Readonly<{ columnCount: number }>) {
   );
 }
 
-type PaginationProps = Pick<
+/**
+ * Paging, filtering, search and sorting state, passed through to the DataTable. With the `manual*`
+ * flags the consumer fetches in response; `buildNetworkRulesListQuery` maps the state to the query.
+ */
+type ListStateProps = Pick<
   DataTableProps<NetworkRule>,
   | 'pagination'
   | 'onPaginationChange'
   | 'manualPagination'
   | 'rowCount'
   | 'pageSizeOptions'
+  | 'manualFiltering'
+  | 'filterState'
+  | 'onFilterStateChange'
+  | 'search'
+  | 'onSearchChange'
+  | 'manualSorting'
+  | 'sorting'
+  | 'onSortingChange'
 >;
 
 export interface NetworkRulesTableProps
-  extends NetworkRuleRowHandlers, PaginationProps {
+  extends NetworkRuleRowHandlers, ListStateProps {
   rules: NetworkRule[];
   isLoading?: boolean;
   /** No toggle, no row or condition actions. */
@@ -61,29 +73,6 @@ export interface NetworkRulesTableProps
   maxHeight?: number | string;
   /** Defaults to 900. */
   minWidth?: number | string;
-}
-
-function buildFilterFields(
-  statuses: readonly string[],
-): DataTableFilterField[] {
-  return [
-    {
-      id: NETWORK_RULES_COLUMN_IDS.status,
-      label: 'Status',
-      kind: 'multiSelect',
-      columnId: NETWORK_RULES_COLUMN_IDS.status,
-      options: statuses.map((status) => {
-        const label = getStatusLabel(status);
-        return { label, value: label };
-      }),
-    },
-    {
-      id: NETWORK_RULES_COLUMN_IDS.enabled,
-      label: 'Enabled',
-      kind: 'boolean',
-      columnId: NETWORK_RULES_COLUMN_IDS.enabled,
-    },
-  ];
 }
 
 export function NetworkRulesTable({
@@ -98,14 +87,26 @@ export function NetworkRulesTable({
   manualPagination,
   rowCount,
   pageSizeOptions,
+  manualFiltering,
+  filterState,
+  onFilterStateChange,
+  search,
+  onSearchChange,
+  manualSorting,
+  sorting,
+  onSortingChange,
   ...handlers
 }: Readonly<NetworkRulesTableProps>) {
+  const { sources } = useNetworkRulesServices();
   const catalogQuery = useNetworkRulesCatalog();
   const catalog = catalogQuery.data;
   const statuses = useNetworkRuleStatuses() ?? catalog?.statuses ?? [];
   const catalogReady = catalog !== undefined;
   const columns = useMemo(() => buildNetworkRulesColumns(), []);
-  const filterFields = useMemo(() => buildFilterFields(statuses), [statuses]);
+  const filterFields = useMemo(
+    () => buildNetworkRulesFilterFields(catalog, statuses, sources),
+    [catalog, statuses, sources],
+  );
   const fillHeight = maxHeight === '100%';
 
   if (!catalogReady && catalogQuery.isError) {
@@ -142,6 +143,14 @@ export function NetworkRulesTable({
         manualPagination={manualPagination}
         rowCount={rowCount}
         pageSizeOptions={pageSizeOptions}
+        manualFiltering={manualFiltering}
+        filterState={filterState}
+        onFilterStateChange={onFilterStateChange}
+        search={search}
+        onSearchChange={onSearchChange}
+        manualSorting={manualSorting}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
         showToolbar
         enableColumnMenu
         enableColumnResizing
