@@ -86,6 +86,7 @@ function buildConditionField(
       label,
       kind: multi ? 'multiSelect' : 'select',
       options: keyDef.values.options.map(toCodeOption),
+      selectAllClears: false,
     };
   }
 
@@ -99,6 +100,7 @@ function buildConditionField(
       label,
       // Only the loaded page is ever known, so the pick is a set of values to match.
       kind: 'multiSelect',
+      selectAllClears: false,
       placeholder: source.searchPlaceholder,
       loadOptions: async (search) => {
         const options = await source.search({
@@ -141,6 +143,8 @@ export function buildNetworkRulesFilterFields(
       label: 'Status',
       kind: 'multiSelect',
       columnId: NETWORK_RULES_COLUMN_IDS.status,
+      // Every value picked is every value sent, so the panel's badge matches the query.
+      selectAllClears: false,
       options: statuses.map((status) => ({
         label: getStatusLabel(status),
         value: status,
@@ -156,6 +160,7 @@ export function buildNetworkRulesFilterFields(
       id: NETWORK_RULES_FILTER_IDS.conditionKey,
       label: 'Has Condition with Key',
       kind: 'multiSelect',
+      selectAllClears: false,
       options: keys.map((keyDef) => ({
         label: keyDef.label,
         value: keyDef.key,

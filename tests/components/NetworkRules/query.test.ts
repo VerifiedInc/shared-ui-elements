@@ -48,6 +48,14 @@ describe('buildNetworkRulesFilterFields', () => {
       { label: 'Red', value: 'r', caption: 'r' },
       { label: 'Green', value: 'g', caption: 'g' },
     ]);
+    // Picking every option filters by them all rather than reading as cleared, so the panel's
+    // active-filter badge says what the query does.
+    expect(
+      fields
+        .filter((field) => field.kind === 'multiSelect')
+        .every((field) => field.selectAllClears === false),
+    ).toBe(true);
+
     // A free-text key matches one term, with the operators the API takes, and offers the brand's
     // saved presets for the key as suggestions.
     expect(fields[5]).toMatchObject({
@@ -196,6 +204,17 @@ describe('buildNetworkRulesListQuery', () => {
       search: 'gold',
       $sort: { name: -1 },
     });
+  });
+
+  test('keeps every column the table sorts by, in order', () => {
+    expect(
+      buildNetworkRulesListQuery({
+        sorting: [
+          { id: 'status', desc: false },
+          { id: 'number', desc: true },
+        ],
+      }).$sort,
+    ).toEqual({ status: 1, number: -1 });
   });
 
   test('sends one code as itself and several as a list', () => {

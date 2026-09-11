@@ -230,6 +230,7 @@ function MultiSelectFilterControl({
   const [search, setSearch] = useState('');
   const [loaded, setLoaded] = useState<DataTableFilterOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
   const debouncedSearch = useDebounceValue(search, 300);
   // Held in a ref: a consumer that rebuilds the field on every render must not restart the search.
   const loadOptionsRef = useRef(field.loadOptions);
@@ -254,10 +255,16 @@ function MultiSelectFilterControl({
     setIsLoading(true);
     loadOptions(debouncedSearch)
       .then((next) => {
-        if (active) setLoaded(next);
+        if (active) {
+          setLoaded(next);
+          setHasFailed(false);
+        }
       })
       .catch(() => {
-        if (active) setLoaded([]);
+        if (active) {
+          setLoaded([]);
+          setHasFailed(true);
+        }
       })
       .finally(() => {
         if (active) setIsLoading(false);
@@ -304,6 +311,10 @@ function MultiSelectFilterControl({
       }}
       options={displayOptions}
       loading={isLoading}
+      // Distinguishes an outage from an empty result; typing again retries.
+      noOptionsText={
+        hasFailed ? 'The options could not be loaded' : 'No options'
+      }
       getOptionLabel={(option) => option.label}
       filterOptions={isAsync ? (all) => all : filterOptionsByLabelAndValue}
       isOptionEqualToValue={(option, v) => option.value === v.value}

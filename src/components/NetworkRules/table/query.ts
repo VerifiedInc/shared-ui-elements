@@ -121,8 +121,12 @@ export function buildNetworkRulesListQuery({
   const searchTerm = term(search);
   if (searchTerm !== undefined) query.search = searchTerm;
 
-  const [sort] = sorting;
-  if (sort !== undefined) query.$sort = { [sort.id]: sort.desc ? -1 : 1 };
+  // Shift-clicking a second header sorts by both, in the order they were clicked.
+  if (sorting.length > 0) {
+    query.$sort = Object.fromEntries(
+      sorting.map((sort) => [sort.id, sort.desc ? -1 : 1]),
+    );
+  }
 
   return query;
 }
