@@ -306,6 +306,10 @@ h2.react-datepicker__current-month {
   height: 30px;
   padding: 5px 10px;
   white-space: nowrap;
+  /* The picker root sets color: #fff for its header; time rows need their own readable color. */
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 20px;
+  box-sizing: border-box;
 }
 .react-datepicker__time-container
   .react-datepicker__time
@@ -314,13 +318,15 @@ h2.react-datepicker__current-month {
   li.react-datepicker__time-list-item:hover {
   cursor: pointer;
   background-color: #008a01;
+  color: #fff;
 }
 .react-datepicker__time-container
   .react-datepicker__time
   .react-datepicker__time-box
   ul.react-datepicker__time-list
   li.react-datepicker__time-list-item--selected {
-  background-color: #008a01;
+  /* Same primary as the selected day and the header. */
+  background-color: #0dbc3d;
   color: white;
   font-weight: bold;
 }
@@ -329,7 +335,7 @@ h2.react-datepicker__current-month {
   .react-datepicker__time-box
   ul.react-datepicker__time-list
   li.react-datepicker__time-list-item--selected:hover {
-  background-color: #0dbc3d;
+  background-color: #008a01;
 }
 .react-datepicker__time-container
   .react-datepicker__time

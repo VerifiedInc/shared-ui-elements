@@ -289,6 +289,23 @@ export const theme = ({
           },
         },
       },
+      MuiFormLabel: {
+        styleOverrides: {
+          // Required marker: red and a little larger, so it reads as a requirement.
+          asterisk: ({ theme }) => ({
+            color: theme.palette.error.main,
+            fontSize: '1.25em',
+            fontWeight: 700,
+          }),
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            fontWeight: 400,
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: {

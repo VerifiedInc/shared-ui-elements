@@ -635,6 +635,7 @@ export function DataTable<TData extends DataTableData>({
     hasResizedColumns,
     startColumnResize,
     virtualizer,
+    scrollContainerRef,
   };
 
   return (

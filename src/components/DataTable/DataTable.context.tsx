@@ -134,6 +134,8 @@ export interface DataTableContextValue<TData extends DataTableData> {
 
   // Row virtualization.
   virtualizer: Virtualizer<HTMLDivElement, Element>;
+  /** The scrolling element around the table; e.g. to size sticky expanded panels to the visible width. */
+  scrollContainerRef: RefObject<HTMLDivElement>;
 }
 
 // A single React context cannot be generic, so the value is stored under

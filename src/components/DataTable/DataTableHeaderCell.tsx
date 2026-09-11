@@ -16,6 +16,12 @@ import { useDataTableContext } from './DataTable.context';
 import { isFilterFieldActive } from './DataTable.filterState';
 import { getColumnLabel, getColumnMeta } from './DataTable.utils';
 
+/**
+ * Height of the small icon buttons in a header cell (menu, active filter):
+ * 20px icon plus MUI's 5px padding on each side.
+ */
+const HEADER_CONTROL_HEIGHT = 30;
+
 /** Maps a column meta align onto the header cell flex container. */
 const HEADER_JUSTIFY_CONTENT = {
   left: 'flex-start',
@@ -210,17 +216,24 @@ export function DataTableHeaderCell({
           : {}),
       }}
     >
-      {showColumnMenu ? (
+      {isGroupHeader ? (
+        headerContent
+      ) : (
+        // Every leaf label sits in the same flex box. With the column menu
+        // on, the box is as tall as the (hidden or absent) menu button, so a
+        // column that opted out of the menu lines up with its neighbors
+        // instead of dropping to the bottom edge of the cell.
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             gap: 0.5,
+            minHeight: enableColumnMenu ? HEADER_CONTROL_HEIGHT : undefined,
             justifyContent: HEADER_JUSTIFY_CONTENT[align],
           }}
         >
           {headerContent}
-          {isFiltered && (
+          {showColumnMenu && isFiltered && (
             <Tooltip title='Active filter' placement='bottom' arrow>
               <IconButton
                 size='small'
@@ -233,29 +246,29 @@ export function DataTableHeaderCell({
               </IconButton>
             </Tooltip>
           )}
-          <Tooltip title='Menu' placement='bottom' arrow>
-            <IconButton
-              size='small'
-              className='DataTable-columnMenuButton'
-              aria-label={`${getColumnLabel(column)} column menu`}
-              onClick={(event) =>
-                setColumnPanel({
-                  type: 'menu',
-                  columnId: column.id,
-                  anchorEl: event.currentTarget,
-                })
-              }
-              // Pushes the kebab to the cell edge so it does
-              // not float next to short labels (right-aligned
-              // columns already sit at the edge).
-              sx={align !== 'right' ? { ml: 'auto' } : undefined}
-            >
-              <ColumnMenuIcon fontSize='small' />
-            </IconButton>
-          </Tooltip>
+          {showColumnMenu && (
+            <Tooltip title='Menu' placement='bottom' arrow>
+              <IconButton
+                size='small'
+                className='DataTable-columnMenuButton'
+                aria-label={`${getColumnLabel(column)} column menu`}
+                onClick={(event) =>
+                  setColumnPanel({
+                    type: 'menu',
+                    columnId: column.id,
+                    anchorEl: event.currentTarget,
+                  })
+                }
+                // Pushes the kebab to the cell edge so it does
+                // not float next to short labels (right-aligned
+                // columns already sit at the edge).
+                sx={align !== 'right' ? { ml: 'auto' } : undefined}
+              >
+                <ColumnMenuIcon fontSize='small' />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
-      ) : (
-        headerContent
       )}
       {canResize && (
         <Box
