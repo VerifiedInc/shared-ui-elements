@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -26,12 +27,8 @@ export interface NetworkRuleEditorDialogProps extends Omit<
   maxWidth?: DialogProps['maxWidth'];
 }
 
-function defaultTitle(
-  rule: NetworkRuleEditorFormProps['rule'],
-  appendEmptyCondition: boolean | undefined,
-): string {
-  if (!rule?.uuid) return 'Create Network Rule';
-  return appendEmptyCondition ? 'Add Condition' : 'Edit Network Rule';
+function defaultTitle(rule: NetworkRuleEditorFormProps['rule']): string {
+  return rule?.uuid ? 'Edit Network Rule' : 'Create Network Rule';
 }
 
 export function NetworkRuleEditorDialog({
@@ -40,7 +37,6 @@ export function NetworkRuleEditorDialog({
   title,
   maxWidth = 'md',
   rule: ruleProp,
-  appendEmptyCondition: appendEmptyConditionProp,
   focusConditionIndex: focusConditionIndexProp,
   isSubmitting = false,
   disabled = false,
@@ -69,14 +65,10 @@ export function NetworkRuleEditorDialog({
   }, [isSubmitting, isDirty, onClose]);
 
   const rule = useHeldWhileClosed(open, ruleProp);
-  const appendEmptyCondition = useHeldWhileClosed(
-    open,
-    appendEmptyConditionProp,
-  );
   const focusConditionIndex = useHeldWhileClosed(open, focusConditionIndexProp);
   const resolvedTitle = useHeldWhileClosed(
     open,
-    title ?? defaultTitle(ruleProp, appendEmptyConditionProp),
+    title ?? defaultTitle(ruleProp),
   );
 
   return (
@@ -92,7 +84,6 @@ export function NetworkRuleEditorDialog({
         <NetworkRuleEditorForm
           {...formProps}
           rule={rule}
-          appendEmptyCondition={appendEmptyCondition}
           focusConditionIndex={focusConditionIndex}
           id={formId}
           hideActions
@@ -102,7 +93,7 @@ export function NetworkRuleEditorDialog({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={requestClose} disabled={isSubmitting}>
+        <Button color='neutral' onClick={requestClose} disabled={isSubmitting}>
           {cancelLabel}
         </Button>
         <Button
@@ -110,6 +101,11 @@ export function NetworkRuleEditorDialog({
           form={formId}
           variant='contained'
           disabled={disabled || isSubmitting}
+          startIcon={
+            isSubmitting ? (
+              <CircularProgress size={16} color='inherit' />
+            ) : undefined
+          }
         >
           {submitLabel}
         </Button>

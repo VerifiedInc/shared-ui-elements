@@ -31,8 +31,14 @@ export const catalog: NetworkRuleCatalog = {
       operators: ['EQ'],
       values: { source: 'things' },
     },
-    { key: 'text', label: 'Free Text', operators: ['EQ', 'HAS'] },
+    {
+      key: 'text',
+      label: 'Free Text',
+      operators: ['EQ', 'HAS'],
+      presets: ['Gold plan'],
+    },
   ],
+  notePresets: ['Existing preset'],
 };
 
 export const thingsSource: NetworkRuleSourceService<{ id: string }> = {

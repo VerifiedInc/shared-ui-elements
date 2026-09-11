@@ -1,7 +1,13 @@
-import { Autocomplete, TextField, createFilterOptions } from '@mui/material';
+import { useState } from 'react';
+import { Autocomplete, TextField } from '@mui/material';
 import { useController, useFormContext } from 'react-hook-form';
 
 import type { NetworkRuleFormValues } from '../../types';
+import {
+  filterPresetOptions,
+  presetOptionLabel,
+  type PresetOption,
+} from './presetOptions';
 
 export interface NotesFieldProps {
   presets?: readonly string[];
@@ -11,14 +17,10 @@ export interface NotesFieldProps {
   helperText?: string;
 }
 
-type CreatePresetOption = { inputValue: string; label: string };
-type NoteOption = string | CreatePresetOption;
-
-const filter = createFilterOptions<NoteOption>();
-
-const optionLabel = (option: NoteOption): string =>
-  typeof option === 'string' ? option : option.label;
-
+/**
+ * One note, a preset or free text, shown as a chip so a preset reads as one.
+ * `multiple` is only for the chip rendering: picking or typing replaces it.
+ */
 export function NotesField({
   presets = [],
   onCreatePreset,
@@ -27,55 +29,53 @@ export function NotesField({
 }: Readonly<NotesFieldProps>) {
   const { control } = useFormContext<NetworkRuleFormValues>();
   const { field, fieldState } = useController({ control, name: 'notes' });
-  const value = field.value ?? '';
+  const [inputValue, setInputValue] = useState('');
+  const note = field.value?.trim() ? field.value : null;
 
   return (
-    <Autocomplete<NoteOption, false, false, true>
+    <Autocomplete<PresetOption, true, false, true>
+      multiple
       freeSolo
       // Enter picks the highlighted suggestion instead of submitting the dialog.
       autoHighlight
-      options={presets as NoteOption[]}
-      value={null}
-      inputValue={value}
+      options={presets as PresetOption[]}
+      value={note ? [note] : []}
+      inputValue={inputValue}
       disabled={disabled}
-      getOptionLabel={optionLabel}
+      getOptionLabel={presetOptionLabel}
+      isOptionEqualToValue={(option, selected) =>
+        presetOptionLabel(option) === presetOptionLabel(selected)
+      }
       onInputChange={(_event, next, reason) => {
-        if (reason === 'reset') return;
-        field.onChange(next === '' ? null : next);
+        if (reason !== 'reset') setInputValue(next);
       }}
       onChange={(_event, next) => {
-        if (next === null) {
+        const last = next[next.length - 1];
+        if (last === undefined) {
           field.onChange(null);
-          return;
+        } else if (typeof last === 'string') {
+          field.onChange(last);
+        } else {
+          field.onChange(last.inputValue);
+          void onCreatePreset?.(last.inputValue);
         }
-        if (typeof next === 'string') {
-          field.onChange(next);
-          return;
-        }
-        field.onChange(next.inputValue);
-        void onCreatePreset?.(next.inputValue);
+        setInputValue('');
       }}
-      filterOptions={(options, state) => {
-        const filtered = filter(options, state);
-        const input = state.inputValue.trim();
-        const exists = options.some(
-          (option) =>
-            typeof option === 'string' &&
-            option.toLowerCase() === input.toLowerCase(),
-        );
-        if (input && onCreatePreset && !exists) {
-          filtered.push({
-            inputValue: input,
-            label: `Add "${input}" as a preset`,
-          });
+      onBlur={() => {
+        if (inputValue.trim()) {
+          field.onChange(inputValue.trim());
+          setInputValue('');
         }
-        return filtered;
+        field.onBlur();
       }}
+      filterOptions={(options, state) =>
+        filterPresetOptions(options, state, onCreatePreset !== undefined)
+      }
       renderInput={(params) => (
         <TextField
           {...params}
           label='Notes'
-          onBlur={field.onBlur}
+          placeholder={note ? undefined : 'Pick a preset or type a note'}
           error={fieldState.error !== undefined}
           helperText={fieldState.error?.message ?? helperText}
         />

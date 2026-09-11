@@ -1,5 +1,14 @@
 import type { ReactNode } from 'react';
-import { Box, Collapse, Switch, TableCell, TableRow } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Collapse,
+  Stack,
+  Switch,
+  TableCell,
+  TableRow,
+  Tooltip,
+} from '@mui/material';
 import { flexRender, type Cell } from '@tanstack/react-table';
 
 import { useResizeObserver } from '../../../hooks/useResizeObserver';
@@ -39,6 +48,7 @@ export function NetworkRuleRow({
   const open = row.getIsExpanded();
   const rule = row.original;
   const enabled = rule.enabled ?? true;
+  const conditionCount = rule.conditions.length;
   const visibleCells = row.getVisibleCells();
   // The detail row spans the whole (possibly scrolled) table; the panel sticks
   // to the visible left edge and is exactly as wide as the visible area. The
@@ -55,15 +65,39 @@ export function NetworkRuleRow({
         return <ExpandRowToggle row={row} />;
       case NETWORK_RULES_COLUMN_IDS.enabled:
         return (
-          <Switch
-            size='small'
-            checked={enabled}
-            disabled={readOnly || onToggleEnabled === undefined}
-            onChange={(_event, checked) => onToggleEnabled?.(rule, checked)}
-            inputProps={{
-              'aria-label': `${enabled ? 'Disable' : 'Enable'} rule ${rule.name}`,
-            }}
-          />
+          <Tooltip title={enabled ? 'Enabled' : 'Disabled'} placement='top'>
+            <span>
+              <Switch
+                size='small'
+                checked={enabled}
+                disabled={readOnly || onToggleEnabled === undefined}
+                onChange={(_event, checked) => onToggleEnabled?.(rule, checked)}
+                inputProps={{
+                  'aria-label': `${enabled ? 'Disable' : 'Enable'} rule ${rule.name}`,
+                }}
+              />
+            </span>
+          </Tooltip>
+        );
+      case NETWORK_RULES_COLUMN_IDS.name:
+        return (
+          <Stack direction='row' spacing={1} alignItems='center' minWidth={0}>
+            <Box
+              component='span'
+              title={rule.name}
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {rule.name}
+            </Box>
+            <Chip
+              size='small'
+              label={`${conditionCount} ${conditionCount === 1 ? 'condition' : 'conditions'}`}
+            />
+          </Stack>
         );
       case NETWORK_RULES_COLUMN_IDS.status:
         return <NetworkStatusChip status={rule.status} />;

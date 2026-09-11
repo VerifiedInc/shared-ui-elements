@@ -69,21 +69,4 @@ describe('<NetworkRuleEditorDialog/>', () => {
     fireEvent.click(await findByText('Discard'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
-
-  test('titles itself for adding a condition', async () => {
-    const { findByText } = render(
-      <ThemeProvider theme={appTheme}>
-        <NetworkRulesProvider services={createServices()}>
-          <NetworkRuleEditorDialog
-            open
-            rule={rules[0]}
-            appendEmptyCondition
-            onClose={vi.fn()}
-            onSubmit={vi.fn()}
-          />
-        </NetworkRulesProvider>
-      </ThemeProvider>,
-    );
-    expect(await findByText('Add Condition', { selector: 'h2' })).toBeDefined();
-  });
 });

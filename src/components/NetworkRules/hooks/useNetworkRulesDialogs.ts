@@ -9,7 +9,6 @@ export interface NetworkRulesEditorState {
   open: boolean;
   /** Undefined for a new rule. */
   rule?: NetworkRule;
-  appendEmptyCondition: boolean;
   focusConditionIndex?: number;
 }
 
@@ -24,22 +23,13 @@ export interface NetworkRulesDeletionState {
 export type NetworkRulesDialogTableHandlers = Required<
   Pick<
     NetworkRuleRowHandlers,
-    | 'onEdit'
-    | 'onDelete'
-    | 'onAddCondition'
-    | 'onEditCondition'
-    | 'onDeleteCondition'
+    'onEdit' | 'onDelete' | 'onEditCondition' | 'onDeleteCondition'
   >
 >;
 
 export type NetworkRulesEditorDialogProps = Pick<
   NetworkRuleEditorDialogProps,
-  | 'open'
-  | 'rule'
-  | 'appendEmptyCondition'
-  | 'focusConditionIndex'
-  | 'serverErrors'
-  | 'onClose'
+  'open' | 'rule' | 'focusConditionIndex' | 'serverErrors' | 'onClose'
 >;
 
 export type NetworkRulesDeleteDialogProps = Pick<
@@ -55,7 +45,6 @@ export interface UseNetworkRulesDialogsResult {
   setServerErrors: (errors: NetworkRuleServerError[] | undefined) => void;
   openCreate: () => void;
   openEdit: (rule: NetworkRule) => void;
-  openAddCondition: (rule: NetworkRule) => void;
   openEditCondition: (rule: NetworkRule, index: number) => void;
   closeEditor: () => void;
   requestDeleteRule: (rule: NetworkRule) => void;
@@ -70,7 +59,6 @@ export interface UseNetworkRulesDialogsResult {
 export function useNetworkRulesDialogs(): UseNetworkRulesDialogsResult {
   const [editor, setEditor] = useState<NetworkRulesEditorState>({
     open: false,
-    appendEmptyCondition: false,
   });
   const [deletion, setDeletion] = useState<NetworkRulesDeletionState>({
     open: false,
@@ -81,27 +69,17 @@ export function useNetworkRulesDialogs(): UseNetworkRulesDialogsResult {
 
   const openCreate = useCallback(() => {
     setServerErrors(undefined);
-    setEditor({ open: true, appendEmptyCondition: false });
+    setEditor({ open: true });
   }, []);
 
   const openEdit = useCallback((rule: NetworkRule) => {
     setServerErrors(undefined);
-    setEditor({ open: true, rule, appendEmptyCondition: false });
-  }, []);
-
-  const openAddCondition = useCallback((rule: NetworkRule) => {
-    setServerErrors(undefined);
-    setEditor({ open: true, rule, appendEmptyCondition: true });
+    setEditor({ open: true, rule });
   }, []);
 
   const openEditCondition = useCallback((rule: NetworkRule, index: number) => {
     setServerErrors(undefined);
-    setEditor({
-      open: true,
-      rule,
-      appendEmptyCondition: false,
-      focusConditionIndex: index,
-    });
+    setEditor({ open: true, rule, focusConditionIndex: index });
   }, []);
 
   // The rest of the state stays for the exit transition.
@@ -129,24 +107,16 @@ export function useNetworkRulesDialogs(): UseNetworkRulesDialogsResult {
     () => ({
       onEdit: openEdit,
       onDelete: requestDeleteRule,
-      onAddCondition: openAddCondition,
       onEditCondition: openEditCondition,
       onDeleteCondition: requestDeleteCondition,
     }),
-    [
-      openEdit,
-      requestDeleteRule,
-      openAddCondition,
-      openEditCondition,
-      requestDeleteCondition,
-    ],
+    [openEdit, requestDeleteRule, openEditCondition, requestDeleteCondition],
   );
 
   const editorDialogProps = useMemo<NetworkRulesEditorDialogProps>(
     () => ({
       open: editor.open,
       rule: editor.rule,
-      appendEmptyCondition: editor.appendEmptyCondition,
       focusConditionIndex: editor.focusConditionIndex,
       serverErrors,
       onClose: closeEditor,
@@ -171,7 +141,6 @@ export function useNetworkRulesDialogs(): UseNetworkRulesDialogsResult {
     setServerErrors,
     openCreate,
     openEdit,
-    openAddCondition,
     openEditCondition,
     closeEditor,
     requestDeleteRule,

@@ -70,17 +70,16 @@ describe('<NetworkRulesTable/>', () => {
     expect(await findByText('In Network')).toBeDefined();
     expect(getByText('Unknown')).toBeDefined();
 
-    // Condition count column, calendar day, notes as plain text.
-    expect(getByText('Conditions')).toBeDefined();
+    // Condition count chip next to the name, calendar day, notes as plain text.
     const rowTexts = Array.from(
       container.querySelectorAll('tbody tr[data-index]'),
     ).map((row) => row.textContent ?? '');
     expect(rowTexts[0]).toContain('First rule');
-    expect(rowTexts[0]).toContain('3');
+    expect(rowTexts[0]).toContain('3 conditions');
     expect(rowTexts[0]).toContain('October 1, 2026');
     expect(rowTexts[0]).toContain('Some note');
     expect(rowTexts[1]).toContain('Second rule');
-    expect(rowTexts[1]).toContain('0');
+    expect(rowTexts[1]).toContain('0 conditions');
     expect(getAllByText('-').length).toBeGreaterThan(0);
   });
 
@@ -115,7 +114,6 @@ describe('<NetworkRulesTable/>', () => {
     const onToggleEnabled = vi.fn();
     const onEdit = vi.fn();
     const onDelete = vi.fn();
-    const onAddCondition = vi.fn();
     const onEditCondition = vi.fn();
     const onDeleteCondition = vi.fn();
 
@@ -123,7 +121,6 @@ describe('<NetworkRulesTable/>', () => {
       onToggleEnabled,
       onEdit,
       onDelete,
-      onAddCondition,
       onEditCondition,
       onDeleteCondition,
     });
@@ -137,9 +134,6 @@ describe('<NetworkRulesTable/>', () => {
 
     fireEvent.click(getByRole('button', { name: 'Edit' }));
     expect(onEdit).toHaveBeenCalledWith(rules[0]);
-
-    fireEvent.click(getByRole('button', { name: 'Add Condition' }));
-    expect(onAddCondition).toHaveBeenCalledWith(rules[0]);
 
     fireEvent.click(getByRole('button', { name: 'Delete' }));
     expect(onDelete).toHaveBeenCalledWith(rules[0]);

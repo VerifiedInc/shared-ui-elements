@@ -1,17 +1,18 @@
-import { Fragment, useState, type ReactNode, type UIEvent } from 'react';
+import { useState, type ReactNode, type UIEvent } from 'react';
 import {
   Autocomplete,
   Box,
   Button,
   Checkbox,
-  Chip,
   CircularProgress,
   TextField,
-  type ChipProps,
 } from '@mui/material';
 
+import { LogoAvatar } from '../../../../UI/LogoAvatar';
+import { LogoChip } from '../../../../UI/LogoChip';
 import { useNetworkRuleSourceSearch } from '../../../hooks/useNetworkRuleSourceSearch';
 import { useResolvedConditionOptions } from '../../../hooks/useResolvedConditionOptions';
+import { OptionLabel } from '../../../shared/OptionLabel';
 import type { NetworkRuleKeyDef, NetworkRuleOption } from '../../../types';
 
 const LOAD_MORE_THRESHOLD_PX = 50;
@@ -142,9 +143,13 @@ export function RemoteValuesInput({
         return (
           <li key={key} {...rest}>
             {multi && <Checkbox checked={isSelected} sx={{ mr: 1 }} />}
-            {service?.renderOption
-              ? service.renderOption(option)
-              : option.label}
+            <LogoAvatar
+              name={option.label}
+              logoUrl={option.logoUrl}
+              size={28}
+              sx={{ mr: 1 }}
+            />
+            <OptionLabel option={option} />
           </li>
         );
       }}
@@ -153,15 +158,14 @@ export function RemoteValuesInput({
           const { key, ...tagProps } = getTagProps({ index }) as ReturnType<
             typeof getTagProps
           > & { key: string };
-          const chipProps: ChipProps = { ...tagProps, label: option.label };
           return (
-            <Fragment key={key}>
-              {service?.renderChip ? (
-                service.renderChip(option, chipProps)
-              ) : (
-                <Chip {...chipProps} />
-              )}
-            </Fragment>
+            <LogoChip
+              key={key}
+              {...tagProps}
+              label={option.label}
+              name={option.label}
+              logoUrl={option.logoUrl}
+            />
           );
         })
       }

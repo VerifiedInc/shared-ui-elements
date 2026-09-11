@@ -1,4 +1,10 @@
-import { Button, FormHelperText, Stack, Typography } from '@mui/material';
+import {
+  Alert,
+  Button,
+  FormHelperText,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -8,12 +14,16 @@ import { ConditionRow } from './ConditionRow';
 
 export interface ConditionsFieldProps {
   catalog: NetworkRuleCatalog;
+  addedPresets?: Readonly<Record<string, readonly string[]>>;
+  onCreatePreset?: (key: string, value: string) => void;
   disabled?: boolean;
   focusIndex?: number;
 }
 
 export function ConditionsField({
   catalog,
+  addedPresets,
+  onCreatePreset,
   disabled,
   focusIndex,
 }: Readonly<ConditionsFieldProps>) {
@@ -42,6 +52,11 @@ export function ConditionsField({
         </Button>
       </Stack>
 
+      <Alert severity='info'>
+        If multiple values are selected for a given condition, that condition
+        applies if any one of the values matches. (It&apos;s an inclusive OR.)
+      </Alert>
+
       {fields.length === 0 && (
         <Typography variant='body2' color='text.secondary'>
           No conditions yet. A rule needs at least one; all conditions must
@@ -54,6 +69,8 @@ export function ConditionsField({
           key={field.id}
           index={index}
           catalog={catalog}
+          addedPresets={addedPresets}
+          onCreatePreset={onCreatePreset}
           disabled={disabled}
           autoFocus={index === focusIndex}
           onRemove={() => {

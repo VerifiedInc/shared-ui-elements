@@ -71,7 +71,7 @@ function ConditionRow({
         {isLoading ? (
           <Skeleton variant='text' width={160} />
         ) : (
-          <OptionChips options={options} renderChip={service?.renderChip} />
+          <OptionChips options={options} withLogo={service !== undefined} />
         )}
       </TableCell>
       {showActions && (

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,7 +11,7 @@ import {
 
 import { useHeldWhileClosed } from '../hooks/useHeldWhileClosed';
 import { useNetworkRulesCatalog } from '../hooks/useNetworkRulesCatalog';
-import type { NetworkRule } from '../types';
+import type { NetworkRule, NetworkRuleCatalog } from '../types';
 import { getKeyLabel, getOperatorLabel } from '../utils/catalog';
 import { normalizeConditionValues } from '../utils/condition';
 
@@ -29,6 +30,27 @@ export interface NetworkRuleDeleteDialogProps {
   description?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
+}
+
+function describeDeletion(
+  catalog: NetworkRuleCatalog | undefined,
+  rule: NetworkRule,
+  conditionIndex: number | undefined,
+): string {
+  if (conditionIndex === undefined) {
+    const count = rule.conditions.length;
+    return `"${rule.name}" and its ${count} ${
+      count === 1 ? 'condition' : 'conditions'
+    } will be removed. This cannot be undone.`;
+  }
+  const condition = rule.conditions[conditionIndex];
+  const summary = condition
+    ? `${getKeyLabel(catalog, condition.key)} ${getOperatorLabel(
+        catalog,
+        condition.operator,
+      )} ${normalizeConditionValues(condition.value).join(', ')}`
+    : `Condition ${conditionIndex + 1}`;
+  return `"${summary}" will be removed from "${rule.name}". The rule keeps its other conditions.`;
 }
 
 export function NetworkRuleDeleteDialog({
@@ -50,32 +72,14 @@ export function NetworkRuleDeleteDialog({
     conditionIndexProp ?? undefined,
   );
 
-  const condition =
-    rule !== undefined && conditionIndex !== undefined
-      ? rule.conditions[conditionIndex]
-      : undefined;
   const isCondition = conditionIndex !== undefined;
-
   const resolvedTitle =
     title ?? (isCondition ? 'Delete condition?' : 'Delete rule?');
-
-  let resolvedDescription: ReactNode = description;
-  if (resolvedDescription === undefined && rule !== undefined) {
-    if (isCondition) {
-      const summary = condition
-        ? `${getKeyLabel(catalog, condition.key)} ${getOperatorLabel(
-            catalog,
-            condition.operator,
-          )} ${normalizeConditionValues(condition.value).join(', ')}`
-        : `Condition ${conditionIndex + 1}`;
-      resolvedDescription = `"${summary}" will be removed from "${rule.name}". The rule keeps its other conditions.`;
-    } else {
-      const count = rule.conditions.length;
-      resolvedDescription = `"${rule.name}" and its ${count} ${
-        count === 1 ? 'condition' : 'conditions'
-      } will be removed. This cannot be undone.`;
-    }
-  }
+  const resolvedDescription =
+    description ??
+    (rule === undefined
+      ? undefined
+      : describeDeletion(catalog, rule, conditionIndex));
 
   return (
     <Dialog
@@ -96,6 +100,11 @@ export function NetworkRuleDeleteDialog({
           color='error'
           variant='contained'
           disabled={isDeleting || rule === undefined}
+          startIcon={
+            isDeleting ? (
+              <CircularProgress size={16} color='inherit' />
+            ) : undefined
+          }
           onClick={() => {
             if (rule === undefined) return;
             void onConfirm(rule, conditionIndex);

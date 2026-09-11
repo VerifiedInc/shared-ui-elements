@@ -1,5 +1,5 @@
 import { Button, Stack, Typography } from '@mui/material';
-import { Add, Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 
 import { CopyableUuid } from '../../CopyableUuid';
 
@@ -10,7 +10,6 @@ export interface NetworkRuleRowHandlers {
   onToggleEnabled?: (rule: NetworkRule, enabled: boolean) => void;
   onEdit?: (rule: NetworkRule) => void;
   onDelete?: (rule: NetworkRule) => void;
-  onAddCondition?: (rule: NetworkRule) => void;
   onEditCondition?: (rule: NetworkRule, index: number) => void;
   onDeleteCondition?: (rule: NetworkRule, index: number) => void;
 }
@@ -27,15 +26,11 @@ export function NetworkRuleExpandedPanel({
   readOnly = false,
   onEdit,
   onDelete,
-  onAddCondition,
   onEditCondition,
   onDeleteCondition,
 }: Readonly<NetworkRuleExpandedPanelProps>) {
   const showActions =
-    !readOnly &&
-    (onEdit !== undefined ||
-      onAddCondition !== undefined ||
-      onDelete !== undefined);
+    !readOnly && (onEdit !== undefined || onDelete !== undefined);
 
   return (
     <Stack spacing={2} useFlexGap sx={{ px: 3, py: 2 }}>
@@ -48,15 +43,6 @@ export function NetworkRuleExpandedPanel({
               onClick={() => onEdit(rule)}
             >
               Edit
-            </Button>
-          )}
-          {onAddCondition && (
-            <Button
-              variant='text'
-              startIcon={<Add />}
-              onClick={() => onAddCondition(rule)}
-            >
-              Add Condition
             </Button>
           )}
           {onDelete && (

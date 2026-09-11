@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import type { ChipProps } from '@mui/material';
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -8,7 +8,9 @@ import type { QueryClient } from '@tanstack/react-query';
 export type NetworkRuleOption<TData = unknown> = {
   value: string;
   label: string;
-  /** The raw record a remote source returned; read only by that source's renderers. */
+  /** Remote options show it as an avatar before the label, with the label's initial as fallback. */
+  logoUrl?: string | null;
+  /** The raw record a remote source returned. */
   data?: TData;
 };
 
@@ -39,12 +41,16 @@ export type NetworkRuleKeyDef = {
   operators: string[];
   type?: string;
   values?: NetworkRuleKeyValues;
+  /** The brand's saved suggestions for a free-text key. */
+  presets?: string[];
 };
 
 export type NetworkRuleCatalog = {
   statuses: string[];
   operators: Record<string, NetworkRuleOperatorDef>;
   keys: NetworkRuleKeyDef[];
+  /** The brand's saved suggestions for the rule's note. */
+  notePresets?: string[];
 };
 
 /** `value` is one string or several (inclusive OR). */
@@ -57,6 +63,8 @@ export type NetworkRuleCondition = {
 /** Dates are calendar days, `YYYY-MM-DD`: from the start day up to, not including, the end day. */
 export type NetworkRule = {
   uuid: string;
+  /** Per-brand sequence the server assigns on create; absent until then. */
+  number?: number;
   name: string;
   status: string;
   notes?: string | null;
@@ -88,8 +96,12 @@ export type NetworkRuleFormValues = {
 
 /** Handed back with the submitted rule. */
 export type NetworkRuleSubmitExtras = {
-  /** Note presets added while editing, not yet in `notePresets`. */
-  newNotePresets: string[];
+  /**
+   * Preset lists that grew while editing, complete and ready to store, keyed by the field they
+   * suggest for: `notes` for the rule's note, otherwise the free-text condition key. Empty when
+   * nothing was added.
+   */
+  presets: Record<string, string[]>;
 };
 
 /** A server validation error; `index` points at the offending condition. */
@@ -107,16 +119,6 @@ export type NetworkRuleSourceSearchParams = {
   skip?: number;
 };
 
-export type NetworkRuleRenderOption<TData = unknown> = (
-  option: NetworkRuleOption<TData>,
-) => ReactNode;
-
-/** Receives the props the default chip would get; spread them to keep size, deletion and keyboard behaviour. */
-export type NetworkRuleRenderChip<TData = unknown> = (
-  option: NetworkRuleOption<TData>,
-  chipProps: ChipProps,
-) => ReactNode;
-
 /** One remote option source, keyed by `NetworkRuleKeyDef.values.source`. */
 export type NetworkRuleSourceService<TData = unknown> = {
   search: (
@@ -128,8 +130,6 @@ export type NetworkRuleSourceService<TData = unknown> = {
     values: string[],
     signal?: AbortSignal,
   ) => Promise<Array<NetworkRuleOption<TData>>>;
-  renderOption?: NetworkRuleRenderOption<TData>;
-  renderChip?: NetworkRuleRenderChip<TData>;
   searchPlaceholder?: string;
 };
 
