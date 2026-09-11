@@ -129,6 +129,7 @@ export const exampleCatalog: NetworkRuleCatalog = {
       label: 'Payer Name',
       type: 'text',
       operators: ['EQUAL', 'NOT_EQUAL', 'INCLUDE', 'NOT_INCLUDE'],
+      presets: ['Cigna', 'Aetna'],
     },
     {
       key: 'state',
@@ -169,10 +170,7 @@ export const exampleCatalog: NetworkRuleCatalog = {
       operators: ['EQUAL', 'NOT_EQUAL', 'INCLUDE', 'NOT_INCLUDE'],
     },
   ],
-  presets: {
-    notes: ['No self pay', 'Call payer to confirm', 'Verify plan tier'],
-    payerName: ['Cigna', 'Aetna'],
-  },
+  notePresets: ['No self pay', 'Call payer to confirm', 'Verify plan tier'],
 };
 
 export const exampleRules: NetworkRule[] = [

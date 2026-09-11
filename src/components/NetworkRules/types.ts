@@ -41,14 +41,16 @@ export type NetworkRuleKeyDef = {
   operators: string[];
   type?: string;
   values?: NetworkRuleKeyValues;
+  /** The brand's saved suggestions for a free-text key. */
+  presets?: string[];
 };
 
 export type NetworkRuleCatalog = {
   statuses: string[];
   operators: Record<string, NetworkRuleOperatorDef>;
   keys: NetworkRuleKeyDef[];
-  /** The brand's saved suggestions, keyed `notes` for the rule's note or by free-text condition key. */
-  presets?: Record<string, string[]>;
+  /** The brand's saved suggestions for the rule's note. */
+  notePresets?: string[];
 };
 
 /** `value` is one string or several (inclusive OR). */

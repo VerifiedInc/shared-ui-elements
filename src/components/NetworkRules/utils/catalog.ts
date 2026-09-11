@@ -77,5 +77,6 @@ export function getPresets(
   catalog: NetworkRuleCatalog | undefined,
   field: string,
 ): string[] {
-  return catalog?.presets?.[field] ?? [];
+  if (field === 'notes') return catalog?.notePresets ?? [];
+  return getKeyDef(catalog, field)?.presets ?? [];
 }
