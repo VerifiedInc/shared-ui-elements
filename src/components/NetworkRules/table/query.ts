@@ -67,6 +67,29 @@ function toConditionFilter(
   }
 }
 
+/** The filters over what a rule checks: the key presence filter, then one entry per key control. */
+function buildConditionFilter(
+  filterState: DataTableFilterState,
+): NetworkRuleConditionFilter | undefined {
+  const condition: NetworkRuleConditionFilter = {};
+
+  for (const [id, value] of Object.entries(filterState)) {
+    const key = conditionFilterKey(id);
+    const filter = key === undefined ? undefined : toConditionFilter(value);
+
+    if (key !== undefined && filter !== undefined) {
+      condition[key] = filter;
+    }
+  }
+
+  const keys = filterState[NETWORK_RULES_FILTER_IDS.conditionKey];
+  if (keys?.kind === 'multiSelect' && keys.values.length > 0) {
+    condition.key = keys.values;
+  }
+
+  return Object.keys(condition).length === 0 ? undefined : condition;
+}
+
 /**
  * Maps the table's filter state, quick search and sorting to the list query. Cleared controls add
  * nothing, so an untouched table sends an empty query.
@@ -81,36 +104,25 @@ export function buildNetworkRulesListQuery({
   sorting?: SortingState;
 }): NetworkRulesListQuery {
   const query: NetworkRulesListQuery = {};
-  const condition: NetworkRuleConditionFilter = {};
 
-  for (const [id, value] of Object.entries(filterState)) {
-    const key = conditionFilterKey(id);
-
-    if (key !== undefined) {
-      const filter = toConditionFilter(value);
-      if (filter !== undefined) condition[key] = filter;
-    } else if (id === NETWORK_RULES_FILTER_IDS.status) {
-      if (value.kind === 'multiSelect' && value.values.length > 0) {
-        query.status = { $in: value.values };
-      }
-    } else if (id === NETWORK_RULES_FILTER_IDS.enabled) {
-      if (value.kind === 'boolean' && value.value !== null) {
-        query.enabled = value.value;
-      }
-    } else if (id === NETWORK_RULES_FILTER_IDS.conditionKey) {
-      if (value.kind === 'multiSelect' && value.values.length > 0) {
-        condition.key = value.values;
-      }
-    }
+  const status = filterState[NETWORK_RULES_FILTER_IDS.status];
+  if (status?.kind === 'multiSelect' && status.values.length > 0) {
+    query.status = { $in: status.values };
   }
 
-  if (Object.keys(condition).length > 0) query.condition = condition;
+  const enabled = filterState[NETWORK_RULES_FILTER_IDS.enabled];
+  if (enabled?.kind === 'boolean' && enabled.value !== null) {
+    query.enabled = enabled.value;
+  }
+
+  const condition = buildConditionFilter(filterState);
+  if (condition !== undefined) query.condition = condition;
 
   const searchTerm = term(search);
   if (searchTerm !== undefined) query.search = searchTerm;
 
   const [sort] = sorting;
-  if (sort) query.$sort = { [sort.id]: sort.desc ? -1 : 1 };
+  if (sort !== undefined) query.$sort = { [sort.id]: sort.desc ? -1 : 1 };
 
   return query;
 }
