@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Stack } from '@mui/material';
 
-import { ConversionOverTimeChart } from '../../../components/chart';
+import {
+  ConversionOverTimeChart,
+  oneClickHealthNetworkStatusSeries,
+} from '../../../components/chart';
 import { blue, green } from '../../../styles/colors';
 
 const sampleLegendBrand = {
@@ -209,4 +213,76 @@ export const WithLegendNoUuid: Story = {
     legendBrand: sampleLegendBrand,
     showLegendUuid: false,
   },
+};
+
+const networkStatusSeries = oneClickHealthNetworkStatusSeries('Autofill');
+
+const mockNetworkStatusData = [
+  {
+    ...mockRawData[0],
+    interval: mockRawData[0].interval.map((item, index) => {
+      const inNetwork = Math.round(item.oneClickHealthSucceeded * 0.6);
+      const indeterminate = Math.round(
+        item.oneClickHealthSucceeded * (index % 3 === 0 ? 0.3 : 0.25),
+      );
+      return {
+        ...item,
+        oneClickHealthAutofillInNetwork: inNetwork,
+        oneClickHealthAutofillIndeterminate: indeterminate,
+        oneClickHealthAutofillOutOfNetwork:
+          item.oneClickHealthSucceeded - inNetwork - indeterminate,
+      };
+    }),
+  },
+];
+
+function NetworkStatusToggleStory(): React.ReactNode {
+  const [breakdown, setBreakdown] = useState<string | null>(null);
+  const showNetworkStatus = breakdown === 'network';
+  const activeSeriesConfig = showNetworkStatus
+    ? networkStatusSeries
+    : seriesConfig;
+
+  return (
+    <ConversionOverTimeChart
+      views={[
+        {
+          key: 'absolute',
+          label: 'Numbers',
+          chartData: mockNetworkStatusData,
+          seriesConfig: activeSeriesConfig,
+          mode: 'absolute',
+        },
+        {
+          key: 'percent',
+          label: 'Percentages',
+          chartData: mockNetworkStatusData,
+          seriesConfig: activeSeriesConfig,
+          mode: 'percent',
+        },
+      ]}
+      toggleGroup={{
+        value: breakdown,
+        onChange: setBreakdown,
+        options: [{ key: 'network', label: 'Network Status' }],
+      }}
+      stackMode='none'
+      percentBasis={showNetworkStatus ? 'sum' : 'max'}
+      isLoading={false}
+      isSuccess={true}
+      isFetching={false}
+      filter={{ timezone: 'UTC', interval: 'day' }}
+    />
+  );
+}
+
+/** Single-member exclusive group: the Dashboard's Autofills and Checks charts. */
+export const WithNetworkStatusToggle: Story = {
+  args: {
+    isLoading: false,
+    isSuccess: true,
+    isFetching: false,
+    filter: { timezone: 'UTC' },
+  },
+  render: () => <NetworkStatusToggleStory />,
 };

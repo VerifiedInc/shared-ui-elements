@@ -81,6 +81,23 @@ export interface ConversionOverTimeChartToggle {
   ariaLabel?: string;
 }
 
+export interface ConversionOverTimeChartToggleGroupOption {
+  key: string;
+  label: string;
+  ariaLabel?: string;
+}
+
+/**
+ * Exclusive toggle group rendered between the auxiliary toggles and the
+ * Numbers / Percentages group. At most one option is selected; clicking the
+ * selected option clears the selection. Consumer owns the value.
+ */
+export interface ConversionOverTimeChartToggleGroup {
+  value: string | null;
+  onChange: (value: string | null) => void;
+  options: ConversionOverTimeChartToggleGroupOption[];
+}
+
 /**
  * Normalize each point's series values to fractions for percent mode.
  * `'max'` divides by the largest series at that point.
@@ -199,6 +216,12 @@ export interface ConversionOverTimeChartProps {
    */
   extraToggles?: ConversionOverTimeChartToggle[];
   /**
+   * Optional exclusive group of mutually-exclusive series breakdowns, rendered
+   * between `extraToggles` and the Numbers / Percentages group. Unlike views,
+   * the group may have nothing selected.
+   */
+  toggleGroup?: ConversionOverTimeChartToggleGroup;
+  /**
    * How non-stacked percentages are computed. Defaults to `'max'` (subset
    * semantics). Use `'sum'` for mutually-exclusive breakdowns.
    */
@@ -226,6 +249,7 @@ export function ConversionOverTimeChart({
   views,
   defaultViewKey,
   extraToggles,
+  toggleGroup,
   percentBasis: percentBasisProp = 'max',
   sortTooltipByValueDesc = false,
 }: Readonly<ConversionOverTimeChartProps>): React.ReactNode {
@@ -410,6 +434,26 @@ export function ConversionOverTimeChart({
               {toggle.label}
             </ToggleButton>
           ))}
+          {toggleGroup && (
+            <ToggleButtonGroup
+              value={toggleGroup.value}
+              exclusive
+              onChange={(_: React.MouseEvent, value: string | null) =>
+                toggleGroup.onChange(value)
+              }
+              size='small'
+            >
+              {toggleGroup.options.map((option) => (
+                <ToggleButton
+                  key={option.key}
+                  value={option.key}
+                  aria-label={option.ariaLabel ?? option.label}
+                >
+                  {option.label}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          )}
           <ToggleButtonGroup
             value={activeViewKey}
             exclusive
