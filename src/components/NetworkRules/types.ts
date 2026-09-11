@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import type { ChipProps } from '@mui/material';
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -8,7 +8,9 @@ import type { QueryClient } from '@tanstack/react-query';
 export type NetworkRuleOption<TData = unknown> = {
   value: string;
   label: string;
-  /** The raw record a remote source returned; read only by that source's renderers. */
+  /** Remote options show it as an avatar before the label, with the label's initial as fallback. */
+  logoUrl?: string | null;
+  /** The raw record a remote source returned. */
   data?: TData;
 };
 
@@ -115,16 +117,6 @@ export type NetworkRuleSourceSearchParams = {
   skip?: number;
 };
 
-export type NetworkRuleRenderOption<TData = unknown> = (
-  option: NetworkRuleOption<TData>,
-) => ReactNode;
-
-/** Receives the props the default chip would get; spread them to keep size, deletion and keyboard behaviour. */
-export type NetworkRuleRenderChip<TData = unknown> = (
-  option: NetworkRuleOption<TData>,
-  chipProps: ChipProps,
-) => ReactNode;
-
 /** One remote option source, keyed by `NetworkRuleKeyDef.values.source`. */
 export type NetworkRuleSourceService<TData = unknown> = {
   search: (
@@ -136,8 +128,6 @@ export type NetworkRuleSourceService<TData = unknown> = {
     values: string[],
     signal?: AbortSignal,
   ) => Promise<Array<NetworkRuleOption<TData>>>;
-  renderOption?: NetworkRuleRenderOption<TData>;
-  renderChip?: NetworkRuleRenderChip<TData>;
   searchPlaceholder?: string;
 };
 

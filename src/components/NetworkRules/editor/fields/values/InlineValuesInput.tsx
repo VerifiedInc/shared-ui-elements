@@ -1,5 +1,6 @@
-import { Autocomplete, Checkbox, TextField, Typography } from '@mui/material';
+import { Autocomplete, Checkbox, TextField } from '@mui/material';
 
+import { OptionLabel } from '../../../shared/OptionLabel';
 import type { NetworkRuleOption } from '../../../types';
 import { toOptions } from '../../../utils/catalog';
 
@@ -47,10 +48,7 @@ export function InlineValuesInput({
         return (
           <li key={key} {...rest}>
             {multi && <Checkbox checked={isSelected} sx={{ mr: 1 }} />}
-            <Typography>{option.label}</Typography>
-            <Typography variant='caption' color='text.secondary' sx={{ ml: 1 }}>
-              {option.value}
-            </Typography>
+            <OptionLabel option={option} />
           </li>
         );
       }}

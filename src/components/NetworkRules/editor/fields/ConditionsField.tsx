@@ -54,8 +54,7 @@ export function ConditionsField({
 
       <Alert severity='info'>
         If multiple values are selected for a given condition, that condition
-        applies if any of the values match. In other words, multiple values map
-        to an inclusive OR.
+        applies if any one of the values matches. (It&apos;s an inclusive OR.)
       </Alert>
 
       {fields.length === 0 && (

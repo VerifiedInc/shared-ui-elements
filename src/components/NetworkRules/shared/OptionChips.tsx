@@ -1,18 +1,20 @@
-import { Fragment, type ReactNode } from 'react';
-import { Chip, Stack, type ChipProps } from '@mui/material';
+import type { ReactNode } from 'react';
+import { Chip, Stack } from '@mui/material';
 
-import type { NetworkRuleOption, NetworkRuleRenderChip } from '../types';
+import { LogoChip } from '../../UI/LogoChip';
+import type { NetworkRuleOption } from '../types';
 
 export interface OptionChipsProps {
   options: readonly NetworkRuleOption[];
-  renderChip?: NetworkRuleRenderChip;
+  /** Remote-source values: chips carry the option's logo, or its initial. */
+  withLogo?: boolean;
   emptyPlaceholder?: ReactNode;
 }
 
 /** Condition values as a wrapping row of chips. */
 export function OptionChips({
   options,
-  renderChip,
+  withLogo = false,
   emptyPlaceholder = '-',
 }: Readonly<OptionChipsProps>) {
   if (options.length === 0) {
@@ -21,18 +23,19 @@ export function OptionChips({
 
   return (
     <Stack direction='row' flexWrap='wrap' useFlexGap gap={0.75}>
-      {options.map((option) => {
-        const chipProps: ChipProps = { size: 'small', label: option.label };
-        return (
-          <Fragment key={option.value}>
-            {renderChip ? (
-              renderChip(option, chipProps)
-            ) : (
-              <Chip {...chipProps} />
-            )}
-          </Fragment>
-        );
-      })}
+      {options.map((option) =>
+        withLogo ? (
+          <LogoChip
+            key={option.value}
+            size='small'
+            label={option.label}
+            name={option.label}
+            logoUrl={option.logoUrl}
+          />
+        ) : (
+          <Chip key={option.value} size='small' label={option.label} />
+        ),
+      )}
     </Stack>
   );
 }

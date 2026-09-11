@@ -1,6 +1,4 @@
 // Story-only example data; the components know only the shapes in `types.ts`.
-import { Box, Stack, Typography } from '@mui/material';
-
 import type {
   NetworkRule,
   NetworkRuleCatalog,
@@ -8,8 +6,6 @@ import type {
   NetworkRuleSourceService,
   NetworkRulesServices,
 } from '../../../components/NetworkRules';
-import { LogoAvatar } from '../../../components/UI/LogoAvatar';
-import { LogoChip } from '../../../components/UI/LogoChip';
 
 type ExamplePayer = {
   verifiedId: string;
@@ -48,6 +44,7 @@ const toPayerOption = (
 ): NetworkRuleOption<ExamplePayer> => ({
   value: payer.verifiedId,
   label: payer.name,
+  logoUrl: payer.logoUrl,
   data: payer,
 });
 
@@ -109,35 +106,6 @@ export const examplePayersSource: NetworkRuleSourceService<ExamplePayer> = {
       values.includes(payer.verifiedId),
     ).map(toPayerOption);
   },
-  renderOption: (option) => (
-    <Stack direction='row' spacing={1} alignItems='center' minWidth={0}>
-      <LogoAvatar
-        name={option.label}
-        logoUrl={option.data?.logoUrl}
-        size={28}
-      />
-      <Box
-        component='span'
-        sx={{
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {option.label}
-      </Box>
-      <Typography variant='caption' color='text.secondary' noWrap>
-        {option.value}
-      </Typography>
-    </Stack>
-  ),
-  renderChip: (option, chipProps) => (
-    <LogoChip
-      {...chipProps}
-      name={option.label}
-      logoUrl={option.data?.logoUrl}
-    />
-  ),
 };
 
 export const exampleCatalog: NetworkRuleCatalog = {
