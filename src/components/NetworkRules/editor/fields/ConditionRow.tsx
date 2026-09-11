@@ -6,6 +6,7 @@ import type { NetworkRuleCatalog, NetworkRuleFormValues } from '../../types';
 import {
   getKeyDef,
   getOperatorLabel,
+  getPresets,
   isOperatorMulti,
 } from '../../utils/catalog';
 import { ConditionValuesInput } from './ConditionValuesInput';
@@ -14,6 +15,9 @@ export interface ConditionRowProps {
   index: number;
   catalog: NetworkRuleCatalog;
   onRemove: () => void;
+  /** Presets created while editing, by condition key; shown after the catalog's. */
+  addedPresets?: Readonly<Record<string, readonly string[]>>;
+  onCreatePreset?: (key: string, value: string) => void;
   canRemove?: boolean;
   disabled?: boolean;
   autoFocus?: boolean;
@@ -23,6 +27,8 @@ export function ConditionRow({
   index,
   catalog,
   onRemove,
+  addedPresets,
+  onCreatePreset,
   canRemove = true,
   disabled = false,
   autoFocus,
@@ -46,6 +52,12 @@ export function ConditionRow({
   const allowedOperators = keyDef?.operators ?? [];
   const multi = isOperatorMulti(catalog, operatorField.field.value);
   const shouldValidate = formState.isSubmitted;
+  const presets = keyDef
+    ? [
+        ...getPresets(catalog, keyDef.key),
+        ...(addedPresets?.[keyDef.key] ?? []),
+      ]
+    : [];
 
   const handleKeyChange = (nextKey: string): void => {
     keyField.field.onChange(nextKey);
@@ -127,6 +139,14 @@ export function ConditionRow({
           onChange={(next) => {
             valuesField.field.onChange(next);
           }}
+          presets={presets}
+          onCreatePreset={
+            onCreatePreset && keyDef
+              ? (value) => {
+                  onCreatePreset(keyDef.key, value);
+                }
+              : undefined
+          }
           disabled={disabled || operatorField.field.value === ''}
           error={valuesField.fieldState.error !== undefined}
           helperText={valuesField.fieldState.error?.message}

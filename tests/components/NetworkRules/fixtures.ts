@@ -33,6 +33,7 @@ export const catalog: NetworkRuleCatalog = {
     },
     { key: 'text', label: 'Free Text', operators: ['EQ', 'HAS'] },
   ],
+  presets: { notes: ['Existing preset'], text: ['Gold plan'] },
 };
 
 export const thingsSource: NetworkRuleSourceService<{ id: string }> = {

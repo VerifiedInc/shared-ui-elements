@@ -71,3 +71,11 @@ export function toOptions(
       },
   );
 }
+
+/** Saved suggestions for `notes` or a free-text condition key. */
+export function getPresets(
+  catalog: NetworkRuleCatalog | undefined,
+  field: string,
+): string[] {
+  return catalog?.presets?.[field] ?? [];
+}

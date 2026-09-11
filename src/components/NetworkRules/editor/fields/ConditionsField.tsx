@@ -14,12 +14,16 @@ import { ConditionRow } from './ConditionRow';
 
 export interface ConditionsFieldProps {
   catalog: NetworkRuleCatalog;
+  addedPresets?: Readonly<Record<string, readonly string[]>>;
+  onCreatePreset?: (key: string, value: string) => void;
   disabled?: boolean;
   focusIndex?: number;
 }
 
 export function ConditionsField({
   catalog,
+  addedPresets,
+  onCreatePreset,
   disabled,
   focusIndex,
 }: Readonly<ConditionsFieldProps>) {
@@ -66,6 +70,8 @@ export function ConditionsField({
           key={field.id}
           index={index}
           catalog={catalog}
+          addedPresets={addedPresets}
+          onCreatePreset={onCreatePreset}
           disabled={disabled}
           autoFocus={index === focusIndex}
           onRemove={() => {

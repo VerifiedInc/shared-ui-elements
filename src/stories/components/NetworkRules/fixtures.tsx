@@ -201,6 +201,10 @@ export const exampleCatalog: NetworkRuleCatalog = {
       operators: ['EQUAL', 'NOT_EQUAL', 'INCLUDE', 'NOT_INCLUDE'],
     },
   ],
+  presets: {
+    notes: ['No self pay', 'Call payer to confirm', 'Verify plan tier'],
+    payerName: ['Cigna', 'Aetna'],
+  },
 };
 
 export const exampleRules: NetworkRule[] = [
@@ -264,12 +268,6 @@ export const exampleRules: NetworkRule[] = [
       { key: 'planName', operator: 'INCLUDE', value: 'Blue Choice PPO' },
     ],
   },
-];
-
-export const exampleNotePresets = [
-  'No self pay',
-  'Call payer to confirm',
-  'Verify plan tier',
 ];
 
 export interface StoryServicesOptions {

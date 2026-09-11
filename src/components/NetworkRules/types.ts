@@ -45,6 +45,8 @@ export type NetworkRuleCatalog = {
   statuses: string[];
   operators: Record<string, NetworkRuleOperatorDef>;
   keys: NetworkRuleKeyDef[];
+  /** The brand's saved suggestions, keyed `notes` for the rule's note or by free-text condition key. */
+  presets?: Record<string, string[]>;
 };
 
 /** `value` is one string or several (inclusive OR). */
@@ -90,8 +92,12 @@ export type NetworkRuleFormValues = {
 
 /** Handed back with the submitted rule. */
 export type NetworkRuleSubmitExtras = {
-  /** Note presets added while editing, not yet in `notePresets`. */
-  newNotePresets: string[];
+  /**
+   * Preset lists that grew while editing, complete and ready to store, keyed by the field they
+   * suggest for: `notes` for the rule's note, otherwise the free-text condition key. Empty when
+   * nothing was added.
+   */
+  presets: Record<string, string[]>;
 };
 
 /** A server validation error; `index` points at the offending condition. */

@@ -12,11 +12,7 @@ import {
   type NetworkRuleServerError,
 } from '../../../components/NetworkRules';
 
-import {
-  createStoryServices,
-  exampleNotePresets,
-  exampleRules,
-} from './fixtures';
+import { createStoryServices, exampleRules } from './fixtures';
 
 const meta: Meta<typeof NetworkRuleEditorDialog> = {
   title: 'Components/NetworkRules/NetworkRuleEditor',
@@ -33,8 +29,7 @@ const meta: Meta<typeof NetworkRuleEditorDialog> = {
     ),
   ],
   args: {
-    notePresets: exampleNotePresets,
-    canCreateNotePresets: true,
+    canCreatePresets: true,
   },
 };
 
@@ -128,8 +123,7 @@ export const FormOnly: Story = {
   render: (args) => (
     <Paper variant='outlined' sx={{ p: 3, maxWidth: 960 }}>
       <NetworkRuleEditorForm
-        notePresets={args.notePresets}
-        canCreateNotePresets={args.canCreateNotePresets}
+        canCreatePresets={args.canCreatePresets}
         rule={exampleRules[2]}
         onSubmit={fn()}
         onCancel={fn()}

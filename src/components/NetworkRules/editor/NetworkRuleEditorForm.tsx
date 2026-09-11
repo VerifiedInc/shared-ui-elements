@@ -28,6 +28,7 @@ import type {
   NetworkRuleServerError,
   NetworkRuleSubmitExtras,
 } from '../types';
+import { getPresets } from '../utils/catalog';
 import {
   emptyConditionFormValues,
   fromNetworkRuleFormValues,
@@ -45,9 +46,8 @@ export interface NetworkRuleEditorFormProps {
   rule?: Partial<NetworkRule> | null;
   /** Pre-filled, editable name for a new rule, e.g. "Rule #7". */
   defaultName?: string;
-  notePresets?: readonly string[];
-  /** Offer "Add … as a preset" for a typed note; new presets arrive with `onSubmit`. */
-  canCreateNotePresets?: boolean;
+  /** Offer "Add … as a preset" for a typed note or free-text value; the grown lists arrive with `onSubmit`. */
+  canCreatePresets?: boolean;
   onSubmit: (
     rule: NetworkRuleData,
     extras: NetworkRuleSubmitExtras,
@@ -122,8 +122,7 @@ function LoadingFields() {
 export function NetworkRuleEditorForm({
   rule,
   defaultName,
-  notePresets,
-  canCreateNotePresets = false,
+  canCreatePresets = false,
   onSubmit,
   onCancel,
   isSubmitting = false,
@@ -152,12 +151,14 @@ export function NetworkRuleEditorForm({
   });
 
   // Presets stay in the form until submit, so cancelling discards them too.
-  const [newNotePresets, setNewNotePresets] = useState<string[]>([]);
+  const [addedPresets, setAddedPresets] = useState<Record<string, string[]>>(
+    {},
+  );
 
   useEffect(() => {
     if (loadKey === loadedKey) return;
     form.reset(buildDefaultValues(rule, defaultName));
-    setNewNotePresets([]);
+    setAddedPresets({});
     setLoadedKey(loadKey);
   }, [form, rule, defaultName, loadKey, loadedKey]);
 
@@ -184,20 +185,29 @@ export function NetworkRuleEditorForm({
   const startDay = ruleDateToDay(startDate);
   const endMinDate = startDay ? addDays(startDay, 1) : undefined;
 
-  const allNotePresets = useMemo(
-    () => [...(notePresets ?? []), ...newNotePresets],
-    [notePresets, newNotePresets],
+  const notePresets = useMemo(
+    () => [...getPresets(catalog, 'notes'), ...(addedPresets.notes ?? [])],
+    [catalog, addedPresets.notes],
   );
-  const addNotePreset = (value: string) => {
-    setNewNotePresets((current) =>
-      current.includes(value) ? current : [...current, value],
-    );
+  const addPreset = (field: string, value: string) => {
+    setAddedPresets((current) => {
+      const list = current[field] ?? [];
+      return list.includes(value)
+        ? current
+        : { ...current, [field]: [...list, value] };
+    });
   };
 
   const submit = form.handleSubmit(async (values) => {
     // The dialog's Save button is outside the form and cannot see the catalog state.
     if (catalog === undefined) return;
-    await onSubmit(fromNetworkRuleFormValues(values), { newNotePresets });
+    const presets = Object.fromEntries(
+      Object.entries(addedPresets).map(([field, added]) => [
+        field,
+        [...getPresets(catalog, field), ...added],
+      ]),
+    );
+    await onSubmit(fromNetworkRuleFormValues(values), { presets });
   });
 
   return (
@@ -301,9 +311,13 @@ export function NetworkRuleEditorForm({
               </Stack>
 
               <NotesField
-                presets={allNotePresets}
+                presets={notePresets}
                 onCreatePreset={
-                  canCreateNotePresets ? addNotePreset : undefined
+                  canCreatePresets
+                    ? (value) => {
+                        addPreset('notes', value);
+                      }
+                    : undefined
                 }
                 disabled={busy}
               />
@@ -331,6 +345,8 @@ export function NetworkRuleEditorForm({
 
               <ConditionsField
                 catalog={catalog}
+                addedPresets={addedPresets}
+                onCreatePreset={canCreatePresets ? addPreset : undefined}
                 disabled={busy}
                 focusIndex={focusConditionIndex}
               />

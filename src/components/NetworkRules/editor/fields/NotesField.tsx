@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { Autocomplete, TextField, createFilterOptions } from '@mui/material';
+import { Autocomplete, TextField } from '@mui/material';
 import { useController, useFormContext } from 'react-hook-form';
 
 import type { NetworkRuleFormValues } from '../../types';
+import {
+  filterPresetOptions,
+  presetOptionLabel,
+  type PresetOption,
+} from './presetOptions';
 
 export interface NotesFieldProps {
   presets?: readonly string[];
@@ -11,14 +16,6 @@ export interface NotesFieldProps {
   disabled?: boolean;
   helperText?: string;
 }
-
-type CreatePresetOption = { inputValue: string; label: string };
-type NoteOption = string | CreatePresetOption;
-
-const filter = createFilterOptions<NoteOption>();
-
-const optionLabel = (option: NoteOption): string =>
-  typeof option === 'string' ? option : option.label;
 
 /**
  * One note, a preset or free text, shown as a chip so a preset reads as one.
@@ -36,18 +33,18 @@ export function NotesField({
   const note = field.value?.trim() ? field.value : null;
 
   return (
-    <Autocomplete<NoteOption, true, false, true>
+    <Autocomplete<PresetOption, true, false, true>
       multiple
       freeSolo
       // Enter picks the highlighted suggestion instead of submitting the dialog.
       autoHighlight
-      options={presets as NoteOption[]}
+      options={presets as PresetOption[]}
       value={note ? [note] : []}
       inputValue={inputValue}
       disabled={disabled}
-      getOptionLabel={optionLabel}
+      getOptionLabel={presetOptionLabel}
       isOptionEqualToValue={(option, selected) =>
-        optionLabel(option) === optionLabel(selected)
+        presetOptionLabel(option) === presetOptionLabel(selected)
       }
       onInputChange={(_event, next, reason) => {
         if (reason !== 'reset') setInputValue(next);
@@ -71,22 +68,9 @@ export function NotesField({
         }
         field.onBlur();
       }}
-      filterOptions={(options, state) => {
-        const filtered = filter(options, state);
-        const input = state.inputValue.trim();
-        const exists = options.some(
-          (option) =>
-            typeof option === 'string' &&
-            option.toLowerCase() === input.toLowerCase(),
-        );
-        if (input && onCreatePreset && !exists) {
-          filtered.push({
-            inputValue: input,
-            label: `Add "${input}" as a preset`,
-          });
-        }
-        return filtered;
-      }}
+      filterOptions={(options, state) =>
+        filterPresetOptions(options, state, onCreatePreset !== undefined)
+      }
       renderInput={(params) => (
         <TextField
           {...params}

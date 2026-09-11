@@ -14,11 +14,7 @@ import {
   type NetworkRule,
 } from '../../../components/NetworkRules';
 
-import {
-  createStoryServices,
-  exampleNotePresets,
-  exampleRules,
-} from './fixtures';
+import { createStoryServices, exampleRules } from './fixtures';
 
 const sleep = async (ms: number): Promise<void> =>
   await new Promise((resolve) => setTimeout(resolve, ms));
@@ -26,13 +22,12 @@ const sleep = async (ms: number): Promise<void> =>
 // Name a rule "duplicate" to see server-side errors surface in the editor.
 function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
   const [rules, setRules] = useState<NetworkRule[]>(exampleRules);
-  const [notePresets, setNotePresets] = useState<string[]>(exampleNotePresets);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dialogs = useNetworkRulesDialogs();
 
   const handleSubmit = async (
     body: NetworkRuleData,
-    { newNotePresets }: NetworkRuleSubmitExtras,
+    { presets }: NetworkRuleSubmitExtras,
   ): Promise<void> => {
     setIsSubmitting(true);
     await sleep(600);
@@ -53,10 +48,8 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
       return;
     }
 
-    setNotePresets((current) => [
-      ...current,
-      ...newNotePresets.filter((preset) => !current.includes(preset)),
-    ]);
+    // A host would store these on the brand; the catalog serves them back.
+    if (Object.keys(presets).length > 0) console.log('presets', presets);
 
     const editing = dialogs.editor.rule;
     setRules((current) =>
@@ -140,8 +133,7 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
 
       <NetworkRuleEditorDialog
         {...dialogs.editorDialogProps}
-        notePresets={notePresets}
-        canCreateNotePresets={!readOnly}
+        canCreatePresets={!readOnly}
         isSubmitting={isSubmitting}
         onSubmit={handleSubmit}
       />
