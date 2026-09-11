@@ -14,6 +14,7 @@ export function DataTablePanels() {
     icons,
     isLoading,
     filterFields,
+    pickedFilterOptions,
     filterState,
     onFilterStateChange,
     columnPanel,
@@ -47,6 +48,7 @@ export function DataTablePanels() {
         // from the spec and owns the filter state.
         <DataTableFieldFilterPanel
           fields={filterFields}
+          pickedOptions={pickedFilterOptions.current}
           filterState={filterState}
           onFilterStateChange={onFilterStateChange}
           anchorPosition={columnPanel.anchorPosition}

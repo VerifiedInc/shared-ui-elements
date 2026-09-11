@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 
+import type { DataTableFilterState } from '../../../src/components/DataTable/DataTable.types';
 import {
   NetworkRulesProvider,
   NetworkRulesTable,
@@ -165,6 +166,152 @@ describe('<NetworkRulesTable/>', () => {
 
     expect(queryByRole('button', { name: 'Edit' })).toBeNull();
     expect(queryByRole('button', { name: 'Delete condition 1' })).toBeNull();
+  });
+
+  test('offers a filter per catalog key, with the control its shape implies', async () => {
+    const { findByText, getByRole } = renderTable();
+    await findByText('In Network');
+
+    fireEvent.click(getByRole('button', { name: 'Show filters' }));
+
+    expect(getByRole('combobox', { name: 'Status' })).toBeDefined();
+    expect(getByRole('combobox', { name: 'Enabled' })).toBeDefined();
+    expect(
+      getByRole('combobox', { name: 'Has Condition with Key' }),
+    ).toBeDefined();
+    // A pick-list for the inline key, a searched list for the remote one, text for the rest.
+    expect(getByRole('combobox', { name: 'Color' })).toBeDefined();
+    expect(getByRole('combobox', { name: 'Remote Thing' })).toBeDefined();
+    expect(getByRole('combobox', { name: 'Free Text' })).toBeDefined();
+  });
+
+  test('suggests the key presets under a free-text filter, and takes anything typed', async () => {
+    const onFilterStateChange = vi.fn();
+    const { findByText, getByRole, findByRole } = renderTable({
+      manualFiltering: true,
+      filterState: {},
+      onFilterStateChange,
+    });
+    await findByText('In Network');
+
+    fireEvent.click(getByRole('button', { name: 'Show filters' }));
+    const input = getByRole('combobox', { name: 'Free Text' });
+
+    // The key's presets are offered as suggestions.
+    fireEvent.mouseDown(input);
+    expect(await findByRole('option', { name: 'Gold plan' })).toBeDefined();
+
+    fireEvent.change(input, { target: { value: 'Aviato' } });
+
+    expect(onFilterStateChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        'condition.text': {
+          kind: 'text',
+          operator: 'contains',
+          value: 'Aviato',
+        },
+      }),
+    );
+  });
+
+  test('searches a remote key through the module source as the list opens', async () => {
+    const { findByText, getByRole, findByRole } = renderTable();
+    await findByText('In Network');
+
+    fireEvent.click(getByRole('button', { name: 'Show filters' }));
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Remote Thing' }));
+
+    const option = await findByRole('option', { name: /Thing One/ });
+    expect(getByRole('option', { name: /Thing Two/ })).toBeDefined();
+    // Shown as the editor shows them: the logo, the label, and the stored code.
+    expect(option.textContent).toContain('t1');
+    expect(option.querySelector('.MuiAvatar-root')).not.toBeNull();
+    // Only the loaded page is known, so there is nothing to select all of.
+    expect(getByRole('listbox').textContent).not.toContain('Select all');
+  });
+
+  test('keeps a picked remote value labelled after the panel is closed and reopened', async () => {
+    function Harness() {
+      const [filterState, setFilterState] = useState<DataTableFilterState>({});
+
+      return (
+        <NetworkRulesProvider services={createServices()}>
+          <NetworkRulesTable
+            rules={rules}
+            manualFiltering
+            filterState={filterState}
+            onFilterStateChange={setFilterState}
+          />
+        </NetworkRulesProvider>
+      );
+    }
+
+    const { findByText, getByRole, findByRole } = render(<Harness />);
+    await findByText('In Network');
+
+    fireEvent.click(getByRole('button', { name: 'Show filters' }));
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Remote Thing' }));
+    fireEvent.click(await findByRole('option', { name: /Thing One/ }));
+
+    // Close the option list, then the panel itself.
+    fireEvent.keyDown(getByRole('combobox', { name: 'Remote Thing' }), {
+      key: 'Escape',
+    });
+    fireEvent.keyDown(document.querySelector('.MuiPopover-root') as Element, {
+      key: 'Escape',
+    });
+    await waitFor(() => {
+      expect(document.querySelector('.MuiPopover-root')).toBeNull();
+    });
+
+    fireEvent.click(getByRole('button', { name: 'Show filters' }));
+
+    // The chip still carries what the source returned, not the bare id.
+    const chip = (await findByText('Thing One')).closest('.MuiChip-root');
+    expect(chip?.querySelector('.MuiAvatar-root')).not.toBeNull();
+  });
+
+  test('shows an inline key its codes, without a logo', async () => {
+    const { findByText, getByRole, findByRole } = renderTable();
+    await findByText('In Network');
+
+    fireEvent.click(getByRole('button', { name: 'Show filters' }));
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Color' }));
+
+    const option = await findByRole('option', { name: /Red/ });
+    expect(option.textContent).toContain('r');
+    expect(option.querySelector('.MuiAvatar-root')).toBeNull();
+  });
+
+  test('reports header sorting for the columns the API sorts by', async () => {
+    const onSortingChange = vi.fn();
+    const { findByText, getByText } = renderTable({
+      manualSorting: true,
+      sorting: [],
+      onSortingChange,
+    });
+    await findByText('In Network');
+
+    fireEvent.click(getByText('Rule Name'));
+    expect(onSortingChange).toHaveBeenLastCalledWith([
+      { id: 'name', desc: false },
+    ]);
+
+    fireEvent.click(getByText('Status'));
+    expect(onSortingChange).toHaveBeenLastCalledWith([
+      { id: 'status', desc: false },
+    ]);
+
+    // A boolean column opens descending, so enabled rules come first.
+    fireEvent.click(getByText('Enabled'));
+    expect(onSortingChange).toHaveBeenLastCalledWith([
+      { id: 'enabled', desc: true },
+    ]);
+
+    // Dates and notes have no server sort, so their headers are plain labels.
+    onSortingChange.mockClear();
+    fireEvent.click(getByText('Notes'));
+    expect(onSortingChange).not.toHaveBeenCalled();
   });
 
   test('holds the rows until the catalog is ready, and offers a retry when it fails', async () => {

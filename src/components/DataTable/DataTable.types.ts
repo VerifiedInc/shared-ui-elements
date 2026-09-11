@@ -60,6 +60,13 @@ export type DataTableFilterFieldKind =
 export interface DataTableFilterOption {
   label: string;
   value: string;
+  /**
+   * Logo shown before the label, and in the chip once picked; the label's initial stands in when
+   * it is null or fails to load. Leave it off entirely for options that carry no image.
+   */
+  logoUrl?: string | null;
+  /** Secondary text trailing the label, e.g. the code the value is stored as. */
+  caption?: string;
 }
 
 /** One section of a `group` field, a labelled sub-list of options. */
@@ -89,8 +96,15 @@ export interface DataTableFilterField {
    * `onFilterStateChange`.
    */
   columnId?: string;
-  /** Choices for `select` / `multiSelect`. */
+  /** Choices for `select` / `multiSelect`; suggestions offered under a `text` input. */
   options?: DataTableFilterOption[];
+  /**
+   * Choices searched as the user types, for `multiSelect` lists too large to inline (e.g. a remote
+   * catalog). Called with the typed query, debounced, while the list is open; the panel keeps the
+   * picked options so their chips stay labelled. Takes the place of `options`, and drops
+   * "Select all", since only the loaded page is known.
+   */
+  loadOptions?: (search: string) => Promise<DataTableFilterOption[]>;
   /** Sections for `group`. */
   sections?: DataTableFilterSection[];
   /**

@@ -23,6 +23,7 @@ import type {
   DataTableCellProps,
   DataTableData,
   DataTableFilterField,
+  DataTableFilterOption,
   DataTableFilterState,
   DataTableIcons,
   DataTableRowContext,
@@ -90,6 +91,11 @@ export interface DataTableContextValue<TData extends DataTableData> {
   // useControllableState).
   /** Declarative filter-field spec; when set, the built-in panel renders from it. */
   filterFields?: DataTableFilterField[];
+  /**
+   * Options the filter panel has picked, keyed by field and value. The panel is unmounted while
+   * closed, so it reads back what a searched option looked like instead of showing a bare value.
+   */
+  pickedFilterOptions: MutableRefObject<Map<string, DataTableFilterOption>>;
   /** Filter state for `filterFields` (controlled or internal, see useControllableState). */
   filterState: DataTableFilterState;
   onFilterStateChange: (state: DataTableFilterState) => void;
