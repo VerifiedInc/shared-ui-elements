@@ -1,18 +1,17 @@
 import { useMemo } from 'react';
-import { Box, Chip, Skeleton, Stack, TableCell, TableRow } from '@mui/material';
+import { Box, Chip, Stack } from '@mui/material';
 import type { CellContext, ColumnDef } from '@tanstack/react-table';
 
 import { formatNumberRounded } from '../../../utils/number/formatters';
 import { CopyableUuid } from '../../CopyableUuid';
 import { DataTable } from '../../DataTable/DataTable';
+import { DataTableLoadingRows } from '../../DataTable/DataTableLoadingRows';
 import { NetworkStatusChip } from '../../NetworkRules/shared';
 
 import type {
   NetworkRulesMetricsTableProps,
   NetworkRulesMetricsTableRow,
 } from './NetworkRulesMetricsTable.types';
-
-const SKELETON_ROWS = 4;
 
 export const NETWORK_RULES_METRICS_COLUMN_IDS = {
   name: 'name',
@@ -22,22 +21,6 @@ export const NETWORK_RULES_METRICS_COLUMN_IDS = {
   matches: 'matches',
   conflicts: 'conflicts',
 } as const;
-
-function LoadingRows({ columnCount }: Readonly<{ columnCount: number }>) {
-  return (
-    <>
-      {Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
-        <TableRow key={rowIndex}>
-          {Array.from({ length: columnCount }, (_, cellIndex) => (
-            <TableCell key={cellIndex}>
-              <Skeleton variant='text' />
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </>
-  );
-}
 
 const countCell = ({
   getValue,
@@ -178,7 +161,7 @@ export function NetworkRulesMetricsTable({
         emptyMessage={emptyMessage}
         manualSorting={manualSorting}
         renderLoading={(columnCount: number) => (
-          <LoadingRows columnCount={columnCount} />
+          <DataTableLoadingRows columnCount={columnCount} />
         )}
         {...listState}
       />

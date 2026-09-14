@@ -8,34 +8,10 @@ import {
   type NetworkRulesMetricsTableRow,
 } from '../../../src/components/chart/NetworkRulesMetricsTable';
 
-// jsdom has no layout, so the virtualizer would render zero rows. Mock it to
-// render every row (same approach as DataTable.test.tsx).
-vi.mock('@tanstack/react-virtual', () => ({
-  useVirtualizer: ({
-    count,
-    estimateSize,
-  }: {
-    count: number;
-    estimateSize: () => number;
-  }) => {
-    const size = estimateSize();
-    return {
-      getVirtualItems: () =>
-        Array.from({ length: count }, (_, index) => ({
-          index,
-          key: index,
-          start: index * size,
-          end: (index + 1) * size,
-          size,
-          lane: 0,
-        })),
-      getTotalSize: () => count * size,
-      measure: () => undefined,
-      measureElement: () => undefined,
-      scrollToOffset: () => undefined,
-    };
-  },
-}));
+vi.mock(
+  '@tanstack/react-virtual',
+  async () => await import('../../utils/mockReactVirtual'),
+);
 
 const rows: NetworkRulesMetricsTableRow[] = [
   {
