@@ -93,7 +93,6 @@ function buildColumns(
       id: NETWORK_RULES_METRICS_COLUMN_IDS.notes,
       header: 'Notes',
       accessorFn: (rule) => rule.notes ?? '',
-      // A note reads as one value, the same chip the rule editor shows it in.
       cell: ({ row }) => row.original.notes ?? '-',
       enableColumnFilter: false,
       meta: { width: 260 },
