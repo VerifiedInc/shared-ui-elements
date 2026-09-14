@@ -12,6 +12,7 @@ export * from './RiskScoreBarChart';
 export * from './SimpleLegend';
 export * from './BillableEventsTable';
 export * from './BillableEventsProductTable';
+export * from './NetworkRulesMetricsTable';
 export * from './LoadingChartSection';
 export * from './EmptyChartSection';
 export * from './MetricLastUpdated';
