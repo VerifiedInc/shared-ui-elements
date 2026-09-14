@@ -4,3 +4,4 @@ export * from './DataTable.filters';
 export * from './DataTable.filterState';
 export * from './DataTable.export';
 export * from './DataTableExpandRow';
+export * from './DataTableLoadingRows';

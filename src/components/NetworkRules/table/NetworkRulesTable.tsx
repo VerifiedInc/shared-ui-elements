@@ -1,16 +1,10 @@
 import { useMemo } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Skeleton,
-  TableCell,
-  TableRow,
-} from '@mui/material';
+import { Alert, Box, Button } from '@mui/material';
 
 import { DataTable } from '../../DataTable/DataTable';
 import type { DataTableProps } from '../../DataTable/DataTable.types';
 import { EXPAND_COLUMN_ID } from '../../DataTable/DataTableExpandRow';
+import { DataTableLoadingRows } from '../../DataTable/DataTableLoadingRows';
 
 import {
   useNetworkRulesServices,
@@ -22,24 +16,6 @@ import { buildNetworkRulesColumns, NETWORK_RULES_COLUMN_IDS } from './columns';
 import { buildNetworkRulesFilterFields } from './filters';
 import type { NetworkRuleRowHandlers } from './NetworkRuleExpandedPanel';
 import { NetworkRuleRow } from './NetworkRuleRow';
-
-const SKELETON_ROWS = 4;
-
-function LoadingRows({ columnCount }: Readonly<{ columnCount: number }>) {
-  return (
-    <>
-      {Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
-        <TableRow key={rowIndex}>
-          {Array.from({ length: columnCount }, (_, cellIndex) => (
-            <TableCell key={cellIndex}>
-              <Skeleton variant='text' />
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </>
-  );
-}
 
 /**
  * Paging, filtering, search and sorting state, passed through to the DataTable. With the `manual*`
@@ -177,7 +153,7 @@ export function NetworkRulesTable({
           />
         )}
         renderLoading={(columnCount: number) => (
-          <LoadingRows columnCount={columnCount} />
+          <DataTableLoadingRows columnCount={columnCount} />
         )}
       />
     </Box>
