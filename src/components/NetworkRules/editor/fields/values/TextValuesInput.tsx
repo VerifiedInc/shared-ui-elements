@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Autocomplete, TextField } from '@mui/material';
+import { Fragment, useState } from 'react';
+import { Autocomplete, Chip, TextField } from '@mui/material';
 
 import { dedupeValues } from '../../../utils/condition';
 import {
@@ -7,6 +7,7 @@ import {
   presetOptionLabel,
   type PresetOption,
 } from '../presetOptions';
+import { OrSeparator } from './OrSeparator';
 
 export interface TextValuesInputProps {
   values: string[];
@@ -80,6 +81,19 @@ export function TextValuesInput({
           setInputValue('');
         }
       }}
+      renderTags={(tagValue, getTagProps) =>
+        tagValue.map((option, index) => {
+          const { key, ...tagProps } = getTagProps({ index }) as ReturnType<
+            typeof getTagProps
+          > & { key: string };
+          return (
+            <Fragment key={key}>
+              {index > 0 && <OrSeparator />}
+              <Chip {...tagProps} label={presetOptionLabel(option)} />
+            </Fragment>
+          );
+        })
+      }
       renderInput={(params) => (
         <TextField
           {...params}

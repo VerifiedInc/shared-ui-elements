@@ -1,8 +1,10 @@
-import { Autocomplete, Checkbox, TextField } from '@mui/material';
+import { Fragment } from 'react';
+import { Autocomplete, Checkbox, Chip, TextField } from '@mui/material';
 
 import { OptionLabel } from '../../../shared/OptionLabel';
 import type { NetworkRuleOption } from '../../../types';
 import { toOptions } from '../../../utils/catalog';
+import { OrSeparator } from './OrSeparator';
 
 export interface InlineValuesInputProps {
   options: readonly NetworkRuleOption[];
@@ -52,6 +54,19 @@ export function InlineValuesInput({
           </li>
         );
       }}
+      renderTags={(tagValue, getTagProps) =>
+        tagValue.map((option, index) => {
+          const { key, ...tagProps } = getTagProps({ index }) as ReturnType<
+            typeof getTagProps
+          > & { key: string };
+          return (
+            <Fragment key={key}>
+              {index > 0 && <OrSeparator />}
+              <Chip {...tagProps} label={option.label} />
+            </Fragment>
+          );
+        })
+      }
       renderInput={(params) => (
         <TextField
           {...params}
