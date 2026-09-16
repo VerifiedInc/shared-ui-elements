@@ -80,9 +80,9 @@ export const rules: NetworkRule[] = [
     startDate: '2026-10-01',
     endDate: null,
     conditions: [
-      { key: 'color', operator: 'EQ', value: ['r', 'g'] },
-      { key: 'remote', operator: 'EQ', value: 't1' },
-      { key: 'text', operator: 'HAS', value: 'ppo' },
+      { key: 'color', operator: 'EQ', values: ['r', 'g'] },
+      { key: 'remote', operator: 'EQ', values: ['t1'] },
+      { key: 'text', operator: 'HAS', values: ['ppo'] },
     ],
   },
   {

@@ -183,15 +183,15 @@ export const exampleRules: NetworkRule[] = [
     startDate: '2026-01-01',
     endDate: '2026-12-31',
     conditions: [
-      { key: 'payerId', operator: 'EQUAL', value: ['V100002', 'V100001'] },
-      { key: 'payerName', operator: 'NOT_INCLUDE', value: ['Medicare'] },
-      { key: 'state', operator: 'EQUAL', value: ['CA', 'TX', 'NY'] },
+      { key: 'payerId', operator: 'EQUAL', values: ['V100002', 'V100001'] },
+      { key: 'payerName', operator: 'NOT_INCLUDE', values: ['Medicare'] },
+      { key: 'state', operator: 'EQUAL', values: ['CA', 'TX', 'NY'] },
       {
         key: 'insuranceTypeCodes',
         operator: 'INCLUDE',
-        value: ['PR', 'PS', 'HM'],
+        values: ['PR', 'PS', 'HM'],
       },
-      { key: 'planName', operator: 'INCLUDE', value: ['PPO', 'Choice'] },
+      { key: 'planName', operator: 'INCLUDE', values: ['PPO', 'Choice'] },
     ],
   },
   {
@@ -203,9 +203,9 @@ export const exampleRules: NetworkRule[] = [
     startDate: '2026-08-01',
     endDate: null,
     conditions: [
-      { key: 'state', operator: 'EQUAL', value: 'NY' },
-      { key: 'payerId', operator: 'EQUAL', value: ['V100007', 'V100006'] },
-      { key: 'planName', operator: 'INCLUDE', value: ['PPO', 'EPO', 'FEP'] },
+      { key: 'state', operator: 'EQUAL', values: ['NY'] },
+      { key: 'payerId', operator: 'EQUAL', values: ['V100007', 'V100006'] },
+      { key: 'planName', operator: 'INCLUDE', values: ['PPO', 'EPO', 'FEP'] },
     ],
   },
   {
@@ -217,7 +217,7 @@ export const exampleRules: NetworkRule[] = [
     startDate: null,
     endDate: null,
     conditions: [
-      { key: 'insuranceTypeCodes', operator: 'INCLUDE', value: ['MC'] },
+      { key: 'insuranceTypeCodes', operator: 'INCLUDE', values: ['MC'] },
     ],
   },
   {
@@ -229,9 +229,9 @@ export const exampleRules: NetworkRule[] = [
     startDate: '2025-01-01',
     endDate: '2025-12-31',
     conditions: [
-      { key: 'payerId', operator: 'EQUAL', value: 'V581261' },
-      { key: 'state', operator: 'EQUAL', value: ['MN'] },
-      { key: 'planName', operator: 'INCLUDE', value: 'Blue Choice PPO' },
+      { key: 'payerId', operator: 'EQUAL', values: ['V581261'] },
+      { key: 'state', operator: 'EQUAL', values: ['MN'] },
+      { key: 'planName', operator: 'INCLUDE', values: ['Blue Choice PPO'] },
     ],
   },
 ];

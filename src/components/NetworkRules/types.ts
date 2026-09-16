@@ -53,11 +53,11 @@ export type NetworkRuleCatalog = {
   notePresets?: string[];
 };
 
-/** `value` is one string or several (inclusive OR). */
+/** `values` always holds at least one entry; several values are an inclusive OR. */
 export type NetworkRuleCondition = {
   key: string;
   operator: string;
-  value: string | string[];
+  values: string[];
 };
 
 /** Dates are calendar days, `YYYY-MM-DD`: from the start day up to, not including, the end day. */
