@@ -107,10 +107,9 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
       </Stack>
 
       <Alert severity='warning'>
-        Network rules work best (and sometimes can only work at all) when you
-        run eligibility checks, not just health insurance autofills. You can
-        automatically run checks after autofills by setting the Check After
-        Autofill setting above to On.
+        Network rules are evaluated only when you run an eligibility check, not
+        just an insurance autofill. You can automatically run checks after
+        autofills by setting the Check After Autofill setting to On.
       </Alert>
 
       <Box sx={{ flex: '1 1 auto', minHeight: 0 }}>

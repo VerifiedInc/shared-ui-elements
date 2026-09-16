@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type UIEvent } from 'react';
+import { Fragment, useState, type ReactNode, type UIEvent } from 'react';
 import {
   Autocomplete,
   Box,
@@ -14,6 +14,7 @@ import { useNetworkRuleSourceSearch } from '../../../hooks/useNetworkRuleSourceS
 import { useResolvedConditionOptions } from '../../../hooks/useResolvedConditionOptions';
 import { OptionLabel } from '../../../shared/OptionLabel';
 import type { NetworkRuleKeyDef, NetworkRuleOption } from '../../../types';
+import { OrSeparator } from './OrSeparator';
 
 const LOAD_MORE_THRESHOLD_PX = 50;
 
@@ -159,13 +160,15 @@ export function RemoteValuesInput({
             typeof getTagProps
           > & { key: string };
           return (
-            <LogoChip
-              key={key}
-              {...tagProps}
-              label={option.label}
-              name={option.label}
-              logoUrl={option.logoUrl}
-            />
+            <Fragment key={key}>
+              {index > 0 && <OrSeparator />}
+              <LogoChip
+                {...tagProps}
+                label={option.label}
+                name={option.label}
+                logoUrl={option.logoUrl}
+              />
+            </Fragment>
           );
         })
       }

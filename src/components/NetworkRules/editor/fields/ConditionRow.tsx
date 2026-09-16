@@ -1,4 +1,10 @@
-import { IconButton, MenuItem, Stack, TextField } from '@mui/material';
+import {
+  IconButton,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { useController, useFormContext, useWatch } from 'react-hook-form';
 
@@ -79,6 +85,21 @@ export function ConditionRow({
       spacing={1.5}
       alignItems='flex-start'
     >
+      <Typography
+        fontSize={20}
+        fontWeight={300}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: { md: 'flex-end' },
+          minHeight: { md: 56 },
+          minWidth: { md: 48 },
+          flexShrink: 0,
+        }}
+      >
+        {index === 0 ? 'IF' : 'AND'}
+      </Typography>
+
       <TextField
         select
         required
