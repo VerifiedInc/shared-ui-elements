@@ -5,8 +5,12 @@ import type {
   NetworkRuleFormValues,
 } from '../types';
 
+/**
+ * Conditions carry `values: string[]`, but a record saved before that contract may still hand
+ * over a bare string or null, so this stays tolerant.
+ */
 export function normalizeConditionValues(
-  value: string | string[] | null | undefined,
+  value: string[] | string | null | undefined,
 ): string[] {
   if (Array.isArray(value)) return value;
   if (value === null || value === undefined || value === '') return [];
@@ -30,7 +34,7 @@ export function toNetworkRuleFormValues(
     conditions: (rule?.conditions ?? []).map((condition) => ({
       key: condition.key,
       operator: condition.operator,
-      values: normalizeConditionValues(condition.value),
+      values: normalizeConditionValues(condition.values),
     })),
   };
 }
@@ -48,7 +52,7 @@ export function fromNetworkRuleFormValues(
     conditions: values.conditions.map((condition) => ({
       key: condition.key,
       operator: condition.operator,
-      value: condition.values,
+      values: condition.values,
     })),
   };
 }

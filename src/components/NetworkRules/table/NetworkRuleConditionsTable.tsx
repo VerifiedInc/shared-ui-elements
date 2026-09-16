@@ -51,8 +51,8 @@ function ConditionRow({
 }: Readonly<ConditionRowProps>) {
   const keyDef = getKeyDef(catalog, condition.key);
   const values = useMemo(
-    () => normalizeConditionValues(condition.value),
-    [condition.value],
+    () => normalizeConditionValues(condition.values),
+    [condition.values],
   );
   const { options, isLoading, service } = useResolvedConditionOptions(
     keyDef,

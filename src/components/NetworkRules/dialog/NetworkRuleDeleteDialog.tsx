@@ -48,7 +48,7 @@ function describeDeletion(
     ? `${getKeyLabel(catalog, condition.key)} ${getOperatorLabel(
         catalog,
         condition.operator,
-      )} ${normalizeConditionValues(condition.value).join(', ')}`
+      )} ${normalizeConditionValues(condition.values).join(', ')}`
     : `Condition ${conditionIndex + 1}`;
   return `"${summary}" will be removed from "${rule.name}". The rule keeps its other conditions.`;
 }

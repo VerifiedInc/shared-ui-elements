@@ -80,8 +80,23 @@ describe('condition utils', () => {
     expect(back.conditions[2]).toEqual({
       key: 'text',
       operator: 'HAS',
-      value: ['ppo'],
+      values: ['ppo'],
     });
+  });
+
+  test('emits `values` on every condition and never the legacy `value` key', () => {
+    const back = fromNetworkRuleFormValues(toNetworkRuleFormValues(rules[0]));
+    expect(back.conditions).toHaveLength(3);
+    for (const condition of back.conditions) {
+      expect(Array.isArray(condition.values)).toBe(true);
+      expect(condition.values.length).toBeGreaterThan(0);
+      expect(condition).not.toHaveProperty('value');
+      expect(Object.keys(condition).sort()).toEqual([
+        'key',
+        'operator',
+        'values',
+      ]);
+    }
   });
 
   test('new-rule defaults are enabled with no conditions', () => {
