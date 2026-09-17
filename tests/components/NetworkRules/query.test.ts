@@ -237,3 +237,86 @@ describe('buildNetworkRulesListQuery', () => {
     expect(query.search).toHaveLength(120);
   });
 });
+
+describe('metadata filters', () => {
+  const withMetadata: NetworkRuleCatalog = {
+    ...catalog,
+    metadata: {
+      types: ['string', 'number', 'boolean'],
+      limits: { maxEntries: 20, maxKeyLength: 64, maxValueLength: 200 },
+      keyPresets: ['tier'],
+      valuePresets: ['Gold'],
+    },
+  };
+
+  test('are offered only when the catalog carries metadata, suggesting presets but taking any key', () => {
+    expect(
+      buildNetworkRulesFilterFields(catalog, []).map((field) => field.id),
+    ).not.toContain(NETWORK_RULES_FILTER_IDS.metadataKey);
+
+    const fields = buildNetworkRulesFilterFields(withMetadata, []);
+    expect(
+      fields.find((field) => field.id === NETWORK_RULES_FILTER_IDS.metadataKey),
+    ).toMatchObject({
+      kind: 'multiSelect',
+      freeSolo: true,
+      heading: 'Metadata',
+      options: [{ label: 'tier', value: 'tier' }],
+    });
+    expect(
+      fields.find(
+        (field) => field.id === NETWORK_RULES_FILTER_IDS.metadataValue,
+      ),
+    ).toMatchObject({
+      kind: 'keyedText',
+      keys: [{ label: 'tier', value: 'tier' }],
+      options: [{ label: 'Gold', value: 'Gold' }],
+    });
+  });
+
+  test("map to the API's key presence and its single key-and-value match", () => {
+    const query = buildNetworkRulesListQuery({
+      filterState: {
+        [NETWORK_RULES_FILTER_IDS.metadataKey]: {
+          kind: 'multiSelect',
+          values: ['tier', 'hghghg'],
+        },
+        [NETWORK_RULES_FILTER_IDS.metadataValue]: {
+          kind: 'keyedText',
+          key: 'tier',
+          operator: 'equals',
+          value: ' Gold ',
+        },
+      },
+    });
+    expect(query.metadata).toEqual({
+      key: ['tier', 'hghghg'],
+      value: { key: 'tier', value: 'Gold', operator: 'equals' },
+    });
+  });
+
+  test('half a pair sends nothing', () => {
+    const keyless = buildNetworkRulesListQuery({
+      filterState: {
+        [NETWORK_RULES_FILTER_IDS.metadataValue]: {
+          kind: 'keyedText',
+          key: null,
+          operator: 'contains',
+          value: 'Gold',
+        },
+      },
+    });
+    const termless = buildNetworkRulesListQuery({
+      filterState: {
+        [NETWORK_RULES_FILTER_IDS.metadataValue]: {
+          kind: 'keyedText',
+          key: 'tier',
+          operator: 'contains',
+          value: '   ',
+        },
+      },
+    });
+    expect(keyless.metadata).toBeUndefined();
+    expect(termless.metadata).toBeUndefined();
+  });
+});

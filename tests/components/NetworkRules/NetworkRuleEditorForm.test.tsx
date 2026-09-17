@@ -158,7 +158,8 @@ describe('<NetworkRuleEditorForm/>', () => {
         enabled: true,
         startDate: null,
         endDate: null,
-        conditions: [{ key: 'text', operator: 'HAS', value: ['PPO', 'EPO'] }],
+        metadata: {},
+        conditions: [{ key: 'text', operator: 'HAS', values: ['PPO', 'EPO'] }],
       },
       { presets: {} },
     );
@@ -219,7 +220,7 @@ describe('<NetworkRuleEditorForm/>', () => {
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
     expect(onSubmit.mock.calls[0][0].conditions).toEqual([
-      { key: 'text', operator: 'HAS', value: ['Gold plan', 'Silver plan'] },
+      { key: 'text', operator: 'HAS', values: ['Gold plan', 'Silver plan'] },
     ]);
     expect(onSubmit.mock.calls[0][1]).toEqual({
       presets: { text: ['Gold plan', 'Silver plan'] },
