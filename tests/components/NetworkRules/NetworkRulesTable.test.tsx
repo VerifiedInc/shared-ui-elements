@@ -91,16 +91,13 @@ describe('<NetworkRulesTable/>', () => {
     const onToggleEnabled = vi.fn();
     const onEdit = vi.fn();
     const onDelete = vi.fn();
-    const onEditCondition = vi.fn();
-    const onDeleteCondition = vi.fn();
 
-    const { findByText, getByRole, getAllByRole, findByRole } = renderTable({
-      onToggleEnabled,
-      onEdit,
-      onDelete,
-      onEditCondition,
-      onDeleteCondition,
-    });
+    const { findByText, getByRole, getAllByRole, findByRole, queryByRole } =
+      renderTable({
+        onToggleEnabled,
+        onEdit,
+        onDelete,
+      });
     await findByText('In Network');
 
     fireEvent.click(getByRole('checkbox', { name: 'Disable rule First rule' }));
@@ -115,11 +112,8 @@ describe('<NetworkRulesTable/>', () => {
     fireEvent.click(getByRole('button', { name: 'Delete' }));
     expect(onDelete).toHaveBeenCalledWith(rules[0]);
 
-    fireEvent.click(getByRole('button', { name: 'Edit condition 2' }));
-    expect(onEditCondition).toHaveBeenCalledWith(rules[0], 1);
-
-    fireEvent.click(getByRole('button', { name: 'Delete condition 3' }));
-    expect(onDeleteCondition).toHaveBeenCalledWith(rules[0], 2);
+    // Conditions are changed through the rule editor; the table offers no per-row actions.
+    expect(queryByRole('columnheader', { name: 'Actions' })).toBeNull();
   });
 
   test('read-only hides actions and disables the toggle', async () => {
@@ -128,7 +122,6 @@ describe('<NetworkRulesTable/>', () => {
         readOnly: true,
         onToggleEnabled: vi.fn(),
         onEdit: vi.fn(),
-        onDeleteCondition: vi.fn(),
       });
     await findByText('In Network');
 
@@ -141,7 +134,6 @@ describe('<NetworkRulesTable/>', () => {
     await findByRole('table', { name: 'Conditions for First rule' });
 
     expect(queryByRole('button', { name: 'Edit' })).toBeNull();
-    expect(queryByRole('button', { name: 'Delete condition 1' })).toBeNull();
   });
 
   test('offers a filter per catalog key, with the control its shape implies', async () => {

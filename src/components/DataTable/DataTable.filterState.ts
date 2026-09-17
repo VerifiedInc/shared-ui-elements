@@ -28,6 +28,13 @@ export function emptyFieldValue(
       return { kind: 'boolean', value: null };
     case 'group':
       return { kind: 'group', values: {} };
+    case 'keyedText':
+      return {
+        kind: 'keyedText',
+        key: null,
+        operator: field.operators?.[0] ?? 'contains',
+        value: '',
+      };
   }
 }
 
@@ -58,7 +65,9 @@ function isFullySelected(
   return (
     selectAllClears &&
     optionValues.length > 0 &&
-    optionValues.every((value) => selected.includes(value))
+    optionValues.every((value) => selected.includes(value)) &&
+    // A typed entry beyond the list still narrows, so with one picked nothing is "everything".
+    selected.every((value) => optionValues.includes(value))
   );
 }
 
@@ -80,10 +89,7 @@ export function isFilterFieldActive(
 
   switch (value.kind) {
     case 'text':
-      if (value.operator === 'isEmpty' || value.operator === 'isNotEmpty') {
-        return true;
-      }
-      return value.value.trim() !== '';
+      return isTextMatchActive(value);
     case 'select':
       return value.value != null && value.value !== '';
     case 'multiSelect':
@@ -110,7 +116,21 @@ export function isFilterFieldActive(
           )
         );
       });
+    case 'keyedText':
+      // Half a pair filters nothing: the match needs its key as well as a term.
+      return !!value.key && isTextMatchActive(value);
   }
+}
+
+/** A text match applies once it has a term, or when its operator is about emptiness itself. */
+function isTextMatchActive(match: {
+  operator: DataTableFilterOperator;
+  value: string;
+}): boolean {
+  if (match.operator === 'isEmpty' || match.operator === 'isNotEmpty') {
+    return true;
+  }
+  return match.value.trim() !== '';
 }
 
 /**
@@ -188,6 +208,15 @@ function rowPassesField(
       // Group fields are handled by `groupPasses` (each section carries its own
       // key), so they never reach this single-cell matcher.
       return true;
+    case 'keyedText': {
+      // The cell is a record; the picked key selects the entry the text match runs over.
+      if (value.key == null) return true;
+      const record =
+        typeof cellValue === 'object' && cellValue !== null
+          ? (cellValue as Record<string, unknown>)
+          : {};
+      return matchText(record[value.key], value.operator, value.value);
+    }
   }
 }
 

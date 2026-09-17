@@ -21,10 +21,7 @@ export interface NetworkRulesDeletionState {
 
 /** Table callbacks wired to the dialogs; `onToggleEnabled` stays with the consumer. */
 export type NetworkRulesDialogTableHandlers = Required<
-  Pick<
-    NetworkRuleRowHandlers,
-    'onEdit' | 'onDelete' | 'onEditCondition' | 'onDeleteCondition'
-  >
+  Pick<NetworkRuleRowHandlers, 'onEdit' | 'onDelete'>
 >;
 
 export type NetworkRulesEditorDialogProps = Pick<
@@ -104,13 +101,8 @@ export function useNetworkRulesDialogs(): UseNetworkRulesDialogsResult {
   }, []);
 
   const tableHandlers = useMemo<NetworkRulesDialogTableHandlers>(
-    () => ({
-      onEdit: openEdit,
-      onDelete: requestDeleteRule,
-      onEditCondition: openEditCondition,
-      onDeleteCondition: requestDeleteCondition,
-    }),
-    [openEdit, requestDeleteRule, openEditCondition, requestDeleteCondition],
+    () => ({ onEdit: openEdit, onDelete: requestDeleteRule }),
+    [openEdit, requestDeleteRule],
   );
 
   const editorDialogProps = useMemo<NetworkRulesEditorDialogProps>(

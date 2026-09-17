@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FocusEvent } from 'react';
 import {
   Autocomplete,
   Box,
@@ -18,6 +18,7 @@ import { DeleteOutline } from '@mui/icons-material';
 import { useDebounceValue } from '../../hooks/useDebounceValue';
 import { LogoAvatar } from '../UI/LogoAvatar';
 import { LogoChip } from '../UI/LogoChip';
+import { SectionLabel } from '../UI/SectionLabel';
 
 import type {
   DataTableFilterField,
@@ -78,13 +79,11 @@ const filterOptionsByLabelAndValue = createFilterOptions<DataTableFilterOption>(
   { stringify: (option) => `${option.label} ${option.value}` },
 );
 
-/** The options for a value, looked up as option objects Autocomplete can render. */
-function optionsForValues(
-  options: DataTableFilterOption[] | undefined,
-  values: string[],
-): DataTableFilterOption[] {
-  return (options ?? []).filter((option) => values.includes(option.value));
-}
+/** A typed entry in a `freeSolo` multi-select arrives as a string; it is its own label and value. */
+const toOption = (
+  entry: DataTableFilterOption | string,
+): DataTableFilterOption =>
+  typeof entry === 'string' ? { label: entry, value: entry } : entry;
 
 interface OperatorSelectProps {
   operators: DataTableFilterOperator[];
@@ -215,7 +214,9 @@ interface MultiSelectFilterControlProps {
 /**
  * The multi-select control. With `field.loadOptions` the choices are searched as the user types,
  * so only the loaded page is known: "Select all" is dropped and the browser does no filtering of
- * its own. Otherwise `options` is the whole list, filtered in the browser.
+ * its own. Otherwise `options` is the whole list, filtered in the browser. With `field.freeSolo`
+ * a typed entry joins the picked ones as its own value; "Select all" then toggles the listed
+ * options and leaves typed ones be.
  */
 function MultiSelectFilterControl({
   field,
@@ -286,21 +287,23 @@ function MultiSelectFilterControl({
   const displayOptions: DataTableFilterOption[] = showSelectAll
     ? [{ label: 'Select all', value: SELECT_ALL_VALUE }, ...choices]
     : choices;
-  // A value nothing has on record still renders, as itself.
-  const selected = isAsync
-    ? values.map(
-        (value) =>
-          pickedOptions.get(pickedKey(value)) ??
-          choices.find((option) => option.value === value) ?? {
-            label: value,
-            value,
-          },
-      )
-    : optionsForValues(options, values);
+  // Values not on the list — searched ones not on this page, typed ones — still render, as
+  // themselves.
+  const selected = values.map(
+    (value) =>
+      pickedOptions.get(pickedKey(value)) ??
+      choices.find((option) => option.value === value) ?? {
+        label: value,
+        value,
+      },
+  );
 
   return (
-    <Autocomplete
+    <Autocomplete<DataTableFilterOption, true, false, boolean>
       multiple
+      freeSolo={field.freeSolo}
+      // Typed text is committed on blur below, so it must not linger in the input as well.
+      clearOnBlur
       size='small'
       disableCloseOnSelect
       open={isOpen}
@@ -315,25 +318,31 @@ function MultiSelectFilterControl({
       noOptionsText={
         hasFailed ? 'The options could not be loaded' : 'No options'
       }
-      getOptionLabel={(option) => option.label}
+      getOptionLabel={(option) => toOption(option).label}
       filterOptions={isAsync ? (all) => all : filterOptionsByLabelAndValue}
-      isOptionEqualToValue={(option, v) => option.value === v.value}
+      isOptionEqualToValue={(option, v) =>
+        toOption(option).value === toOption(v).value
+      }
       onInputChange={(_, next, reason) => {
         if (isAsync && reason === 'input') setSearch(next);
       }}
       value={selected}
       onChange={(_, next) => {
-        // Clicking "Select all" toggles between all and none; otherwise the
-        // real selection passes through.
-        if (next.some((option) => option.value === SELECT_ALL_VALUE)) {
-          onChange(allSelected ? [] : allValues);
+        const picked = next
+          .map(toOption)
+          .filter((option) => option.value.trim() !== '');
+        // Clicking "Select all" toggles the listed options between all and none, keeping any
+        // typed ones; otherwise the real selection passes through.
+        if (picked.some((option) => option.value === SELECT_ALL_VALUE)) {
+          const typed = values.filter((value) => !allValues.includes(value));
+          onChange(allSelected ? typed : [...typed, ...allValues]);
           return;
         }
-        remember(next);
-        onChange(next.map((option) => option.value));
+        remember(picked);
+        onChange(picked.map((option) => option.value));
       }}
       renderTags={(tags, getTagProps) => {
-        const shown = tags.slice(0, MAX_VISIBLE_TAGS);
+        const shown = tags.slice(0, MAX_VISIBLE_TAGS).map(toOption);
 
         return (
           <>
@@ -390,6 +399,23 @@ function MultiSelectFilterControl({
           size='small'
           label={label}
           placeholder={values.length === 0 ? field.placeholder : undefined}
+          inputProps={{
+            ...params.inputProps,
+            // Enter commits typed text (MUI's freeSolo); so does leaving the field, since the
+            // single-value inputs commit as you type and this one should not feel different.
+            // Read before MUI's own handler clears the input. Clicking a listed option does not
+            // blur the input (MUI prevents it), so a pick never commits stray text.
+            onBlur: (event) => {
+              const typed = field.freeSolo ? event.target.value.trim() : '';
+              // TextField types the event for input-or-textarea; Autocomplete always renders an
+              // input, and its own handler is typed for one.
+              params.inputProps.onBlur?.(event as FocusEvent<HTMLInputElement>);
+              if (typed !== '' && !values.includes(typed)) {
+                remember([{ label: typed, value: typed }]);
+                onChange([...values, typed]);
+              }
+            },
+          }}
           InputProps={{
             ...params.InputProps,
             endAdornment: (
@@ -404,6 +430,24 @@ function MultiSelectFilterControl({
       sx={{ flex: 1, minWidth: 240 }}
     />
   );
+}
+
+/** Consecutive fields under the same heading, in declared order; a run without one has none. */
+function runsByHeading(
+  fields: DataTableFilterField[],
+): Array<{ heading?: string; fields: DataTableFilterField[] }> {
+  const runs: Array<{ heading?: string; fields: DataTableFilterField[] }> = [];
+
+  fields.forEach((field) => {
+    const last = runs.at(-1);
+    if (last && last.heading === field.heading) {
+      last.fields.push(field);
+    } else {
+      runs.push({ heading: field.heading, fields: [field] });
+    }
+  });
+
+  return runs;
 }
 
 /**
@@ -440,41 +484,85 @@ export function DataTableFieldFilterPanel({
     onClose();
   };
 
+  type TextMatch = { operator: DataTableFilterOperator; value: string };
+
+  // The operator picker and value input a text match is made of; `leading` puts a control before
+  // them, as `keyedText` does with its key picker.
+  const renderTextMatch = (
+    field: DataTableFilterField,
+    current: TextMatch,
+    update: (patch: Partial<TextMatch>) => void,
+    leading?: JSX.Element,
+  ): JSX.Element => {
+    const operators = field.operators ?? ['contains'];
+
+    return (
+      <Stack
+        direction='row'
+        spacing={1}
+        useFlexGap
+        flexWrap='wrap'
+        sx={{ flex: 1 }}
+      >
+        {leading}
+        {operators.length > 1 && (
+          <OperatorSelect
+            operators={operators}
+            value={current.operator}
+            onChange={(operator) => update({ operator })}
+          />
+        )}
+        <TextInputWithSuggestions
+          field={field}
+          value={current.value}
+          onChange={(value) => update({ value })}
+        />
+      </Stack>
+    );
+  };
+
   const renderTextField = (field: DataTableFilterField): JSX.Element => {
     const value = valueOf(field);
     const current =
       value.kind === 'text'
         ? value
         : { operator: field.operators?.[0] ?? 'contains', value: '' };
-    const operators = field.operators ?? ['contains'];
 
-    return (
-      <Stack direction='row' spacing={1} sx={{ flex: 1 }}>
-        {operators.length > 1 && (
-          <OperatorSelect
-            operators={operators}
-            value={current.operator}
-            onChange={(operator) =>
-              setValue(field, {
-                kind: 'text',
-                operator,
-                value: current.value,
-              })
-            }
-          />
-        )}
-        <TextInputWithSuggestions
-          field={field}
-          value={current.value}
-          onChange={(next) =>
-            setValue(field, {
-              kind: 'text',
-              operator: current.operator,
-              value: next,
-            })
-          }
-        />
-      </Stack>
+    return renderTextMatch(field, current, (patch) =>
+      setValue(field, { kind: 'text', ...current, ...patch }),
+    );
+  };
+
+  const renderKeyedText = (field: DataTableFilterField): JSX.Element => {
+    const value = valueOf(field);
+    const current =
+      value.kind === 'keyedText'
+        ? value
+        : {
+            key: null,
+            operator: field.operators?.[0] ?? 'contains',
+            value: '',
+          };
+    const update = (patch: Partial<typeof current>): void => {
+      setValue(field, { kind: 'keyedText', ...current, ...patch });
+    };
+
+    // The key is typed, with `keys` as suggestions, the way a `text` field treats `options`: a
+    // record can hold keys nobody has listed yet, and the match should still be able to name them.
+    return renderTextMatch(
+      field,
+      current,
+      update,
+      <TextInputWithSuggestions
+        field={{
+          ...field,
+          label: field.keyLabel ?? 'Key',
+          options: field.keys,
+          placeholder: 'Type or pick a key',
+        }}
+        value={current.key ?? ''}
+        onChange={(key) => update({ key: key.trim() === '' ? null : key })}
+      />,
     );
   };
 
@@ -620,6 +708,8 @@ export function DataTableFieldFilterPanel({
         return renderBoolean(field);
       case 'group':
         return renderGroup(field);
+      case 'keyedText':
+        return renderKeyedText(field);
     }
   };
 
@@ -630,17 +720,46 @@ export function DataTableFieldFilterPanel({
       anchorPosition={anchorPosition}
       transformOrigin={{ vertical: 'top', horizontal: transformHorizontal }}
       onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: {
+            display: 'flex',
+            flexDirection: 'column',
+            // The fields scroll; "Clear all" stays put at the bottom.
+            maxHeight: 'calc(100vh - 32px)',
+          },
+        },
+      }}
     >
-      <Box sx={{ p: 1.5, width: 420 }}>
+      <Box
+        sx={{
+          p: 1.5,
+          width: 'min(420px, calc(100vw - 32px))',
+          overflowY: 'auto',
+          minHeight: 0,
+        }}
+      >
         {fields.length === 0 ? (
           <Typography variant='body2' color='text.secondary' sx={{ pl: 0.5 }}>
             No filters available.
           </Typography>
         ) : (
-          <Stack spacing={1.5}>
-            {fields.map((field) => (
-              <Stack key={field.id} direction='row' alignItems='flex-start'>
-                {renderControl(field)}
+          <Stack spacing={2}>
+            {runsByHeading(fields).map((run) => (
+              // A run's first field is unique to it, headed or not.
+              <Stack key={run.fields[0].id} spacing={1.5}>
+                {run.heading !== undefined && (
+                  <Divider textAlign='left'>
+                    <SectionLabel color='text.secondary'>
+                      {run.heading}
+                    </SectionLabel>
+                  </Divider>
+                )}
+                {run.fields.map((field) => (
+                  <Stack key={field.id} direction='row' alignItems='flex-start'>
+                    {renderControl(field)}
+                  </Stack>
+                ))}
               </Stack>
             ))}
           </Stack>

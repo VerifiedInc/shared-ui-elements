@@ -158,6 +158,7 @@ describe('<NetworkRuleEditorForm/>', () => {
         enabled: true,
         startDate: null,
         endDate: null,
+        metadata: {},
         conditions: [{ key: 'text', operator: 'HAS', values: ['PPO', 'EPO'] }],
       },
       { presets: {} },

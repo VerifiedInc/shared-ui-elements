@@ -23,8 +23,16 @@ describe('useNetworkRulesDialogs()', () => {
     act(() => result.current.tableHandlers.onEdit(rules[0]));
     expect(result.current.editor).toEqual({ open: true, rule: rules[0] });
 
-    act(() => result.current.tableHandlers.onEditCondition(rules[0], 2));
+    act(() => result.current.openEditCondition(rules[0], 2));
     expect(result.current.editor.focusConditionIndex).toBe(2);
+  });
+
+  test('wires only the rule-level actions into the table', () => {
+    const { result } = renderHook(() => useNetworkRulesDialogs());
+    expect(Object.keys(result.current.tableHandlers).sort()).toEqual([
+      'onDelete',
+      'onEdit',
+    ]);
   });
 
   test('closing the editor keeps its content for the exit transition and clears server errors', () => {
@@ -55,7 +63,7 @@ describe('useNetworkRulesDialogs()', () => {
       conditionIndex: undefined,
     });
 
-    act(() => result.current.tableHandlers.onDeleteCondition(rules[0], 1));
+    act(() => result.current.requestDeleteCondition(rules[0], 1));
     expect(result.current.deleteDialogProps).toMatchObject({
       open: true,
       rule: rules[0],

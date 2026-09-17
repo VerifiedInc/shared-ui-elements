@@ -171,6 +171,12 @@ export const exampleCatalog: NetworkRuleCatalog = {
     },
   ],
   notePresets: ['No self pay', 'Call payer to confirm', 'Verify plan tier'],
+  metadata: {
+    types: ['string', 'number', 'boolean'],
+    limits: { maxEntries: 20, maxKeyLength: 64, maxValueLength: 200 },
+    keyPresets: ['selfPay', 'tier', 'requiresPriorAuth'],
+    valuePresets: ['Gold', 'Silver', 'Bronze'],
+  },
 };
 
 export const exampleRules: NetworkRule[] = [
@@ -179,6 +185,13 @@ export const exampleRules: NetworkRule[] = [
     name: 'Every condition key',
     status: 'IN_NETWORK',
     notes: 'Showcases a remote source, inline options and free text together',
+    metadata: {
+      selfPay: false,
+      tier: 'Gold',
+      // A long id is a string row: as a number it would come back rounded.
+      contractId: '9007199254740993123456789',
+      copay: 25,
+    },
     enabled: true,
     startDate: '2026-01-01',
     endDate: '2026-12-31',

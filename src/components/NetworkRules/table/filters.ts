@@ -17,6 +17,7 @@ import {
   hasRemoteSource,
   isOperatorMulti,
 } from '../utils/catalog';
+import { NETWORK_RULE_METADATA_PRESET_FIELDS } from '../utils/metadata';
 import { NETWORK_RULES_COLUMN_IDS } from './columns';
 
 export const NETWORK_RULES_FILTER_IDS = {
@@ -24,9 +25,19 @@ export const NETWORK_RULES_FILTER_IDS = {
   enabled: NETWORK_RULES_COLUMN_IDS.enabled,
   /** "Has a condition on" any of the selected keys. */
   conditionKey: 'conditionKey',
+  /** "Has metadata under" any of the selected keys. */
+  metadataKey: 'metadataKey',
+  /** One key's value, picked together with the key; the API takes one such match per request. */
+  metadataValue: 'metadataValue',
 } as const;
 
 const CONDITION_PREFIX = 'condition.';
+
+/** The panel shows each of these as a labelled section, after the rule's own columns. */
+const FILTER_HEADINGS = {
+  metadata: 'Metadata',
+  conditions: 'Conditions',
+} as const;
 
 /** The filter id matching the values of one condition key. */
 export function conditionFilterId(key: string): string {
@@ -62,6 +73,12 @@ const toCodeOption = (option: NetworkRuleOption): DataTableFilterOption => ({
 const toLogoOption = (option: NetworkRuleOption): DataTableFilterOption => ({
   ...toCodeOption(option),
   logoUrl: option.logoUrl ?? null,
+});
+
+/** A saved preset, which is its own label. */
+const toPresetOption = (preset: string): DataTableFilterOption => ({
+  label: preset,
+  value: preset,
 });
 
 /**
@@ -119,16 +136,58 @@ function buildConditionField(
     label,
     kind: 'text',
     operators: NETWORK_RULES_TEXT_OPERATORS,
-    options: getPresets(catalog, keyDef.key).map((preset) => ({
-      label: preset,
-      value: preset,
-    })),
+    options: getPresets(catalog, keyDef.key).map(toPresetOption),
   };
 }
 
 /**
- * The table's filter controls: the rule's own status and enabled flag, then what the rule checks —
- * which keys it has a condition on, and the values of each key.
+ * The metadata controls, offered when the catalog carries metadata, mirroring the API's two
+ * filters: "Has Metadata with Key" is presence over any of several keys, "Metadata Value" the one
+ * key-and-value match a request carries. Both list the brand's saved keys and take any key typed:
+ * presets are opt-in (see `presetOptions.ts`), so a rule can carry a key nobody chose to save, and
+ * the filters must still be able to name it.
+ */
+function buildMetadataFields(
+  catalog: NetworkRuleCatalog | undefined,
+): DataTableFilterField[] {
+  if (catalog?.metadata === undefined) return [];
+
+  const keyOptions = getPresets(
+    catalog,
+    NETWORK_RULE_METADATA_PRESET_FIELDS.key,
+  ).map(toPresetOption);
+
+  return [
+    {
+      id: NETWORK_RULES_FILTER_IDS.metadataKey,
+      label: 'Has Metadata with Key',
+      heading: FILTER_HEADINGS.metadata,
+      kind: 'multiSelect',
+      freeSolo: true,
+      selectAllClears: false,
+      options: keyOptions,
+      placeholder: 'Pick or type keys',
+    },
+    {
+      id: NETWORK_RULES_FILTER_IDS.metadataValue,
+      label: 'Metadata Value',
+      keyLabel: 'Metadata Key',
+      heading: FILTER_HEADINGS.metadata,
+      kind: 'keyedText',
+      keys: keyOptions,
+      operators: NETWORK_RULES_TEXT_OPERATORS,
+      placeholder: 'What the key is set to',
+      options: getPresets(
+        catalog,
+        NETWORK_RULE_METADATA_PRESET_FIELDS.value,
+      ).map(toPresetOption),
+    },
+  ];
+}
+
+/**
+ * The table's filter controls: the rule's own status and enabled flag, what the rule checks —
+ * which keys it has a condition on, and the values of each key — then the metadata it carries.
  */
 export function buildNetworkRulesFilterFields(
   catalog: NetworkRuleCatalog | undefined,
@@ -168,7 +227,8 @@ export function buildNetworkRulesFilterFields(
     },
     ...keys.flatMap((keyDef) => {
       const field = buildConditionField(catalog, keyDef, sources);
-      return field ? [field] : [];
+      return field ? [{ ...field, heading: FILTER_HEADINGS.conditions }] : [];
     }),
+    ...buildMetadataFields(catalog),
   ];
 }

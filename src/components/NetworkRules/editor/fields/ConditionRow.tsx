@@ -58,12 +58,7 @@ export function ConditionRow({
   const allowedOperators = keyDef?.operators ?? [];
   const multi = isOperatorMulti(catalog, operatorField.field.value);
   const shouldValidate = formState.isSubmitted;
-  const presets = keyDef
-    ? [
-        ...getPresets(catalog, keyDef.key),
-        ...(addedPresets?.[keyDef.key] ?? []),
-      ]
-    : [];
+  const presets = keyDef ? getPresets(catalog, keyDef.key, addedPresets) : [];
 
   const handleKeyChange = (nextKey: string): void => {
     keyField.field.onChange(nextKey);

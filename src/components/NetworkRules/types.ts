@@ -51,14 +51,38 @@ export type NetworkRuleCatalog = {
   keys: NetworkRuleKeyDef[];
   /** The brand's saved suggestions for the rule's note. */
   notePresets?: string[];
+  /** Absent from an older catalog; the editor falls back to its own defaults. */
+  metadata?: NetworkRuleCatalogMetadata;
 };
 
-/** `values` always holds at least one entry; several values are an inclusive OR. */
+export type NetworkRuleMetadataLimits = {
+  maxEntries: number;
+  maxKeyLength: number;
+  /** Characters a string value may have. A number is bounded by precision instead. */
+  maxValueLength: number;
+};
+
+/** What the metadata section renders from, so no limit or type list is hard-coded here. */
+export type NetworkRuleCatalogMetadata = {
+  /** The value types an entry may hold; the Type select lists them in this order. */
+  types: NetworkRuleMetadataType[];
+  limits: NetworkRuleMetadataLimits;
+  /** The brand's saved keys and string values. An entry may still use others. */
+  keyPresets?: string[];
+  valuePresets?: string[];
+};
+
+/** Always a list, one entry or several; several are an inclusive OR (ENG-572). */
 export type NetworkRuleCondition = {
   key: string;
   operator: string;
   values: string[];
 };
+
+export type NetworkRuleMetadataType = 'string' | 'number' | 'boolean';
+
+/** Flat typed key/value pairs returned with the decision beside the note. Never nested. */
+export type NetworkRuleMetadata = Record<string, string | number | boolean>;
 
 /** Dates are calendar days, `YYYY-MM-DD`: from the start day up to, not including, the end day. */
 export type NetworkRule = {
@@ -68,6 +92,8 @@ export type NetworkRule = {
   name: string;
   status: string;
   notes?: string | null;
+  /** `{}` when the rule has none. */
+  metadata?: NetworkRuleMetadata;
   /** Defaults to true. */
   enabled?: boolean;
   startDate?: string | null;
@@ -84,6 +110,14 @@ export type NetworkRuleConditionFormValues = {
   values: string[];
 };
 
+/** One metadata row. The value stays text while editing; `type` says how to parse it on submit. */
+export type NetworkRuleMetadataFormValues = {
+  key: string;
+  type: NetworkRuleMetadataType;
+  /** `'true'` or `'false'` for a boolean row. */
+  value: string;
+};
+
 export type NetworkRuleFormValues = {
   name: string;
   status: string;
@@ -91,6 +125,7 @@ export type NetworkRuleFormValues = {
   enabled: boolean;
   startDate: string | null;
   endDate: string | null;
+  metadata: NetworkRuleMetadataFormValues[];
   conditions: NetworkRuleConditionFormValues[];
 };
 
@@ -98,8 +133,8 @@ export type NetworkRuleFormValues = {
 export type NetworkRuleSubmitExtras = {
   /**
    * Preset lists that grew while editing, complete and ready to store, keyed by the field they
-   * suggest for: `notes` for the rule's note, otherwise the free-text condition key. Empty when
-   * nothing was added.
+   * suggest for: `notes` for the rule's note, `metadataKeys` and `metadataValues` for the metadata
+   * rows, otherwise the free-text condition key. Empty when nothing was added.
    */
   presets: Record<string, string[]>;
 };

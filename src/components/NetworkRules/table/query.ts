@@ -22,10 +22,20 @@ export type NetworkRuleConditionFilter = { key?: string[] } & Record<
   string | string[] | NetworkRuleTextFilter | undefined
 >;
 
+/**
+ * Filters over the metadata a rule carries: `key` is "has metadata under any of these"; `value`
+ * matches one key's value as text. The API takes a single `value`, so the key is part of it.
+ */
+export type NetworkRuleMetadataFilter = {
+  key?: string[];
+  value?: NetworkRuleTextFilter & { key: string };
+};
+
 /** The rules list query the table's filters, search and sorting map to, ready to send as-is. */
 export type NetworkRulesListQuery = {
   status?: { $in: string[] };
   enabled?: boolean;
+  metadata?: NetworkRuleMetadataFilter;
   condition?: NetworkRuleConditionFilter;
   search?: string;
   $sort?: Record<string, 1 | -1>;
@@ -34,6 +44,17 @@ export type NetworkRulesListQuery = {
 const term = (value: string): string | undefined => {
   const trimmed = value.trim().slice(0, MAX_TERM_LENGTH);
   return trimmed === '' ? undefined : trimmed;
+};
+
+/** The values a multi-select control has picked, or nothing when it is clear. */
+const picked = (
+  filterState: DataTableFilterState,
+  id: string,
+): string[] | undefined => {
+  const value = filterState[id];
+  return value?.kind === 'multiSelect' && value.values.length > 0
+    ? value.values
+    : undefined;
 };
 
 /** One code goes as itself, several as a list the server reads as an inclusive OR. */
@@ -82,12 +103,34 @@ function buildConditionFilter(
     }
   }
 
-  const keys = filterState[NETWORK_RULES_FILTER_IDS.conditionKey];
-  if (keys?.kind === 'multiSelect' && keys.values.length > 0) {
-    condition.key = keys.values;
-  }
+  const keys = picked(filterState, NETWORK_RULES_FILTER_IDS.conditionKey);
+  if (keys) condition.key = keys;
 
   return Object.keys(condition).length === 0 ? undefined : condition;
+}
+
+/**
+ * The metadata filters, independent as they are in the API: the key presence filter, and the one
+ * key-and-value match a request carries. Half a pair — a key with no term, or the reverse — sends
+ * nothing rather than a filter the user did not finish.
+ */
+function buildMetadataFilter(
+  filterState: DataTableFilterState,
+): NetworkRuleMetadataFilter | undefined {
+  const metadata: NetworkRuleMetadataFilter = {};
+
+  const keys = picked(filterState, NETWORK_RULES_FILTER_IDS.metadataKey);
+  if (keys) metadata.key = keys;
+
+  const pair = filterState[NETWORK_RULES_FILTER_IDS.metadataValue];
+  if (pair?.kind === 'keyedText' && pair.key) {
+    const text = term(pair.value);
+    if (text !== undefined) {
+      metadata.value = { key: pair.key, value: text, operator: pair.operator };
+    }
+  }
+
+  return Object.keys(metadata).length === 0 ? undefined : metadata;
 }
 
 /**
@@ -105,15 +148,16 @@ export function buildNetworkRulesListQuery({
 }): NetworkRulesListQuery {
   const query: NetworkRulesListQuery = {};
 
-  const status = filterState[NETWORK_RULES_FILTER_IDS.status];
-  if (status?.kind === 'multiSelect' && status.values.length > 0) {
-    query.status = { $in: status.values };
-  }
+  const status = picked(filterState, NETWORK_RULES_FILTER_IDS.status);
+  if (status) query.status = { $in: status };
 
   const enabled = filterState[NETWORK_RULES_FILTER_IDS.enabled];
   if (enabled?.kind === 'boolean' && enabled.value !== null) {
     query.enabled = enabled.value;
   }
+
+  const metadata = buildMetadataFilter(filterState);
+  if (metadata !== undefined) query.metadata = metadata;
 
   const condition = buildConditionFilter(filterState);
   if (condition !== undefined) query.condition = condition;

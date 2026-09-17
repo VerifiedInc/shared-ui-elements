@@ -49,7 +49,8 @@ export type DataTableFilterFieldKind =
   | 'select' // single choice from `options`
   | 'multiSelect' // multi choice from `options`, value may differ from label
   | 'boolean' // Yes / No tri-state (unset = no filter)
-  | 'group'; // sectioned multiSelect (each section a distinct field)
+  | 'group' // sectioned multiSelect (each section a distinct field)
+  | 'keyedText'; // a `text` match scoped to a typed key, `keys` suggesting some
 
 /**
  * One selectable choice. `value` is the server value carried end-to-end (a
@@ -107,6 +108,10 @@ export interface DataTableFilterField {
   loadOptions?: (search: string) => Promise<DataTableFilterOption[]>;
   /** Sections for `group`. */
   sections?: DataTableFilterSection[];
+  /** Keys suggested for a `keyedText` field's match; any key can still be typed. `options` then suggests values. */
+  keys?: DataTableFilterOption[];
+  /** Label of a `keyedText` field's key picker. Defaults to "Key"; `label` names the value input. */
+  keyLabel?: string;
   /**
    * Text operators offered (and their order) for a `text` field. Defaults to
    * `['contains']`. The first entry is the default operator.
@@ -120,6 +125,17 @@ export interface DataTableFilterField {
   selectAllClears?: boolean;
   /** Placeholder for the input (text / select / multiSelect). */
   placeholder?: string;
+  /**
+   * For `multiSelect`: typed entries are accepted alongside the listed options and kept as their
+   * own value, for a set the list only suggests — the keys a record may carry, say.
+   */
+  freeSolo?: boolean;
+  /**
+   * Groups the field under a labelled separator in the panel: consecutive fields sharing a
+   * heading sit together beneath it. Fields without one are listed plainly, so the rule's own
+   * columns can lead and the related controls follow in named sections.
+   */
+  heading?: string;
 }
 
 /**
@@ -131,7 +147,13 @@ export type DataTableFilterFieldValue =
   | { kind: 'select'; value: string | null }
   | { kind: 'multiSelect'; values: string[] }
   | { kind: 'boolean'; value: boolean | null }
-  | { kind: 'group'; values: Record<string, string[]> };
+  | { kind: 'group'; values: Record<string, string[]> }
+  | {
+      kind: 'keyedText';
+      key: string | null;
+      operator: DataTableFilterOperator;
+      value: string;
+    };
 
 /** Full filter state: each field's value keyed by its `id`. */
 export type DataTableFilterState = Record<string, DataTableFilterFieldValue>;

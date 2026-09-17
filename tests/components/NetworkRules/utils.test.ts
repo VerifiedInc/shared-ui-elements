@@ -4,15 +4,17 @@ import {
   dayToRuleDate,
   dedupeValues,
   formatRuleDate,
+  fromMetadataFormValues,
   fromNetworkRuleFormValues,
   getKeyLabel,
   getOperatorLabel,
   getStatusLabel,
   hasInlineOptions,
   hasRemoteSource,
+  isExactNumberValue,
   isOperatorMulti,
-  normalizeConditionValues,
   ruleDateToDay,
+  toMetadataFormValues,
   toNetworkRuleFormValues,
   toOptions,
 } from '../../../src/components/NetworkRules';
@@ -57,14 +59,6 @@ describe('catalog utils', () => {
 });
 
 describe('condition utils', () => {
-  test('normalizes a stored value to an array', () => {
-    expect(normalizeConditionValues('x')).toEqual(['x']);
-    expect(normalizeConditionValues(['x', 'y'])).toEqual(['x', 'y']);
-    expect(normalizeConditionValues('')).toEqual([]);
-    expect(normalizeConditionValues(null)).toEqual([]);
-    expect(normalizeConditionValues(undefined)).toEqual([]);
-  });
-
   test('maps a rule to form values and back, emitting arrays', () => {
     const form = toNetworkRuleFormValues(rules[0]);
     expect(form.startDate).toBe('2026-10-01');
@@ -107,6 +101,7 @@ describe('condition utils', () => {
       enabled: true,
       startDate: null,
       endDate: null,
+      metadata: [],
       conditions: [],
     });
   });
@@ -147,5 +142,33 @@ describe('date utils', () => {
   test('formats as a long date', () => {
     expect(formatRuleDate('2026-10-01')).toBe('October 1, 2026');
     expect(formatRuleDate(null)).toBeNull();
+  });
+});
+
+describe('metadata utils', () => {
+  test('round-trips typed values through the editor rows', () => {
+    const rows = toMetadataFormValues({
+      tier: 'Gold',
+      copay: 25,
+      selfPay: false,
+    });
+    expect(rows).toEqual([
+      { key: 'tier', type: 'string', value: 'Gold' },
+      { key: 'copay', type: 'number', value: '25' },
+      { key: 'selfPay', type: 'boolean', value: 'false' },
+    ]);
+    expect(fromMetadataFormValues(rows)).toEqual({
+      tier: 'Gold',
+      copay: 25,
+      selfPay: false,
+    });
+  });
+
+  test('a number is exact only while a double keeps every digit', () => {
+    expect(isExactNumberValue('0.850')).toBe(true);
+    expect(isExactNumberValue('9007199254740992')).toBe(true);
+    expect(isExactNumberValue('9007199254740993')).toBe(false);
+    expect(isExactNumberValue('1'.repeat(200))).toBe(false);
+    expect(isExactNumberValue('-')).toBe(false);
   });
 });
