@@ -5,3 +5,4 @@ export * from './NetworkRulesTable';
 export * from './NetworkRuleRow';
 export * from './NetworkRuleExpandedPanel';
 export * from './NetworkRuleConditionsTable';
+export * from './NetworkRuleMetadataTable';

@@ -4,14 +4,7 @@ import type {
   NetworkRuleData,
   NetworkRuleFormValues,
 } from '../types';
-
-export function normalizeConditionValues(
-  value: string | string[] | null | undefined,
-): string[] {
-  if (Array.isArray(value)) return value;
-  if (value === null || value === undefined || value === '') return [];
-  return [value];
-}
+import { fromMetadataFormValues, toMetadataFormValues } from './metadata';
 
 export function emptyConditionFormValues(): NetworkRuleConditionFormValues {
   return { key: '', operator: '', values: [] };
@@ -27,10 +20,11 @@ export function toNetworkRuleFormValues(
     enabled: rule?.enabled ?? true,
     startDate: rule?.startDate ?? null,
     endDate: rule?.endDate ?? null,
+    metadata: toMetadataFormValues(rule?.metadata),
     conditions: (rule?.conditions ?? []).map((condition) => ({
       key: condition.key,
       operator: condition.operator,
-      values: normalizeConditionValues(condition.value),
+      values: condition.values,
     })),
   };
 }
@@ -45,10 +39,11 @@ export function fromNetworkRuleFormValues(
     enabled: values.enabled,
     startDate: values.startDate,
     endDate: values.endDate,
+    metadata: fromMetadataFormValues(values.metadata),
     conditions: values.conditions.map((condition) => ({
       key: condition.key,
       operator: condition.operator,
-      value: condition.values,
+      values: condition.values,
     })),
   };
 }

@@ -42,7 +42,7 @@ export interface NetworkRulesTableProps
   extends NetworkRuleRowHandlers, ListStateProps {
   rules: NetworkRule[];
   isLoading?: boolean;
-  /** No toggle, no row or condition actions. */
+  /** No toggle, no row actions. */
   readOnly?: boolean;
   emptyMessage?: string;
   /** Defaults to 640. `'100%'` fills a parent with a definite height. */

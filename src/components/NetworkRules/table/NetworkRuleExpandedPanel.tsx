@@ -2,16 +2,16 @@ import { Button, Stack, Typography } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 
 import { CopyableUuid } from '../../CopyableUuid';
+import { SectionLabel } from '../../UI/SectionLabel';
 
 import type { NetworkRule, NetworkRuleCatalog } from '../types';
 import { NetworkRuleConditionsTable } from './NetworkRuleConditionsTable';
+import { NetworkRuleMetadataTable } from './NetworkRuleMetadataTable';
 
 export interface NetworkRuleRowHandlers {
   onToggleEnabled?: (rule: NetworkRule, enabled: boolean) => void;
   onEdit?: (rule: NetworkRule) => void;
   onDelete?: (rule: NetworkRule) => void;
-  onEditCondition?: (rule: NetworkRule, index: number) => void;
-  onDeleteCondition?: (rule: NetworkRule, index: number) => void;
 }
 
 export interface NetworkRuleExpandedPanelProps extends NetworkRuleRowHandlers {
@@ -26,8 +26,6 @@ export function NetworkRuleExpandedPanel({
   readOnly = false,
   onEdit,
   onDelete,
-  onEditCondition,
-  onDeleteCondition,
 }: Readonly<NetworkRuleExpandedPanelProps>) {
   const showActions =
     !readOnly && (onEdit !== undefined || onDelete !== undefined);
@@ -84,23 +82,13 @@ export function NetworkRuleExpandedPanel({
       </Stack>
 
       <Stack spacing={1}>
-        <Typography
-          sx={{
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: 0.6,
-            textTransform: 'uppercase',
-          }}
-        >
-          Conditions
-        </Typography>
-        <NetworkRuleConditionsTable
-          rule={rule}
-          catalog={catalog}
-          readOnly={readOnly}
-          onEditCondition={onEditCondition}
-          onDeleteCondition={onDeleteCondition}
-        />
+        <SectionLabel>Conditions</SectionLabel>
+        <NetworkRuleConditionsTable rule={rule} catalog={catalog} />
+      </Stack>
+
+      <Stack spacing={1}>
+        <SectionLabel>Metadata</SectionLabel>
+        <NetworkRuleMetadataTable rule={rule} />
       </Stack>
     </Stack>
   );

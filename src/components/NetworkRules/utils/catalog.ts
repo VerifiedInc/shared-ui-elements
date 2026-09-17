@@ -1,4 +1,5 @@
 import { getStatusPresentation } from '../statuses';
+import { NETWORK_RULE_METADATA_PRESET_FIELDS } from './metadata';
 import type {
   NetworkRuleCatalog,
   NetworkRuleKeyDef,
@@ -72,11 +73,30 @@ export function toOptions(
   );
 }
 
-/** Saved suggestions for `notes` or a free-text condition key. */
-export function getPresets(
+function savedPresets(
   catalog: NetworkRuleCatalog | undefined,
   field: string,
 ): string[] {
   if (field === 'notes') return catalog?.notePresets ?? [];
+  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.key) {
+    return catalog?.metadata?.keyPresets ?? [];
+  }
+  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.value) {
+    return catalog?.metadata?.valuePresets ?? [];
+  }
   return getKeyDef(catalog, field)?.presets ?? [];
+}
+
+/**
+ * Saved suggestions for `notes`, a metadata field or a free-text condition key, followed by any
+ * the user added while editing (`added` is keyed the same way). One merge rule for every caller.
+ */
+export function getPresets(
+  catalog: NetworkRuleCatalog | undefined,
+  field: string,
+  added?: Readonly<Record<string, readonly string[]>>,
+): string[] {
+  const saved = savedPresets(catalog, field);
+  const extra = added?.[field];
+  return extra?.length ? [...saved, ...extra] : saved;
 }

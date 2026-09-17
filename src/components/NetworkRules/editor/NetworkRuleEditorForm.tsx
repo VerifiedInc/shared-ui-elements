@@ -37,9 +37,10 @@ import {
 import { ruleDateToDay } from '../utils/date';
 import { ConditionsField } from './fields/ConditionsField';
 import { DateField } from './fields/DateField';
+import { MetadataField } from './fields/MetadataField';
 import { NotesField } from './fields/NotesField';
 import { StatusField } from './fields/StatusField';
-import { networkRuleFormSchema } from './schema';
+import { createNetworkRuleFormSchema } from './schema';
 
 export interface NetworkRuleEditorFormProps {
   /** Omit for a new rule. */
@@ -143,9 +144,16 @@ export function NetworkRuleEditorForm({
   const loadKey = rule?.uuid ?? 'new';
   const [loadedKey, setLoadedKey] = useState(loadKey);
 
+  // Rebuilt when the catalog arrives, so the metadata limits validated against are the served ones.
+  // `useForm` reads its options on every render, so a later resolver still applies.
+  const resolver = useMemo(
+    () => zodResolver(createNetworkRuleFormSchema(catalog?.metadata)),
+    [catalog],
+  );
+
   const form = useForm<NetworkRuleFormValues>({
     defaultValues: buildDefaultValues(rule, defaultName),
-    resolver: zodResolver(networkRuleFormSchema),
+    resolver,
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });
@@ -186,8 +194,8 @@ export function NetworkRuleEditorForm({
   const endMinDate = startDay ? addDays(startDay, 1) : undefined;
 
   const notePresets = useMemo(
-    () => [...getPresets(catalog, 'notes'), ...(addedPresets.notes ?? [])],
-    [catalog, addedPresets.notes],
+    () => getPresets(catalog, 'notes', addedPresets),
+    [catalog, addedPresets],
   );
   const addPreset = (field: string, value: string) => {
     setAddedPresets((current) => {
@@ -202,9 +210,9 @@ export function NetworkRuleEditorForm({
     // The dialog's Save button is outside the form and cannot see the catalog state.
     if (catalog === undefined) return;
     const presets = Object.fromEntries(
-      Object.entries(addedPresets).map(([field, added]) => [
+      Object.keys(addedPresets).map((field) => [
         field,
-        [...getPresets(catalog, field), ...added],
+        getPresets(catalog, field, addedPresets),
       ]),
     );
     await onSubmit(fromNetworkRuleFormValues(values), { presets });
@@ -349,6 +357,13 @@ export function NetworkRuleEditorForm({
                 onCreatePreset={canCreatePresets ? addPreset : undefined}
                 disabled={busy}
                 focusIndex={focusConditionIndex}
+              />
+
+              <MetadataField
+                catalog={catalog}
+                addedPresets={addedPresets}
+                onCreatePreset={canCreatePresets ? addPreset : undefined}
+                disabled={busy}
               />
             </>
           )}

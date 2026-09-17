@@ -171,6 +171,12 @@ export const exampleCatalog: NetworkRuleCatalog = {
     },
   ],
   notePresets: ['No self pay', 'Call payer to confirm', 'Verify plan tier'],
+  metadata: {
+    types: ['string', 'number', 'boolean'],
+    limits: { maxEntries: 20, maxKeyLength: 64, maxValueLength: 200 },
+    keyPresets: ['selfPay', 'tier', 'requiresPriorAuth'],
+    valuePresets: ['Gold', 'Silver', 'Bronze'],
+  },
 };
 
 export const exampleRules: NetworkRule[] = [
@@ -179,19 +185,26 @@ export const exampleRules: NetworkRule[] = [
     name: 'Every condition key',
     status: 'IN_NETWORK',
     notes: 'Showcases a remote source, inline options and free text together',
+    metadata: {
+      selfPay: false,
+      tier: 'Gold',
+      // A long id is a string row: as a number it would come back rounded.
+      contractId: '9007199254740993123456789',
+      copay: 25,
+    },
     enabled: true,
     startDate: '2026-01-01',
     endDate: '2026-12-31',
     conditions: [
-      { key: 'payerId', operator: 'EQUAL', value: ['V100002', 'V100001'] },
-      { key: 'payerName', operator: 'NOT_INCLUDE', value: ['Medicare'] },
-      { key: 'state', operator: 'EQUAL', value: ['CA', 'TX', 'NY'] },
+      { key: 'payerId', operator: 'EQUAL', values: ['V100002', 'V100001'] },
+      { key: 'payerName', operator: 'NOT_INCLUDE', values: ['Medicare'] },
+      { key: 'state', operator: 'EQUAL', values: ['CA', 'TX', 'NY'] },
       {
         key: 'insuranceTypeCodes',
         operator: 'INCLUDE',
-        value: ['PR', 'PS', 'HM'],
+        values: ['PR', 'PS', 'HM'],
       },
-      { key: 'planName', operator: 'INCLUDE', value: ['PPO', 'Choice'] },
+      { key: 'planName', operator: 'INCLUDE', values: ['PPO', 'Choice'] },
     ],
   },
   {
@@ -203,9 +216,9 @@ export const exampleRules: NetworkRule[] = [
     startDate: '2026-08-01',
     endDate: null,
     conditions: [
-      { key: 'state', operator: 'EQUAL', value: 'NY' },
-      { key: 'payerId', operator: 'EQUAL', value: ['V100007', 'V100006'] },
-      { key: 'planName', operator: 'INCLUDE', value: ['PPO', 'EPO', 'FEP'] },
+      { key: 'state', operator: 'EQUAL', values: ['NY'] },
+      { key: 'payerId', operator: 'EQUAL', values: ['V100007', 'V100006'] },
+      { key: 'planName', operator: 'INCLUDE', values: ['PPO', 'EPO', 'FEP'] },
     ],
   },
   {
@@ -217,7 +230,7 @@ export const exampleRules: NetworkRule[] = [
     startDate: null,
     endDate: null,
     conditions: [
-      { key: 'insuranceTypeCodes', operator: 'INCLUDE', value: ['MC'] },
+      { key: 'insuranceTypeCodes', operator: 'INCLUDE', values: ['MC'] },
     ],
   },
   {
@@ -229,9 +242,9 @@ export const exampleRules: NetworkRule[] = [
     startDate: '2025-01-01',
     endDate: '2025-12-31',
     conditions: [
-      { key: 'payerId', operator: 'EQUAL', value: 'V581261' },
-      { key: 'state', operator: 'EQUAL', value: ['MN'] },
-      { key: 'planName', operator: 'INCLUDE', value: 'Blue Choice PPO' },
+      { key: 'payerId', operator: 'EQUAL', values: ['V581261'] },
+      { key: 'state', operator: 'EQUAL', values: ['MN'] },
+      { key: 'planName', operator: 'INCLUDE', values: ['Blue Choice PPO'] },
     ],
   },
 ];
