@@ -48,13 +48,20 @@ export function isNumberValue(value: string): boolean {
   return /^-?\d+(\.\d*)?$/.test(value);
 }
 
+/** `value` without its trailing zeros. A loop, not `/0+$/`: that regex backtracks quadratically. */
+function trimTrailingZeros(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '0') end -= 1;
+  return value.slice(0, end);
+}
+
 /** The text `String(Number(value))` produces for the same quantity, when it is written plainly. */
 function normalizeNumberText(value: string): string {
   const negative = value.startsWith('-');
   const [rawInteger = '', rawFraction = ''] = value.replace('-', '').split('.');
-  const integer = rawInteger.replace(/^0+/, '');
-  const fraction = rawFraction.replace(/0+$/, '');
-  const digits = `${integer || '0'}${fraction ? `.${fraction}` : ''}`;
+  const whole = rawInteger.replace(/^0+/, '') || '0';
+  const fraction = trimTrailingZeros(rawFraction);
+  const digits = fraction ? `${whole}.${fraction}` : whole;
   return negative && digits !== '0' ? `-${digits}` : digits;
 }
 

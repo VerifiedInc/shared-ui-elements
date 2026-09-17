@@ -437,7 +437,7 @@ function runsByHeading(
   const runs: Array<{ heading?: string; fields: DataTableFilterField[] }> = [];
 
   fields.forEach((field) => {
-    const last = runs[runs.length - 1];
+    const last = runs.at(-1);
     if (last && last.heading === field.heading) {
       last.fields.push(field);
     } else {
@@ -743,9 +743,9 @@ export function DataTableFieldFilterPanel({
           </Typography>
         ) : (
           <Stack spacing={2}>
-            {runsByHeading(fields).map((run, index) => (
-              // Runs are positional: a heading never recurs, but a run without one may.
-              <Stack key={index} spacing={1.5}>
+            {runsByHeading(fields).map((run) => (
+              // A run's first field is unique to it, headed or not.
+              <Stack key={run.fields[0].id} spacing={1.5}>
                 {run.heading !== undefined && (
                   <Divider textAlign='left'>
                     <SectionLabel color='text.secondary'>
