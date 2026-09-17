@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FocusEvent } from 'react';
 import {
   Autocomplete,
   Box,
@@ -407,7 +407,9 @@ function MultiSelectFilterControl({
             // blur the input (MUI prevents it), so a pick never commits stray text.
             onBlur: (event) => {
               const typed = field.freeSolo ? event.target.value.trim() : '';
-              params.inputProps.onBlur?.(event);
+              // TextField types the event for input-or-textarea; Autocomplete always renders an
+              // input, and its own handler is typed for one.
+              params.inputProps.onBlur?.(event as FocusEvent<HTMLInputElement>);
               if (typed !== '' && !values.includes(typed)) {
                 remember([{ label: typed, value: typed }]);
                 onChange([...values, typed]);
