@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type {
   NetworkRuleCatalogMetadata,
-  NetworkRuleMetadataLimits,
+  NetworkRuleMetadataType,
 } from '../types';
 import {
   NETWORK_RULE_METADATA_TYPES,
@@ -12,16 +12,23 @@ import {
 
 // Shape only; the server validates keys, operators and values against the catalog.
 
+/** The catalog's type allow-list as `z.enum` wants it; every type when a catalog lists none. */
+const offeredTypes = (
+  types: readonly NetworkRuleMetadataType[],
+): [NetworkRuleMetadataType, ...NetworkRuleMetadataType[]] =>
+  types.length > 0
+    ? (types as [NetworkRuleMetadataType, ...NetworkRuleMetadataType[]])
+    : NETWORK_RULE_METADATA_TYPES;
+
 /**
  * Mirrors core's `validateMetadata` so a limit shows up on the field instead of coming back as a
- * METADATA_INVALID. The limits are the catalog's, never a second copy of them. The type union is
- * fixed here because it is what the row knows how to render; which of the three the editor offers
- * is the catalog's call.
+ * METADATA_INVALID. Limits and the allowed types are the catalog's, never a second copy of them:
+ * the row can render every type, but a rule may only hold the ones this brand's catalog offers.
  */
 const metadataEntrySchema = ({
-  maxKeyLength,
-  maxValueLength,
-}: NetworkRuleMetadataLimits) =>
+  types,
+  limits: { maxKeyLength, maxValueLength },
+}: NetworkRuleCatalogMetadata) =>
   z
     .object({
       key: z
@@ -29,7 +36,7 @@ const metadataEntrySchema = ({
         .trim()
         .min(1, 'Key is required')
         .max(maxKeyLength, `Key must be at most ${maxKeyLength} characters`),
-      type: z.enum(NETWORK_RULE_METADATA_TYPES),
+      type: z.enum(offeredTypes(types)),
       value: z.string(),
     })
     .superRefine((entry, ctx) => {
@@ -86,7 +93,7 @@ export function createNetworkRuleFormSchema(
       // A catalog without metadata offers no section, so the only list that passes is an empty one.
       metadata: metadata
         ? z
-            .array(metadataEntrySchema(metadata.limits))
+            .array(metadataEntrySchema(metadata))
             .max(
               metadata.limits.maxEntries,
               `A rule may have at most ${metadata.limits.maxEntries} metadata entries`,

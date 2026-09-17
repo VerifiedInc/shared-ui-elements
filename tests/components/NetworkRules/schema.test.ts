@@ -145,6 +145,25 @@ describe('metadata rows', () => {
     );
   });
 
+  test('only the types the catalog offers are accepted', () => {
+    const numbersOnly = createNetworkRuleFormSchema({
+      ...catalogMetadata,
+      types: ['number'],
+    });
+    expect(
+      issuePaths(numbersOnly, {
+        ...valid,
+        metadata: [row('n', 'number', '1')],
+      }),
+    ).toEqual([]);
+    expect(
+      issuePaths(numbersOnly, {
+        ...valid,
+        metadata: [row('s', 'string', 'v')],
+      }),
+    ).toEqual(['metadata.0.type']);
+  });
+
   test('a number must survive as a JSON number; a boolean is true or false', () => {
     expect(paths([row('n', 'number', '25')])).toEqual([]);
     expect(paths([row('n', 'number', 'abc')])).toEqual(['metadata.0.value']);

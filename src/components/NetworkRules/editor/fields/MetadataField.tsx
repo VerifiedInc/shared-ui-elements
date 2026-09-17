@@ -59,7 +59,8 @@ export function MetadataField({
           startIcon={<Add />}
           disabled={disabled || isFull}
           onClick={() => {
-            append(emptyMetadataFormValues());
+            // The first offered type; the default covers a catalog that lists none.
+            append(emptyMetadataFormValues(metadata.types[0]));
           }}
         >
           Add Metadata

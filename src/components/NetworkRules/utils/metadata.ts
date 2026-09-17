@@ -34,8 +34,11 @@ export function metadataTypeLabel(type: NetworkRuleMetadataType): string {
   return METADATA_TYPE_LABELS[type];
 }
 
-export function emptyMetadataFormValues(): NetworkRuleMetadataFormValues {
-  return { key: '', type: 'string', value: '' };
+/** A blank row of the first type the catalog offers, so a new row is always one it can show. */
+export function emptyMetadataFormValues(
+  type: NetworkRuleMetadataType = 'string',
+): NetworkRuleMetadataFormValues {
+  return { key: '', type, value: '' };
 }
 
 /** Partial input is allowed, so the field can be typed into: `-`, `1.`, `` all pass. */
