@@ -151,7 +151,10 @@ export type NetworkRulePresetRename = {
 
 /** Handed back with the submitted rule. */
 export type NetworkRuleSubmitExtras = {
-  /** Preset lists that grew while editing, ready to store. Empty when nothing was added. */
+  /**
+   * Preset lists that grew while editing and are not stored yet, ready to store: the host had no
+   * `updatePresets`, or refused the write when the preset was picked. Empty otherwise.
+   */
   presets: NetworkRulePresets;
 };
 
@@ -189,8 +192,9 @@ export type NetworkRulesServices = {
   scope?: string;
   getCatalog: (signal?: AbortSignal) => Promise<NetworkRuleCatalog>;
   /**
-   * Stores the given fields' complete lists, leaving the others alone. With it the editor offers
-   * edit and delete controls on saved presets and refetches the catalog after each write.
+   * Stores the given fields' complete lists, leaving the others alone. With it a new preset is
+   * stored as soon as it is picked, saved presets get edit and delete controls, and the catalog
+   * is refetched after each write.
    */
   updatePresets?: (presets: NetworkRulePresets) => Promise<void>;
   /**

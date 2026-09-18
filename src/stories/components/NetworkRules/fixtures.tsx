@@ -1,4 +1,6 @@
 // Story-only example data; the components know only the shapes in `types.ts`.
+import { action } from '@storybook/addon-actions';
+
 import {
   NETWORK_RULE_METADATA_PRESET_FIELDS,
   type NetworkRule,
@@ -95,14 +97,19 @@ function rankPayers(search: string): ExamplePayer[] {
     .map((entry) => entry.payer);
 }
 
+// Every call a host would receive shows in the Actions panel, with what it was asked.
+const logged = action;
+
 export const examplePayersSource: NetworkRuleSourceService<ExamplePayer> = {
   searchPlaceholder: 'Search by name or ID…',
   search: async ({ search, limit = 10, skip = 0 }) => {
+    logged('sources.payers.search')({ search, limit, skip });
     await sleep(400);
     const matches = search?.trim() ? rankPayers(search) : EXAMPLE_PAYERS;
     return matches.slice(skip, skip + limit).map(toPayerOption);
   },
   resolve: async (values) => {
+    logged('sources.payers.resolve')(values);
     await sleep(250);
     return EXAMPLE_PAYERS.filter((payer) =>
       values.includes(payer.verifiedId),
@@ -281,12 +288,38 @@ function applyPresets(
  */
 let storyCatalog = clone(exampleCatalog);
 
+/** Stores the given fields' lists, as the brand patch would. */
+export function saveStoryPresets(presets: NetworkRulePresets): void {
+  storyCatalog = applyPresets(storyCatalog, presets);
+}
+
+/** The story's server refuses a preset that contains "refuse", so the error path can be seen. */
+function assertPresetsAccepted(presets: NetworkRulePresets): void {
+  const refused = Object.values(presets)
+    .flat()
+    .find((preset) => /refuse/i.test(preset));
+  if (refused !== undefined) {
+    throw new Error(
+      `The server refused "${refused}" (story: a preset containing "refuse" is rejected).`,
+    );
+  }
+}
+
 export interface StoryServicesOptions {
   catalogDelayMs?: number;
   failCatalog?: boolean;
   withoutPayersSource?: boolean;
   /** Leave `updatePresets` out, so the dropdowns offer no edit or delete controls. */
   withoutPresetManagement?: boolean;
+  /**
+   * What "Edit existing rules that use this preset" does to the rules, which live in the story's
+   * state, out of reach here. Left out, the request is only logged.
+   */
+  renamePresetInRules?: (
+    field: string,
+    from: string,
+    to: string,
+  ) => void | Promise<void>;
 }
 
 export function createStoryServices({
@@ -294,9 +327,11 @@ export function createStoryServices({
   failCatalog = false,
   withoutPayersSource = false,
   withoutPresetManagement = false,
+  renamePresetInRules,
 }: StoryServicesOptions = {}): NetworkRulesServices {
   return {
     getCatalog: async () => {
+      logged('services.getCatalog')();
       await sleep(catalogDelayMs);
       if (failCatalog) throw new Error('Catalog unavailable');
       // A fresh copy each time, so the query cache sees the change and re-renders.
@@ -305,16 +340,28 @@ export function createStoryServices({
     updatePresets: withoutPresetManagement
       ? undefined
       : async (presets) => {
+          logged('services.updatePresets')(presets);
           await sleep(400);
-          storyCatalog = applyPresets(storyCatalog, presets);
+          assertPresetsAccepted(presets);
+          saveStoryPresets(presets);
         },
-    // Rules live in the story components' state, out of reach here; a host would patch them.
     renamePreset: withoutPresetManagement
       ? undefined
       : async ({ field, from, to, presets, updateRules }) => {
+          logged('services.renamePreset')({
+            field,
+            from,
+            to,
+            presets,
+            updateRules,
+          });
           await sleep(400);
-          storyCatalog = applyPresets(storyCatalog, { [field]: presets });
-          if (updateRules) {
+          assertPresetsAccepted({ [field]: presets });
+          saveStoryPresets({ [field]: presets });
+          if (!updateRules) return;
+          if (renamePresetInRules) {
+            await renamePresetInRules(field, from, to);
+          } else {
             console.log('rename preset in stored rules', { field, from, to });
           }
         },
