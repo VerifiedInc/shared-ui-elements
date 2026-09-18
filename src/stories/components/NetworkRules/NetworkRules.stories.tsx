@@ -74,9 +74,9 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
     action('host.onSubmit')(body, { presets });
     setIsSubmitting(true);
     await sleep(600);
-    setIsSubmitting(false);
 
     if (body.name.toLowerCase().includes('duplicate')) {
+      setIsSubmitting(false);
       dialogs.setServerErrors([
         {
           code: 'DUPLICATE_CONDITIONS',
@@ -109,6 +109,7 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
           )
         : [...current, { uuid: `new-${Date.now()}`, ...body }],
     );
+    setIsSubmitting(false);
     dialogs.closeEditor();
   };
 

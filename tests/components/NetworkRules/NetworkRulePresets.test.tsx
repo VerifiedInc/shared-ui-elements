@@ -72,7 +72,13 @@ function createPresetStore(
   { withRename = false } = {},
 ) {
   let current = base;
+  let hold: Promise<void> | null = null;
   const updatePresets = vi.fn(async (presets: NetworkRulePresets) => {
+    if (hold) {
+      const gate = hold;
+      hold = null;
+      await gate;
+    }
     current = applyPresets(current, presets);
   });
   const renamePreset = vi.fn(
@@ -81,9 +87,17 @@ function createPresetStore(
     },
   );
   const getCatalog = vi.fn(async () => current);
+  /** Keeps the next write in flight until the returned function is called. */
+  const holdNextWrite = (): (() => void) => {
+    let release = (): void => {};
+    hold = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    return release;
+  };
   return withRename
-    ? { updatePresets, renamePreset, getCatalog }
-    : { updatePresets, getCatalog };
+    ? { updatePresets, renamePreset, getCatalog, holdNextWrite }
+    : { updatePresets, getCatalog, holdNextWrite };
 }
 
 function renderForm(
@@ -466,6 +480,81 @@ describe('preset management in <NetworkRuleEditorForm/>', () => {
       operator: 'HAS',
       values: ['Platinum plan', 'ppo'],
     });
+  });
+
+  test('quick additions are written one after another, each on top of the last', async () => {
+    const store = createPresetStore();
+    const release = store.holdNextWrite();
+    const utils = renderForm(store);
+
+    const notes = await utils.findByRole('combobox', { name: 'Notes' });
+    fireEvent.change(notes, { target: { value: 'Alpha' } });
+    fireEvent.click(await utils.findByText('Add "Alpha" as a preset'));
+    fireEvent.change(notes, { target: { value: 'Beta' } });
+    fireEvent.click(await utils.findByText('Add "Beta" as a preset'));
+
+    // The second write waits; meanwhile both are offered from the form's own list.
+    await waitFor(() => {
+      expect(store.updatePresets).toHaveBeenCalledTimes(1);
+    });
+    expect(store.updatePresets).toHaveBeenLastCalledWith({
+      notes: ['Existing preset', 'Other preset', 'Alpha'],
+    });
+    const listbox = await openDropdown(notes);
+    expect(within(listbox).getByText('Alpha')).toBeDefined();
+    expect(within(listbox).getByText('Beta')).toBeDefined();
+
+    // Released, the first lands; the second is then built on what it stored.
+    release();
+    await waitFor(() => {
+      expect(store.updatePresets).toHaveBeenCalledTimes(2);
+    });
+    expect(store.updatePresets).toHaveBeenLastCalledWith({
+      notes: ['Existing preset', 'Other preset', 'Alpha', 'Beta'],
+    });
+  });
+
+  test('editing a preset whose write is still in flight waits for it, then renames it on the server', async () => {
+    const store = createPresetStore();
+    const release = store.holdNextWrite();
+    const utils = renderForm(store);
+
+    const notes = await utils.findByRole('combobox', { name: 'Notes' });
+    fireEvent.change(notes, { target: { value: 'Alpha' } });
+    fireEvent.click(await utils.findByText('Add "Alpha" as a preset'));
+    await waitFor(() => {
+      expect(store.updatePresets).toHaveBeenCalledTimes(1);
+    });
+
+    const row = await openNotesRow(utils, 'Alpha');
+    fireEvent.click(within(row).getByRole('button', { name: 'Edit Preset' }));
+    const input = await utils.findByLabelText(/^preset/i);
+    fireEvent.change(input, { target: { value: 'Alpha 2' } });
+    fireEvent.click(utils.getByRole('button', { name: 'Save' }));
+
+    // Nothing more is written while the creation is pending; the dialog waits.
+    await waitFor(() => {
+      expect(
+        (utils.getByRole('button', { name: 'Save' }) as HTMLButtonElement)
+          .disabled,
+      ).toBe(true);
+    });
+    expect(store.updatePresets).toHaveBeenCalledTimes(1);
+
+    // Once stored, the rename goes to the server instead of renaming a copy in the form.
+    release();
+    await waitFor(() => {
+      expect(store.updatePresets).toHaveBeenCalledTimes(2);
+    });
+    expect(store.updatePresets).toHaveBeenLastCalledWith({
+      notes: ['Existing preset', 'Other preset', 'Alpha 2'],
+    });
+    await waitFor(() => {
+      expect(utils.queryByText('Edit Preset')).toBeNull();
+    });
+    const listbox = await openDropdown(notes);
+    expect(within(listbox).getByText('Alpha 2')).toBeDefined();
+    expect(within(listbox).queryByText('Alpha')).toBeNull();
   });
 
   test('a metadata key preset is bounded by the catalog limit and written by its field', async () => {
