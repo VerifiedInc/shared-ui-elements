@@ -1,4 +1,6 @@
 // Story-only example data; the components know only the shapes in `types.ts`.
+import { action } from '@storybook/addon-actions';
+
 import {
   NETWORK_RULE_METADATA_PRESET_FIELDS,
   type NetworkRule,
@@ -95,14 +97,19 @@ function rankPayers(search: string): ExamplePayer[] {
     .map((entry) => entry.payer);
 }
 
+// Every call a host would receive shows in the Actions panel, with what it was asked.
+const logged = action;
+
 export const examplePayersSource: NetworkRuleSourceService<ExamplePayer> = {
   searchPlaceholder: 'Search by name or ID…',
   search: async ({ search, limit = 10, skip = 0 }) => {
+    logged('sources.payers.search')({ search, limit, skip });
     await sleep(400);
     const matches = search?.trim() ? rankPayers(search) : EXAMPLE_PAYERS;
     return matches.slice(skip, skip + limit).map(toPayerOption);
   },
   resolve: async (values) => {
+    logged('sources.payers.resolve')(values);
     await sleep(250);
     return EXAMPLE_PAYERS.filter((payer) =>
       values.includes(payer.verifiedId),
@@ -324,6 +331,7 @@ export function createStoryServices({
 }: StoryServicesOptions = {}): NetworkRulesServices {
   return {
     getCatalog: async () => {
+      logged('services.getCatalog')();
       await sleep(catalogDelayMs);
       if (failCatalog) throw new Error('Catalog unavailable');
       // A fresh copy each time, so the query cache sees the change and re-renders.
@@ -332,6 +340,7 @@ export function createStoryServices({
     updatePresets: withoutPresetManagement
       ? undefined
       : async (presets) => {
+          logged('services.updatePresets')(presets);
           await sleep(400);
           assertPresetsAccepted(presets);
           saveStoryPresets(presets);
@@ -339,6 +348,13 @@ export function createStoryServices({
     renamePreset: withoutPresetManagement
       ? undefined
       : async ({ field, from, to, presets, updateRules }) => {
+          logged('services.renamePreset')({
+            field,
+            from,
+            to,
+            presets,
+            updateRules,
+          });
           await sleep(400);
           assertPresetsAccepted({ [field]: presets });
           saveStoryPresets({ [field]: presets });

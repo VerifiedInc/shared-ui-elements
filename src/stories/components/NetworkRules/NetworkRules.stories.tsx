@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 import { QueryClient } from '@tanstack/react-query';
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { Add } from '@mui/icons-material';
@@ -28,9 +29,10 @@ const sleep = async (ms: number): Promise<void> =>
   await new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Everything a host wires, in memory: rules in state, presets in the story catalog. Name a rule
- * "duplicate" to see server-side errors surface in the editor; a preset containing "refuse" is
- * rejected, so the preset dialogs' error path can be seen too.
+ * Everything a host wires, in memory: rules in state, presets in the story catalog, and every call
+ * the host receives logged to the Actions panel. Name a rule "duplicate" to see server-side errors
+ * surface in the editor; a preset containing "refuse" is rejected, so the preset dialogs' error
+ * path can be seen too.
  */
 function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
   const [rules, setRules] = useState<NetworkRule[]>(exampleRules);
@@ -51,6 +53,7 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
       ...createStoryServices({
         // "Edit existing rules that use this preset": patch every rule that carries it.
         renamePresetInRules: (field, from, to) => {
+          action('host.renamePresetInRules')({ field, from, to });
           setRules((current) =>
             current.map((rule) => ({
               ...rule,
@@ -68,6 +71,7 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
     body: NetworkRuleData,
     { presets }: NetworkRuleSubmitExtras,
   ): Promise<void> => {
+    action('host.onSubmit')(body, { presets });
     setIsSubmitting(true);
     await sleep(600);
     setIsSubmitting(false);
@@ -90,6 +94,7 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
     // Presets the host could not store when they were picked; stored with the rule, as the
     // Dashboard does, and refetched so the dropdowns offer them.
     if (Object.keys(presets).length > 0) {
+      action('host.savePresetsOnSubmit')(presets);
       saveStoryPresets(presets);
       await queryClient.invalidateQueries({
         queryKey: networkRulesCatalogQueryKey(),
@@ -108,6 +113,7 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
   };
 
   const handleConfirmDelete = (rule: NetworkRule, conditionIndex?: number) => {
+    action('host.onConfirmDelete')(rule.name, { conditionIndex });
     setRules((current) =>
       conditionIndex === undefined
         ? current.filter((candidate) => candidate.uuid !== rule.uuid)
@@ -168,6 +174,7 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
             readOnly={readOnly}
             maxHeight='100%'
             onToggleEnabled={(rule, enabled) => {
+              action('host.onToggleEnabled')(rule.name, enabled);
               setRules((current) =>
                 current.map((candidate) =>
                   candidate.uuid === rule.uuid
@@ -176,7 +183,14 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
                 ),
               );
             }}
-            {...dialogs.tableHandlers}
+            onEdit={(rule) => {
+              action('host.onEdit')(rule.name);
+              dialogs.tableHandlers.onEdit(rule);
+            }}
+            onDelete={(rule) => {
+              action('host.onDelete')(rule.name);
+              dialogs.tableHandlers.onDelete(rule);
+            }}
           />
         </Box>
 
