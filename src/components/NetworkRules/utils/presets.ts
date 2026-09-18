@@ -1,4 +1,8 @@
-import type { NetworkRuleData, NetworkRuleMetadata } from '../types';
+import type {
+  NetworkRuleCondition,
+  NetworkRuleData,
+  NetworkRuleMetadata,
+} from '../types';
 import { dedupeValues } from './condition';
 import { NETWORK_RULE_METADATA_PRESET_FIELDS } from './metadata';
 
@@ -68,44 +72,53 @@ export type NetworkRulePresetCarriers = Pick<
 const hasKey = (metadata: NetworkRuleMetadata, key: string): boolean =>
   Object.keys(metadata).includes(key);
 
-/**
- * The parts of `rule` that change when preset `from` of `field` becomes `to`, as a patch, or null
- * when the rule does not carry it. Exact match: a rule stores the chosen preset verbatim. A
- * metadata key is left alone when the rule already has an entry under `to`, since one would win.
- */
-export function renamePresetInRule(
-  rule: NetworkRulePresetCarriers,
-  field: string,
+type PresetPatch = Partial<NetworkRulePresetCarriers> | null;
+
+/** A metadata key is left alone when the rule already has an entry under `to`: one would win. */
+function renameMetadataKey(
+  metadata: NetworkRuleMetadata,
   from: string,
   to: string,
-): Partial<NetworkRulePresetCarriers> | null {
-  if (field === 'notes') {
-    return rule.notes === from ? { notes: to } : null;
-  }
-
-  const metadata = rule.metadata ?? {};
-  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.key) {
-    if (!hasKey(metadata, from) || hasKey(metadata, to)) return null;
-    const renamed: NetworkRuleMetadata = {};
-    for (const [key, value] of Object.entries(metadata)) {
-      renamed[key === from ? to : key] = value;
-    }
-    return { metadata: renamed };
-  }
-  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.value) {
-    if (!Object.values(metadata).includes(from)) return null;
-    const renamed: NetworkRuleMetadata = {};
-    for (const [key, value] of Object.entries(metadata)) {
-      renamed[key] = value === from ? to : value;
-    }
-    return { metadata: renamed };
-  }
-
-  const carries = (condition: NetworkRuleData['conditions'][number]): boolean =>
-    condition.key === field && condition.values.includes(from);
-  if (!rule.conditions.some(carries)) return null;
+): PresetPatch {
+  if (!hasKey(metadata, from) || hasKey(metadata, to)) return null;
   return {
-    conditions: rule.conditions.map((condition) =>
+    metadata: Object.fromEntries(
+      Object.entries(metadata).map(([key, value]) => [
+        key === from ? to : key,
+        value,
+      ]),
+    ),
+  };
+}
+
+function renameMetadataValue(
+  metadata: NetworkRuleMetadata,
+  from: string,
+  to: string,
+): PresetPatch {
+  if (!Object.values(metadata).includes(from)) return null;
+  return {
+    metadata: Object.fromEntries(
+      Object.entries(metadata).map(([key, value]) => [
+        key,
+        value === from ? to : value,
+      ]),
+    ),
+  };
+}
+
+/** Only the conditions on `key`; the same text under another key is a different vocabulary. */
+function renameConditionValue(
+  conditions: NetworkRulePresetCarriers['conditions'],
+  key: string,
+  from: string,
+  to: string,
+): PresetPatch {
+  const carries = (condition: NetworkRuleCondition): boolean =>
+    condition.key === key && condition.values.includes(from);
+  if (!conditions.some(carries)) return null;
+  return {
+    conditions: conditions.map((condition) =>
       carries(condition)
         ? {
             ...condition,
@@ -117,4 +130,24 @@ export function renamePresetInRule(
         : condition,
     ),
   };
+}
+
+/**
+ * The parts of `rule` that change when preset `from` of `field` becomes `to`, as a patch, or null
+ * when the rule does not carry it. Exact match: a rule stores the chosen preset verbatim.
+ */
+export function renamePresetInRule(
+  rule: NetworkRulePresetCarriers,
+  field: string,
+  from: string,
+  to: string,
+): PresetPatch {
+  if (field === 'notes') return rule.notes === from ? { notes: to } : null;
+  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.key) {
+    return renameMetadataKey(rule.metadata ?? {}, from, to);
+  }
+  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.value) {
+    return renameMetadataValue(rule.metadata ?? {}, from, to);
+  }
+  return renameConditionValue(rule.conditions, field, from, to);
 }

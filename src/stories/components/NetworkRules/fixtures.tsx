@@ -252,7 +252,7 @@ export const exampleRules: NetworkRule[] = [
   },
 ];
 
-const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+const clone = <T,>(value: T): T => structuredClone(value);
 
 /** `catalog` with the given fields' preset lists swapped, the way core serves a patched brand. */
 function applyPresets(
