@@ -1,4 +1,4 @@
-import { MenuItem, Stack, Typography } from '@mui/material';
+import { Avatar, MenuItem, Stack, Typography } from '@mui/material';
 
 import { addressFormat } from '../../../../core/formats';
 import { EmployerValue } from '../../../../core/validations';
@@ -17,6 +17,41 @@ import {
 import { VariantSelectField } from './variantSelect.field';
 
 type EmployerDetails = EmployerValue['employer'];
+
+const LOGO_SIZE = 48;
+
+function EmployerLogo({
+  name,
+  logoUrl,
+  size,
+}: {
+  name: string;
+  logoUrl?: string | null;
+  size: number;
+}) {
+  return (
+    <Avatar
+      draggable={false}
+      src={logoUrl ?? ''}
+      sx={{
+        bgcolor: 'primary.main',
+        width: size,
+        height: size,
+        borderRadius: size >= LOGO_SIZE ? 2 : 1,
+        flexShrink: 0,
+      }}
+      slotProps={{
+        img: {
+          onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
+            e.currentTarget.style.display = 'none';
+          },
+        },
+      }}
+    >
+      {name[0]?.toUpperCase()}
+    </Avatar>
+  );
+}
 
 function EmployerRow({
   label,
@@ -57,7 +92,7 @@ function EmployerRows({ item }: { item: EmployerDetails }) {
   const userPrivacyEnabled = options.features.enableUserPrivacy;
   const address = item.address?.line1 ? addressFormat(item.address) : null;
 
-  return (
+  const rows = (
     <Stack spacing={1.25}>
       <EmployerRow
         label='Name'
@@ -73,6 +108,15 @@ function EmployerRows({ item }: { item: EmployerDetails }) {
           fieldValue={toFieldValueAttribute(address, userPrivacyEnabled)}
         />
       )}
+    </Stack>
+  );
+
+  if (!item.logoUrl) return rows;
+
+  return (
+    <Stack direction='row' spacing={1.5} py={1}>
+      <EmployerLogo name={item.name} logoUrl={item.logoUrl} size={LOGO_SIZE} />
+      {rows}
     </Stack>
   );
 }
@@ -108,18 +152,36 @@ export function EmployerField({ fieldKey }: { fieldKey: string }) {
         return item ? <EmployerRows item={item} /> : null;
       }}
     >
-      {variants.map((variant) => (
-        <MenuItem
-          key={variant.id}
-          value={variant.id}
-          onClick={(e) => e.stopPropagation()}
-          sx={{ maxWidth: '100%', whiteSpace: 'pre-wrap' }}
-        >
-          <Typography variant='body1' fontWeight={500}>
-            {variant.displayValue ?? '-'}
-          </Typography>
-        </MenuItem>
-      ))}
+      {variants.map((variant) => {
+        const details = variant.value?.employer;
+        const name = details?.name ?? variant.displayValue ?? '-';
+        const address = details?.address?.line1
+          ? addressFormat(details.address)
+          : null;
+
+        return (
+          <MenuItem
+            key={variant.id}
+            value={variant.id}
+            onClick={(e) => e.stopPropagation()}
+            sx={{ maxWidth: '100%', whiteSpace: 'pre-wrap' }}
+          >
+            <Stack direction='row' spacing={1.5} alignItems='center'>
+              <EmployerLogo name={name} logoUrl={details?.logoUrl} size={32} />
+              <Stack sx={{ alignItems: 'flex-start', textAlign: 'left' }}>
+                <Typography variant='body1' fontWeight={500}>
+                  {name}
+                </Typography>
+                {address && (
+                  <Typography variant='body2' color='text.primary'>
+                    {address}
+                  </Typography>
+                )}
+              </Stack>
+            </Stack>
+          </MenuItem>
+        );
+      })}
     </VariantSelectField>
   );
 }
