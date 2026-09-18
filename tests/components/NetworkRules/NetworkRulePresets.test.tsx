@@ -113,14 +113,29 @@ function rowOf(element: HTMLElement): HTMLElement {
   return row;
 }
 
+/**
+ * Opens a preset dropdown as a click would: focused first, so that when a dialog takes focus the
+ * input blurs and the popup closes, as in a browser. Without it the listbox would outlive the
+ * dialog and shadow later lookups.
+ */
+async function openDropdown(input: HTMLElement): Promise<HTMLElement> {
+  input.focus();
+  fireEvent.mouseDown(input);
+  return await waitFor(() => {
+    const listbox = document.querySelector('[role="listbox"]');
+    if (!listbox) throw new Error('listbox not open');
+    return listbox as HTMLElement;
+  });
+}
+
 /** Opens the Notes dropdown and returns the row for `preset`. */
 async function openNotesRow(
   utils: ReturnType<typeof renderForm>,
   preset: string,
 ): Promise<HTMLElement> {
-  const notes = await utils.findByLabelText('Notes');
-  fireEvent.mouseDown(notes);
-  const listbox = await utils.findByRole('listbox');
+  // By role: once open, the listbox is labelled "Notes" too.
+  const notes = await utils.findByRole('combobox', { name: 'Notes' });
+  const listbox = await openDropdown(notes);
   return rowOf(within(listbox).getByText(preset));
 }
 
@@ -140,7 +155,7 @@ describe('preset management in <NetworkRuleEditorForm/>', () => {
       within(row).getByRole('button', { name: 'Delete Preset' }),
     ).toBeDefined();
 
-    fireEvent.change(utils.getByLabelText('Notes'), {
+    fireEvent.change(utils.getByRole('combobox', { name: 'Notes' }), {
       target: { value: 'Brand new' },
     });
     const addRow = rowOf(await utils.findByText('Add "Brand new" as a preset'));
@@ -371,10 +386,8 @@ describe('preset management in <NetworkRuleEditorForm/>', () => {
     expect(utils.queryByText('Existing preset')).toBeNull();
 
     // Then a condition value, on the free-text condition.
-    const values = utils.getAllByLabelText(/^values/i);
-    const textValues = values[values.length - 1];
-    fireEvent.mouseDown(textValues);
-    const listbox = await utils.findByRole('listbox');
+    const values = utils.getAllByRole('combobox', { name: /^values/i });
+    const listbox = await openDropdown(values[values.length - 1]);
     row = rowOf(within(listbox).getByText('Gold plan'));
     fireEvent.click(within(row).getByRole('button', { name: 'Edit Preset' }));
     input = await utils.findByLabelText(/^preset/i);
@@ -420,8 +433,7 @@ describe('preset management in <NetworkRuleEditorForm/>', () => {
 
     fireEvent.click(utils.getByRole('button', { name: 'Add Metadata' }));
     const key = utils.getByPlaceholderText('Pick a preset or type a key');
-    fireEvent.mouseDown(key);
-    const listbox = await utils.findByRole('listbox');
+    const listbox = await openDropdown(key);
     const row = rowOf(within(listbox).getByText('tier'));
     fireEvent.click(within(row).getByRole('button', { name: 'Edit Preset' }));
 
