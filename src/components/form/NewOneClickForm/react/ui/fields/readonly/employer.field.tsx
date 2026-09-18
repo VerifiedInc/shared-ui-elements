@@ -32,7 +32,8 @@ function EmployerLogo({
   return (
     <Avatar
       draggable={false}
-      src={logoUrl ?? ''}
+      alt={name}
+      src={logoUrl ?? undefined}
       sx={{
         bgcolor: 'primary.main',
         width: size,
@@ -42,6 +43,9 @@ function EmployerLogo({
       }}
       slotProps={{
         img: {
+          onLoad: (e: React.SyntheticEvent<HTMLImageElement>) => {
+            e.currentTarget.style.display = '';
+          },
           onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
             e.currentTarget.style.display = 'none';
           },
