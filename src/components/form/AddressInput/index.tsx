@@ -191,6 +191,7 @@ function AddressInputContent({
               <Grid2 container sx={{ alignItems: 'flex-start' }}>
                 <Grid2 sx={{ width: '100%', wordWrap: 'break-word' }}>
                   <Typography
+                    component='p'
                     variant='h6'
                     color='text.primary'
                     fontWeight={300}
