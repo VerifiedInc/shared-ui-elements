@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
 import {
+  NETWORK_RULE_PRESETS_MAX_ITEMS,
   dayToRuleDate,
   dedupeValues,
   formatRuleDate,
@@ -8,18 +9,158 @@ import {
   fromNetworkRuleFormValues,
   getKeyLabel,
   getOperatorLabel,
+  getPresetMaxLength,
+  getSavedPresets,
   getStatusLabel,
   hasInlineOptions,
   hasRemoteSource,
   isExactNumberValue,
   isOperatorMulti,
+  isPresetListFull,
+  removePreset,
+  renamePresetInRule,
+  replacePreset,
   ruleDateToDay,
   toMetadataFormValues,
   toNetworkRuleFormValues,
   toOptions,
+  validatePresetValue,
+  type NetworkRuleCatalog,
 } from '../../../src/components/NetworkRules';
+import { filterPresetOptions } from '../../../src/components/NetworkRules/editor/fields/presetOptions';
 
 import { catalog, rules } from './fixtures';
+
+const metadataCatalog: NetworkRuleCatalog = {
+  ...catalog,
+  metadata: {
+    types: ['string', 'number', 'boolean'],
+    limits: { maxEntries: 20, maxKeyLength: 64, maxValueLength: 200 },
+    keyPresets: ['tier'],
+    valuePresets: ['Gold'],
+  },
+};
+
+describe('preset utils', () => {
+  test('saved presets are read by field, empty when the catalog has none', () => {
+    expect(getSavedPresets(metadataCatalog, 'notes')).toEqual([
+      'Existing preset',
+    ]);
+    expect(getSavedPresets(metadataCatalog, 'text')).toEqual(['Gold plan']);
+    expect(getSavedPresets(metadataCatalog, 'metadataKeys')).toEqual(['tier']);
+    expect(getSavedPresets(metadataCatalog, 'metadataValues')).toEqual([
+      'Gold',
+    ]);
+    expect(getSavedPresets(catalog, 'metadataKeys')).toEqual([]);
+    expect(getSavedPresets(catalog, 'color')).toEqual([]);
+    expect(getSavedPresets(undefined, 'notes')).toEqual([]);
+  });
+
+  test('only the metadata fields have a served max length', () => {
+    expect(getPresetMaxLength(metadataCatalog, 'metadataKeys')).toBe(64);
+    expect(getPresetMaxLength(metadataCatalog, 'metadataValues')).toBe(200);
+    expect(getPresetMaxLength(metadataCatalog, 'notes')).toBeUndefined();
+    expect(getPresetMaxLength(metadataCatalog, 'text')).toBeUndefined();
+    expect(getPresetMaxLength(catalog, 'metadataKeys')).toBeUndefined();
+  });
+
+  test('validatePresetValue rejects blank, overlong and duplicate presets', () => {
+    const presets = ['Gold plan', 'Silver plan'];
+    expect(validatePresetValue('   ', { presets })).toBe(
+      'Preset cannot be empty',
+    );
+    expect(validatePresetValue('Platinum', { presets, maxLength: 5 })).toBe(
+      'Preset must be at most 5 characters',
+    );
+    // Case-insensitive, trimmed: the editor never keeps two spellings of one preset.
+    expect(validatePresetValue(' gold PLAN ', { presets })).toBe(
+      'This preset already exists',
+    );
+    // The preset being renamed does not count as its own duplicate.
+    expect(
+      validatePresetValue('gold plan', { presets, current: 'Gold plan' }),
+    ).toBeUndefined();
+    expect(
+      validatePresetValue('Silver plan', { presets, current: 'Gold plan' }),
+    ).toBe('This preset already exists');
+    expect(validatePresetValue('Bronze plan', { presets })).toBeUndefined();
+  });
+
+  test('replacePreset keeps the order and removePreset drops one', () => {
+    expect(replacePreset(['a', 'b', 'c'], 'b', ' B2 ')).toEqual([
+      'a',
+      'B2',
+      'c',
+    ]);
+    expect(removePreset(['a', 'b', 'c'], 'b')).toEqual(['a', 'c']);
+    expect(removePreset(['a'], 'missing')).toEqual(['a']);
+  });
+
+  test('renamePresetInRule changes only what carries the preset, or nothing', () => {
+    const rule = {
+      notes: 'Old',
+      metadata: { tier: 'Old', keep: 1 },
+      conditions: [
+        { key: 'text', operator: 'HAS', values: ['Old', 'Other'] },
+        { key: 'color', operator: 'EQ', values: ['Old'] },
+      ],
+    };
+
+    expect(renamePresetInRule(rule, 'notes', 'Old', 'New')).toEqual({
+      notes: 'New',
+    });
+    expect(renamePresetInRule(rule, 'notes', 'Missing', 'New')).toBeNull();
+
+    // Only the condition on that key; the other key's identical text is a different vocabulary.
+    expect(renamePresetInRule(rule, 'text', 'Old', 'New')).toEqual({
+      conditions: [
+        { key: 'text', operator: 'HAS', values: ['New', 'Other'] },
+        { key: 'color', operator: 'EQ', values: ['Old'] },
+      ],
+    });
+    // Renaming onto a value the condition already has collapses the two.
+    expect(renamePresetInRule(rule, 'text', 'Old', 'other')).toEqual({
+      conditions: [
+        { key: 'text', operator: 'HAS', values: ['other'] },
+        { key: 'color', operator: 'EQ', values: ['Old'] },
+      ],
+    });
+    expect(renamePresetInRule(rule, 'planName', 'Old', 'New')).toBeNull();
+
+    expect(renamePresetInRule(rule, 'metadataValues', 'Old', 'New')).toEqual({
+      metadata: { tier: 'New', keep: 1 },
+    });
+    expect(renamePresetInRule(rule, 'metadataKeys', 'tier', 'level')).toEqual({
+      metadata: { level: 'Old', keep: 1 },
+    });
+    // A key the rule already has stays: two entries cannot share it.
+    expect(renamePresetInRule(rule, 'metadataKeys', 'tier', 'keep')).toBeNull();
+    expect(
+      renamePresetInRule(
+        { notes: null, conditions: [] },
+        'metadataValues',
+        'Old',
+        'New',
+      ),
+    ).toBeNull();
+  });
+
+  test('a full field offers no "Add … as a preset" row', () => {
+    const full = Array.from(
+      { length: NETWORK_RULE_PRESETS_MAX_ITEMS },
+      (_value, index) => `Preset ${index}`,
+    );
+    expect(isPresetListFull(full)).toBe(true);
+    expect(isPresetListFull(full.slice(1))).toBe(false);
+
+    const state = { inputValue: 'Brand new', getOptionLabel: String };
+    expect(filterPresetOptions(full, state, true)).toEqual([]);
+    expect(filterPresetOptions(full.slice(1), state, true)).toEqual([
+      { inputValue: 'Brand new', label: 'Add "Brand new" as a preset' },
+    ]);
+    expect(filterPresetOptions(full.slice(1), state, false)).toEqual([]);
+  });
+});
 
 describe('catalog utils', () => {
   test('labels fall back to the raw code', () => {

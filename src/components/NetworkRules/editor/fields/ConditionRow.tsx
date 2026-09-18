@@ -24,6 +24,8 @@ export interface ConditionRowProps {
   /** Presets created while editing, by condition key; shown after the catalog's. */
   addedPresets?: Readonly<Record<string, readonly string[]>>;
   onCreatePreset?: (key: string, value: string) => void;
+  onEditPreset?: (key: string, value: string) => void;
+  onDeletePreset?: (key: string, value: string) => void;
   canRemove?: boolean;
   disabled?: boolean;
   autoFocus?: boolean;
@@ -35,6 +37,8 @@ export function ConditionRow({
   onRemove,
   addedPresets,
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   canRemove = true,
   disabled = false,
   autoFocus,
@@ -59,6 +63,16 @@ export function ConditionRow({
   const multi = isOperatorMulti(catalog, operatorField.field.value);
   const shouldValidate = formState.isSubmitted;
   const presets = keyDef ? getPresets(catalog, keyDef.key, addedPresets) : [];
+
+  // The values input knows only its text; the preset handlers want the condition key too.
+  const forKey = (
+    handler: ((key: string, value: string) => void) | undefined,
+  ): ((value: string) => void) | undefined =>
+    handler && keyDef
+      ? (value) => {
+          handler(keyDef.key, value);
+        }
+      : undefined;
 
   const handleKeyChange = (nextKey: string): void => {
     keyField.field.onChange(nextKey);
@@ -156,13 +170,9 @@ export function ConditionRow({
             valuesField.field.onChange(next);
           }}
           presets={presets}
-          onCreatePreset={
-            onCreatePreset && keyDef
-              ? (value) => {
-                  onCreatePreset(keyDef.key, value);
-                }
-              : undefined
-          }
+          onCreatePreset={forKey(onCreatePreset)}
+          onEditPreset={forKey(onEditPreset)}
+          onDeletePreset={forKey(onDeletePreset)}
           disabled={disabled || operatorField.field.value === ''}
           error={valuesField.fieldState.error !== undefined}
           helperText={valuesField.fieldState.error?.message}

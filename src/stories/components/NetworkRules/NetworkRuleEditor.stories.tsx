@@ -119,6 +119,12 @@ export const CatalogUnavailable: Story = {
   render: (args) => <DialogHarness {...args} />,
 };
 
+/** Without `services.updatePresets` the dropdowns still suggest presets, but offer no edit or delete. */
+export const PresetsReadOnly: Story = {
+  parameters: { services: { withoutPresetManagement: true } },
+  render: (args) => <DialogHarness {...args} rule={exampleRules[0]} />,
+};
+
 export const FormOnly: Story = {
   render: (args) => (
     <Paper variant='outlined' sx={{ p: 3, maxWidth: 960 }}>

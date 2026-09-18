@@ -14,6 +14,8 @@ export interface MetadataFieldProps {
   catalog: NetworkRuleCatalog;
   addedPresets?: Readonly<Record<string, readonly string[]>>;
   onCreatePreset?: (field: string, value: string) => void;
+  onEditPreset?: (field: string, value: string) => void;
+  onDeletePreset?: (field: string, value: string) => void;
   disabled?: boolean;
 }
 
@@ -25,6 +27,8 @@ export function MetadataField({
   catalog,
   addedPresets,
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   disabled = false,
 }: Readonly<MetadataFieldProps>) {
   const { control, formState } = useFormContext<NetworkRuleFormValues>();
@@ -83,6 +87,8 @@ export function MetadataField({
           keyPresets={keyPresets}
           valuePresets={valuePresets}
           onCreatePreset={onCreatePreset}
+          onEditPreset={onEditPreset}
+          onDeletePreset={onDeletePreset}
           disabled={disabled}
           onRemove={() => {
             remove(index);

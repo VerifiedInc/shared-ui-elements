@@ -3,6 +3,7 @@ import { Autocomplete, TextField } from '@mui/material';
 import { useController, useFormContext } from 'react-hook-form';
 
 import type { NetworkRuleFormValues } from '../../types';
+import { renderPresetOption } from './PresetOptionRow';
 import {
   filterPresetOptions,
   presetOptionLabel,
@@ -13,6 +14,9 @@ export interface NotesFieldProps {
   presets?: readonly string[];
   /** When set, a typed note that is not a preset offers "Add … as a preset". */
   onCreatePreset?: (value: string) => void | Promise<void>;
+  /** When set, each preset row offers an edit (or delete) control. */
+  onEditPreset?: (value: string) => void;
+  onDeletePreset?: (value: string) => void;
   disabled?: boolean;
   helperText?: string;
 }
@@ -24,6 +28,8 @@ export interface NotesFieldProps {
 export function NotesField({
   presets = [],
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   disabled,
   helperText = 'Returned with the network status so your app can act on it',
 }: Readonly<NotesFieldProps>) {
@@ -31,6 +37,17 @@ export function NotesField({
   const { field, fieldState } = useController({ control, name: 'notes' });
   const [inputValue, setInputValue] = useState('');
   const note = field.value?.trim() ? field.value : null;
+
+  // Managing a preset moves focus to a dialog; the text typed to find it must not become the note.
+  const manage = (
+    handler: ((value: string) => void) | undefined,
+  ): ((value: string) => void) | undefined =>
+    handler
+      ? (value) => {
+          setInputValue('');
+          handler(value);
+        }
+      : undefined;
 
   return (
     <Autocomplete<PresetOption, true, false, true>
@@ -71,6 +88,10 @@ export function NotesField({
       filterOptions={(options, state) =>
         filterPresetOptions(options, state, onCreatePreset !== undefined)
       }
+      renderOption={renderPresetOption({
+        onEdit: manage(onEditPreset),
+        onDelete: manage(onDeletePreset),
+      })}
       renderInput={(params) => (
         <TextField
           {...params}

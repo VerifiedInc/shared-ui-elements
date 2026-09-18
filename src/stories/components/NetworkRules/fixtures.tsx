@@ -1,10 +1,12 @@
 // Story-only example data; the components know only the shapes in `types.ts`.
-import type {
-  NetworkRule,
-  NetworkRuleCatalog,
-  NetworkRuleOption,
-  NetworkRuleSourceService,
-  NetworkRulesServices,
+import {
+  NETWORK_RULE_METADATA_PRESET_FIELDS,
+  type NetworkRule,
+  type NetworkRuleCatalog,
+  type NetworkRuleOption,
+  type NetworkRulePresets,
+  type NetworkRuleSourceService,
+  type NetworkRulesServices,
 } from '../../../components/NetworkRules';
 
 type ExamplePayer = {
@@ -168,6 +170,7 @@ export const exampleCatalog: NetworkRuleCatalog = {
       label: 'Plan Name',
       type: 'text',
       operators: ['EQUAL', 'NOT_EQUAL', 'INCLUDE', 'NOT_INCLUDE'],
+      presets: ['PPO', 'Blue Choice PPO'],
     },
   ],
   notePresets: ['No self pay', 'Call payer to confirm', 'Verify plan tier'],
@@ -249,23 +252,72 @@ export const exampleRules: NetworkRule[] = [
   },
 ];
 
+const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
+/** `catalog` with the given fields' preset lists swapped, the way core serves a patched brand. */
+function applyPresets(
+  catalog: NetworkRuleCatalog,
+  presets: NetworkRulePresets,
+): NetworkRuleCatalog {
+  const next = clone(catalog);
+  for (const [field, list] of Object.entries(presets)) {
+    if (field === 'notes') {
+      next.notePresets = list;
+    } else if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.key) {
+      if (next.metadata) next.metadata.keyPresets = list;
+    } else if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.value) {
+      if (next.metadata) next.metadata.valuePresets = list;
+    } else {
+      const key = next.keys.find((definition) => definition.key === field);
+      if (key) key.presets = list;
+    }
+  }
+  return next;
+}
+
+/**
+ * The brand's presets as the stories see them. Module-level on purpose: an edit outlives a
+ * re-render of the decorator and shows in every story, as a real brand's would; a reload resets it.
+ */
+let storyCatalog = clone(exampleCatalog);
+
 export interface StoryServicesOptions {
   catalogDelayMs?: number;
   failCatalog?: boolean;
   withoutPayersSource?: boolean;
+  /** Leave `updatePresets` out, so the dropdowns offer no edit or delete controls. */
+  withoutPresetManagement?: boolean;
 }
 
 export function createStoryServices({
   catalogDelayMs = 500,
   failCatalog = false,
   withoutPayersSource = false,
+  withoutPresetManagement = false,
 }: StoryServicesOptions = {}): NetworkRulesServices {
   return {
     getCatalog: async () => {
       await sleep(catalogDelayMs);
       if (failCatalog) throw new Error('Catalog unavailable');
-      return exampleCatalog;
+      // A fresh copy each time, so the query cache sees the change and re-renders.
+      return clone(storyCatalog);
     },
+    updatePresets: withoutPresetManagement
+      ? undefined
+      : async (presets) => {
+          await sleep(400);
+          storyCatalog = applyPresets(storyCatalog, presets);
+        },
+    // Rules live in the story components' state, out of reach here; a host would patch them.
+    renamePreset: withoutPresetManagement
+      ? undefined
+      : async ({ field, from, to, presets, updateRules }) => {
+          await sleep(400);
+          storyCatalog = applyPresets(storyCatalog, { [field]: presets });
+          if (updateRules) {
+            console.log('rename preset in stored rules', { field, from, to });
+          }
+        },
     sources: withoutPayersSource ? {} : { payers: examplePayersSource },
   };
 }

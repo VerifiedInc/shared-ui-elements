@@ -1,5 +1,7 @@
 import { createFilterOptions, type FilterOptionsState } from '@mui/material';
 
+import { isPresetListFull } from '../../utils/presets';
+
 /*
  * Presets are opt-in, by design. Typed text becomes a preset only when the user picks the
  * "Add … as a preset" row (Enter on the highlighted row, or a click); leaving the field any other
@@ -18,7 +20,10 @@ const filter = createFilterOptions<PresetOption>();
 export const presetOptionLabel = (option: PresetOption): string =>
   typeof option === 'string' ? option : option.label;
 
-/** The matching presets, plus "Add … as a preset" for typed text that is not one yet. */
+/**
+ * The matching presets, plus "Add … as a preset" for typed text that is not one yet. A field at
+ * the server's cap offers no add row: the text still goes on the rule, just not into the presets.
+ */
 export function filterPresetOptions(
   options: PresetOption[],
   state: FilterOptionsState<PresetOption>,
@@ -26,12 +31,13 @@ export function filterPresetOptions(
 ): PresetOption[] {
   const filtered = filter(options, state);
   const input = state.inputValue.trim();
-  const exists = options.some(
-    (option) =>
-      typeof option === 'string' &&
-      option.toLowerCase() === input.toLowerCase(),
+  const presets = options.filter(
+    (option): option is string => typeof option === 'string',
   );
-  if (input && canCreate && !exists) {
+  const exists = presets.some(
+    (preset) => preset.toLowerCase() === input.toLowerCase(),
+  );
+  if (input && canCreate && !exists && !isPresetListFull(presets)) {
     filtered.push({ inputValue: input, label: `Add "${input}" as a preset` });
   }
   return filtered;

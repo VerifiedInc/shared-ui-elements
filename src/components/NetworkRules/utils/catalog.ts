@@ -73,7 +73,8 @@ export function toOptions(
   );
 }
 
-function savedPresets(
+/** The brand's stored list for `notes`, a metadata field or a free-text condition key. */
+export function getSavedPresets(
   catalog: NetworkRuleCatalog | undefined,
   field: string,
 ): string[] {
@@ -88,6 +89,23 @@ function savedPresets(
 }
 
 /**
+ * How long a preset of `field` may be, when the catalog says: the metadata limits bound keys and
+ * string values. Notes and condition values have no served limit, so the server has the last word.
+ */
+export function getPresetMaxLength(
+  catalog: NetworkRuleCatalog | undefined,
+  field: string,
+): number | undefined {
+  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.key) {
+    return catalog?.metadata?.limits.maxKeyLength;
+  }
+  if (field === NETWORK_RULE_METADATA_PRESET_FIELDS.value) {
+    return catalog?.metadata?.limits.maxValueLength;
+  }
+  return undefined;
+}
+
+/**
  * Saved suggestions for `notes`, a metadata field or a free-text condition key, followed by any
  * the user added while editing (`added` is keyed the same way). One merge rule for every caller.
  */
@@ -96,7 +114,7 @@ export function getPresets(
   field: string,
   added?: Readonly<Record<string, readonly string[]>>,
 ): string[] {
-  const saved = savedPresets(catalog, field);
+  const saved = getSavedPresets(catalog, field);
   const extra = added?.[field];
   return extra?.length ? [...saved, ...extra] : saved;
 }

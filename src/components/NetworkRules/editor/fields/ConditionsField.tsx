@@ -10,6 +10,8 @@ export interface ConditionsFieldProps {
   catalog: NetworkRuleCatalog;
   addedPresets?: Readonly<Record<string, readonly string[]>>;
   onCreatePreset?: (key: string, value: string) => void;
+  onEditPreset?: (key: string, value: string) => void;
+  onDeletePreset?: (key: string, value: string) => void;
   disabled?: boolean;
   focusIndex?: number;
 }
@@ -18,6 +20,8 @@ export function ConditionsField({
   catalog,
   addedPresets,
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   disabled,
   focusIndex,
 }: Readonly<ConditionsFieldProps>) {
@@ -60,6 +64,8 @@ export function ConditionsField({
           catalog={catalog}
           addedPresets={addedPresets}
           onCreatePreset={onCreatePreset}
+          onEditPreset={onEditPreset}
+          onDeletePreset={onDeletePreset}
           disabled={disabled}
           autoFocus={index === focusIndex}
           onRemove={() => {

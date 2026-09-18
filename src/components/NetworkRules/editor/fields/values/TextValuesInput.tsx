@@ -2,6 +2,7 @@ import { Fragment, useState } from 'react';
 import { Autocomplete, Chip, TextField } from '@mui/material';
 
 import { dedupeValues } from '../../../utils/condition';
+import { renderPresetOption } from '../PresetOptionRow';
 import {
   filterPresetOptions,
   presetOptionLabel,
@@ -17,6 +18,9 @@ export interface TextValuesInputProps {
   presets?: readonly string[];
   /** When set, a typed value that is not a preset offers "Add … as a preset". */
   onCreatePreset?: (value: string) => void;
+  /** When set, each preset row offers an edit (or delete) control. */
+  onEditPreset?: (value: string) => void;
+  onDeletePreset?: (value: string) => void;
   error?: boolean;
   helperText?: string;
   disabled?: boolean;
@@ -34,6 +38,8 @@ export function TextValuesInput({
   label,
   presets = [],
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   error,
   helperText,
   disabled,
@@ -45,6 +51,17 @@ export function TextValuesInput({
     const deduped = dedupeValues(next);
     onChange(multi ? deduped : deduped.slice(-1));
   };
+
+  // Managing a preset moves focus to a dialog; the text typed to find it must not become a value.
+  const manage = (
+    handler: ((value: string) => void) | undefined,
+  ): ((value: string) => void) | undefined =>
+    handler
+      ? (value) => {
+          setInputValue('');
+          handler(value);
+        }
+      : undefined;
 
   return (
     <Autocomplete<PresetOption, true, false, true>
@@ -60,6 +77,10 @@ export function TextValuesInput({
       filterOptions={(options, state) =>
         filterPresetOptions(options, state, onCreatePreset !== undefined)
       }
+      renderOption={renderPresetOption({
+        onEdit: manage(onEditPreset),
+        onDelete: manage(onDeletePreset),
+      })}
       onInputChange={(_event, next) => {
         setInputValue(next);
       }}
