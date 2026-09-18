@@ -51,7 +51,11 @@ export interface NetworkRuleEditorFormProps {
   rule?: Partial<NetworkRule> | null;
   /** Pre-filled, editable name for a new rule, e.g. "Rule #7". */
   defaultName?: string;
-  /** Offer "Add … as a preset" for a typed note or free-text value; the grown lists arrive with `onSubmit`. */
+  /**
+   * Offer "Add … as a preset" for a typed note or free-text value. With `services.updatePresets`
+   * the preset is stored as soon as it is picked; otherwise, or when that write is refused, the
+   * grown lists arrive with `onSubmit`.
+   */
   canCreatePresets?: boolean;
   /**
    * Offer edit and delete controls on saved presets. Unlike a new preset, a change is written
@@ -169,13 +173,14 @@ export function NetworkRuleEditorForm({
     reValidateMode: 'onChange',
   });
 
-  // Presets stay in the form until submit, so cancelling discards them too.
+  // Presets the host could not store yet stay in the form until submit, so cancelling discards them.
   const [addedPresets, setAddedPresets] = useState<NetworkRulePresets>({});
   const presetManager = useNetworkRulePresetManager({
     form,
     catalog,
     addedPresets,
     setAddedPresets,
+    canCreate: canCreatePresets,
     enabled: canManagePresets,
   });
 
@@ -213,14 +218,6 @@ export function NetworkRuleEditorForm({
     () => getPresets(catalog, 'notes', addedPresets),
     [catalog, addedPresets],
   );
-  const addPreset = (field: string, value: string) => {
-    setAddedPresets((current) => {
-      const list = current[field] ?? [];
-      return list.includes(value)
-        ? current
-        : { ...current, [field]: [...list, value] };
-    });
-  };
   // The note has no key of its own; its handlers are the field handlers bound to `notes`.
   const forNotes = (
     handler: ((field: string, value: string) => void) | undefined,
@@ -345,9 +342,7 @@ export function NetworkRuleEditorForm({
 
               <NotesField
                 presets={notePresets}
-                onCreatePreset={forNotes(
-                  canCreatePresets ? addPreset : undefined,
-                )}
+                onCreatePreset={forNotes(presetManager.onCreatePreset)}
                 onEditPreset={forNotes(presetManager.onEditPreset)}
                 onDeletePreset={forNotes(presetManager.onDeletePreset)}
                 disabled={busy}
@@ -377,7 +372,7 @@ export function NetworkRuleEditorForm({
               <ConditionsField
                 catalog={catalog}
                 addedPresets={addedPresets}
-                onCreatePreset={canCreatePresets ? addPreset : undefined}
+                onCreatePreset={presetManager.onCreatePreset}
                 onEditPreset={presetManager.onEditPreset}
                 onDeletePreset={presetManager.onDeletePreset}
                 disabled={busy}
@@ -387,7 +382,7 @@ export function NetworkRuleEditorForm({
               <MetadataField
                 catalog={catalog}
                 addedPresets={addedPresets}
-                onCreatePreset={canCreatePresets ? addPreset : undefined}
+                onCreatePreset={presetManager.onCreatePreset}
                 onEditPreset={presetManager.onEditPreset}
                 onDeletePreset={presetManager.onDeletePreset}
                 disabled={busy}
