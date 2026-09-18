@@ -1,6 +1,7 @@
 import type { Ref } from 'react';
 import { Autocomplete, TextField } from '@mui/material';
 
+import { renderPresetOption } from './PresetOptionRow';
 import {
   filterPresetOptions,
   presetOptionLabel,
@@ -14,6 +15,9 @@ export interface PresetTextInputProps {
   onBlur?: () => void;
   presets?: readonly string[];
   onCreatePreset?: (value: string) => void;
+  /** When set, each preset row offers an edit (or delete) control. */
+  onEditPreset?: (value: string) => void;
+  onDeletePreset?: (value: string) => void;
   maxLength?: number;
   placeholder?: string;
   required?: boolean;
@@ -35,6 +39,8 @@ export function PresetTextInput({
   onBlur,
   presets = [],
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   maxLength,
   placeholder,
   required,
@@ -60,6 +66,10 @@ export function PresetTextInput({
       filterOptions={(options, state) =>
         filterPresetOptions(options, state, onCreatePreset !== undefined)
       }
+      renderOption={renderPresetOption({
+        onEdit: onEditPreset,
+        onDelete: onDeletePreset,
+      })}
       onInputChange={(_event, next, reason) => {
         if (reason !== 'reset') onChange(next);
       }}

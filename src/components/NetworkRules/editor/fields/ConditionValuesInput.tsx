@@ -15,6 +15,8 @@ export interface ConditionValuesInputProps {
   /** Free-text keys only. */
   presets?: readonly string[];
   onCreatePreset?: (value: string) => void;
+  onEditPreset?: (value: string) => void;
+  onDeletePreset?: (value: string) => void;
   error?: boolean;
   helperText?: string;
   disabled?: boolean;
@@ -28,6 +30,8 @@ export function ConditionValuesInput({
   onChange,
   presets,
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   error,
   helperText,
   disabled,
@@ -84,6 +88,8 @@ export function ConditionValuesInput({
       label={label}
       presets={presets}
       onCreatePreset={onCreatePreset}
+      onEditPreset={onEditPreset}
+      onDeletePreset={onDeletePreset}
       error={error}
       helperText={helperText}
       disabled={disabled}

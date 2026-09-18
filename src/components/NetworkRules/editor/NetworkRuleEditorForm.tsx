@@ -20,11 +20,14 @@ import {
 } from 'react-hook-form';
 
 import { useNetworkRuleStatuses } from '../NetworkRules.context';
+import { NetworkRulePresetDeleteDialog } from '../dialog/NetworkRulePresetDeleteDialog';
+import { NetworkRulePresetEditDialog } from '../dialog/NetworkRulePresetEditDialog';
 import { useNetworkRulesCatalog } from '../hooks/useNetworkRulesCatalog';
 import type {
   NetworkRule,
   NetworkRuleData,
   NetworkRuleFormValues,
+  NetworkRulePresets,
   NetworkRuleServerError,
   NetworkRuleSubmitExtras,
 } from '../types';
@@ -41,6 +44,7 @@ import { MetadataField } from './fields/MetadataField';
 import { NotesField } from './fields/NotesField';
 import { StatusField } from './fields/StatusField';
 import { createNetworkRuleFormSchema } from './schema';
+import { useNetworkRulePresetManager } from './useNetworkRulePresetManager';
 
 export interface NetworkRuleEditorFormProps {
   /** Omit for a new rule. */
@@ -49,6 +53,12 @@ export interface NetworkRuleEditorFormProps {
   defaultName?: string;
   /** Offer "Add … as a preset" for a typed note or free-text value; the grown lists arrive with `onSubmit`. */
   canCreatePresets?: boolean;
+  /**
+   * Offer edit and delete controls on saved presets. Unlike a new preset, a change is written
+   * through `services.updatePresets` as soon as it is confirmed, so it needs that service; without
+   * it nothing shows. Defaults to `canCreatePresets`.
+   */
+  canManagePresets?: boolean;
   onSubmit: (
     rule: NetworkRuleData,
     extras: NetworkRuleSubmitExtras,
@@ -124,6 +134,7 @@ export function NetworkRuleEditorForm({
   rule,
   defaultName,
   canCreatePresets = false,
+  canManagePresets = canCreatePresets,
   onSubmit,
   onCancel,
   isSubmitting = false,
@@ -159,9 +170,14 @@ export function NetworkRuleEditorForm({
   });
 
   // Presets stay in the form until submit, so cancelling discards them too.
-  const [addedPresets, setAddedPresets] = useState<Record<string, string[]>>(
-    {},
-  );
+  const [addedPresets, setAddedPresets] = useState<NetworkRulePresets>({});
+  const presetManager = useNetworkRulePresetManager({
+    form,
+    catalog,
+    addedPresets,
+    setAddedPresets,
+    enabled: canManagePresets,
+  });
 
   useEffect(() => {
     if (loadKey === loadedKey) return;
@@ -205,6 +221,15 @@ export function NetworkRuleEditorForm({
         : { ...current, [field]: [...list, value] };
     });
   };
+  // The note has no key of its own; its handlers are the field handlers bound to `notes`.
+  const forNotes = (
+    handler: ((field: string, value: string) => void) | undefined,
+  ): ((value: string) => void) | undefined =>
+    handler
+      ? (value) => {
+          handler('notes', value);
+        }
+      : undefined;
 
   const submit = form.handleSubmit(async (values) => {
     // The dialog's Save button is outside the form and cannot see the catalog state.
@@ -320,13 +345,11 @@ export function NetworkRuleEditorForm({
 
               <NotesField
                 presets={notePresets}
-                onCreatePreset={
-                  canCreatePresets
-                    ? (value) => {
-                        addPreset('notes', value);
-                      }
-                    : undefined
-                }
+                onCreatePreset={forNotes(
+                  canCreatePresets ? addPreset : undefined,
+                )}
+                onEditPreset={forNotes(presetManager.onEditPreset)}
+                onDeletePreset={forNotes(presetManager.onDeletePreset)}
                 disabled={busy}
               />
 
@@ -355,6 +378,8 @@ export function NetworkRuleEditorForm({
                 catalog={catalog}
                 addedPresets={addedPresets}
                 onCreatePreset={canCreatePresets ? addPreset : undefined}
+                onEditPreset={presetManager.onEditPreset}
+                onDeletePreset={presetManager.onDeletePreset}
                 disabled={busy}
                 focusIndex={focusConditionIndex}
               />
@@ -363,6 +388,8 @@ export function NetworkRuleEditorForm({
                 catalog={catalog}
                 addedPresets={addedPresets}
                 onCreatePreset={canCreatePresets ? addPreset : undefined}
+                onEditPreset={presetManager.onEditPreset}
+                onDeletePreset={presetManager.onDeletePreset}
                 disabled={busy}
               />
             </>
@@ -391,6 +418,9 @@ export function NetworkRuleEditorForm({
           )}
         </Stack>
       </form>
+
+      <NetworkRulePresetEditDialog {...presetManager.editDialogProps} />
+      <NetworkRulePresetDeleteDialog {...presetManager.deleteDialogProps} />
     </FormProvider>
   );
 }

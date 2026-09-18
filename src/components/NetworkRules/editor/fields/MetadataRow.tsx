@@ -24,6 +24,8 @@ export interface MetadataRowProps {
   valuePresets?: readonly string[];
   /** Called with the preset field the value belongs to, as `ConditionRow` does with its key. */
   onCreatePreset?: (field: string, value: string) => void;
+  onEditPreset?: (field: string, value: string) => void;
+  onDeletePreset?: (field: string, value: string) => void;
   disabled?: boolean;
 }
 
@@ -36,6 +38,8 @@ export function MetadataRow({
   keyPresets = [],
   valuePresets = [],
   onCreatePreset,
+  onEditPreset,
+  onDeletePreset,
   disabled = false,
 }: Readonly<MetadataRowProps>) {
   const { control, setValue, formState } =
@@ -62,12 +66,13 @@ export function MetadataRow({
     error: valueError !== undefined,
     helperText: valueError,
   };
-  const createPresetFor = (
+  const forField = (
+    handler: ((field: string, value: string) => void) | undefined,
     field: string,
   ): ((value: string) => void) | undefined =>
-    onCreatePreset
+    handler
       ? (value) => {
-          onCreatePreset(field, value);
+          handler(field, value);
         }
       : undefined;
 
@@ -101,7 +106,16 @@ export function MetadataRow({
           onBlur={keyField.field.onBlur}
           inputRef={keyField.field.ref}
           presets={keyPresets}
-          onCreatePreset={createPresetFor(
+          onCreatePreset={forField(
+            onCreatePreset,
+            NETWORK_RULE_METADATA_PRESET_FIELDS.key,
+          )}
+          onEditPreset={forField(
+            onEditPreset,
+            NETWORK_RULE_METADATA_PRESET_FIELDS.key,
+          )}
+          onDeletePreset={forField(
+            onDeletePreset,
             NETWORK_RULE_METADATA_PRESET_FIELDS.key,
           )}
           maxLength={limits.maxKeyLength}
@@ -174,7 +188,16 @@ export function MetadataRow({
             value={value}
             onChange={valueField.field.onChange}
             presets={valuePresets}
-            onCreatePreset={createPresetFor(
+            onCreatePreset={forField(
+              onCreatePreset,
+              NETWORK_RULE_METADATA_PRESET_FIELDS.value,
+            )}
+            onEditPreset={forField(
+              onEditPreset,
+              NETWORK_RULE_METADATA_PRESET_FIELDS.value,
+            )}
+            onDeletePreset={forField(
+              onDeletePreset,
               NETWORK_RULE_METADATA_PRESET_FIELDS.value,
             )}
             maxLength={limits.maxValueLength}

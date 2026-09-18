@@ -129,14 +129,30 @@ export type NetworkRuleFormValues = {
   conditions: NetworkRuleConditionFormValues[];
 };
 
+/**
+ * Complete preset lists keyed by the field they suggest for: `notes` for the rule's note,
+ * `metadataKeys` and `metadataValues` for the metadata rows, otherwise the free-text condition
+ * key. Fields left out are untouched: the brand patch merges per field.
+ */
+export type NetworkRulePresets = Record<string, string[]>;
+
+/**
+ * One saved preset renamed. `presets` is the field's complete list with the change applied, ready
+ * to store as `updatePresets` would. `updateRules` is the user's choice to also change the rules
+ * that carry `from`; `renamePresetInRule` says what that means for one rule.
+ */
+export type NetworkRulePresetRename = {
+  field: string;
+  from: string;
+  to: string;
+  presets: string[];
+  updateRules: boolean;
+};
+
 /** Handed back with the submitted rule. */
 export type NetworkRuleSubmitExtras = {
-  /**
-   * Preset lists that grew while editing, complete and ready to store, keyed by the field they
-   * suggest for: `notes` for the rule's note, `metadataKeys` and `metadataValues` for the metadata
-   * rows, otherwise the free-text condition key. Empty when nothing was added.
-   */
-  presets: Record<string, string[]>;
+  /** Preset lists that grew while editing, ready to store. Empty when nothing was added. */
+  presets: NetworkRulePresets;
 };
 
 /** A server validation error; `index` points at the offending condition. */
@@ -172,6 +188,17 @@ export type NetworkRulesServices = {
   /** Namespaces the query keys when several providers share one query client, e.g. `${env}:${brandUuid}`. */
   scope?: string;
   getCatalog: (signal?: AbortSignal) => Promise<NetworkRuleCatalog>;
+  /**
+   * Stores the given fields' complete lists, leaving the others alone. With it the editor offers
+   * edit and delete controls on saved presets and refetches the catalog after each write.
+   */
+  updatePresets?: (presets: NetworkRulePresets) => Promise<void>;
+  /**
+   * Renames one saved preset: stores `presets` as `updatePresets` would and, when `updateRules` is
+   * set, changes the rules that carry the old text. With it the edit dialog offers that choice;
+   * without it a rename goes through `updatePresets` and rules are left alone.
+   */
+  renamePreset?: (rename: NetworkRulePresetRename) => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- each source carries its own record type
   sources?: Record<string, NetworkRuleSourceService<any>>;
   /** Shared with the host app; otherwise the provider creates its own. */
