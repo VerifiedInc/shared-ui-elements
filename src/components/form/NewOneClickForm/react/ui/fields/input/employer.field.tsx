@@ -71,7 +71,7 @@ export function EmployerInputField({ fieldKey }: { fieldKey: string }) {
         label={<RequiredLabel required={field.isRequired}>Name</RequiredLabel>}
         value={details.name ?? ''}
         onChange={(e) => {
-          updateDetails({ name: e.target.value });
+          updateDetails({ name: e.target.value, logoUrl: undefined });
           touchPart('name');
         }}
         onBlur={() => touchPart('name')}

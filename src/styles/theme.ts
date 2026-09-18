@@ -474,6 +474,11 @@ export const theme = ({
         defaultProps: {
           size: 'medium',
         },
+        styleOverrides: {
+          loading: ({ theme }) => ({
+            color: theme.palette.text.primary,
+          }),
+        },
       },
       MuiFormHelperText: {
         styleOverrides: {

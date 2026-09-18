@@ -153,7 +153,7 @@ export function HealthInsuranceField({ fieldKey }: { fieldKey: string }) {
                 <Typography variant='body1' fontWeight={500}>
                   {payerName}
                 </Typography>
-                <Typography variant='caption' color='text.secondary'>
+                <Typography variant='body2' color='text.primary'>
                   {memberId}
                 </Typography>
               </Stack>
