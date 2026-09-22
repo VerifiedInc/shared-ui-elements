@@ -86,6 +86,7 @@ export interface DataTableContextValue<TData extends DataTableData> {
   exportRowDetails?: DataTableExportRowDetails<TData>;
   exportRecord?: (row: TData) => unknown;
   enableJsonExport?: boolean;
+  cspNonce?: string;
   disablePagination: boolean;
   pageSizeOptions: number[];
   footerLeft?: ReactNode;

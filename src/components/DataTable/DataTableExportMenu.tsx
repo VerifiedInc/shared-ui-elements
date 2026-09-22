@@ -41,6 +41,8 @@ interface DataTableExportMenuProps<TData extends DataTableData> {
   exportRecord?: (row: TData) => unknown;
   /** Adds the "Download as JSON" item. */
   enableJsonExport?: boolean;
+  /** The page's CSP nonce, for the print document's stylesheet. */
+  cspNonce?: string;
 }
 
 /**
@@ -57,6 +59,7 @@ export function DataTableExportMenu<TData extends DataTableData>({
   exportRowDetails,
   exportRecord,
   enableJsonExport = false,
+  cspNonce,
 }: Readonly<DataTableExportMenuProps<TData>>) {
   const {
     export: ExportIcon = FileDownloadOutlined,
@@ -99,7 +102,13 @@ export function DataTableExportMenu<TData extends DataTableData>({
         open={Boolean(anchorEl)}
         onClose={() => setAnchorEl(null)}
       >
-        <MenuItem onClick={() => handleExport(printDataTable)}>
+        <MenuItem
+          onClick={() =>
+            handleExport((model, name) =>
+              printDataTable(model, name, { nonce: cspNonce }),
+            )
+          }
+        >
           <ListItemIcon>
             <PrintIcon fontSize='small' />
           </ListItemIcon>
