@@ -282,6 +282,18 @@ describe('<NetworkRulesTable/>', () => {
     expect(onSortingChange).not.toHaveBeenCalled();
   });
 
+  test('offers Print, CSV, Excel and JSON from the toolbar', async () => {
+    const { findByText, getByRole, findByRole } = renderTable();
+    await findByText('In Network');
+
+    fireEvent.click(getByRole('button', { name: 'Export' }));
+
+    expect(await findByRole('menuitem', { name: 'Print' })).toBeDefined();
+    expect(getByRole('menuitem', { name: 'Download as CSV' })).toBeDefined();
+    expect(getByRole('menuitem', { name: 'Download as Excel' })).toBeDefined();
+    expect(getByRole('menuitem', { name: 'Download as JSON' })).toBeDefined();
+  });
+
   test('holds the rows until the catalog is ready, and offers a retry when it fails', async () => {
     let fail = true;
     const getCatalog = vi.fn(async () => {

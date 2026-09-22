@@ -30,6 +30,9 @@ export function DataTableToolbar() {
     enableExport,
     exportFilename,
     additionalExportColumns,
+    exportRowDetails,
+    exportRecord,
+    enableJsonExport,
     filterFields,
     filterState,
     toolbarFilterButtonRef,
@@ -108,6 +111,9 @@ export function DataTableToolbar() {
           filename={exportFilename}
           icons={icons}
           additionalExportColumns={additionalExportColumns}
+          exportRowDetails={exportRowDetails}
+          exportRecord={exportRecord}
+          enableJsonExport={enableJsonExport}
         />
       )}
       <Divider

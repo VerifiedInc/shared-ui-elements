@@ -8,12 +8,14 @@ import type {
   PaginationState,
   Row,
   SortingState,
-  Table,
   VisibilityState,
 } from '@tanstack/react-table';
 import type { VirtualItem } from '@tanstack/react-virtual';
 
-import type { DataTableExportColumn } from './DataTable.export';
+import type {
+  DataTableExportColumn,
+  DataTableExportRowDetails,
+} from './DataTable.export';
 
 /**
  * Generic record shape — the table works with arrays of objects whose
@@ -237,6 +239,8 @@ export interface DataTableIcons {
   downloadCsv?: DataTableIconComponent;
   /** Export menu "Download as Excel" item. Defaults to GridOnOutlined. */
   downloadExcel?: DataTableIconComponent;
+  /** Export menu "Download as JSON" item. Defaults to DataObject. */
+  downloadJson?: DataTableIconComponent;
   /** Column menu "Hide column" item. Defaults to VisibilityOff. */
   hideColumn?: DataTableIconComponent;
   /**
@@ -514,6 +518,12 @@ export interface DataTableProps<TData extends DataTableData> {
    */
   enableExport?: boolean;
   /**
+   * Adds "Download as JSON" to the export menu (requires `enableExport`), writing the rows as
+   * records rather than cells. Off by default: the sheet formats suit most tables, and a row
+   * object can carry fields a table never meant to hand out.
+   */
+  enableJsonExport?: boolean;
+  /**
    * Base filename (no extension) for the exported files; also the printed
    * document title. Defaults to 'data'.
    */
@@ -524,6 +534,17 @@ export interface DataTableProps<TData extends DataTableData> {
    * exported. Each supplies a `header` and a `(row) => value` extractor, not rendered in the table.
    */
   additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
+  /**
+   * Detail blocks exported under each row, for what an expandable detail row shows outside the
+   * grid (sub-tables, metadata). Print nests each block under its row; CSV and Excel indent it by
+   * one column. Called once per exported row, so it must not depend on the row being expanded.
+   */
+  exportRowDetails?: DataTableExportRowDetails<TData>;
+  /**
+   * Shapes a row for `enableJsonExport`, which writes the rows as records rather than cells — so
+   * nested data keeps its shape. Defaults to the row object as the table received it.
+   */
+  exportRecord?: (row: TData) => unknown;
   /**
    * Server-side filtering: rows in `data` are assumed to already match the
    * active filters and search query — the filter panel and the toolbar
