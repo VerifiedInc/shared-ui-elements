@@ -479,13 +479,53 @@ export function exportDataTableToExcel(
   );
 }
 
-function printHtml(model: DataTableExportModel, title: string): string {
+/**
+ * The page's CSP nonce, when it has one. The print document is a `srcdoc` iframe, so it inherits
+ * the page's policy — under a `style-src 'nonce-...'` its stylesheet is dropped unless it carries
+ * the same nonce.
+ *
+ * Hosts publish it differently, so try each in turn: a global, a `csp-nonce` meta tag (the nonce
+ * is its `content`, the element itself carries none), then any element the page already nonced.
+ * That last one goes through the IDL property, since a browser blanks the attribute it parsed.
+ */
+function findStyleNonce(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+
+  const global = window as { __nonce__?: string; __webpack_nonce__?: string };
+  if (global.__nonce__) return global.__nonce__;
+  if (global.__webpack_nonce__) return global.__webpack_nonce__;
+
+  const meta = document.querySelector<HTMLMetaElement>(
+    'meta[name="csp-nonce"], meta[property="csp-nonce"]',
+  );
+  if (meta?.content) return meta.content;
+
+  const noncedElements = document.querySelectorAll<HTMLElement>(
+    'style[nonce], link[nonce], script[nonce]',
+  );
+
+  for (const element of noncedElements) {
+    const value = element.nonce ?? element.getAttribute('nonce');
+    if (value) return value;
+  }
+
+  return undefined;
+}
+
+function printHtml(
+  model: DataTableExportModel,
+  title: string,
+  nonce?: string,
+): string {
+  // `align` alongside the class: a policy that refuses the stylesheet still leaves a readable
+  // document, and the CSS wins wherever it does apply.
   const renderRow = (cells: DataTableExportValue[], tag: 'th' | 'td') =>
     `<tr>${cells
       .map((value) => {
-        const numClass = typeof value === 'number' ? ' class="num"' : '';
+        const numeric = typeof value === 'number';
+        const attributes = numeric ? ' class="num" align="right"' : '';
 
-        return `<${tag}${numClass}>${escapeMarkup(String(value))}</${tag}>`;
+        return `<${tag}${attributes}>${escapeMarkup(String(value))}</${tag}>`;
       })
       .join('')}</tr>`;
 
@@ -506,9 +546,9 @@ function printHtml(model: DataTableExportModel, title: string): string {
         ? `<thead>${renderRow(section.header, 'th')}</thead>`
         : '';
 
-    return `<tr class="detail"><td colspan="${columnCount}"><div class="section"><h2>${escapeMarkup(
+    return `<tr class="detail"><td colspan="${columnCount}"><div class="section"><p class="section-title"><b>${escapeMarkup(
       section.title,
-    )}</h2><table class="nested">${head}<tbody>${body
+    )}</b></p><table class="nested" cellpadding="4" cellspacing="0">${head}<tbody>${body
       .map((row) => renderRow(row, 'td'))
       .join('')}</tbody></table></div></td></tr>`;
   };
@@ -524,7 +564,9 @@ function printHtml(model: DataTableExportModel, title: string): string {
     )
     .join('');
 
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeMarkup(title)}</title><style>
+  const nonceAttribute = nonce ? ` nonce="${escapeMarkup(nonce)}"` : '';
+
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeMarkup(title)}</title><style${nonceAttribute}>
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 16px; }
 table { border-collapse: collapse; width: 100%; font-size: 12px; }
 th, td { padding: 6px 8px; border-bottom: 1px solid #ddd; text-align: left; }
@@ -534,23 +576,29 @@ th { text-transform: uppercase; font-size: 10px; }
 tbody > tr:not(.detail) > td { font-weight: 600; }
 tr.detail > td { padding: 0 8px 10px 24px; border-bottom: 1px solid #ddd; }
 tr.detail .section { margin-top: 8px; }
-tr.detail h2 { margin: 0 0 4px; font-size: 10px; text-transform: uppercase; color: #555; }
+tr.detail .section-title { margin: 0 0 4px; font-size: 10px; text-transform: uppercase; color: #555; }
 table.nested { width: auto; min-width: 60%; font-size: 11px; }
 table.nested th, table.nested td { padding: 3px 8px; border-bottom: 1px solid #eee; }
 /* A rule and its details stay on one page where they fit. */
 tbody > tr:not(.detail) { page-break-inside: avoid; }
 tr.detail { page-break-inside: avoid; }
-</style></head><body><table><thead>${headRows}</thead><tbody>${bodyRows}</tbody></table></body></html>`;
+</style></head><body><table cellpadding="6" cellspacing="0"><thead>${headRows}</thead><tbody>${bodyRows}</tbody></table></body></html>`;
 }
 
 /**
- * Opens the browser print dialog with a print-friendly rendering of the
- * export snapshot (via a hidden iframe, so the page itself never
- * navigates). The title becomes the printed document name.
+ * Opens the browser print dialog with a print-friendly rendering of the export snapshot (via a
+ * hidden iframe, so the page itself never navigates). The title becomes the printed document
+ * name.
+ *
+ * The iframe inherits the page's Content Security Policy. Under a nonce-based `style-src` the
+ * document's stylesheet needs that nonce, which is taken from the page unless `options.nonce`
+ * supplies it; the markup carries presentational attributes either way, so a refused stylesheet
+ * still prints a legible table.
  */
 export function printDataTable(
   model: DataTableExportModel,
   title: string,
+  options: { nonce?: string } = {},
 ): void {
   const iframe = document.createElement('iframe');
 
@@ -574,6 +622,6 @@ export function printDataTable(
     win.print();
   };
 
-  iframe.srcdoc = printHtml(model, title);
+  iframe.srcdoc = printHtml(model, title, options.nonce ?? findStyleNonce());
   document.body.appendChild(iframe);
 }
