@@ -14,7 +14,33 @@ export type DataTableExportValue = string | number | boolean;
 export interface DataTableExportColumn<TData extends DataTableData> {
   header: string;
   value: (row: TData) => DataTableExportValue;
+  /** `start` puts the column before the table's own, e.g. an id. Defaults to `end`. */
+  position?: 'start' | 'end';
 }
+
+/**
+ * A labelled block of rows exported beneath its parent row — what an expandable detail row shows
+ * on screen, carried into the export. Print nests it under its row; the sheet formats indent it
+ * by one column, since a spreadsheet has no nesting.
+ */
+export interface DataTableExportSection {
+  title: string;
+  /** Column headers for the block. Omit for a block of plain rows. */
+  header?: string[];
+  rows: DataTableExportValue[][];
+  /** Stands in for an empty block, e.g. "No conditions". Without it an empty block is skipped. */
+  emptyMessage?: string;
+  /**
+   * How the block reads once a sheet collapses it into its single column, one entry per line.
+   * Defaults to each entry's cells joined with a space.
+   */
+  lines?: string[];
+}
+
+/** Detail blocks for one row, e.g. the sub-tables its expanded panel shows. */
+export type DataTableExportRowDetails<TData extends DataTableData> = (
+  row: TData,
+) => DataTableExportSection[];
 
 /**
  * Snapshot of the displayed table used by every export format: the
@@ -30,6 +56,20 @@ export interface DataTableExportModel {
   groupHeader?: string[];
   header: string[];
   rows: DataTableExportValue[][];
+  /** Detail blocks per row, in `rows` order, when the table exports its detail rows. */
+  rowDetails?: DataTableExportSection[][];
+  /**
+   * The rows as records rather than cells, in `rows` order — what the JSON export writes. Each is
+   * the row's own object, or whatever `toRecord` made of it.
+   */
+  records?: unknown[];
+}
+
+/** Options for the export snapshot beyond the visible grid. */
+export interface DataTableExportModelOptions<TData extends DataTableData> {
+  rowDetails?: DataTableExportRowDetails<TData>;
+  /** Shapes a row for the JSON export. Defaults to the row object itself. */
+  toRecord?: (row: TData) => unknown;
 }
 
 function toExportValue(value: unknown): DataTableExportValue {
@@ -62,10 +102,18 @@ function toExportValue(value: unknown): DataTableExportValue {
 export function getDataTableExportModel<TData extends DataTableData>(
   table: Table<TData>,
   additionalColumns: ReadonlyArray<DataTableExportColumn<TData>> = [],
+  { rowDetails, toRecord }: DataTableExportModelOptions<TData> = {},
 ): DataTableExportModel {
   const columns = table
     .getVisibleLeafColumns()
     .filter((column) => column.accessorFn !== undefined);
+
+  const startColumns = additionalColumns.filter(
+    (column) => column.position === 'start',
+  );
+  const endColumns = additionalColumns.filter(
+    (column) => column.position !== 'start',
+  );
 
   const groupLabels = columns.map((column) => {
     const header = column.parent?.columnDef.header;
@@ -76,28 +124,39 @@ export function getDataTableExportModel<TData extends DataTableData>(
   // Blank out the repeats so each group label appears once at the start
   // of its span, like the rendered grouped header row.
   const groupHeader = groupLabels.some((label) => label !== '')
-    ? groupLabels
-        .map((label, index) =>
-          index > 0 && groupLabels[index - 1] === label ? '' : label,
+    ? // Additional (export-only) columns sit outside any group.
+      startColumns
+        .map(() => '')
+        .concat(
+          groupLabels.map((label, index) =>
+            index > 0 && groupLabels[index - 1] === label ? '' : label,
+          ),
+          endColumns.map(() => ''),
         )
-        // Additional (export-only) columns sit outside any group.
-        .concat(additionalColumns.map(() => ''))
     : undefined;
+
+  const rows = table.getPrePaginationRowModel().rows;
 
   return {
     groupHeader,
+    rowDetails: rowDetails
+      ? rows.map((row) => rowDetails(row.original))
+      : undefined,
+    records: rows.map((row) =>
+      toRecord ? toRecord(row.original) : row.original,
+    ),
     header: [
+      ...startColumns.map((column) => column.header),
       ...columns.map((column) => getColumnLabel(column)),
-      ...additionalColumns.map((column) => column.header),
+      ...endColumns.map((column) => column.header),
     ],
-    rows: table
-      .getPrePaginationRowModel()
-      .rows.map((row) => [
-        ...columns.map((column) => toExportValue(row.getValue(column.id))),
-        ...additionalColumns.map((column) =>
-          toExportValue(column.value(row.original)),
-        ),
-      ]),
+    rows: rows.map((row) => [
+      ...startColumns.map((column) =>
+        toExportValue(column.value(row.original)),
+      ),
+      ...columns.map((column) => toExportValue(row.getValue(column.id))),
+      ...endColumns.map((column) => toExportValue(column.value(row.original))),
+    ]),
   };
 }
 
@@ -130,16 +189,76 @@ function escapeCsvValue(value: DataTableExportValue): string {
   return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
+/** A section's rows, or its empty message when it has none; `[]` when it has neither. */
+function sectionBody(
+  section: DataTableExportSection,
+): DataTableExportValue[][] {
+  if (section.rows.length > 0) return section.rows;
+  return section.emptyMessage ? [[section.emptyMessage]] : [];
+}
+
+/** One entry per line, as the block gave them or as its cells read joined. */
+function sectionLines(section: DataTableExportSection): string[] {
+  return (
+    section.lines ??
+    section.rows.map((entry) => entry.map(String).filter(Boolean).join(' '))
+  );
+}
+
+/** The block titles any row filled in, in the order the rows declare them. */
+function sheetSectionTitles(model: DataTableExportModel): string[] {
+  const titles: string[] = [];
+  const filled = new Set<string>();
+
+  for (const sections of model.rowDetails ?? []) {
+    for (const section of sections) {
+      if (!titles.includes(section.title)) titles.push(section.title);
+      if (section.rows.length > 0) filled.add(section.title);
+    }
+  }
+
+  // A block no row filled in has nothing to show.
+  return titles.filter((title) => filled.has(title));
+}
+
+/**
+ * The model as one grid: a record per row, each detail block collapsed into a single column of
+ * its own — every condition, every metadata pair, one per line inside the cell.
+ */
+function toSheetRows(model: DataTableExportModel): DataTableExportValue[][] {
+  const titles = sheetSectionTitles(model);
+
+  const rows = model.rows.map((row, index) => {
+    const sections = model.rowDetails?.[index] ?? [];
+
+    return [
+      ...row,
+      ...titles.map((title) => {
+        const section = sections.find((candidate) => candidate.title === title);
+        return section ? sectionLines(section).join('\n') : '';
+      }),
+    ];
+  });
+
+  const groupHeader = model.groupHeader
+    ? [...model.groupHeader, ...titles.map(() => '')]
+    : undefined;
+
+  return [
+    ...(groupHeader ? [groupHeader] : []),
+    [...model.header, ...titles],
+    ...rows,
+  ];
+}
+
 /** Downloads the export snapshot as `<filename>.csv`. */
 export function exportDataTableToCsv(
   model: DataTableExportModel,
   filename: string,
 ): void {
-  const lines = [
-    ...(model.groupHeader ? [model.groupHeader] : []),
-    model.header,
-    ...model.rows,
-  ].map((cells) => cells.map(escapeCsvValue).join(','));
+  const lines = toSheetRows(model).map((cells) =>
+    cells.map(escapeCsvValue).join(','),
+  );
 
   // Leading BOM so Excel detects the file as UTF-8.
   const blob = new Blob(['\ufeff', lines.join('\n')], {
@@ -147,6 +266,21 @@ export function exportDataTableToCsv(
   });
 
   downloadBlob(blob, `${filename}.csv`);
+}
+
+/**
+ * Downloads the rows as `<filename>.json` — the records themselves, not the flattened grid, so
+ * nested data (conditions, metadata) keeps its shape.
+ */
+export function exportDataTableToJson(
+  model: DataTableExportModel,
+  filename: string,
+): void {
+  const blob = new Blob([JSON.stringify(model.records ?? [], null, 2)], {
+    type: 'application/json;charset=utf-8;',
+  });
+
+  downloadBlob(blob, `${filename}.json`);
 }
 
 function escapeMarkup(value: string): string {
@@ -178,13 +312,7 @@ function columnRef(index: number): string {
 }
 
 function worksheetXml(model: DataTableExportModel): string {
-  const allRows = [
-    ...(model.groupHeader ? [model.groupHeader] : []),
-    model.header,
-    ...model.rows,
-  ];
-
-  const rowsXml = allRows
+  const rowsXml = toSheetRows(model)
     .map((cells, rowIndex) => {
       const cellsXml = cells
         .map((value, columnIndex) => {
@@ -366,7 +494,35 @@ function printHtml(model: DataTableExportModel, title: string): string {
     renderRow(model.header, 'th'),
   ].join('');
 
-  const bodyRows = model.rows.map((row) => renderRow(row, 'td')).join('');
+  const renderSection = (
+    section: DataTableExportSection,
+    columnCount: number,
+  ): string => {
+    const body = sectionBody(section);
+    if (body.length === 0) return '';
+
+    const head =
+      section.header && section.rows.length > 0
+        ? `<thead>${renderRow(section.header, 'th')}</thead>`
+        : '';
+
+    return `<tr class="detail"><td colspan="${columnCount}"><div class="section"><h2>${escapeMarkup(
+      section.title,
+    )}</h2><table class="nested">${head}<tbody>${body
+      .map((row) => renderRow(row, 'td'))
+      .join('')}</tbody></table></div></td></tr>`;
+  };
+
+  const columnCount = model.header.length;
+  const bodyRows = model.rows
+    .map(
+      (row, index) =>
+        renderRow(row, 'td') +
+        (model.rowDetails?.[index] ?? [])
+          .map((section) => renderSection(section, columnCount))
+          .join(''),
+    )
+    .join('');
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeMarkup(title)}</title><style>
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 16px; }
@@ -374,6 +530,16 @@ table { border-collapse: collapse; width: 100%; font-size: 12px; }
 th, td { padding: 6px 8px; border-bottom: 1px solid #ddd; text-align: left; }
 th { text-transform: uppercase; font-size: 10px; }
 .num { text-align: right; }
+/* Detail rows read as a panel under their row, like the expanded row on screen. */
+tbody > tr:not(.detail) > td { font-weight: 600; }
+tr.detail > td { padding: 0 8px 10px 24px; border-bottom: 1px solid #ddd; }
+tr.detail .section { margin-top: 8px; }
+tr.detail h2 { margin: 0 0 4px; font-size: 10px; text-transform: uppercase; color: #555; }
+table.nested { width: auto; min-width: 60%; font-size: 11px; }
+table.nested th, table.nested td { padding: 3px 8px; border-bottom: 1px solid #eee; }
+/* A rule and its details stay on one page where they fit. */
+tbody > tr:not(.detail) { page-break-inside: avoid; }
+tr.detail { page-break-inside: avoid; }
 </style></head><body><table><thead>${headRows}</thead><tbody>${bodyRows}</tbody></table></body></html>`;
 }
 

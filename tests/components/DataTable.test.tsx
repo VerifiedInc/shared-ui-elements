@@ -327,6 +327,84 @@ describe('<DataTable/>', () => {
       expect(getByLabelText('Show filters')).toBeDefined();
     });
 
+    test('offers JSON in the export menu only where the table asks for it', () => {
+      const { getByLabelText, getByRole, queryByRole, rerender } = render(
+        <DataTable data={members} showToolbar enableExport />,
+      );
+
+      fireEvent.click(getByLabelText('Export'));
+
+      expect(getByRole('menuitem', { name: 'Print' })).toBeDefined();
+      expect(getByRole('menuitem', { name: 'Download as CSV' })).toBeDefined();
+      expect(
+        getByRole('menuitem', { name: 'Download as Excel' }),
+      ).toBeDefined();
+      // A row object can carry more than the table meant to hand out, so JSON is opt-in.
+      expect(queryByRole('menuitem', { name: 'Download as JSON' })).toBeNull();
+
+      fireEvent.keyDown(getByRole('menu'), { key: 'Escape' });
+      rerender(
+        <DataTable data={members} showToolbar enableExport enableJsonExport />,
+      );
+      fireEvent.click(getByLabelText('Export'));
+
+      expect(getByRole('menuitem', { name: 'Download as JSON' })).toBeDefined();
+    });
+
+    test('exports the leading column, the grid and the indexed blocks', async () => {
+      let downloaded: Blob | undefined;
+      const originalCreateObjectURL = URL.createObjectURL;
+      URL.createObjectURL = (blob: Blob) => {
+        downloaded = blob;
+        return 'blob:test';
+      };
+      URL.revokeObjectURL = () => undefined;
+      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
+        () => undefined,
+      );
+
+      const { getByLabelText, getByRole } = render(
+        <DataTable
+          data={members}
+          columns={[{ id: 'role', accessorKey: 'role', header: 'Role' }]}
+          showToolbar
+          enableExport
+          additionalExportColumns={[
+            { header: 'Email', value: (row) => row.email, position: 'start' },
+          ]}
+          exportRowDetails={(row) => [
+            {
+              title: 'Access',
+              header: ['Setting', 'Value'],
+              rows: row.mfaEnabled === null ? [] : [['MFA', row.mfaEnabled]],
+            },
+          ]}
+        />,
+      );
+
+      fireEvent.click(getByLabelText('Export'));
+      fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
+
+      URL.createObjectURL = originalCreateObjectURL;
+      const blob = downloaded;
+      if (!blob) throw new Error('nothing was downloaded');
+      // jsdom's Blob has no text(); read it the way the browser would.
+      const text = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(String(reader.result));
+        };
+        reader.readAsText(blob);
+      });
+      const [header, firstRow] = text.replace('\ufeff', '').split('\n');
+
+      // The leading export column comes first, then the grid, then a column per block.
+      expect(header).toBe('Email,Role,Access');
+      expect(
+        firstRow.startsWith(`${members[0].email},${members[0].role},`),
+      ).toBe(true);
+    });
+
     test('toggles columns through the panel opened from the toolbar', () => {
       const { getByLabelText, getByRole, container } = render(
         <DataTable data={members} showToolbar />,

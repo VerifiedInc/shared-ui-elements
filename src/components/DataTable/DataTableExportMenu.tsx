@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import {
+  DataObject,
   DescriptionOutlined,
   FileDownloadOutlined,
   GridOnOutlined,
@@ -20,10 +21,12 @@ import type { DataTableData, DataTableIcons } from './DataTable.types';
 import {
   exportDataTableToCsv,
   exportDataTableToExcel,
+  exportDataTableToJson,
   getDataTableExportModel,
   printDataTable,
   type DataTableExportColumn,
   type DataTableExportModel,
+  type DataTableExportRowDetails,
 } from './DataTable.export';
 
 interface DataTableExportMenuProps<TData extends DataTableData> {
@@ -33,25 +36,34 @@ interface DataTableExportMenuProps<TData extends DataTableData> {
   icons: DataTableIcons;
   /** Export-only columns appended after the visible columns. */
   additionalExportColumns?: ReadonlyArray<DataTableExportColumn<TData>>;
+  exportRowDetails?: DataTableExportRowDetails<TData>;
+  /** Shapes a row for the JSON export. */
+  exportRecord?: (row: TData) => unknown;
+  /** Adds the "Download as JSON" item. */
+  enableJsonExport?: boolean;
 }
 
 /**
- * Toolbar Export button opening a menu with Print / Download as CSV /
- * Download as Excel actions, like the MUI DataGrid toolbar. Every action
- * exports the displayed table: the filtered + sorted rows across every
- * page and the visible accessor columns in display order.
+ * Toolbar Export button opening a menu with Print / Download as CSV / Download as Excel, like
+ * the MUI DataGrid toolbar, plus Download as JSON where the table asks for it. Every action
+ * exports the displayed table: the filtered + sorted rows across every page. Print and the sheet
+ * formats write the visible accessor columns in display order; JSON writes the rows themselves.
  */
 export function DataTableExportMenu<TData extends DataTableData>({
   table,
   filename,
   icons,
   additionalExportColumns,
+  exportRowDetails,
+  exportRecord,
+  enableJsonExport = false,
 }: Readonly<DataTableExportMenuProps<TData>>) {
   const {
     export: ExportIcon = FileDownloadOutlined,
     print: PrintIcon = Print,
     downloadCsv: DownloadCsvIcon = DescriptionOutlined,
     downloadExcel: DownloadExcelIcon = GridOnOutlined,
+    downloadJson: DownloadJsonIcon = DataObject,
   } = icons;
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -61,7 +73,13 @@ export function DataTableExportMenu<TData extends DataTableData>({
   const handleExport = (
     action: (model: DataTableExportModel, filename: string) => void,
   ): void => {
-    action(getDataTableExportModel(table, additionalExportColumns), filename);
+    action(
+      getDataTableExportModel(table, additionalExportColumns, {
+        rowDetails: exportRowDetails,
+        toRecord: exportRecord,
+      }),
+      filename,
+    );
     setAnchorEl(null);
   };
 
@@ -99,6 +117,14 @@ export function DataTableExportMenu<TData extends DataTableData>({
           </ListItemIcon>
           <ListItemText>Download as Excel</ListItemText>
         </MenuItem>
+        {enableJsonExport && (
+          <MenuItem onClick={() => handleExport(exportDataTableToJson)}>
+            <ListItemIcon>
+              <DownloadJsonIcon fontSize='small' />
+            </ListItemIcon>
+            <ListItemText>Download as JSON</ListItemText>
+          </MenuItem>
+        )}
       </Menu>
     </>
   );
