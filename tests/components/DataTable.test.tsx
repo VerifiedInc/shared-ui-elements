@@ -405,6 +405,21 @@ describe('<DataTable/>', () => {
       ).toBe(true);
     });
 
+    test('prints with the nonce it is given, over the page', () => {
+      (window as { __nonce__?: string }).__nonce__ = 'from-page';
+      const { getByLabelText, getByRole } = render(
+        <DataTable data={members} showToolbar enableExport cspNonce='given' />,
+      );
+
+      fireEvent.click(getByLabelText('Export'));
+      fireEvent.click(getByRole('menuitem', { name: 'Print' }));
+
+      const iframe = document.body.querySelector('iframe');
+      expect(iframe?.srcdoc).toContain('<style nonce="given">');
+      iframe?.remove();
+      delete (window as { __nonce__?: string }).__nonce__;
+    });
+
     test('toggles columns through the panel opened from the toolbar', () => {
       const { getByLabelText, getByRole, container } = render(
         <DataTable data={members} showToolbar />,

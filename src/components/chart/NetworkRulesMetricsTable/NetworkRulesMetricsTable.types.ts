@@ -39,6 +39,7 @@ type ListStateProps = Pick<
   | 'enableExport'
   | 'exportFilename'
   | 'footerLeft'
+  | 'cspNonce'
 >;
 
 export interface NetworkRulesMetricsTableProps extends ListStateProps {

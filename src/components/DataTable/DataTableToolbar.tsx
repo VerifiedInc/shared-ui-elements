@@ -33,6 +33,7 @@ export function DataTableToolbar() {
     exportRowDetails,
     exportRecord,
     enableJsonExport,
+    cspNonce,
     filterFields,
     filterState,
     toolbarFilterButtonRef,
@@ -114,6 +115,7 @@ export function DataTableToolbar() {
           exportRowDetails={exportRowDetails}
           exportRecord={exportRecord}
           enableJsonExport={enableJsonExport}
+          cspNonce={cspNonce}
         />
       )}
       <Divider

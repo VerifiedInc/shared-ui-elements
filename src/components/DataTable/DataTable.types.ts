@@ -524,6 +524,13 @@ export interface DataTableProps<TData extends DataTableData> {
    */
   enableJsonExport?: boolean;
   /**
+   * The page's CSP nonce, for the print document's stylesheet: printing renders into a `srcdoc`
+   * iframe, which inherits the page's policy, so under a nonce-based `style-src` the stylesheet
+   * is dropped without it. Taken from the page (a `__nonce__` global, a `csp-nonce` meta tag, or
+   * a nonced element) when not given.
+   */
+  cspNonce?: string;
+  /**
    * Base filename (no extension) for the exported files; also the printed
    * document title. Defaults to 'data'.
    */

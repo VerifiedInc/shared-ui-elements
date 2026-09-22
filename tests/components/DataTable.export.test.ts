@@ -154,9 +154,81 @@ describe('row detail sections', () => {
     // Print keeps the panel shape: a block per rule, under the row it belongs to.
     expect(html).toContain('<td colspan="2">');
     expect(html).toContain('Aetna, Cigna');
-    expect(html.match(/<h2>Conditions<\/h2>/g)).toHaveLength(2);
+    expect(html.match(/<b>Conditions<\/b>/g)).toHaveLength(2);
     // An empty block shows its message instead of headers over nothing.
     expect(html).toContain('No metadata');
+  });
+
+  // The print document is a srcdoc iframe, so it inherits the page's policy and needs its nonce.
+  // Each case is a way a host publishes one; the Dashboard publishes all three.
+  test.each([
+    [
+      'a nonced element',
+      () => {
+        const script = document.createElement('script');
+        script.nonce = 'test-nonce';
+        document.head.appendChild(script);
+        return () => {
+          script.remove();
+        };
+      },
+    ],
+    [
+      'a csp-nonce meta tag',
+      () => {
+        const meta = document.createElement('meta');
+        meta.name = 'csp-nonce';
+        meta.content = 'test-nonce';
+        document.head.appendChild(meta);
+        return () => {
+          meta.remove();
+        };
+      },
+    ],
+    [
+      'a global',
+      () => {
+        (window as { __nonce__?: string }).__nonce__ = 'test-nonce';
+        return () => {
+          delete (window as { __nonce__?: string }).__nonce__;
+        };
+      },
+    ],
+  ])('takes the page nonce from %s', (_label, publish) => {
+    const cleanUp = publish();
+
+    try {
+      expect(capturePrintHtml(() => printDataTable(model, 'rules'))).toContain(
+        '<style nonce="test-nonce">',
+      );
+    } finally {
+      cleanUp();
+    }
+  });
+
+  test('takes the nonce it is given over the page', () => {
+    (window as { __nonce__?: string }).__nonce__ = 'from-page';
+
+    try {
+      expect(
+        capturePrintHtml(() =>
+          printDataTable(model, 'rules', { nonce: 'given' }),
+        ),
+      ).toContain('<style nonce="given">');
+    } finally {
+      delete (window as { __nonce__?: string }).__nonce__;
+    }
+  });
+
+  test('prints a legible table even where the stylesheet is refused', () => {
+    const html = capturePrintHtml(() => printDataTable(model, 'rules'));
+
+    // Presentational attributes, so spacing and alignment survive without the CSS.
+    expect(html).toContain('<table cellpadding="6" cellspacing="0">');
+    expect(html).toContain(
+      '<table class="nested" cellpadding="4" cellspacing="0">',
+    );
+    expect(html).not.toContain('<style nonce');
   });
 });
 
