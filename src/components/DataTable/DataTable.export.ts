@@ -65,8 +65,58 @@ export interface DataTableExportModel {
   records?: unknown[];
 }
 
+/** One page of the full data set, as the server returned it. */
+export interface DataTableExportPage<TData extends DataTableData> {
+  rows: TData[];
+  /** Row count across every page. */
+  rowCount: number;
+}
+
+/**
+ * Fetches one page of the full data set for "Export all rows", with the table's current search,
+ * filters and sort applied the same way the displayed page is fetched.
+ */
+export type DataTableExportPageFetcher<TData extends DataTableData> = (page: {
+  pageIndex: number;
+  pageSize: number;
+}) => Promise<DataTableExportPage<TData>>;
+
+// Pages requested at once after the first, so a large set doesn't flood the server.
+const EXPORT_FETCH_CONCURRENCY = 5;
+
+/**
+ * Every row of a server-paginated data set: the first page gives the total, the rest are fetched
+ * in buckets of concurrent requests and joined in page order.
+ */
+export async function fetchAllDataTableRows<TData extends DataTableData>(
+  fetchPage: DataTableExportPageFetcher<TData>,
+  pageSize: number,
+): Promise<TData[]> {
+  const first = await fetchPage({ pageIndex: 0, pageSize });
+  const pageCount = Math.ceil(first.rowCount / pageSize);
+  const rows = [...first.rows];
+
+  for (let start = 1; start < pageCount; start += EXPORT_FETCH_CONCURRENCY) {
+    const pageIndexes = Array.from(
+      { length: Math.min(EXPORT_FETCH_CONCURRENCY, pageCount - start) },
+      (_, offset) => start + offset,
+    );
+    const pages = await Promise.all(
+      pageIndexes.map(
+        async (pageIndex) => await fetchPage({ pageIndex, pageSize }),
+      ),
+    );
+
+    for (const page of pages) rows.push(...page.rows);
+  }
+
+  return rows;
+}
+
 /** Options for the export snapshot beyond the visible grid. */
 export interface DataTableExportModelOptions<TData extends DataTableData> {
+  /** Rows to export in place of the table's own, e.g. every page fetched for "Export all rows". */
+  rows?: TData[];
   rowDetails?: DataTableExportRowDetails<TData>;
   /** Shapes a row for the JSON export. Defaults to the row object itself. */
   toRecord?: (row: TData) => unknown;
@@ -96,13 +146,17 @@ function toExportValue(value: unknown): DataTableExportValue {
  * Builds the export snapshot from the table instance. Rows come from the
  * pre-pagination row model, so they reflect the active filters, quick
  * search and sort order across every page (with manual pagination only
- * the loaded page is available). Display-only columns (no accessor, e.g.
- * expand chevrons) are skipped.
+ * the loaded page is available), unless `rows` supplies them. Display-only
+ * columns (no accessor, e.g. expand chevrons) are skipped.
  */
 export function getDataTableExportModel<TData extends DataTableData>(
   table: Table<TData>,
   additionalColumns: ReadonlyArray<DataTableExportColumn<TData>> = [],
-  { rowDetails, toRecord }: DataTableExportModelOptions<TData> = {},
+  {
+    rows: exportRows,
+    rowDetails,
+    toRecord,
+  }: DataTableExportModelOptions<TData> = {},
 ): DataTableExportModel {
   const columns = table
     .getVisibleLeafColumns()
@@ -135,27 +189,25 @@ export function getDataTableExportModel<TData extends DataTableData>(
         )
     : undefined;
 
-  const rows = table.getPrePaginationRowModel().rows;
+  const rows =
+    exportRows ??
+    table.getPrePaginationRowModel().rows.map((row) => row.original);
 
   return {
     groupHeader,
-    rowDetails: rowDetails
-      ? rows.map((row) => rowDetails(row.original))
-      : undefined,
-    records: rows.map((row) =>
-      toRecord ? toRecord(row.original) : row.original,
-    ),
+    rowDetails: rowDetails ? rows.map((row) => rowDetails(row)) : undefined,
+    records: rows.map((row) => (toRecord ? toRecord(row) : row)),
     header: [
       ...startColumns.map((column) => column.header),
       ...columns.map((column) => getColumnLabel(column)),
       ...endColumns.map((column) => column.header),
     ],
-    rows: rows.map((row) => [
-      ...startColumns.map((column) =>
-        toExportValue(column.value(row.original)),
+    rows: rows.map((row, index) => [
+      ...startColumns.map((column) => toExportValue(column.value(row))),
+      ...columns.map((column) =>
+        toExportValue(column.accessorFn?.(row, index)),
       ),
-      ...columns.map((column) => toExportValue(row.getValue(column.id))),
-      ...endColumns.map((column) => toExportValue(column.value(row.original))),
+      ...endColumns.map((column) => toExportValue(column.value(row))),
     ]),
   };
 }

@@ -14,6 +14,7 @@ import type { VirtualItem } from '@tanstack/react-virtual';
 
 import type {
   DataTableExportColumn,
+  DataTableExportPageFetcher,
   DataTableExportRowDetails,
 } from './DataTable.export';
 
@@ -514,9 +515,19 @@ export interface DataTableProps<TData extends DataTableData> {
    * page and the visible accessor columns in display order (display-only
    * columns are skipped). With grouped columns the export starts with a
    * group header row, like the rendered header. With `manualPagination`
-   * only the loaded page is exported.
+   * only the loaded page is exported, unless `fetchExportPage` is given.
    */
   enableExport?: boolean;
+  /**
+   * Adds an "Export all rows" checkbox to the export menu (requires `enableExport`), for tables
+   * with `manualPagination`: when checked, the table fetches the first page to learn the total,
+   * then the rest in concurrent buckets, and exports every row. Apply the same search, filters
+   * and sort as the displayed page. Print is disabled while it is checked: one print document
+   * holding every row can run the tab out of memory.
+   */
+  fetchExportPage?: DataTableExportPageFetcher<TData>;
+  /** Page size `fetchExportPage` is called with — the server's page limit. Defaults to 100. */
+  exportPageSize?: number;
   /**
    * Adds "Download as JSON" to the export menu (requires `enableExport`), writing the rows as
    * records rather than cells. Off by default: the sheet formats suit most tables, and a row

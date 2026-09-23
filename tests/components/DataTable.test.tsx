@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { TableCell, TableRow } from '@mui/material';
 
 import {
@@ -403,6 +403,116 @@ describe('<DataTable/>', () => {
       expect(
         firstRow.startsWith(`${members[0].email},${members[0].role},`),
       ).toBe(true);
+    });
+
+    test('exports every fetched page when "Export all rows" is checked', async () => {
+      let downloaded: Blob | undefined;
+      const originalCreateObjectURL = URL.createObjectURL;
+      URL.createObjectURL = (blob: Blob) => {
+        downloaded = blob;
+        return 'blob:test';
+      };
+      URL.revokeObjectURL = () => undefined;
+      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
+        () => undefined,
+      );
+      const everyMember: Member[] = [
+        ...members,
+        { email: 'delta@verified.inc', role: 'member', mfaEnabled: true },
+      ];
+      const fetchExportPage = vi.fn(
+        async ({
+          pageIndex,
+          pageSize,
+        }: {
+          pageIndex: number;
+          pageSize: number;
+        }) => ({
+          rows: everyMember.slice(
+            pageIndex * pageSize,
+            (pageIndex + 1) * pageSize,
+          ),
+          rowCount: everyMember.length,
+        }),
+      );
+
+      const { getByLabelText, getByRole, queryByRole, rerender } = render(
+        <DataTable
+          data={members.slice(0, 1)}
+          columns={[{ id: 'email', accessorKey: 'email', header: 'Email' }]}
+          showToolbar
+          enableExport
+          manualPagination
+          rowCount={everyMember.length}
+        />,
+      );
+
+      // Without a fetcher there is nothing beyond the loaded page to export.
+      fireEvent.click(getByLabelText('Export'));
+      expect(queryByRole('checkbox', { name: 'Export all rows' })).toBeNull();
+      fireEvent.keyDown(getByRole('menu'), { key: 'Escape' });
+
+      rerender(
+        <DataTable
+          data={members.slice(0, 1)}
+          columns={[{ id: 'email', accessorKey: 'email', header: 'Email' }]}
+          showToolbar
+          enableExport
+          manualPagination
+          rowCount={everyMember.length}
+          fetchExportPage={fetchExportPage}
+          exportPageSize={3}
+        />,
+      );
+      fireEvent.click(getByLabelText('Export'));
+      fireEvent.click(getByRole('checkbox', { name: 'Export all rows' }));
+      // One print document holding every row could run the tab out of memory.
+      expect(
+        getByRole('menuitem', { name: 'Print' }).getAttribute('aria-disabled'),
+      ).toBe('true');
+      fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
+
+      await waitFor(() => {
+        expect(downloaded).toBeDefined();
+      });
+      URL.createObjectURL = originalCreateObjectURL;
+      const blob = downloaded;
+      if (!blob) throw new Error('nothing was downloaded');
+      const text = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(String(reader.result));
+        };
+        reader.readAsText(blob);
+      });
+
+      expect(fetchExportPage).toHaveBeenCalledTimes(2);
+      expect(text.replace('\ufeff', '').split('\n')).toEqual([
+        'Email',
+        ...everyMember.map((member) => member.email),
+      ]);
+    });
+
+    test('flags the export button when fetching every page fails', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const { getByLabelText, getByRole } = render(
+        <DataTable
+          data={members}
+          showToolbar
+          enableExport
+          fetchExportPage={async () => {
+            throw new Error('offline');
+          }}
+        />,
+      );
+
+      fireEvent.click(getByLabelText('Export'));
+      fireEvent.click(getByRole('checkbox', { name: 'Export all rows' }));
+      fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
+
+      await waitFor(() => {
+        expect(getByLabelText('Export failed, try again')).toBeDefined();
+      });
     });
 
     test('prints with the nonce it is given, over the page', () => {

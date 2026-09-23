@@ -403,6 +403,8 @@ export const AdditionalExportColumns: Story = {
 // Everything on: the toolbar, drag-resizable columns plus the full column
 // menu (sort, pin, filter, hide, manage columns) and the export menu
 // (print, CSV, Excel) — exports reflect the displayed rows and columns.
+// `fetchExportPage` adds "Export all rows", which pages through the full
+// set (here the same in-memory list) and exports every row.
 export const FullFeatured: Story = {
   args: {
     data: members,
@@ -412,6 +414,14 @@ export const FullFeatured: Story = {
     enableColumnPinning: true,
     enableExport: true,
     exportFilename: 'members',
+    exportPageSize: 50,
+    fetchExportPage: async ({ pageIndex, pageSize }) => {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      return {
+        rows: members.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize),
+        rowCount: members.length,
+      };
+    },
     tableLayout: 'fixed',
   },
 };

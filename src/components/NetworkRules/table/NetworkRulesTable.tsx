@@ -45,6 +45,8 @@ type ListStateProps = Pick<
   | 'sorting'
   | 'onSortingChange'
   | 'cspNonce'
+  | 'fetchExportPage'
+  | 'exportPageSize'
 >;
 
 export interface NetworkRulesTableProps
@@ -87,6 +89,8 @@ export function NetworkRulesTable({
   enableExport = true,
   exportFilename = 'network-rules',
   cspNonce,
+  fetchExportPage,
+  exportPageSize,
   ...handlers
 }: Readonly<NetworkRulesTableProps>) {
   const { sources } = useNetworkRulesServices();
@@ -153,6 +157,8 @@ export function NetworkRulesTable({
         enableJsonExport
         exportFilename={exportFilename}
         cspNonce={cspNonce}
+        fetchExportPage={fetchExportPage}
+        exportPageSize={exportPageSize}
         additionalExportColumns={NETWORK_RULES_EXPORT_COLUMNS}
         exportRowDetails={exportRowDetails}
         enableColumnMenu
