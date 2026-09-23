@@ -56,10 +56,9 @@ interface DataTableExportMenuProps<TData extends DataTableData> {
 /**
  * Toolbar Export button opening a menu with Print / Download as CSV / Download as Excel, like
  * the MUI DataGrid toolbar, plus Download as JSON where the table asks for it. Every action
- * exports the displayed table: the filtered + sorted rows across every page. Print and the sheet
- * formats write the visible accessor columns in display order; JSON writes the rows themselves.
- * With `fetchExportPage`, the "Export all rows" checkbox exports every page instead of the loaded
- * one.
+ * exports the displayed table: the filtered + sorted rows on the current page. Print and the
+ * sheet formats write the visible accessor columns in display order; JSON writes the rows
+ * themselves. With `fetchExportPage`, the "Export all rows" checkbox exports every page instead.
  */
 export function DataTableExportMenu<TData extends DataTableData>({
   table,

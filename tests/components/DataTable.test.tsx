@@ -43,6 +43,39 @@ function getHeaderTexts(container: HTMLElement): string[] {
   );
 }
 
+/** Runs a CSV download and resolves the file's text, without the UTF-8 BOM. */
+async function captureCsvDownload(download: () => void): Promise<string> {
+  let downloaded: Blob | undefined;
+  const originalCreateObjectURL = URL.createObjectURL;
+  URL.createObjectURL = (blob: Blob) => {
+    downloaded = blob;
+    return 'blob:test';
+  };
+  URL.revokeObjectURL = () => undefined;
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
+    () => undefined,
+  );
+
+  download();
+  // An "Export all rows" download lands once its pages are fetched.
+  await waitFor(() => {
+    expect(downloaded).toBeDefined();
+  });
+  URL.createObjectURL = originalCreateObjectURL;
+  const blob = downloaded;
+  if (!blob) throw new Error('nothing was downloaded');
+
+  // jsdom's Blob has no text(); read it the way the browser would.
+  const text = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(String(reader.result));
+    };
+    reader.readAsText(blob);
+  });
+  return text.replace('\ufeff', '');
+}
+
 afterEach(() => {
   cleanup();
 });
@@ -352,17 +385,6 @@ describe('<DataTable/>', () => {
     });
 
     test('exports the leading column, the grid and the indexed blocks', async () => {
-      let downloaded: Blob | undefined;
-      const originalCreateObjectURL = URL.createObjectURL;
-      URL.createObjectURL = (blob: Blob) => {
-        downloaded = blob;
-        return 'blob:test';
-      };
-      URL.revokeObjectURL = () => undefined;
-      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
-        () => undefined,
-      );
-
       const { getByLabelText, getByRole } = render(
         <DataTable
           data={members}
@@ -383,20 +405,10 @@ describe('<DataTable/>', () => {
       );
 
       fireEvent.click(getByLabelText('Export'));
-      fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
-
-      URL.createObjectURL = originalCreateObjectURL;
-      const blob = downloaded;
-      if (!blob) throw new Error('nothing was downloaded');
-      // jsdom's Blob has no text(); read it the way the browser would.
-      const text = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve(String(reader.result));
-        };
-        reader.readAsText(blob);
+      const text = await captureCsvDownload(() => {
+        fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
       });
-      const [header, firstRow] = text.replace('\ufeff', '').split('\n');
+      const [header, firstRow] = text.split('\n');
 
       // The leading export column comes first, then the grid, then a column per block.
       expect(header).toBe('Email,Role,Access');
@@ -405,17 +417,31 @@ describe('<DataTable/>', () => {
       ).toBe(true);
     });
 
-    test('exports every fetched page when "Export all rows" is checked', async () => {
-      let downloaded: Blob | undefined;
-      const originalCreateObjectURL = URL.createObjectURL;
-      URL.createObjectURL = (blob: Blob) => {
-        downloaded = blob;
-        return 'blob:test';
-      };
-      URL.revokeObjectURL = () => undefined;
-      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
-        () => undefined,
+    test('exports the rows on the current page, not every loaded page', async () => {
+      const { getByLabelText, getByRole } = render(
+        <DataTable
+          data={members}
+          columns={[{ id: 'email', accessorKey: 'email', header: 'Email' }]}
+          showToolbar
+          enableExport
+          initialPageSize={2}
+          pageSizeOptions={[2]}
+        />,
       );
+
+      fireEvent.click(getByLabelText('Export'));
+      const text = await captureCsvDownload(() => {
+        fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
+      });
+
+      expect(text.split('\n')).toEqual([
+        'Email',
+        members[0].email,
+        members[1].email,
+      ]);
+    });
+
+    test('exports every fetched page when "Export all rows" is checked', async () => {
       const everyMember: Member[] = [
         ...members,
         { email: 'delta@verified.inc', role: 'member', mfaEnabled: true },
@@ -470,24 +496,12 @@ describe('<DataTable/>', () => {
       expect(
         getByRole('menuitem', { name: 'Print' }).getAttribute('aria-disabled'),
       ).toBe('true');
-      fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
-
-      await waitFor(() => {
-        expect(downloaded).toBeDefined();
-      });
-      URL.createObjectURL = originalCreateObjectURL;
-      const blob = downloaded;
-      if (!blob) throw new Error('nothing was downloaded');
-      const text = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve(String(reader.result));
-        };
-        reader.readAsText(blob);
+      const text = await captureCsvDownload(() => {
+        fireEvent.click(getByRole('menuitem', { name: 'Download as CSV' }));
       });
 
       expect(fetchExportPage).toHaveBeenCalledTimes(2);
-      expect(text.replace('\ufeff', '').split('\n')).toEqual([
+      expect(text.split('\n')).toEqual([
         'Email',
         ...everyMember.map((member) => member.email),
       ]);

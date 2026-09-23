@@ -511,11 +511,11 @@ export interface DataTableProps<TData extends DataTableData> {
   /**
    * Adds an Export button to the toolbar (requires `showToolbar`) with
    * Print, Download as CSV and Download as Excel actions. Exports always
-   * reflect the displayed table: the filtered + sorted rows across every
+   * reflect the displayed table: the filtered + sorted rows on the current
    * page and the visible accessor columns in display order (display-only
    * columns are skipped). With grouped columns the export starts with a
-   * group header row, like the rendered header. With `manualPagination`
-   * only the loaded page is exported, unless `fetchExportPage` is given.
+   * group header row, like the rendered header. `fetchExportPage` adds
+   * "Export all rows" to export every page.
    */
   enableExport?: boolean;
   /**

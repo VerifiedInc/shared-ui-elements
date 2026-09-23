@@ -44,7 +44,7 @@ export type DataTableExportRowDetails<TData extends DataTableData> = (
 
 /**
  * Snapshot of the displayed table used by every export format: the
- * filtered + sorted rows across every page and the visible accessor
+ * filtered + sorted rows on the current page and the visible accessor
  * columns in display order.
  */
 export interface DataTableExportModel {
@@ -143,11 +143,10 @@ function toExportValue(value: unknown): DataTableExportValue {
 }
 
 /**
- * Builds the export snapshot from the table instance. Rows come from the
- * pre-pagination row model, so they reflect the active filters, quick
- * search and sort order across every page (with manual pagination only
- * the loaded page is available), unless `rows` supplies them. Display-only
- * columns (no accessor, e.g. expand chevrons) are skipped.
+ * Builds the export snapshot from the table instance. Rows are the ones
+ * on screen — the current page with the active filters, quick search and
+ * sort order — unless `rows` supplies them. Display-only columns (no
+ * accessor, e.g. expand chevrons) are skipped.
  */
 export function getDataTableExportModel<TData extends DataTableData>(
   table: Table<TData>,
@@ -190,8 +189,7 @@ export function getDataTableExportModel<TData extends DataTableData>(
     : undefined;
 
   const rows =
-    exportRows ??
-    table.getPrePaginationRowModel().rows.map((row) => row.original);
+    exportRows ?? table.getRowModel().rows.map((row) => row.original);
 
   return {
     groupHeader,
