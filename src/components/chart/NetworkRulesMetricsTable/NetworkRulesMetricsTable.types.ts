@@ -42,6 +42,7 @@ type ListStateProps = Pick<
   | 'cspNonce'
   | 'fetchExportPage'
   | 'exportPageSize'
+  | 'enableJsonExport'
 >;
 
 export interface NetworkRulesMetricsTableProps extends ListStateProps {
