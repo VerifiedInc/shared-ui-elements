@@ -34,6 +34,8 @@ export function DataTableToolbar() {
     exportRecord,
     enableJsonExport,
     cspNonce,
+    fetchExportPage,
+    exportPageSize,
     filterFields,
     filterState,
     toolbarFilterButtonRef,
@@ -116,6 +118,8 @@ export function DataTableToolbar() {
           exportRecord={exportRecord}
           enableJsonExport={enableJsonExport}
           cspNonce={cspNonce}
+          fetchExportPage={fetchExportPage}
+          exportPageSize={exportPageSize}
         />
       )}
       <Divider

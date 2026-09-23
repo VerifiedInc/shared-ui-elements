@@ -132,6 +132,23 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
     dialogs.closeDeletion();
   };
 
+  // "Export all rows" pages through the host's list the way the Dashboard pages the server; here
+  // the list is in memory, so every page comes from `rules`.
+  const fetchExportPage = async ({
+    pageIndex,
+    pageSize,
+  }: {
+    pageIndex: number;
+    pageSize: number;
+  }): Promise<{ rows: NetworkRule[]; rowCount: number }> => {
+    action('host.fetchExportPage')({ pageIndex, pageSize });
+    await sleep(400);
+    return {
+      rows: rules.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize),
+      rowCount: rules.length,
+    };
+  };
+
   return (
     <NetworkRulesProvider services={services}>
       <Box
@@ -174,6 +191,8 @@ function FullExample({ readOnly = false }: Readonly<{ readOnly?: boolean }>) {
             rules={rules}
             readOnly={readOnly}
             maxHeight='100%'
+            fetchExportPage={fetchExportPage}
+            exportPageSize={2}
             onToggleEnabled={(rule, enabled) => {
               action('host.onToggleEnabled')(rule.name, enabled);
               setRules((current) =>

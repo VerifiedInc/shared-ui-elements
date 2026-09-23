@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import {
   exportDataTableToCsv,
   exportDataTableToJson,
+  fetchAllDataTableRows,
   printDataTable,
   type DataTableExportModel,
 } from '../../src/components/DataTable/DataTable.export';
@@ -269,5 +270,49 @@ describe('exportDataTableToJson', () => {
     );
 
     expect(json).toBe('[]');
+  });
+});
+
+describe('fetchAllDataTableRows', () => {
+  test('learns the total from the first page, then fetches the rest in buckets, in page order', async () => {
+    const rowCount = 1050;
+    let inFlight = 0;
+    let maxInFlight = 0;
+    const requested: number[] = [];
+
+    const rows = await fetchAllDataTableRows(
+      async ({ pageIndex, pageSize }) => {
+        requested.push(pageIndex);
+        inFlight += 1;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        // Later pages answer first, so order must come from the page index, not arrival.
+        await new Promise((resolve) =>
+          setTimeout(resolve, 20 - (pageIndex % 5) * 4),
+        );
+        inFlight -= 1;
+
+        const start = pageIndex * pageSize;
+        const length = Math.max(0, Math.min(pageSize, rowCount - start));
+        return {
+          rows: Array.from({ length }, (_, offset) => ({ id: start + offset })),
+          rowCount,
+        };
+      },
+      100,
+    );
+
+    expect(requested[0]).toBe(0);
+    expect(requested).toHaveLength(11);
+    expect(maxInFlight).toBe(5);
+    expect(rows.map((row) => row.id)).toEqual(
+      Array.from({ length: rowCount }, (_, index) => index),
+    );
+  });
+
+  test('stops at the first page when it holds every row', async () => {
+    const fetchPage = vi.fn(async () => ({ rows: [{ id: 1 }], rowCount: 1 }));
+
+    expect(await fetchAllDataTableRows(fetchPage, 100)).toEqual([{ id: 1 }]);
+    expect(fetchPage).toHaveBeenCalledTimes(1);
   });
 });

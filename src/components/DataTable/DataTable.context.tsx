@@ -30,6 +30,7 @@ import type {
 } from './DataTable.types';
 import type {
   DataTableExportColumn,
+  DataTableExportPageFetcher,
   DataTableExportRowDetails,
 } from './DataTable.export';
 
@@ -87,6 +88,8 @@ export interface DataTableContextValue<TData extends DataTableData> {
   exportRecord?: (row: TData) => unknown;
   enableJsonExport?: boolean;
   cspNonce?: string;
+  fetchExportPage?: DataTableExportPageFetcher<TData>;
+  exportPageSize?: number;
   disablePagination: boolean;
   pageSizeOptions: number[];
   footerLeft?: ReactNode;

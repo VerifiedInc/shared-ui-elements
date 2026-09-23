@@ -45,6 +45,27 @@ type Story = StoryObj<typeof NetworkRulesTable>;
 
 export const Default: Story = {};
 
+// Server-paged: the table holds one page, and "Export all rows" in the Export menu fetches the
+// rest in pages of two.
+export const ExportAllRows: Story = {
+  args: {
+    rules: exampleRules.slice(0, 2),
+    manualPagination: true,
+    rowCount: exampleRules.length,
+    exportPageSize: 2,
+    fetchExportPage: async ({ pageIndex, pageSize }) => {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      return {
+        rows: exampleRules.slice(
+          pageIndex * pageSize,
+          (pageIndex + 1) * pageSize,
+        ),
+        rowCount: exampleRules.length,
+      };
+    },
+  },
+};
+
 export const ReadOnly: Story = {
   args: { readOnly: true },
 };
