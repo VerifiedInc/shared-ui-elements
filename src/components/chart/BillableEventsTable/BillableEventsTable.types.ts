@@ -120,7 +120,20 @@ export type BillableEventsTableRow = {
   providers?: BrandProviders;
 };
 
-export type BillableEventsTableProps = {
+/**
+ * Opt-in export, off by default so existing tables render as before: the DataTable export menu
+ * (CSV, Excel, Print, and JSON with `enableJsonExport`) in a toolbar above the table.
+ */
+export type BillableEventsExportProps = {
+  enableExport?: boolean;
+  /** Adds "Download as JSON" (requires `enableExport`); writes each row object as is. */
+  enableJsonExport?: boolean;
+  exportFilename?: string;
+  /** The page's CSP nonce, for the print document's stylesheet. */
+  cspNonce?: string;
+};
+
+export type BillableEventsTableProps = BillableEventsExportProps & {
   data: BillableEventsTableRow[];
   isLoading: boolean;
   isFetching: boolean;
@@ -138,7 +151,7 @@ export type BillableEventsTableProps = {
   showCustomerColumn?: boolean;
 };
 
-export type BillableEventsProductTableProps = {
+export type BillableEventsProductTableProps = BillableEventsExportProps & {
   data: BillableEventsTableRow[];
   isLoading: boolean;
   isFetching: boolean;

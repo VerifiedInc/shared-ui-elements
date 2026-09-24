@@ -5,10 +5,17 @@ import {
   BILLABLE_PRODUCTS,
   BillableEventsTable,
   BillableProduct,
+  billableEventsExportRecord,
   exportBillableEventsToCsv,
   type BillableEventsTableRow,
 } from '../../../src/components/chart/BillableEventsTable';
 import { BillableEventsProductTable } from '../../../src/components/chart/BillableEventsProductTable';
+
+// The tables render through DataTable, whose virtualizer renders no rows in jsdom.
+vi.mock(
+  '@tanstack/react-virtual',
+  async () => await import('../../utils/mockReactVirtual'),
+);
 
 const HOOLI_CUSTOMER = 'a0000000-0000-0000-0000-000000000001';
 const PIED_PIPER_CUSTOMER = 'a0000000-0000-0000-0000-000000000002';
@@ -384,7 +391,87 @@ describe('<BillableEventsTable/>', () => {
   });
 });
 
+describe('<BillableEventsTable/> on DataTable', () => {
+  test('has no export menu unless asked for', () => {
+    const { queryByRole } = render(
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+      />,
+    );
+    expect(queryByRole('button', { name: 'Export' })).toBeNull();
+  });
+
+  test('enableExport adds the DataTable export menu, JSON included', () => {
+    const { getByRole, getByText } = render(
+      <BillableEventsTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+        enableExport
+        enableJsonExport
+        exportFilename='billable-events'
+      />,
+    );
+    fireEvent.click(getByRole('button', { name: 'Export' }));
+    expect(getByText('Download as CSV')).toBeDefined();
+    expect(getByText('Download as Excel')).toBeDefined();
+    expect(getByText('Download as JSON')).toBeDefined();
+    expect(getByText('Print')).toBeDefined();
+  });
+
+  test('a metric header click re-sorts and reports the order', () => {
+    const onSortedDataChange = vi.fn();
+    const data = [
+      makeRow({
+        brandUuid: 'few-uuid',
+        brand: 'Few',
+        metrics: { signup_autofillsSucceeded: 1 },
+      }),
+      makeRow({
+        brandUuid: 'many-uuid',
+        brand: 'Many',
+        metrics: { signup_autofillsSucceeded: 50 },
+      }),
+    ];
+    const { getAllByText } = render(
+      <BillableEventsTable
+        data={data}
+        isLoading={false}
+        isFetching={false}
+        visibleProducts={[BillableProduct.ONE_CLICK_SIGNUP]}
+        onSortedDataChange={onSortedDataChange}
+      />,
+    );
+
+    // Ascending first, then descending.
+    fireEvent.click(getAllByText('Autofills Succeeded')[0]);
+    fireEvent.click(getAllByText('Autofills Succeeded')[0]);
+
+    const lastOrder = onSortedDataChange.mock.calls.at(-1)?.[0] as
+      BillableEventsTableRow[] | undefined;
+    expect(lastOrder?.map((row) => row.brand)).toEqual(['Many', 'Few']);
+  });
+});
+
 describe('<BillableEventsProductTable/>', () => {
+  test('enableExport adds the DataTable export menu', () => {
+    const { getByRole, queryByText } = render(
+      <BillableEventsProductTable
+        data={baseData}
+        isLoading={false}
+        isFetching={false}
+        product={BillableProduct.ONE_CLICK_SIGNUP}
+        enableExport
+      />,
+    );
+    fireEvent.click(getByRole('button', { name: 'Export' }));
+    expect(queryByText('Download as CSV')).not.toBeNull();
+    // JSON stays opt-in on its own.
+    expect(queryByText('Download as JSON')).toBeNull();
+  });
+
   test('metric columns are thousands-separated', () => {
     const data = [
       makeRow({
@@ -528,5 +615,49 @@ describe('exportBillableEventsToCsv', () => {
           l.startsWith(`Hooli,${HOOLI_CUSTOMER},Aviato,aviato-uuid`),
         ),
     ).toBe(true);
+  });
+});
+
+describe('billableEventsExportRecord', () => {
+  const row = makeRow({
+    brandUuid: 'aviato-uuid',
+    brand: 'Aviato',
+    metrics: { signup_autofillsSucceeded: 23, signup_riskSignalsReturned: 8 },
+  });
+
+  test('writes brand and customer as { name, uuid }, counts grouped by product', () => {
+    expect(
+      billableEventsExportRecord(row, {
+        visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
+      }),
+    ).toEqual({
+      customer: { name: 'Hooli', uuid: HOOLI_CUSTOMER },
+      brand: { name: 'Aviato', uuid: 'aviato-uuid' },
+      oneClickSignup: {
+        autofillsSucceeded: 23,
+        riskSignalsReturned: 8,
+      },
+    });
+  });
+
+  test('drops the customer fields and lifts top-level columns out of their group', () => {
+    const riskSignals = BILLABLE_PRODUCTS.find(
+      (p) => p.product === BillableProduct.ONE_CLICK_SIGNUP,
+    )?.columns.find((c) => c.key === 'signup_riskSignalsReturned');
+
+    const record = billableEventsExportRecord(row, {
+      visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
+      topLevelColumns: riskSignals ? [riskSignals] : [],
+      showCustomerColumn: false,
+    });
+
+    expect(record).toEqual({
+      brand: { name: 'Aviato', uuid: 'aviato-uuid' },
+      riskSignalsReturned: 8,
+      oneClickSignup: { autofillsSucceeded: 23 },
+    });
+    // The row's internal shape stays out of the export.
+    expect(record).not.toHaveProperty('raw');
+    expect(record).not.toHaveProperty('metrics');
   });
 });

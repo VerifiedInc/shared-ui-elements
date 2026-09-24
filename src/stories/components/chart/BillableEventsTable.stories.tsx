@@ -272,3 +272,15 @@ export const ExportToCsv: Story = {
     </>
   ),
 };
+
+// Opt-in: the DataTable export menu (CSV, Excel, JSON, Print) in a toolbar above the table.
+export const WithExportMenu: Story = {
+  args: {
+    data: mockData,
+    isLoading: false,
+    isFetching: false,
+    enableExport: true,
+    enableJsonExport: true,
+    exportFilename: 'billable-events',
+  },
+};

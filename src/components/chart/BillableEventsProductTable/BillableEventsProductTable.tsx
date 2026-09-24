@@ -1,58 +1,107 @@
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-} from '@mui/material';
+import { Box } from '@mui/material';
+import type {
+  CellContext,
+  ColumnDef,
+  SortingState,
+} from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
+import { DataTable } from '../../DataTable/DataTable';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import {
   BILLABLE_PRODUCTS,
-  type BillableEventColumn,
   type BillableEventsProductTableProps,
   type BillableEventsTableRow,
 } from '../BillableEventsTable/BillableEventsTable.types';
+import { billableEventsExportRecord } from '../BillableEventsTable/billableEventsExportRecord';
 import { formatBillableMetric } from '../BillableEventsTable/format';
 import { useBillableSort } from '../BillableEventsTable/useBillableSort.hook';
 import { CopyableUuid } from '../../CopyableUuid';
-import { white } from '../../../styles';
+
+type Row = BillableEventsTableRow & Record<string, unknown>;
 
 const DIRECT_KEYS = ['brand'];
+const RIGHT_ALIGN = { align: 'right' } as const;
+
+function BrandUuidCell({
+  row,
+}: Readonly<CellContext<Row, unknown>>): React.JSX.Element {
+  return (
+    <CopyableUuid
+      uuid={row.original.brandUuid}
+      label='Brand UUID'
+      variant='button'
+      head={6}
+      tail={0}
+      mono={false}
+      iconSx={{ color: 'success.main' }}
+      typographyProps={{ variant: 'inherit', color: 'inherit' }}
+    />
+  );
+}
 
 export const BillableEventsProductTable: React.FC<
   BillableEventsProductTableProps
-> = ({ data, isLoading, isFetching, product, columnSlots }) => {
-  const { sortKey, sortDir, handleSort, sortedData } =
+> = ({
+  data,
+  isLoading,
+  isFetching,
+  product,
+  columnSlots,
+  enableExport = false,
+  enableJsonExport = false,
+  exportFilename,
+  cspNonce,
+}) => {
+  const { sortKey, sortDir, setSort, sortedData } =
     useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
 
-  const productConfig = useMemo(() => {
-    return BILLABLE_PRODUCTS.find((p) => p.product === product);
-  }, [product]);
+  const columns = useMemo<Array<ColumnDef<Row, unknown>>>(() => {
+    const productColumns =
+      BILLABLE_PRODUCTS.find((entry) => entry.product === product)?.columns ??
+      [];
 
-  const columns = useMemo(() => {
-    return productConfig?.columns ?? [];
-  }, [productConfig]);
+    return [
+      {
+        id: 'brand',
+        accessorKey: 'brand',
+        header: 'Brand Name',
+        enableSorting: true,
+        enableColumnFilter: false,
+      },
+      {
+        id: 'brandUuid',
+        // Not sortable, but keeps an accessor so the uuid is exported.
+        accessorKey: 'brandUuid',
+        header: 'Brand UUID',
+        enableColumnFilter: false,
+        cell: BrandUuidCell,
+      },
+      ...productColumns.map((column): ColumnDef<Row, unknown> => ({
+        id: column.key,
+        accessorFn: (row) => row.metrics[column.key] ?? 0,
+        header: column.label,
+        enableSorting: true,
+        // Ascending first, as the old table sorted; TanStack starts numbers descending.
+        sortDescFirst: false,
+        enableColumnFilter: false,
+        meta: RIGHT_ALIGN,
+        cell: ({ row }) =>
+          columnSlots?.[column.key]
+            ? columnSlots[column.key](row.original)
+            : formatBillableMetric(row.original.metrics[column.key]),
+      })),
+    ];
+  }, [product, columnSlots]);
 
-  const sortLabel = (
-    key: string,
-    label: string,
-    align: 'left' | 'right' = 'left',
-  ) => (
-    <TableSortLabel
-      active={sortKey === key}
-      direction={sortKey === key ? sortDir : 'asc'}
-      onClick={() => handleSort(key)}
-      sx={align === 'right' ? { flexDirection: 'row' } : undefined}
-    >
-      {label}
-    </TableSortLabel>
-  );
+  // The sort hook stays the one source of order; a cleared sort flips the direction instead.
+  const sorting: SortingState = [{ id: sortKey, desc: sortDir === 'desc' }];
+  const handleSortingChange = (next: SortingState) => {
+    const [active] = next;
+    if (active) setSort(active.id, active.desc ? 'desc' : 'asc');
+    else setSort(sortKey, sortDir === 'asc' ? 'desc' : 'asc');
+  };
 
   if (!data?.length && isLoading) {
     return <LoadingChartSection />;
@@ -63,46 +112,32 @@ export const BillableEventsProductTable: React.FC<
   }
 
   return (
-    <TableContainer component={Paper} sx={{ opacity: isFetching ? 0.4 : 1 }}>
-      <Table sx={{ backgroundColor: white }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>{sortLabel('brand', 'Brand Name')}</TableCell>
-            <TableCell>Brand UUID</TableCell>
-            {columns.map((col: BillableEventColumn) => (
-              <TableCell key={col.key} align='right'>
-                {sortLabel(col.key, col.label, 'right')}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedData.map((row: BillableEventsTableRow) => (
-            <TableRow key={row.brandUuid}>
-              <TableCell>{row.brand}</TableCell>
-              <TableCell>
-                <CopyableUuid
-                  uuid={row.brandUuid}
-                  label='Brand UUID'
-                  variant='button'
-                  head={6}
-                  tail={0}
-                  mono={false}
-                  iconSx={{ color: 'success.main' }}
-                  typographyProps={{ variant: 'inherit', color: 'inherit' }}
-                />
-              </TableCell>
-              {columns.map((col: BillableEventColumn) => (
-                <TableCell key={col.key} align='right'>
-                  {columnSlots?.[col.key]
-                    ? columnSlots[col.key](row)
-                    : formatBillableMetric(row.metrics[col.key])}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box sx={{ opacity: isFetching ? 0.4 : 1 }}>
+      <DataTable<Row>
+        data={sortedData as Row[]}
+        columns={columns}
+        getRowId={(row) => row.brandUuid}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={handleSortingChange}
+        disablePagination
+        pinFirstColumn={false}
+        showToolbar={enableExport}
+        enableExport={enableExport}
+        enableJsonExport={enableJsonExport}
+        exportFilename={exportFilename}
+        // One product, so its counts sit at the top level, as in the CSV.
+        exportRecord={(row) =>
+          billableEventsExportRecord(row, {
+            visibleProducts: [product],
+            topLevelColumns:
+              BILLABLE_PRODUCTS.find((entry) => entry.product === product)
+                ?.columns ?? [],
+            showCustomerColumn: false,
+          })
+        }
+        cspNonce={cspNonce}
+      />
+    </Box>
   );
 };

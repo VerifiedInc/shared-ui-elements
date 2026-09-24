@@ -1,15 +1,16 @@
+import { Box, TableCell, TableRow } from '@mui/material';
 import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-} from '@mui/material';
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+  flexRender,
+  type ColumnDef,
+  type SortingState,
+} from '@tanstack/react-table';
+import React, { useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { DataTable } from '../../DataTable/DataTable';
+import type {
+  DataTableExportColumn,
+  DataTableRowContext,
+} from '../../DataTable';
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
 import {
@@ -19,12 +20,45 @@ import {
   type BillableEventsTableProps,
   type BillableEventsTableRow,
 } from './BillableEventsTable.types';
+import { billableEventsExportRecord } from './billableEventsExportRecord';
 import { BrandDetailsPanel } from './BrandDetailsPanel';
 import { formatBillableMetric } from './format';
 import { useBillableSort } from './useBillableSort.hook';
-import { white } from '../../../styles';
+
+type Row = BillableEventsTableRow & Record<string, unknown>;
 
 const DIRECT_KEYS = ['customerName', 'brand'];
+const RIGHT_ALIGN = { align: 'right' } as const;
+
+const CUSTOMER_COLUMN: ColumnDef<Row, unknown> = {
+  id: 'customerName',
+  accessorFn: (row) => row.customerName ?? '',
+  header: 'Customer Name',
+  enableSorting: true,
+  enableColumnFilter: false,
+  cell: ({ row }) => row.original.customerName ?? '—',
+};
+
+// A metric column: exports the raw count, shows the formatted one (or the host's slot).
+function metricColumn(
+  column: BillableEventColumn,
+  columnSlots: BillableEventsTableProps['columnSlots'],
+): ColumnDef<Row, unknown> {
+  return {
+    id: column.key,
+    accessorFn: (row) => row.metrics[column.key] ?? 0,
+    header: column.label,
+    enableSorting: true,
+    // Ascending first, as the old table sorted; TanStack starts numbers descending.
+    sortDescFirst: false,
+    enableColumnFilter: false,
+    meta: RIGHT_ALIGN,
+    cell: ({ row }) =>
+      columnSlots?.[column.key]
+        ? columnSlots[column.key](row.original)
+        : formatBillableMetric(row.original.metrics[column.key]),
+  };
+}
 
 export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   data,
@@ -35,8 +69,12 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   columnSlots,
   topLevelColumns = [],
   showCustomerColumn = true,
+  enableExport = false,
+  enableJsonExport = false,
+  exportFilename,
+  cspNonce,
 }) => {
-  const { sortKey, sortDir, handleSort, sortedData } =
+  const { sortKey, sortDir, setSort, sortedData } =
     useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
 
   const [expandedBrandUuid, setExpandedBrandUuid] = useState<string | null>(
@@ -47,41 +85,114 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
     onSortedDataChange?.(sortedData);
   }, [sortedData, onSortedDataChange]);
 
-  const activeProducts = useMemo(() => {
+  const columns = useMemo<Array<ColumnDef<Row, unknown>>>(() => {
     const products = visibleProducts ?? Object.values(BillableProduct);
-    return BILLABLE_PRODUCTS.filter((p) => products.includes(p.product));
-  }, [visibleProducts]);
+    const topLevelKeys = new Set(topLevelColumns.map((column) => column.key));
 
-  const topLevelColumnKeys = useMemo(
-    () => new Set(topLevelColumns.map((c) => c.key)),
-    [topLevelColumns],
+    return [
+      ...(showCustomerColumn ? [CUSTOMER_COLUMN] : []),
+      {
+        id: 'brand',
+        accessorKey: 'brand',
+        header: 'Brand Name',
+        enableSorting: true,
+        enableColumnFilter: false,
+      },
+      ...topLevelColumns.map((column) => metricColumn(column, columnSlots)),
+      ...BILLABLE_PRODUCTS.filter((product) =>
+        products.includes(product.product),
+      )
+        .map((product) => ({
+          product,
+          columns: product.columns.filter(
+            (column) => !topLevelKeys.has(column.key),
+          ),
+        }))
+        .filter(({ columns: productColumns }) => productColumns.length > 0)
+        .map(({ product, columns: productColumns }) => ({
+          id: `product:${product.product}`,
+          header: product.label,
+          columns: productColumns.map((column) =>
+            metricColumn(column, columnSlots),
+          ),
+        })),
+    ];
+  }, [visibleProducts, topLevelColumns, showCustomerColumn, columnSlots]);
+
+  // The expanded panel's identifiers, which no column shows.
+  const additionalExportColumns = useMemo<Array<DataTableExportColumn<Row>>>(
+    () => [
+      ...(showCustomerColumn
+        ? [
+            {
+              header: 'Customer UUID',
+              value: (row: Row) => row.customerUuid ?? '',
+            },
+          ]
+        : []),
+      { header: 'Brand UUID', value: (row: Row) => row.brandUuid },
+    ],
+    [showCustomerColumn],
   );
 
-  const allColumns = useMemo(() => {
-    return activeProducts
-      .flatMap((p) => p.columns)
-      .filter((c) => !topLevelColumnKeys.has(c.key));
-  }, [activeProducts, topLevelColumnKeys]);
+  // The sort hook stays the one source of order, so `onSortedDataChange` and the export agree with
+  // the rows shown. A cleared sort flips the direction instead: the table is always sorted.
+  const sorting: SortingState = [{ id: sortKey, desc: sortDir === 'desc' }];
+  const handleSortingChange = (next: SortingState) => {
+    const [active] = next;
+    if (active) setSort(active.id, active.desc ? 'desc' : 'asc');
+    else setSort(sortKey, sortDir === 'asc' ? 'desc' : 'asc');
+  };
 
-  // Brand Name fixed cell, plus Customer Name when shown.
-  const fixedColumnCount = 1 + (showCustomerColumn ? 1 : 0);
-  const totalColumnCount =
-    fixedColumnCount + topLevelColumns.length + allColumns.length;
+  // Whole-row click toggles the brand's details; one row open at a time.
+  const renderRow = ({
+    row,
+    rowProps,
+    getCellProps,
+  }: DataTableRowContext<Row>): ReactNode => {
+    const original = row.original;
+    const isExpanded = expandedBrandUuid === original.brandUuid;
+    const cells = row.getVisibleCells();
 
-  const sortLabel = (
-    key: string,
-    label: string,
-    align: 'left' | 'right' = 'left',
-  ) => (
-    <TableSortLabel
-      active={sortKey === key}
-      direction={sortKey === key ? sortDir : 'asc'}
-      onClick={() => handleSort(key)}
-      sx={align === 'right' ? { flexDirection: 'row' } : undefined}
-    >
-      {label}
-    </TableSortLabel>
-  );
+    return (
+      <>
+        <TableRow
+          {...rowProps}
+          hover
+          onClick={() =>
+            setExpandedBrandUuid(isExpanded ? null : original.brandUuid)
+          }
+          sx={{
+            cursor: 'pointer',
+            '& > td': { borderBottom: isExpanded ? 'none' : undefined },
+          }}
+        >
+          {cells.map((cell) => (
+            <TableCell key={cell.id} {...getCellProps(cell)}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+        {isExpanded && (
+          <TableRow>
+            <TableCell
+              colSpan={cells.length}
+              sx={{ py: 0, px: 0, borderTop: 'none', bgcolor: 'grey.50' }}
+            >
+              <BrandDetailsPanel
+                brandUuid={original.brandUuid}
+                customerUuid={
+                  showCustomerColumn ? original.customerUuid : undefined
+                }
+                challengePrompts={original.challengePrompts}
+                providers={original.providers}
+              />
+            </TableCell>
+          </TableRow>
+        )}
+      </>
+    );
+  };
 
   if (!data?.length && isLoading) {
     return <LoadingChartSection />;
@@ -92,113 +203,31 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   }
 
   return (
-    <TableContainer component={Paper} sx={{ opacity: isFetching ? 0.4 : 1 }}>
-      <Table sx={{ backgroundColor: white }}>
-        <TableHead>
-          {/* Product group header row */}
-          <TableRow>
-            {showCustomerColumn && (
-              <TableCell rowSpan={2}>
-                {sortLabel('customerName', 'Customer Name')}
-              </TableCell>
-            )}
-            <TableCell rowSpan={2}>
-              {sortLabel('brand', 'Brand Name')}
-            </TableCell>
-            {topLevelColumns.map((col) => (
-              <TableCell key={col.key} rowSpan={2}>
-                {sortLabel(col.key, col.label)}
-              </TableCell>
-            ))}
-            {activeProducts.map((product) => {
-              const visibleCount = product.columns.filter(
-                (c) => !topLevelColumnKeys.has(c.key),
-              ).length;
-              if (visibleCount === 0) return null;
-              return (
-                <TableCell
-                  key={product.product}
-                  colSpan={visibleCount}
-                  align='center'
-                  sx={{ fontWeight: 'bold', borderBottom: 'none' }}
-                >
-                  {product.label}
-                </TableCell>
-              );
-            })}
-          </TableRow>
-          {/* Event column header row */}
-          <TableRow>
-            {allColumns.map((col: BillableEventColumn) => (
-              <TableCell key={col.key} align='right'>
-                {sortLabel(col.key, col.label, 'right')}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedData.map((row: BillableEventsTableRow) => {
-            const isExpanded = expandedBrandUuid === row.brandUuid;
-            return (
-              <Fragment key={row.brandUuid}>
-                <TableRow
-                  hover
-                  onClick={() =>
-                    setExpandedBrandUuid(isExpanded ? null : row.brandUuid)
-                  }
-                  sx={{
-                    cursor: 'pointer',
-                    '& > td': {
-                      borderBottom: isExpanded ? 'none' : undefined,
-                    },
-                  }}
-                >
-                  {showCustomerColumn && (
-                    <TableCell>{row.customerName ?? '—'}</TableCell>
-                  )}
-                  <TableCell>{row.brand}</TableCell>
-                  {topLevelColumns.map((col: BillableEventColumn) => (
-                    <TableCell key={col.key}>
-                      {columnSlots?.[col.key]
-                        ? columnSlots[col.key](row)
-                        : formatBillableMetric(row.metrics[col.key])}
-                    </TableCell>
-                  ))}
-                  {allColumns.map((col: BillableEventColumn) => (
-                    <TableCell key={col.key} align='right'>
-                      {columnSlots?.[col.key]
-                        ? columnSlots[col.key](row)
-                        : formatBillableMetric(row.metrics[col.key])}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                {isExpanded && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={totalColumnCount}
-                      sx={{
-                        py: 0,
-                        px: 0,
-                        borderTop: 'none',
-                        bgcolor: 'grey.50',
-                      }}
-                    >
-                      <BrandDetailsPanel
-                        brandUuid={row.brandUuid}
-                        customerUuid={
-                          showCustomerColumn ? row.customerUuid : undefined
-                        }
-                        challengePrompts={row.challengePrompts}
-                        providers={row.providers}
-                      />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </Fragment>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box sx={{ opacity: isFetching ? 0.4 : 1 }}>
+      <DataTable<Row>
+        data={sortedData as Row[]}
+        columns={columns}
+        getRowId={(row) => row.brandUuid}
+        renderRow={renderRow}
+        manualSorting
+        sorting={sorting}
+        onSortingChange={handleSortingChange}
+        disablePagination
+        pinFirstColumn={false}
+        showToolbar={enableExport}
+        enableExport={enableExport}
+        enableJsonExport={enableJsonExport}
+        exportFilename={exportFilename}
+        additionalExportColumns={additionalExportColumns}
+        exportRecord={(row) =>
+          billableEventsExportRecord(row, {
+            visibleProducts,
+            topLevelColumns,
+            showCustomerColumn,
+          })
+        }
+        cspNonce={cspNonce}
+      />
+    </Box>
   );
 };
