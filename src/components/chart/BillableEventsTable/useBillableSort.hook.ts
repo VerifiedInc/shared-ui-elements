@@ -24,6 +24,11 @@ export function useBillableSort<T extends WithMetrics>(
     }
   };
 
+  const setSort = (key: string, dir: SortDirection) => {
+    setSortKey(key);
+    setSortDir(dir);
+  };
+
   const sortedData = useMemo(() => {
     return [...(data ?? [])].sort((a, b) => {
       let aValue: string | number;
@@ -42,5 +47,5 @@ export function useBillableSort<T extends WithMetrics>(
     });
   }, [data, sortKey, sortDir, directKeys]);
 
-  return { sortKey, sortDir, handleSort, sortedData };
+  return { sortKey, sortDir, handleSort, setSort, sortedData };
 }

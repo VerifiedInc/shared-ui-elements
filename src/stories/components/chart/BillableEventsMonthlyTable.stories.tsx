@@ -124,3 +124,16 @@ export const Empty: Story = {
     product: BillableProduct.ONE_CLICK_SIGNUP,
   },
 };
+
+// Opt-in: the DataTable export menu (CSV, Excel, JSON, Print) in a toolbar above the table.
+export const WithExportMenu: Story = {
+  args: {
+    data: mockData,
+    isLoading: false,
+    isFetching: false,
+    product: BillableProduct.ONE_CLICK_SIGNUP,
+    enableExport: true,
+    enableJsonExport: true,
+    exportFilename: 'billable-events-one-click-signup',
+  },
+};
