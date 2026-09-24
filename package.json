@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "date-fns-tz": "^3.2.0",
-    "react-datepicker": "^7.6.0"
+    "react-datepicker": "^9.1.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.27.1",
