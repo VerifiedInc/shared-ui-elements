@@ -1,5 +1,9 @@
 import { Box } from '@mui/material';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type {
+  CellContext,
+  ColumnDef,
+  SortingState,
+} from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 
 import { DataTable } from '../../DataTable/DataTable';
@@ -19,6 +23,23 @@ type Row = BillableEventsTableRow & Record<string, unknown>;
 
 const DIRECT_KEYS = ['brand'];
 const RIGHT_ALIGN = { align: 'right' } as const;
+
+function BrandUuidCell({
+  row,
+}: Readonly<CellContext<Row, unknown>>): React.JSX.Element {
+  return (
+    <CopyableUuid
+      uuid={row.original.brandUuid}
+      label='Brand UUID'
+      variant='button'
+      head={6}
+      tail={0}
+      mono={false}
+      iconSx={{ color: 'success.main' }}
+      typographyProps={{ variant: 'inherit', color: 'inherit' }}
+    />
+  );
+}
 
 export const BillableEventsProductTable: React.FC<
   BillableEventsProductTableProps
@@ -55,18 +76,7 @@ export const BillableEventsProductTable: React.FC<
         accessorKey: 'brandUuid',
         header: 'Brand UUID',
         enableColumnFilter: false,
-        cell: ({ row }) => (
-          <CopyableUuid
-            uuid={row.original.brandUuid}
-            label='Brand UUID'
-            variant='button'
-            head={6}
-            tail={0}
-            mono={false}
-            iconSx={{ color: 'success.main' }}
-            typographyProps={{ variant: 'inherit', color: 'inherit' }}
-          />
-        ),
+        cell: BrandUuidCell,
       },
       ...productColumns.map((column): ColumnDef<Row, unknown> => ({
         id: column.key,
