@@ -29,6 +29,7 @@ export function DataFieldOptionType(): React.JSX.Element {
       BirthDateCredential: 3,
       SsnCredential: 4,
       SexCredential: 5,
+      EmployerCredential: 6,
     };
 
     // Get all sibling fields at the same level to check for duplicates

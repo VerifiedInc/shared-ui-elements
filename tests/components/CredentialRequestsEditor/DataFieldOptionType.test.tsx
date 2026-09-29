@@ -34,7 +34,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe.skip('<CredentialRequestsEditor/> field type picker', () => {
+describe('<CredentialRequestsEditor/> field type picker', () => {
   test('offers Employer', () => {
     const utils = renderEditor();
 
