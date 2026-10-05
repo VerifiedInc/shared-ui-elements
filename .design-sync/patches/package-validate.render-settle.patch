@@ -1,0 +1,52 @@
+--- .ds-sync/package-validate.mjs (pre render-settle fix)
++++ .ds-sync/package-validate.mjs
+@@ -507,16 +507,7 @@
+       const [, group, name] = rel.match(/^components\/([^/]+)\/([^/]+)\//) ?? [,'misc', rel.split('/').pop()];
+       const shot = join(shotDir, `${group}__${name}.png`);
+       let pngBytes = 0, rootEmpty = true, err = null, caught = 0, firstCaught = null, texts = [], nEls = 0, variantsIdentical = false, hollow = [], maxHeight = 0, nPlaceholder = 0, nFallback = 0, gridOverflow = null, gridOverflowCells = [], storyExports = [];
+-      for (let attempt = 0; ; attempt++) {
+-      try {
+-        await page.goto(`http://127.0.0.1:${port}/${rel}`, { waitUntil: 'networkidle', timeout: 15000 });
+-        // Per-mount try/catch in the preview writes `\u26A0 <message>` into the
+-        // cell instead of throwing - count those as errors too. Also collect
+-        // each mount's textContent / element count / painted-ness and compare
+-        // innerHTMLs for the thin / variantsIdentical checks below. Portal
+-        // roots under document.body are included so a portalled Dialog isn't
+-        // read as empty.
+-        ({ rootEmpty, caught, firstCaught, texts, nEls, variantsIdentical, hollow, maxHeight, nPlaceholder, nFallback, gridOverflow, gridOverflowCells, storyExports } = await page.evaluate(() => {
++      const measureDom = () => {
+           // A mount "paints something" when it (or any descendant) has a
+           // visible replaced element, background, border, or shadow. This
+           // discriminates a Divider (1px border, paints) from an empty
+@@ -662,7 +653,30 @@
+           }
+           const storyExports = Array.isArray(window.__dsCells) ? window.__dsCells.slice(0, 8) : [];
+           return { rootEmpty: !roots[0]?.innerHTML?.trim().length && !portals.length, caught, firstCaught, texts, nEls, variantsIdentical, hollow, maxHeight, nPlaceholder, nFallback, gridOverflow, gridOverflowCells, storyExports };
+-        }));
++      };
++      for (let attempt = 0; ; attempt++) {
++      try {
++        await page.goto(`http://127.0.0.1:${port}/${rel}`, { waitUntil: 'networkidle', timeout: 15000 });
++        // Per-mount try/catch in the preview writes `\u26A0 <message>` into the
++        // cell instead of throwing - count those as errors too. Also collect
++        // each mount's textContent / element count / painted-ness and compare
++        // innerHTMLs for the thin / variantsIdentical checks below. Portal
++        // roots under document.body are included so a portalled Dialog isn't
++        // read as empty.
++        let m = await page.evaluate(measureDom);
++        if (m.rootEmpty) {
++          // Effect-driven async mounts (e.g. a QR-code library appending its
++          // generated SVG/canvas inside a useEffect) can lose the race against
++          // this synchronous DOM check even after `networkidle` resolves -
++          // confirmed non-deterministic on QRCodeDisplay/TTSMagicQRCode
++          // (both use the useStyledQRCode hook). One short grace re-check
++          // before deciding "empty", so a genuinely-broken render still fails.
++          // See .design-sync/NOTES.md.
++          await page.waitForTimeout(250);
++          const retry = await page.evaluate(measureDom);
++          if (!retry.rootEmpty) m = retry;
++        }
++        ({ rootEmpty, caught, firstCaught, texts, nEls, variantsIdentical, hollow, maxHeight, nPlaceholder, nFallback, gridOverflow, gridOverflowCells, storyExports } = m);
+         const buf = await page.screenshot({ path: shot, fullPage: true });
+         pngBytes = buf.length;
+         break;
