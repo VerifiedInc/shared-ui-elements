@@ -9,6 +9,9 @@
   "libOverrides": {
     "story-imports.mjs": "perf: skip the extra async b.resolve() round-trip once the importer is already under node_modules - DataTable's story named-imports ~20 icons from @mui/icons-material, whose barrel re-exports ~2100 leaves, and the unforked plugin's double-resolve on every one of them made that component's preview build take 10+ minutes and balloon memory into tens of GB (a plain esbuild bundle of the same file finishes in ~2.5s)"
   },
+  "storyImports": {
+    "shim": ["components/NetworkRules/NetworkRules.context"]
+  },
   "provider": {
     "component": "ThemeProvider",
     "props": { "theme": { "$ref": "previewTheme" } },
@@ -80,7 +83,10 @@
     "OTPInput": { "skip": ["components-form-otpinput--otp-within-iframe"] },
     "SynchronizedMetricsChart": { "cardMode": "column" },
     "TTSOverTimeChart": { "cardMode": "column" },
-    "Typography": { "cardMode": "column" }
+    "Typography": { "cardMode": "column" },
+    "PrettyPhoneInput": { "cardMode": "column" },
+    "SelectInput": { "cardMode": "column" },
+    "NetworkRuleEditorDialog": { "cardMode": "single", "primaryStory": "Edit" }
   },
   "titleMap": {
     "useCallbackRef": null,
@@ -110,6 +116,8 @@
     "Counter": null,
     "AnimateHeight": null,
     "TextField": null,
-    "OneClickVerificationOutcomeOverTimeChart": "ConversionOverTimeChart"
+    "OneClickVerificationOutcomeOverTimeChart": "ConversionOverTimeChart",
+    "NetworkRuleEditor": "NetworkRuleEditorDialog",
+    "FullExample": null
   }
 }

@@ -4,9 +4,9 @@
 # WHY THIS EXISTS: .ds-sync/ is not committed - the design-sync skill's own
 # §7 step 1 re-copies package-validate.mjs, storybook/compare.mjs, and
 # storybook/probe.mjs fresh from the skill's bundled copy on every re-sync,
-# which would otherwise silently drop the chromium-stability fix documented
-# in .design-sync/NOTES.md every single time. Run this immediately after
-# that refresh step (the `cp -r` in §7 step 1), before running any build,
+# which would otherwise silently drop the durable fixes documented in
+# .design-sync/NOTES.md every single time. Run this immediately after that
+# refresh step (the `cp -r` in §7 step 1), before running any build,
 # validate, or compare command.
 #
 # Usage: bash .design-sync/patches/apply.sh   (run from the repo root)
@@ -14,12 +14,12 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 apply_one() {
-  local patch="$1" target="$2"
+  local patch="$1" target="$2" marker="$3"
   if [ ! -f "$target" ]; then
     echo "SKIP $patch: target $target not found (staged scripts not refreshed yet?)" >&2
     return 0
   fi
-  if grep -q -- "--disable-gpu" "$target" 2>/dev/null; then
+  if grep -qF -- "$marker" "$target" 2>/dev/null; then
     echo "already applied: $patch -> $target"
     return 0
   fi
@@ -31,6 +31,10 @@ apply_one() {
   fi
 }
 
-apply_one .design-sync/patches/package-validate.chromium-stability.patch .ds-sync/package-validate.mjs
-apply_one .design-sync/patches/compare.chromium-stability.patch .ds-sync/storybook/compare.mjs
-apply_one .design-sync/patches/probe.chromium-stability.patch .ds-sync/storybook/probe.mjs
+apply_one .design-sync/patches/package-validate.chromium-stability.patch .ds-sync/package-validate.mjs "--disable-gpu"
+apply_one .design-sync/patches/compare.chromium-stability.patch .ds-sync/storybook/compare.mjs "--disable-gpu"
+apply_one .design-sync/patches/probe.chromium-stability.patch .ds-sync/storybook/probe.mjs "--disable-gpu"
+# render-settle: must apply AFTER the chromium-stability patch above (it
+# rewrites the same function the chromium-stability patch touches). See the
+# QRCodeDisplay/TTSMagicQRCode entry in .design-sync/NOTES.md.
+apply_one .design-sync/patches/package-validate.render-settle.patch .ds-sync/package-validate.mjs "const measureDom ="
