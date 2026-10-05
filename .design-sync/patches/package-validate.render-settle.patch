@@ -18,7 +18,7 @@
            // A mount "paints something" when it (or any descendant) has a
            // visible replaced element, background, border, or shadow. This
            // discriminates a Divider (1px border, paints) from an empty
-@@ -662,7 +653,30 @@
+@@ -662,7 +653,33 @@
            }
            const storyExports = Array.isArray(window.__dsCells) ? window.__dsCells.slice(0, 8) : [];
            return { rootEmpty: !roots[0]?.innerHTML?.trim().length && !portals.length, caught, firstCaught, texts, nEls, variantsIdentical, hollow, maxHeight, nPlaceholder, nFallback, gridOverflow, gridOverflowCells, storyExports };
@@ -35,13 +35,16 @@
 +        // read as empty.
 +        let m = await page.evaluate(measureDom);
 +        if (m.rootEmpty) {
-+          // Effect-driven async mounts (e.g. a QR-code library appending its
-+          // generated SVG/canvas inside a useEffect) can lose the race against
-+          // this synchronous DOM check even after `networkidle` resolves -
-+          // confirmed non-deterministic on QRCodeDisplay/TTSMagicQRCode
-+          // (both use the useStyledQRCode hook). One short grace re-check
-+          // before deciding "empty", so a genuinely-broken render still fails.
-+          // See .design-sync/NOTES.md.
++          // A mount can lose the race against this synchronous DOM check even
++          // after `networkidle` resolves - confirmed non-deterministic on two
++          // DIFFERENT components for two DIFFERENT reasons: TTSMagicQRCode's
++          // useStyledQRCode hook appends its QR code inside a useEffect (a
++          // genuine post-commit async mount), while QRCodeDisplay's useQRCode
++          // hook is fully synchronous (SVG built via useMemo, injected via
++          // dangerouslySetInnerHTML in the initial render) - its failures are
++          // a plain initial-render race, not an effect-timing one. One short
++          // grace re-check before deciding "empty" covers both cases, so a
++          // genuinely-broken render still fails. See .design-sync/NOTES.md.
 +          await page.waitForTimeout(250);
 +          const retry = await page.evaluate(measureDom);
 +          if (!retry.rootEmpty) m = retry;
