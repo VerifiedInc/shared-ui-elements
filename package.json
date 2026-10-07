@@ -3,7 +3,9 @@
   "version": "12.24.1",
   "description": "A set of UI components, utilities that is shareable with the core apps.",
   "private": false,
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "keywords": [],
   "author": "VerifiedInc",
   "engines": {
@@ -13,7 +15,8 @@
   "main": "/dist/index.mjs",
   "types": "/dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "fonts"
   ],
   "exports": {
     ".": {
@@ -55,7 +58,8 @@
     "./utils/*": {
       "types": "./dist/utils/*/index.d.ts",
       "import": "./dist/utils/*/index.mjs"
-    }
+    },
+    "./fonts/verified-morph.css": "./fonts/verified-morph.css"
   },
   "scripts": {
     "test": "npm run vitest",
