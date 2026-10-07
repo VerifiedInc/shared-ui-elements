@@ -53,9 +53,11 @@ describe('morph', () => {
   });
 
   it("keeps the template's literal letters and digits while waiting", () => {
-    const morph = createMorph('+1 (###) Xx', 0, timing, seeded(4));
+    const morph = createMorph('+1 (###) Xx A', 0, timing, seeded(4));
     for (let t = 16; t <= 1000; t += 16) {
-      expect(morph.frame(t, width).text).toMatch(/^\+1 \(\d{3}\) [A-Z][a-z]$/);
+      expect(morph.frame(t, width).text).toMatch(
+        /^\+1 \(\d{3}\) [A-Z][a-z] A$/,
+      );
     }
   });
 

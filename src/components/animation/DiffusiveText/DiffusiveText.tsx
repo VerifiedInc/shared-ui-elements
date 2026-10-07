@@ -40,9 +40,13 @@ function latoWidths(fontFamily: string, weight: string): MeasureWidth {
   if (ctx) ctx.font = font;
   widths.set(key, measure);
   if (document.fonts && !document.fonts.check(font))
-    void document.fonts.load(font).then(() => {
-      if (widths.get(key) === measure) widths.delete(key);
-    });
+    void document.fonts
+      .load(font)
+      .then(() => {
+        if (widths.get(key) === measure) widths.delete(key);
+      })
+      // The font didn't load: keep measuring with the fallback it renders in.
+      .catch(() => undefined);
   return measure;
 }
 
@@ -142,7 +146,7 @@ export function DiffusiveText({
       }}
     >
       {/* Before the first frame (and on the server) the template itself holds the shape. */}
-      {showValue ? value : template.replace(/#/g, '0')}
+      {showValue ? value : template.replaceAll('#', '0')}
     </Box>
   );
 }

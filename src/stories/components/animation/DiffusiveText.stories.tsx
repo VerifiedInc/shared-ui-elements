@@ -37,7 +37,7 @@ function Demo({
   lockMs,
   monoEaseMs,
   loaded,
-}: DemoProps): React.ReactElement {
+}: Readonly<DemoProps>): React.ReactElement {
   const [run, setRun] = useState(0);
   const [arrived, setArrived] = useState<string | undefined>(
     loaded ? value : undefined,

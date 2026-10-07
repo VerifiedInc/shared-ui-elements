@@ -20,17 +20,16 @@ const sets = {
 } as const;
 type GlyphClass = keyof typeof sets;
 
-// A template's placeholders: `X` (or `A`) an uppercase letter, `x` a lowercase one, `#` a digit.
+// A template's placeholders: `X` an uppercase letter, `x` a lowercase one, `#` a digit.
 const templateClass: Record<string, GlyphClass> = {
   X: 'U',
-  A: 'U',
   x: 'L',
   '#': 'D',
 };
 
 /** A character's class; spaces, punctuation and symbols (`•`) never scramble. */
 export function classOf(c: string): GlyphClass | null {
-  if (/[0-9]/.test(c)) return 'D';
+  if (/\d/.test(c)) return 'D';
   if (c.toLowerCase() !== c.toUpperCase())
     return c === c.toUpperCase() ? 'U' : 'L';
   return null;
@@ -42,20 +41,22 @@ export type MeasureWidth = (c: string) => number;
 // Per width function: a new one (another weight, or the font once it has loaded) measures afresh.
 const pools = new WeakMap<MeasureWidth, Map<string, string[]>>();
 
+type Phase = 'waiting' | 'arrived';
+
 // While waiting, a placeholder letter swaps with same-class letters within 6% of its Lato width (at
-// least three), so the line doesn't jitter.
-const WAIT_TOLERANCE = 0.06;
-// Once the value is here, a letter only swaps with ones within 2% of the real letter's width (or
-// shows the real letter when none is that close), so the line is the value's width.
-const ARRIVED_TOLERANCE = 0.02;
+// least three), so the line doesn't jitter. Once the value is here, a letter only swaps with ones
+// within 2% of the real letter's width (or shows the real letter when none is that close), so the
+// line is the value's width.
+const tolerances: Record<Phase, number> = { waiting: 0.06, arrived: 0.02 };
 
 function pool(
   c: string,
   cls: GlyphClass,
   width: MeasureWidth,
-  tolerance: number,
+  phase: Phase,
 ): string[] {
-  const key = c + cls + tolerance;
+  const key = c + cls + phase;
+  const tolerance = tolerances[phase];
   let byWidth = pools.get(width);
   if (!byWidth) {
     byWidth = new Map();
@@ -71,8 +72,7 @@ function pool(
     (g) => Math.abs(width(g) - target) <= target * tolerance,
   );
   let result = close;
-  if (tolerance === WAIT_TOLERANCE && close.length < 3)
-    result = byDistance.slice(0, 3);
+  if (phase === 'waiting' && close.length < 3) result = byDistance.slice(0, 3);
   else if (close.length === 0) result = [c];
   byWidth.set(key, result);
   return result;
@@ -141,8 +141,10 @@ export function createMorph(
     width: MeasureWidth,
   ) => {
     if (shown[i] === undefined || now >= next[i]) {
-      const tolerance = arrival ? ARRIVED_TOLERANCE : WAIT_TOLERANCE;
-      shown[i] = pick(pool(c, cls, width, tolerance), random);
+      shown[i] = pick(
+        pool(c, cls, width, arrival ? 'arrived' : 'waiting'),
+        random,
+      );
       next[i] = now + swapMs * (0.7 + 0.6 * random());
     }
     return shown[i];
