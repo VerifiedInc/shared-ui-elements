@@ -133,6 +133,7 @@ export function SynchronizedChartTooltip({
   const brandRows = rows.filter((row) => row.key !== totalDataKey);
   const shown = brandRows.slice(0, TOOLTIP_BRAND_CAP);
   const hidden = brandRows.length - shown.length;
+  const columns = columnCount(shown.length);
 
   return (
     <Box
@@ -172,7 +173,10 @@ export function SynchronizedChartTooltip({
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${columnCount(shown.length)}, minmax(0, 1fr))`,
+          gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+          // Fill each column top to bottom before moving right, so the ranking reads down a column.
+          gridTemplateRows: `repeat(${Math.ceil(shown.length / columns)}, auto)`,
+          gridAutoFlow: 'column',
           columnGap: 2,
         }}
       >
