@@ -155,4 +155,16 @@ describe('SynchronizedChartTooltip', () => {
     ).toBeTruthy();
     expect(screen.queryByText('Trend line')).toBeNull();
   });
+
+  test('renders no brand grid when the only row is the total', () => {
+    renderTooltip([
+      { dataKey: TOTAL_KEY, name: 'Total', value: 1000, color: '#000000' },
+    ]);
+
+    const grids = Array.from(document.body.querySelectorAll('div')).filter(
+      (element) => getComputedStyle(element).display === 'grid',
+    );
+    expect(screen.getByText('Total')).toBeTruthy();
+    expect(grids).toHaveLength(0);
+  });
 });
