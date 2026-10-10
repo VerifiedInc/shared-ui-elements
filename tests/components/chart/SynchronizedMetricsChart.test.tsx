@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, expect, test, describe } from 'vitest';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material';
 
 // Recharts' ResponsiveContainer uses ResizeObserver, which jsdom doesn't provide.
@@ -350,7 +350,7 @@ describe('Show Internal Brand Name', () => {
     expect(queryByText('Footprint (Acme KYC)')).toBeNull();
   });
 
-  test('swaps the legend to internal names when on, and back when off', async () => {
+  test('swaps the legend to internal names when on, and back when off', () => {
     const { getByRole, getByText, queryAllByText, queryByText } =
       renderFootprints(internalBrandNames);
     const toggle = getByRole('button', { name: 'Show Internal Brand Name' });
@@ -359,12 +359,12 @@ describe('Show Internal Brand Name', () => {
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
     expect(getByText('Footprint (Triumph DOB challenge)')).toBeDefined();
     expect(getByText('Footprint (Acme KYC)')).toBeDefined();
-    // The legend fades the renamed entries out.
-    await waitFor(() => expect(queryAllByText('Footprint')).toHaveLength(0));
+    // Renamed entries update in place; no old entry lingers fading out.
+    expect(queryAllByText('Footprint')).toHaveLength(0);
 
     fireEvent.click(toggle);
     expect(queryAllByText('Footprint')).toHaveLength(2);
-    await waitFor(() => expect(queryByText('Footprint (Acme KYC)')).toBeNull());
+    expect(queryByText('Footprint (Acme KYC)')).toBeNull();
   });
 
   test('is not offered when the host passes no internal names', () => {

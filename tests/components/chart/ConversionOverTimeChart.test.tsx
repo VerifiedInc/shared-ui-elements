@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import { afterEach, beforeAll, describe, expect, test } from 'vitest';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material';
 
 // Recharts' ResponsiveContainer uses ResizeObserver, which jsdom doesn't provide.
@@ -411,7 +405,7 @@ describe('legend Show Internal Brand Name', () => {
     expect(screen.queryByText('Footprint (Triumph DOB challenge)')).toBeNull();
   });
 
-  test('swaps the legend to the internal name when on, and back when off', async () => {
+  test('swaps the legend to the internal name when on, and back when off', () => {
     renderChart({ legendBrand: footprint });
     const toggle = screen.getByRole('button', {
       name: 'Show Internal Brand Name',
@@ -419,16 +413,12 @@ describe('legend Show Internal Brand Name', () => {
 
     fireEvent.click(toggle);
     expect(screen.getByText('Footprint (Triumph DOB challenge)')).toBeDefined();
-    // The legend fades the renamed entry out.
-    await waitFor(() => expect(screen.queryByText('Footprint')).toBeNull());
+    // The renamed entry updates in place; the old name doesn't linger fading out.
+    expect(screen.queryByText('Footprint')).toBeNull();
 
     fireEvent.click(toggle);
     expect(screen.getByText('Footprint')).toBeDefined();
-    await waitFor(() =>
-      expect(
-        screen.queryByText('Footprint (Triumph DOB challenge)'),
-      ).toBeNull(),
-    );
+    expect(screen.queryByText('Footprint (Triumph DOB challenge)')).toBeNull();
   });
 
   test('is not offered when the legend brand carries no internal name', () => {
