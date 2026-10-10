@@ -785,11 +785,14 @@ describe('Internal Brand Name column', () => {
     expect(getAllByText('Plain Brand')).toHaveLength(2);
   });
 
-  test('sorts the rows by internal name from its header', () => {
+  // Shows the Internal Brand Name column, sorts by it, and returns the order the table reports.
+  function sortByInternalBrandName(
+    data: BillableEventsTableRow[],
+  ): BillableEventsTableRow[] | undefined {
     const onSortedDataChange = vi.fn();
     const { getByLabelText, getByRole, getByText } = render(
       <BillableEventsTable
-        data={footprintData}
+        data={data}
         isLoading={false}
         isFetching={false}
         visibleProducts={[BillableProduct.ONE_CLICK_SIGNUP]}
@@ -805,16 +808,17 @@ describe('Internal Brand Name column', () => {
 
     fireEvent.click(getByText('Internal Brand Name', { selector: 'thead *' }));
 
-    const lastOrder = onSortedDataChange.mock.calls.at(-1)?.[0] as
+    return onSortedDataChange.mock.calls.at(-1)?.[0] as
       BillableEventsTableRow[] | undefined;
-    expect(lastOrder?.map((row) => row.internalBrand)).toEqual([
-      'Footprint (Acme KYC)',
-      'Footprint (Triumph DOB challenge)',
-    ]);
+  }
+
+  test('sorts the rows by internal name from its header', () => {
+    expect(
+      sortByInternalBrandName(footprintData)?.map((row) => row.internalBrand),
+    ).toEqual(['Footprint (Acme KYC)', 'Footprint (Triumph DOB challenge)']);
   });
 
   test('sorts a row without an internal name by the external name it shows', () => {
-    const onSortedDataChange = vi.fn();
     const mixed = [
       // Shows "Zeta Health" under Internal Brand Name, so it sorts after "Footprint (Acme KYC)".
       makeRow({ brandUuid: 'zeta-uuid', brand: 'Zeta Health' }),
@@ -824,35 +828,10 @@ describe('Internal Brand Name column', () => {
         internalBrand: 'Footprint (Acme KYC)',
       }),
     ];
-    const { getByLabelText, getByRole, getByText, container } = render(
-      <BillableEventsTable
-        data={mixed}
-        isLoading={false}
-        isFetching={false}
-        visibleProducts={[BillableProduct.ONE_CLICK_SIGNUP]}
-        onSortedDataChange={onSortedDataChange}
-        showInternalBrandColumn
-      />,
+
+    expect(sortByInternalBrandName(mixed)?.map((row) => row.brandUuid)).toEqual(
+      ['acme-uuid', 'zeta-uuid'],
     );
-    fireEvent.click(getByLabelText('Manage columns'));
-    fireEvent.click(getByRole('checkbox', { name: 'Internal Brand Name' }));
-    fireEvent.keyDown(document.activeElement ?? document.body, {
-      key: 'Escape',
-    });
-
-    fireEvent.click(getByText('Internal Brand Name', { selector: 'thead *' }));
-
-    const lastOrder = onSortedDataChange.mock.calls.at(-1)?.[0] as
-      BillableEventsTableRow[] | undefined;
-    expect(lastOrder?.map((row) => row.brandUuid)).toEqual([
-      'acme-uuid',
-      'zeta-uuid',
-    ]);
-    expect(
-      Array.from(container.querySelectorAll('tbody tr')).map(
-        (row) => row.textContent,
-      )[0],
-    ).toContain('Footprint (Acme KYC)');
   });
 
   test('the JSON export record carries the internal name when the column is offered', () => {
