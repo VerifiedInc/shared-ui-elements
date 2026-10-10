@@ -60,6 +60,11 @@ type SynchronizedMetricsChartBaseProps = {
      */
     interval?: MetricsIntervalType;
   };
+  /**
+   * Each brand's internal name, keyed by brand uuid. When provided, a Show Internal Brand Name
+   * toggle by the legend swaps the brands' external names for these in the legend and tooltip.
+   */
+  internalBrandNames?: Map<string, string>;
   sx?: SxProps;
 };
 

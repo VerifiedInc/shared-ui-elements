@@ -14,6 +14,7 @@ import { ConversionChartTooltip } from './ConversionOverTimeChart.tooltip';
 import { trendSeries } from '../trend';
 import type { MetricsIntervalType } from '../../../constants/metrics';
 import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
+import { InternalBrandNameToggle } from '../InternalBrandNameToggle';
 import { useStyle } from '../styles';
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
@@ -170,6 +171,11 @@ export interface ConversionOverTimeChartLegendBrand {
   color: string;
   dataKey?: string;
   brandName?: string;
+  /**
+   * The brand's internal name. When provided, a Show Internal Brand Name toggle by the legend
+   * swaps `value` for it.
+   */
+  internalName?: string;
 }
 
 export interface ConversionOverTimeChartProps {
@@ -270,6 +276,7 @@ export function ConversionOverTimeChart({
   // Declared before the early returns below - see the hooks-order trap this
   // component hit previously.
   const [showTrend, setShowTrend] = useState(false);
+  const [showInternalName, setShowInternalName] = useState(false);
 
   const activeView =
     effectiveViews.find((v) => v.key === activeViewKey) ?? effectiveViews[0];
@@ -552,18 +559,29 @@ export function ConversionOverTimeChart({
         )}
       </Box>
       {legendBrand && (
-        <SeriesPercentageChartLegend
-          payload={[
-            {
-              uuid: legendBrand.uuid,
-              value: legendBrand.value,
-              color: legendBrand.color,
-              dataKey: legendBrand.dataKey ?? legendBrand.uuid,
-              brandName: legendBrand.brandName,
-            },
-          ]}
-          showUuid={showLegendUuid}
-        />
+        <Stack spacing={1}>
+          {legendBrand.internalName !== undefined && (
+            <InternalBrandNameToggle
+              selected={showInternalName}
+              onChange={setShowInternalName}
+            />
+          )}
+          <SeriesPercentageChartLegend
+            payload={[
+              {
+                uuid: legendBrand.uuid,
+                value:
+                  showInternalName && legendBrand.internalName
+                    ? legendBrand.internalName
+                    : legendBrand.value,
+                color: legendBrand.color,
+                dataKey: legendBrand.dataKey ?? legendBrand.uuid,
+                brandName: legendBrand.brandName,
+              },
+            ]}
+            showUuid={showLegendUuid}
+          />
+        </Stack>
       )}
     </Stack>
   );

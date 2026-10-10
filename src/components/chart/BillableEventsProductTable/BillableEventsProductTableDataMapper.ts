@@ -7,6 +7,7 @@ import {
 type Brand = {
   brandUuid: string;
   brandName: string;
+  internalBrandName?: string | null;
 };
 
 export type ChartData = {
@@ -52,6 +53,7 @@ export const mapBillableEventsProductTableData = ({
       rowMap.set(brandData.brandUuid, {
         brandUuid: brandData.brandUuid,
         brand: brand.brandName,
+        internalBrand: brand.internalBrandName || brand.brandName,
         metrics,
         raw: brandData,
       });

@@ -7,6 +7,7 @@ import {
 type Brand = {
   brandUuid: string;
   brandName: string;
+  internalBrandName?: string | null;
 };
 
 type ChartData = {
@@ -63,13 +64,14 @@ export const mapBillableEventsTableData = ({
   }
 
   return Array.from(brandsWithData.entries())
-    .map(([brandUuid, raw]) => {
+    .map(([brandUuid, raw]): BillableEventsTableRow | null => {
       const brand = brands.find((b) => b.brandUuid === brandUuid);
       if (!brand) return null;
 
       return {
         brandUuid,
         brand: brand.brandName,
+        internalBrand: brand.internalBrandName || brand.brandName,
         metrics: brandMetrics.get(brandUuid) ?? {},
         raw,
       };

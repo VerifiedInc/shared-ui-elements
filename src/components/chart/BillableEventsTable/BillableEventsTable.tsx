@@ -23,11 +23,16 @@ import {
 import { billableEventsExportRecord } from './billableEventsExportRecord';
 import { BrandDetailsPanel } from './BrandDetailsPanel';
 import { formatBillableMetric } from './format';
+import {
+  INTERNAL_BRAND_COLUMN_ID,
+  INTERNAL_BRAND_HIDDEN,
+  internalBrandColumn,
+} from './internalBrandColumn';
 import { useBillableSort } from './useBillableSort.hook';
 
 type Row = BillableEventsTableRow & Record<string, unknown>;
 
-const DIRECT_KEYS = ['customerName', 'brand'];
+const DIRECT_KEYS = ['customerName', 'brand', INTERNAL_BRAND_COLUMN_ID];
 const RIGHT_ALIGN = { align: 'right' } as const;
 
 const CUSTOMER_COLUMN: ColumnDef<Row, unknown> = {
@@ -69,6 +74,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
   columnSlots,
   topLevelColumns = [],
   showCustomerColumn = true,
+  showInternalBrandColumn = false,
   enableExport = false,
   enableJsonExport = false,
   exportFilename,
@@ -98,6 +104,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
         enableSorting: true,
         enableColumnFilter: false,
       },
+      ...(showInternalBrandColumn ? [internalBrandColumn<Row>()] : []),
       ...topLevelColumns.map((column) => metricColumn(column, columnSlots)),
       ...BILLABLE_PRODUCTS.filter((product) =>
         products.includes(product.product),
@@ -117,7 +124,13 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
           ),
         })),
     ];
-  }, [visibleProducts, topLevelColumns, showCustomerColumn, columnSlots]);
+  }, [
+    visibleProducts,
+    topLevelColumns,
+    showCustomerColumn,
+    showInternalBrandColumn,
+    columnSlots,
+  ]);
 
   // The expanded panel's identifiers, which no column shows.
   const additionalExportColumns = useMemo<Array<DataTableExportColumn<Row>>>(
@@ -214,7 +227,9 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
         onSortingChange={handleSortingChange}
         disablePagination
         pinFirstColumn={false}
-        showToolbar={enableExport}
+        // The toolbar's Manage columns is how a user reveals the internal brand name.
+        showToolbar={enableExport || showInternalBrandColumn}
+        initialColumnVisibility={INTERNAL_BRAND_HIDDEN}
         enableExport={enableExport}
         enableJsonExport={enableJsonExport}
         exportFilename={exportFilename}
@@ -224,6 +239,7 @@ export const BillableEventsTable: React.FC<BillableEventsTableProps> = ({
             visibleProducts,
             topLevelColumns,
             showCustomerColumn,
+            showInternalBrandColumn,
           })
         }
         cspNonce={cspNonce}
