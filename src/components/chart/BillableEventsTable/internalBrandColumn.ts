@@ -9,13 +9,16 @@ export const INTERNAL_BRAND_HIDDEN: VisibilityState = {
   [INTERNAL_BRAND_COLUMN_ID]: false,
 };
 
-/** The customer's own name for each brand, falling back to the external name when unset. */
+/** The customer's own name for the brand, falling back to the external name when unset. */
+export const internalBrandName = (row: BillableEventsTableRow): string =>
+  row.internalBrand || row.brand;
+
 export function internalBrandColumn<
   Row extends BillableEventsTableRow,
 >(): ColumnDef<Row, unknown> {
   return {
     id: INTERNAL_BRAND_COLUMN_ID,
-    accessorFn: (row) => row.internalBrand || row.brand,
+    accessorFn: internalBrandName,
     header: 'Internal Brand Name',
     enableSorting: true,
     enableColumnFilter: false,

@@ -813,6 +813,48 @@ describe('Internal Brand Name column', () => {
     ]);
   });
 
+  test('sorts a row without an internal name by the external name it shows', () => {
+    const onSortedDataChange = vi.fn();
+    const mixed = [
+      // Shows "Zeta Health" under Internal Brand Name, so it sorts after "Footprint (Acme KYC)".
+      makeRow({ brandUuid: 'zeta-uuid', brand: 'Zeta Health' }),
+      makeRow({
+        brandUuid: 'acme-uuid',
+        brand: 'Footprint',
+        internalBrand: 'Footprint (Acme KYC)',
+      }),
+    ];
+    const { getByLabelText, getByRole, getByText, container } = render(
+      <BillableEventsTable
+        data={mixed}
+        isLoading={false}
+        isFetching={false}
+        visibleProducts={[BillableProduct.ONE_CLICK_SIGNUP]}
+        onSortedDataChange={onSortedDataChange}
+        showInternalBrandColumn
+      />,
+    );
+    fireEvent.click(getByLabelText('Manage columns'));
+    fireEvent.click(getByRole('checkbox', { name: 'Internal Brand Name' }));
+    fireEvent.keyDown(document.activeElement ?? document.body, {
+      key: 'Escape',
+    });
+
+    fireEvent.click(getByText('Internal Brand Name', { selector: 'thead *' }));
+
+    const lastOrder = onSortedDataChange.mock.calls.at(-1)?.[0] as
+      BillableEventsTableRow[] | undefined;
+    expect(lastOrder?.map((row) => row.brandUuid)).toEqual([
+      'acme-uuid',
+      'zeta-uuid',
+    ]);
+    expect(
+      Array.from(container.querySelectorAll('tbody tr')).map(
+        (row) => row.textContent,
+      )[0],
+    ).toContain('Footprint (Acme KYC)');
+  });
+
   test('the JSON export record carries the internal name when the column is offered', () => {
     const [triumph] = footprintData;
 

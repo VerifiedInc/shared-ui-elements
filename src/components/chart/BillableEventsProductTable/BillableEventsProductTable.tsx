@@ -16,17 +16,24 @@ import {
 } from '../BillableEventsTable/BillableEventsTable.types';
 import { billableEventsExportRecord } from '../BillableEventsTable/billableEventsExportRecord';
 import { formatBillableMetric } from '../BillableEventsTable/format';
-import { useBillableSort } from '../BillableEventsTable/useBillableSort.hook';
+import {
+  useBillableSort,
+  type BillableSortValues,
+} from '../BillableEventsTable/useBillableSort.hook';
 import {
   INTERNAL_BRAND_COLUMN_ID,
   INTERNAL_BRAND_HIDDEN,
   internalBrandColumn,
+  internalBrandName,
 } from '../BillableEventsTable/internalBrandColumn';
 import { CopyableUuid } from '../../CopyableUuid';
 
 type Row = BillableEventsTableRow & Record<string, unknown>;
 
-const DIRECT_KEYS = ['brand', INTERNAL_BRAND_COLUMN_ID];
+const DIRECT_SORT_VALUES: BillableSortValues<BillableEventsTableRow> = {
+  brand: (row) => row.brand,
+  [INTERNAL_BRAND_COLUMN_ID]: internalBrandName,
+};
 const RIGHT_ALIGN = { align: 'right' } as const;
 
 function BrandUuidCell({
@@ -61,7 +68,7 @@ export const BillableEventsProductTable: React.FC<
   cspNonce,
 }) => {
   const { sortKey, sortDir, setSort, sortedData } =
-    useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
+    useBillableSort<BillableEventsTableRow>(data, DIRECT_SORT_VALUES, 'brand');
 
   const columns = useMemo<Array<ColumnDef<Row, unknown>>>(() => {
     const productColumns =
