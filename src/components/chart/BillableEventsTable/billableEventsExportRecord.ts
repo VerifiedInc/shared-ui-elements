@@ -11,6 +11,8 @@ interface BillableEventsExportRecordOptions {
   /** Columns the table lifts out of their product group; written at the top level. */
   topLevelColumns?: BillableEventColumn[];
   showCustomerColumn?: boolean;
+  /** Adds the brand's internal name, when the table offers that column. */
+  showInternalBrandColumn?: boolean;
 }
 
 // `ONE_CLICK_SIGNUP` -> `oneClickSignup`.
@@ -44,6 +46,7 @@ export function billableEventsExportRecord(
     visibleProducts = Object.values(BillableProduct),
     topLevelColumns = [],
     showCustomerColumn = true,
+    showInternalBrandColumn = false,
   }: BillableEventsExportRecordOptions = {},
 ): Record<string, unknown> {
   const topLevelKeys = new Set(topLevelColumns.map((column) => column.key));
@@ -67,7 +70,13 @@ export function billableEventsExportRecord(
           },
         }
       : {}),
-    brand: { name: row.brand, uuid: row.brandUuid },
+    brand: {
+      name: row.brand,
+      ...(showInternalBrandColumn
+        ? { internalName: row.internalBrand || row.brand }
+        : {}),
+      uuid: row.brandUuid,
+    },
     ...metricValues(row, topLevelColumns),
     ...Object.fromEntries(
       groups.map(({ key, columns }) => [key, metricValues(row, columns)]),

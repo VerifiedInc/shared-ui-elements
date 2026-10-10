@@ -112,6 +112,8 @@ export const BILLABLE_PRODUCTS: BillableProductConfig[] = [
 export type BillableEventsTableRow = {
   brandUuid: string;
   brand: string;
+  /** The customer's own name for the brand, shown by the opt-in Internal Brand Name column. */
+  internalBrand?: string;
   customerUuid?: string;
   customerName?: string;
   metrics: Record<string, number>;
@@ -149,6 +151,11 @@ export type BillableEventsTableProps = BillableEventsExportProps & {
    * for views scoped to a single customer where the column would be redundant.
    */
   showCustomerColumn?: boolean;
+  /**
+   * Offer an Internal Brand Name column (rows' `internalBrand`) in Manage columns, hidden until
+   * the user picks it. Defaults to `false`.
+   */
+  showInternalBrandColumn?: boolean;
 };
 
 export type BillableEventsProductTableProps = BillableEventsExportProps & {
@@ -160,4 +167,9 @@ export type BillableEventsProductTableProps = BillableEventsExportProps & {
     string,
     (row: BillableEventsTableRow) => React.ReactNode
   >;
+  /**
+   * Offer an Internal Brand Name column (rows' `internalBrand`) in Manage columns, hidden until
+   * the user picks it. Defaults to `false`.
+   */
+  showInternalBrandColumn?: boolean;
 };
