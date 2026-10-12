@@ -2,6 +2,7 @@ import {
   mapSeriesTimeSeriesData,
   type MapSeriesTimeSeriesDataOptions,
 } from '../SeriesChart/SeriesChart.map';
+import type { SeriesChartData } from '../SeriesChart';
 import type { BrandFilter } from '../../../components/BrandFilterInput';
 import type { BrandIntervalData } from '../ConversionOverTimeChart';
 import type {
@@ -125,4 +126,34 @@ export function mapSynchronizedSubCharts({
   });
 
   return result as [SubChartConfig, ...SubChartConfig[]];
+}
+
+/**
+ * Names each series by its brand's internal name instead of the external one. A keyword series
+ * (Text to Signup) stays named by its keyword and carries the brand in `brandName`; any other
+ * series is named by its brand. Brands without an internal name keep the external one, and the
+ * series order is kept so toggling names doesn't reshuffle the chart.
+ */
+export function applyInternalBrandNames(
+  subCharts: readonly [SubChartConfig, ...SubChartConfig[]],
+  internalBrandNames: Map<string, string>,
+): readonly [SubChartConfig, ...SubChartConfig[]] {
+  const rename = (series: SeriesChartData): SeriesChartData => {
+    const brandUuid = series.brandUuid ?? series.uuid;
+    const internalName = internalBrandNames.get(brandUuid);
+    if (!internalName) return series;
+    // A keyword series is keyed by its keyword, not its brand.
+    const isKeywordSeries = series.uuid !== brandUuid;
+    return {
+      ...series,
+      name: isKeywordSeries ? series.name : internalName,
+      ...(series.brandName === undefined ? {} : { brandName: internalName }),
+    };
+  };
+
+  const [first, ...rest] = subCharts.map((subChart) => ({
+    ...subChart,
+    data: subChart.data.map(rename),
+  }));
+  return [first, ...rest];
 }

@@ -92,7 +92,8 @@ export function SeriesPercentageChartLegend(
     >
       <AnimatePresence>
         {payload?.map((entry) => (
-          <Grid2 key={`item-${entry.uuid}-${entry.value}`}>
+          // Keyed by series, not by name, so a renamed entry updates in place instead of fading out.
+          <Grid2 key={`item-${entry.uuid}-${entry.dataKey}`}>
             <EntryBlock entry={entry} showUuid={props.showUuid} />
           </Grid2>
         ))}

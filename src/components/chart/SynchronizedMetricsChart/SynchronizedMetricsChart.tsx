@@ -26,7 +26,11 @@ import type {
   SubChartConfig,
   SynchronizedMetricsChartProps,
 } from './SynchronizedMetricsChart.types';
-import { mapSynchronizedSubCharts } from './SynchronizedMetricsChart.map';
+import {
+  applyInternalBrandNames,
+  mapSynchronizedSubCharts,
+} from './SynchronizedMetricsChart.map';
+import { InternalBrandNameToggle } from '../InternalBrandNameToggle';
 import { SynchronizedChartTooltip } from './SynchronizedMetricsChart.tooltip';
 import { trendSeries } from '../trend';
 import type { MetricsIntervalType } from '../../../constants/metrics';
@@ -268,14 +272,16 @@ export function SynchronizedMetricsChart({
   isSuccess,
   isFetching,
   filter,
+  internalBrandNames,
   sx,
 }: Readonly<SynchronizedMetricsChartProps>): React.ReactNode {
   const timezone = filter.timezone ?? DEFAULT_TIMEZONE;
   const [showTotal, setShowTotal] = useState(false);
   const [showTrend, setShowTrend] = useState(false);
   const [logScale, setLogScale] = useState(false);
+  const [showInternalNames, setShowInternalNames] = useState(false);
 
-  const resolvedSubCharts: readonly [SubChartConfig, ...SubChartConfig[]] =
+  const mappedSubCharts: readonly [SubChartConfig, ...SubChartConfig[]] =
     chartData
       ? mapSynchronizedSubCharts({
           chartData,
@@ -285,6 +291,10 @@ export function SynchronizedMetricsChart({
           isLoading,
         })
       : subCharts;
+  const resolvedSubCharts =
+    showInternalNames && internalBrandNames
+      ? applyInternalBrandNames(mappedSubCharts, internalBrandNames)
+      : mappedSubCharts;
 
   const noData = resolvedSubCharts.every((sc) => sc.data.length === 0);
 
@@ -406,7 +416,15 @@ export function SynchronizedMetricsChart({
             yAxisDomain={sc.yAxisDomain}
           />
         ))}
-        <SeriesPercentageChartLegend payload={legendPayload} />
+        <Stack spacing={1}>
+          {internalBrandNames && (
+            <InternalBrandNameToggle
+              selected={showInternalNames}
+              onChange={setShowInternalNames}
+            />
+          )}
+          <SeriesPercentageChartLegend payload={legendPayload} />
+        </Stack>
       </Stack>
     </Stack>
   );

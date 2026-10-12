@@ -16,12 +16,24 @@ import {
 } from '../BillableEventsTable/BillableEventsTable.types';
 import { billableEventsExportRecord } from '../BillableEventsTable/billableEventsExportRecord';
 import { formatBillableMetric } from '../BillableEventsTable/format';
-import { useBillableSort } from '../BillableEventsTable/useBillableSort.hook';
+import {
+  useBillableSort,
+  type BillableSortValues,
+} from '../BillableEventsTable/useBillableSort.hook';
+import {
+  INTERNAL_BRAND_COLUMN_ID,
+  INTERNAL_BRAND_HIDDEN,
+  internalBrandColumn,
+  internalBrandName,
+} from '../BillableEventsTable/internalBrandColumn';
 import { CopyableUuid } from '../../CopyableUuid';
 
 type Row = BillableEventsTableRow & Record<string, unknown>;
 
-const DIRECT_KEYS = ['brand'];
+const DIRECT_SORT_VALUES: BillableSortValues<BillableEventsTableRow> = {
+  brand: (row) => row.brand,
+  [INTERNAL_BRAND_COLUMN_ID]: internalBrandName,
+};
 const RIGHT_ALIGN = { align: 'right' } as const;
 
 function BrandUuidCell({
@@ -49,13 +61,14 @@ export const BillableEventsProductTable: React.FC<
   isFetching,
   product,
   columnSlots,
+  showInternalBrandColumn = false,
   enableExport = false,
   enableJsonExport = false,
   exportFilename,
   cspNonce,
 }) => {
   const { sortKey, sortDir, setSort, sortedData } =
-    useBillableSort<BillableEventsTableRow>(data, DIRECT_KEYS, 'brand');
+    useBillableSort<BillableEventsTableRow>(data, DIRECT_SORT_VALUES, 'brand');
 
   const columns = useMemo<Array<ColumnDef<Row, unknown>>>(() => {
     const productColumns =
@@ -70,6 +83,7 @@ export const BillableEventsProductTable: React.FC<
         enableSorting: true,
         enableColumnFilter: false,
       },
+      ...(showInternalBrandColumn ? [internalBrandColumn<Row>()] : []),
       {
         id: 'brandUuid',
         // Not sortable, but keeps an accessor so the uuid is exported.
@@ -93,7 +107,7 @@ export const BillableEventsProductTable: React.FC<
             : formatBillableMetric(row.original.metrics[column.key]),
       })),
     ];
-  }, [product, columnSlots]);
+  }, [product, columnSlots, showInternalBrandColumn]);
 
   // The sort hook stays the one source of order; a cleared sort flips the direction instead.
   const sorting: SortingState = [{ id: sortKey, desc: sortDir === 'desc' }];
@@ -122,7 +136,9 @@ export const BillableEventsProductTable: React.FC<
         onSortingChange={handleSortingChange}
         disablePagination
         pinFirstColumn={false}
-        showToolbar={enableExport}
+        // The toolbar's Manage columns is how a user reveals the internal brand name.
+        showToolbar={enableExport || showInternalBrandColumn}
+        initialColumnVisibility={INTERNAL_BRAND_HIDDEN}
         enableExport={enableExport}
         enableJsonExport={enableJsonExport}
         exportFilename={exportFilename}
@@ -134,6 +150,7 @@ export const BillableEventsProductTable: React.FC<
               BILLABLE_PRODUCTS.find((entry) => entry.product === product)
                 ?.columns ?? [],
             showCustomerColumn: false,
+            showInternalBrandColumn,
           })
         }
         cspNonce={cspNonce}

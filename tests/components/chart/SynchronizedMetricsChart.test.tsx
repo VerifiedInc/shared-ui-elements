@@ -22,7 +22,10 @@ import {
 } from '../../../src/components/chart/SynchronizedMetricsChart/SynchronizedMetricsChart';
 import type { SubChartConfig } from '../../../src/components/chart/SynchronizedMetricsChart/SynchronizedMetricsChart.types';
 import type { SeriesChartData } from '../../../src/components/chart/SeriesChart';
-import { pooledPercentageByDate } from '../../../src/components/chart/SynchronizedMetricsChart/SynchronizedMetricsChart.map';
+import {
+  applyInternalBrandNames,
+  pooledPercentageByDate,
+} from '../../../src/components/chart/SynchronizedMetricsChart/SynchronizedMetricsChart.map';
 
 // Minimal theme — just enough to satisfy theme.palette.neutral access.
 const testTheme = createTheme({
@@ -292,5 +295,141 @@ describe('pooledPercentageByDate', () => {
       denominator: 'sent',
     });
     expect(pooled[DATE_A]).toBe(100);
+  });
+});
+
+describe('Show Internal Brand Name', () => {
+  // Two brands share the external name; only their internal names tell them apart.
+  const footprints: SubChartConfig = {
+    title: 'Started',
+    isPercentage: false,
+    data: [
+      {
+        uuid: 'triumph-uuid',
+        name: 'Footprint',
+        color: '#111',
+        chartData: [{ date: DATE_A, value: 5 }],
+      },
+      {
+        uuid: 'acme-uuid',
+        name: 'Footprint',
+        color: '#222',
+        chartData: [{ date: DATE_A, value: 3 }],
+      },
+    ],
+  };
+  const internalBrandNames = new Map([
+    ['triumph-uuid', 'Footprint (Triumph DOB challenge)'],
+    ['acme-uuid', 'Footprint (Acme KYC)'],
+  ]);
+
+  function renderFootprints(names?: Map<string, string>) {
+    return render(
+      <ThemeProvider theme={testTheme}>
+        <div style={{ width: 800, height: 600 }}>
+          <SynchronizedMetricsChart
+            subCharts={[footprints]}
+            isLoading={false}
+            isSuccess={true}
+            isFetching={false}
+            filter={{ timezone: 'UTC', brands: [] }}
+            internalBrandNames={names}
+          />
+        </div>
+      </ThemeProvider>,
+    );
+  }
+
+  test('is offered, off, with external names in the legend by default', () => {
+    const { getByRole, getAllByText, queryByText } =
+      renderFootprints(internalBrandNames);
+
+    const toggle = getByRole('button', { name: 'Show Internal Brand Name' });
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    expect(getAllByText('Footprint')).toHaveLength(2);
+    expect(queryByText('Footprint (Acme KYC)')).toBeNull();
+  });
+
+  test('swaps the legend to internal names when on, and back when off', () => {
+    const { getByRole, getByText, queryAllByText, queryByText } =
+      renderFootprints(internalBrandNames);
+    const toggle = getByRole('button', { name: 'Show Internal Brand Name' });
+
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    expect(getByText('Footprint (Triumph DOB challenge)')).toBeDefined();
+    expect(getByText('Footprint (Acme KYC)')).toBeDefined();
+    // Renamed entries update in place; no old entry lingers fading out.
+    expect(queryAllByText('Footprint')).toHaveLength(0);
+
+    fireEvent.click(toggle);
+    expect(queryAllByText('Footprint')).toHaveLength(2);
+    expect(queryByText('Footprint (Acme KYC)')).toBeNull();
+  });
+
+  test('is not offered when the host passes no internal names', () => {
+    const { queryByRole } = renderFootprints();
+
+    expect(
+      queryByRole('button', { name: 'Show Internal Brand Name' }),
+    ).toBeNull();
+  });
+
+  describe('applyInternalBrandNames', () => {
+    test('renames brand series, keeping order and colors', () => {
+      const [renamed] = applyInternalBrandNames(
+        [footprints],
+        internalBrandNames,
+      );
+
+      expect(
+        renamed.data.map(({ uuid, name, color }) => [uuid, name, color]),
+      ).toEqual([
+        ['triumph-uuid', 'Footprint (Triumph DOB challenge)', '#111'],
+        ['acme-uuid', 'Footprint (Acme KYC)', '#222'],
+      ]);
+    });
+
+    test('keeps a keyword series named by its keyword and renames its brand', () => {
+      const keywordSeries: SeriesChartData = {
+        uuid: 'JOIN',
+        name: 'JOIN',
+        color: '#333',
+        brandUuid: 'triumph-uuid',
+        brandName: 'Footprint',
+        chartData: [],
+      };
+
+      const [renamed] = applyInternalBrandNames(
+        [{ ...footprints, data: [keywordSeries] }],
+        internalBrandNames,
+      );
+
+      expect(renamed.data[0]).toMatchObject({
+        name: 'JOIN',
+        brandName: 'Footprint (Triumph DOB challenge)',
+      });
+    });
+
+    test('leaves brands without an internal name as they are', () => {
+      const [renamed] = applyInternalBrandNames(
+        [footprints],
+        new Map([['triumph-uuid', 'Footprint (Triumph DOB challenge)']]),
+      );
+
+      expect(renamed.data[1].name).toBe('Footprint');
+    });
+
+    test('applies to every sub-chart', () => {
+      const renamed = applyInternalBrandNames(
+        [footprints, { ...footprints, title: 'Succeeded' }],
+        internalBrandNames,
+      );
+
+      expect(renamed.map((subChart) => subChart.data[1].name)).toEqual([
+        'Footprint (Acme KYC)',
+        'Footprint (Acme KYC)',
+      ]);
+    });
   });
 });

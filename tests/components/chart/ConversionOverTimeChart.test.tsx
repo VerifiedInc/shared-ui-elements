@@ -385,3 +385,49 @@ describe('ConversionOverTimeChart — toggleGroup', () => {
     ]);
   });
 });
+
+describe('legend Show Internal Brand Name', () => {
+  const footprint = {
+    uuid: 'triumph-uuid',
+    value: 'Footprint',
+    color: '#111',
+    internalName: 'Footprint (Triumph DOB challenge)',
+  };
+
+  test('is offered, off, with the external name by default', () => {
+    renderChart({ legendBrand: footprint });
+
+    const toggle = screen.getByRole('button', {
+      name: 'Show Internal Brand Name',
+    });
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    expect(screen.getByText('Footprint')).toBeDefined();
+    expect(screen.queryByText('Footprint (Triumph DOB challenge)')).toBeNull();
+  });
+
+  test('swaps the legend to the internal name when on, and back when off', () => {
+    renderChart({ legendBrand: footprint });
+    const toggle = screen.getByRole('button', {
+      name: 'Show Internal Brand Name',
+    });
+
+    fireEvent.click(toggle);
+    expect(screen.getByText('Footprint (Triumph DOB challenge)')).toBeDefined();
+    // The renamed entry updates in place; the old name doesn't linger fading out.
+    expect(screen.queryByText('Footprint')).toBeNull();
+
+    fireEvent.click(toggle);
+    expect(screen.getByText('Footprint')).toBeDefined();
+    expect(screen.queryByText('Footprint (Triumph DOB challenge)')).toBeNull();
+  });
+
+  test('is not offered when the legend brand carries no internal name', () => {
+    renderChart({
+      legendBrand: { uuid: 'triumph-uuid', value: 'Footprint', color: '#111' },
+    });
+
+    expect(
+      screen.queryByRole('button', { name: 'Show Internal Brand Name' }),
+    ).toBeNull();
+  });
+});

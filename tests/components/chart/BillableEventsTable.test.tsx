@@ -7,9 +7,13 @@ import {
   BillableProduct,
   billableEventsExportRecord,
   exportBillableEventsToCsv,
+  mapBillableEventsTableData,
   type BillableEventsTableRow,
 } from '../../../src/components/chart/BillableEventsTable';
-import { BillableEventsProductTable } from '../../../src/components/chart/BillableEventsProductTable';
+import {
+  BillableEventsProductTable,
+  mapBillableEventsProductTableData,
+} from '../../../src/components/chart/BillableEventsProductTable';
 
 // The tables render through DataTable, whose virtualizer renders no rows in jsdom.
 vi.mock(
@@ -27,6 +31,7 @@ function makeRow(
   return {
     brandUuid: has('brandUuid') ? overrides.brandUuid! : 'brand-1',
     brand: has('brand') ? overrides.brand! : 'Brand 1',
+    internalBrand: overrides.internalBrand,
     customerUuid: has('customerUuid') ? overrides.customerUuid : HOOLI_CUSTOMER,
     customerName: has('customerName') ? overrides.customerName : 'Hooli',
     metrics: has('metrics')
@@ -659,5 +664,245 @@ describe('billableEventsExportRecord', () => {
     // The row's internal shape stays out of the export.
     expect(record).not.toHaveProperty('raw');
     expect(record).not.toHaveProperty('metrics');
+  });
+});
+
+describe('Internal Brand Name column', () => {
+  // Two brands share the external name; only their internal names tell them apart.
+  const footprintData = [
+    makeRow({
+      brandUuid: 'triumph-uuid',
+      brand: 'Footprint',
+      internalBrand: 'Footprint (Triumph DOB challenge)',
+      metrics: { signup_autofillsSucceeded: 1 },
+    }),
+    makeRow({
+      brandUuid: 'acme-uuid',
+      brand: 'Footprint',
+      internalBrand: 'Footprint (Acme KYC)',
+      metrics: { signup_autofillsSucceeded: 2 },
+    }),
+  ];
+
+  const headerTexts = (container: HTMLElement): string[] =>
+    Array.from(container.querySelectorAll('thead th')).map(
+      (cell) => cell.textContent ?? '',
+    );
+
+  const tables = [
+    {
+      name: '<BillableEventsTable/>',
+      render: (
+        props: Partial<React.ComponentProps<typeof BillableEventsTable>>,
+      ) =>
+        render(
+          <BillableEventsTable
+            data={footprintData}
+            isLoading={false}
+            isFetching={false}
+            visibleProducts={[BillableProduct.ONE_CLICK_SIGNUP]}
+            {...props}
+          />,
+        ),
+    },
+    {
+      name: '<BillableEventsProductTable/>',
+      render: (
+        props: Partial<React.ComponentProps<typeof BillableEventsTable>>,
+      ) =>
+        render(
+          <BillableEventsProductTable
+            data={footprintData}
+            isLoading={false}
+            isFetching={false}
+            product={BillableProduct.ONE_CLICK_SIGNUP}
+            {...props}
+          />,
+        ),
+    },
+  ];
+
+  describe.each(tables)('$name', ({ render: renderTable }) => {
+    test('is offered unchecked in Manage columns, and hidden by default', () => {
+      const { container, getByLabelText, getByRole } = renderTable({
+        showInternalBrandColumn: true,
+      });
+
+      expect(headerTexts(container)).not.toContain('Internal Brand Name');
+      expect(headerTexts(container)).toContain('Brand Name');
+
+      // No export asked for: the toolbar still shows so the column can be revealed.
+      fireEvent.click(getByLabelText('Manage columns'));
+      const checkbox = getByRole('checkbox', {
+        name: 'Internal Brand Name',
+      }) as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+    });
+
+    test("shows each brand's internal name once enabled, and Reset hides it again", () => {
+      const { container, getByLabelText, getByRole, getByText } = renderTable({
+        showInternalBrandColumn: true,
+      });
+
+      fireEvent.click(getByLabelText('Manage columns'));
+      fireEvent.click(getByRole('checkbox', { name: 'Internal Brand Name' }));
+
+      expect(headerTexts(container)).toContain('Internal Brand Name');
+      expect(getByText('Footprint (Triumph DOB challenge)')).toBeDefined();
+      expect(getByText('Footprint (Acme KYC)')).toBeDefined();
+
+      fireEvent.click(getByText('Reset'));
+      expect(headerTexts(container)).not.toContain('Internal Brand Name');
+    });
+
+    test('is not offered unless the host asks for it', () => {
+      const { getByLabelText, queryByRole } = renderTable({
+        enableExport: true,
+      });
+
+      fireEvent.click(getByLabelText('Manage columns'));
+      expect(
+        queryByRole('checkbox', { name: 'Internal Brand Name' }),
+      ).toBeNull();
+    });
+  });
+
+  test('falls back to the external name for a brand without an internal name', () => {
+    const { getByLabelText, getByRole, getAllByText } = render(
+      <BillableEventsProductTable
+        data={[makeRow({ brandUuid: 'plain-uuid', brand: 'Plain Brand' })]}
+        isLoading={false}
+        isFetching={false}
+        product={BillableProduct.ONE_CLICK_SIGNUP}
+        showInternalBrandColumn
+      />,
+    );
+
+    fireEvent.click(getByLabelText('Manage columns'));
+    fireEvent.click(getByRole('checkbox', { name: 'Internal Brand Name' }));
+
+    // Once under Brand Name, once under Internal Brand Name.
+    expect(getAllByText('Plain Brand')).toHaveLength(2);
+  });
+
+  // Shows the Internal Brand Name column, sorts by it, and returns the order the table reports.
+  function sortByInternalBrandName(
+    data: BillableEventsTableRow[],
+  ): BillableEventsTableRow[] | undefined {
+    const onSortedDataChange = vi.fn();
+    const { getByLabelText, getByRole, getByText } = render(
+      <BillableEventsTable
+        data={data}
+        isLoading={false}
+        isFetching={false}
+        visibleProducts={[BillableProduct.ONE_CLICK_SIGNUP]}
+        onSortedDataChange={onSortedDataChange}
+        showInternalBrandColumn
+      />,
+    );
+    fireEvent.click(getByLabelText('Manage columns'));
+    fireEvent.click(getByRole('checkbox', { name: 'Internal Brand Name' }));
+    fireEvent.keyDown(document.activeElement ?? document.body, {
+      key: 'Escape',
+    });
+
+    fireEvent.click(getByText('Internal Brand Name', { selector: 'thead *' }));
+
+    return onSortedDataChange.mock.calls.at(-1)?.[0] as
+      BillableEventsTableRow[] | undefined;
+  }
+
+  test('sorts the rows by internal name from its header', () => {
+    expect(
+      sortByInternalBrandName(footprintData)?.map((row) => row.internalBrand),
+    ).toEqual(['Footprint (Acme KYC)', 'Footprint (Triumph DOB challenge)']);
+  });
+
+  test('sorts a row without an internal name by the external name it shows', () => {
+    const mixed = [
+      // Shows "Zeta Health" under Internal Brand Name, so it sorts after "Footprint (Acme KYC)".
+      makeRow({ brandUuid: 'zeta-uuid', brand: 'Zeta Health' }),
+      makeRow({
+        brandUuid: 'acme-uuid',
+        brand: 'Footprint',
+        internalBrand: 'Footprint (Acme KYC)',
+      }),
+    ];
+
+    expect(sortByInternalBrandName(mixed)?.map((row) => row.brandUuid)).toEqual(
+      ['acme-uuid', 'zeta-uuid'],
+    );
+  });
+
+  test('the JSON export record carries the internal name when the column is offered', () => {
+    const [triumph] = footprintData;
+
+    expect(
+      billableEventsExportRecord(triumph, {
+        visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
+        showCustomerColumn: false,
+        showInternalBrandColumn: true,
+      }).brand,
+    ).toEqual({
+      name: 'Footprint',
+      internalName: 'Footprint (Triumph DOB challenge)',
+      uuid: 'triumph-uuid',
+    });
+    expect(
+      billableEventsExportRecord(triumph, {
+        visibleProducts: [BillableProduct.ONE_CLICK_SIGNUP],
+      }).brand,
+    ).toEqual({ name: 'Footprint', uuid: 'triumph-uuid' });
+  });
+
+  describe('mappers', () => {
+    const chartData = (brandUuid: string) => ({
+      brandUuid,
+      brandName: 'Footprint',
+      interval: [{ oneClickSuccess: 3 }],
+      overall: {},
+    });
+    const brands = [
+      {
+        brandUuid: 'triumph-uuid',
+        brandName: 'Footprint',
+        internalBrandName: 'Footprint (Triumph DOB challenge)',
+      },
+      {
+        brandUuid: 'unnamed-uuid',
+        brandName: 'Footprint',
+        internalBrandName: null,
+      },
+    ];
+
+    test('mapBillableEventsTableData sets internalBrand, falling back to the external name', () => {
+      const rows = mapBillableEventsTableData({
+        productDataSets: [
+          {
+            product: BillableProduct.ONE_CLICK_SIGNUP,
+            data: [chartData('triumph-uuid'), chartData('unnamed-uuid')],
+          },
+        ],
+        brands,
+      });
+
+      expect(rows.map((row) => [row.brandUuid, row.internalBrand])).toEqual([
+        ['triumph-uuid', 'Footprint (Triumph DOB challenge)'],
+        ['unnamed-uuid', 'Footprint'],
+      ]);
+    });
+
+    test('mapBillableEventsProductTableData sets internalBrand, falling back to the external name', () => {
+      const rows = mapBillableEventsProductTableData({
+        product: BillableProduct.ONE_CLICK_SIGNUP,
+        data: [chartData('triumph-uuid'), chartData('unnamed-uuid')],
+        brands,
+      });
+
+      expect(rows.map((row) => [row.brandUuid, row.internalBrand])).toEqual([
+        ['triumph-uuid', 'Footprint (Triumph DOB challenge)'],
+        ['unnamed-uuid', 'Footprint'],
+      ]);
+    });
   });
 });
