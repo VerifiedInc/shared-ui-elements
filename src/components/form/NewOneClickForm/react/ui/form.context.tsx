@@ -17,10 +17,7 @@ type OneClickOptionFeatures = {
   /** Element that the date picker should be detached from when clicking outside of it. */
   datePickerClickOutsideBoundaryElement?: HTMLElement | null;
   enableUserPrivacy?: boolean;
-  /**
-   * Read-only values scramble in `DiffusiveText` for `delay` milliseconds, then resolve, once per form.
-   * Needs `@verifiedinc-public/shared-ui-elements/fonts/verified-morph.css` imported by the app.
-   */
+  /** Read-only values scramble in `DiffusiveText`, in their own font, for `delay` milliseconds, then resolve, once per form. */
   diffusion?: {
     enabled: boolean;
     delay: number;

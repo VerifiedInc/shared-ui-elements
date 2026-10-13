@@ -1,19 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Stack, Typography, SxProps } from '@mui/material';
-import { useReducedMotion } from 'framer-motion';
 
-import {
-  DiffusiveText,
-  verifiedMorphFontFamily,
-} from '../../../../../animation/DiffusiveText';
+import { DiffusiveText } from '../../../../../animation/DiffusiveText';
 
 import { useFormField } from '../../core/field.hook';
 
-import {
-  getFieldDisplayValue,
-  makeAttributes,
-  toDiffusiveTemplate,
-} from './shared';
+import { getFieldDisplayValue, makeAttributes } from './shared';
 import { useOneClickForm } from '../form.context';
 
 export function FieldLabelBase({
@@ -71,31 +63,23 @@ export function FieldLabel({
 export function DiffusedValue({ value }: { value: string }) {
   const { options, diffusionPlayed } = useOneClickForm();
   const diffusion = options.features.diffusion;
-  const reduce = useReducedMotion();
   const [initialValue] = useState(value);
   const [diffuse, setDiffuse] = useState(
     () => !!diffusion?.enabled && !diffusionPlayed.current,
   );
-  const [held, setHeld] = useState(true);
 
   // A value changed after mount (e.g. a variant pick) must not replay the effect.
   if (diffuse && value !== initialValue) setDiffuse(false);
 
-  const delay = diffusion?.delay;
-  useEffect(() => {
-    if (!diffuse) return undefined;
-    const timer = setTimeout(() => setHeld(false), delay);
-    return () => clearTimeout(timer);
-  }, [diffuse, delay]);
+  if (!diffusion || !diffuse || value !== initialValue) return <>{value}</>;
 
-  if (!diffuse || value !== initialValue) return <>{value}</>;
-
+  // The value is known at mount, so the template (only shown while loading) never renders.
   return (
     <DiffusiveText
-      template={toDiffusiveTemplate(value)}
-      value={held && !reduce ? undefined : value}
-      fontFamily={verifiedMorphFontFamily}
-      timing={diffusion?.timing}
+      template={value}
+      value={value}
+      delay={diffusion.delay}
+      timing={diffusion.timing}
     />
   );
 }
