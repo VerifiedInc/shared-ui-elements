@@ -9,6 +9,9 @@ import {
   NewOneClickForm,
   toCreatePatchCredentials,
 } from '../../../components/form/NewOneClickForm';
+import type { OneClickFormOptions } from '../../../components/form/NewOneClickForm/react/ui/form.context';
+
+import '../../../../fonts/verified-morph.css';
 
 const Debugger = ({ form }: { form: FormContextValue }) => {
   // Query after mount, not during render — on the very first render the sibling
@@ -274,7 +277,9 @@ const FormFooter = ({ form }: { form: FormContextValue }) => {
   );
 };
 
-const CredentialForm: React.FC = () => {
+const CredentialForm: React.FC<{
+  diffusion?: OneClickFormOptions['features']['diffusion'];
+}> = ({ diffusion }) => {
   const [stickyTop, setStickyTop] = useState(0);
   const formRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -382,6 +387,7 @@ const CredentialForm: React.FC = () => {
           credentials={mockCredentials}
           options={{
             features: {
+              diffusion,
               datePickerClickOutsideBoundaryElement: document.body,
               // editMode: {
               //   hide: true,
@@ -822,5 +828,10 @@ const meta: Meta<typeof CredentialForm> = {
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/** Remount the story (Storybook toolbar) to replay it. */
+export const Diffusion: Story = {
+  args: { diffusion: { enabled: true, delay: 600 } },
+};
 
 export default meta;
