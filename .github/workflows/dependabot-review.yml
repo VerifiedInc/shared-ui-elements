@@ -1,5 +1,8 @@
 # Approves and auto-merges Dependabot minor/patch PRs only when the required checks pass on Dependabot's
 # own commits. Failing PRs are labeled and need a human review. ref: Linear ENG-743
+#
+# Copy of verified-github-action-workflows/.github/workflows/dependabot-review.yml@v1.1.0: public repos
+# can't call reusable workflows from that private repo. Keep the job in sync with it.
 name: Dependabot review
 
 on: pull_request
@@ -12,5 +15,87 @@ permissions:
   statuses: read
 
 jobs:
-  dependabot-review:
-    uses: verifiedinc/verified-github-action-workflows/.github/workflows/dependabot-review.yml@v1.1.0
+  review:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: dependabot-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      FAILURE_LABEL: dependabot-ci-failed
+    steps:
+      - name: Check commit authorship
+        id: authorship
+        run: |
+          foreign=$(gh api "repos/$GH_REPO/pulls/$PR_NUMBER/commits" --paginate \
+            --jq '.[] | select(.author.login != "dependabot[bot]" or .commit.verification.verified != true) | .sha')
+          if [[ -n "$foreign" ]]; then
+            echo "Commits not authored by Dependabot: $foreign"
+            echo "dependabot-only=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "dependabot-only=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch Dependabot metadata
+        id: metadata
+        if: steps.authorship.outputs.dependabot-only == 'true'
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ github.token }}
+
+      - name: Wait for required checks
+        id: checks
+        if: steps.authorship.outputs.dependabot-only == 'true' && steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: |
+          deadline=$((SECONDS + 600))
+          until output=$(gh pr checks "$PR_NUMBER" --required --json name 2>&1); do
+            if ! grep -qi "no required checks reported" <<< "$output"; then
+              echo "::error::$output"
+              exit 1
+            fi
+            if ((SECONDS >= deadline)); then
+              echo "::error::No required status checks reported for this PR, refusing to approve."
+              exit 1
+            fi
+            sleep 15
+          done
+
+          if gh pr checks "$PR_NUMBER" --required --watch --fail-fast --interval 30; then
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=fail" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Approve and enable auto-merge
+        if: steps.checks.outputs.result == 'pass'
+        run: |
+          gh api "repos/$GH_REPO/pulls/$PR_NUMBER/reviews" -f event=APPROVE -f commit_id="$HEAD_SHA" > /dev/null
+          gh pr merge "$PR_NUMBER" --auto --squash --match-head-commit "$HEAD_SHA"
+          if gh pr view "$PR_NUMBER" --json labels --jq '.labels[].name' | grep -qx "$FAILURE_LABEL"; then
+            gh pr edit "$PR_NUMBER" --remove-label "$FAILURE_LABEL"
+          fi
+
+      - name: Revoke approval and auto-merge
+        if: steps.authorship.outputs.dependabot-only == 'false' || steps.checks.outputs.result == 'fail'
+        run: |
+          gh api "repos/$GH_REPO/pulls/$PR_NUMBER/reviews" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and .state == "APPROVED") | .id' |
+            while read -r review_id; do
+              gh api -X PUT "repos/$GH_REPO/pulls/$PR_NUMBER/reviews/$review_id/dismissals" \
+                -f event=DISMISS -f message="Requires human review: CI failed or the PR has non-Dependabot commits." > /dev/null
+            done
+          if [[ $(gh pr view "$PR_NUMBER" --json autoMergeRequest --jq '.autoMergeRequest != null') == true ]]; then
+            gh pr merge "$PR_NUMBER" --disable-auto
+          fi
+
+      - name: Label the failed PR
+        if: steps.checks.outputs.result == 'fail'
+        run: |
+          gh label create "$FAILURE_LABEL" --force --color D93F0B \
+            --description "Dependabot PR whose required checks failed"
+          gh pr edit "$PR_NUMBER" --add-label "$FAILURE_LABEL"
