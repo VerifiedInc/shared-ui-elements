@@ -1,0 +1,16 @@
+# Approves and auto-merges Dependabot minor/patch PRs only when the required checks pass on Dependabot's
+# own commits. Failing PRs are labeled and need a human review. ref: Linear ENG-743
+name: Dependabot review
+
+on: pull_request
+
+permissions:
+  actions: read
+  checks: read
+  contents: write
+  pull-requests: write
+  statuses: read
+
+jobs:
+  dependabot-review:
+    uses: verifiedinc/verified-github-action-workflows/.github/workflows/dependabot-review.yml@v1.1.0
