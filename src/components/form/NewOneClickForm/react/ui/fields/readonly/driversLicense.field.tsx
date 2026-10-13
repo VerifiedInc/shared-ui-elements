@@ -2,7 +2,7 @@ import { MenuItem, Stack, SxProps, Typography } from '@mui/material';
 
 import { useFormField } from '../../../core/field.hook';
 
-import { FieldLabelBase } from '../style';
+import { DiffusedValue, FieldLabelBase } from '../style';
 import { VariantSelectField } from './variantSelect.field';
 
 const menuStyle: SxProps = {
@@ -42,7 +42,9 @@ function DriversLicenseSummaryRows({
                 textAlign: 'left',
               }}
             >
-              {child.displayValue}
+              {child.displayValue && (
+                <DiffusedValue value={child.displayValue} />
+              )}
             </Typography>
           </Stack>
         );

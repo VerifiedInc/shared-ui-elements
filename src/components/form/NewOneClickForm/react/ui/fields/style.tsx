@@ -1,8 +1,19 @@
+import { useEffect, useState } from 'react';
 import { Stack, Typography, SxProps } from '@mui/material';
+import { useReducedMotion } from 'framer-motion';
+
+import {
+  DiffusiveText,
+  verifiedMorphFontFamily,
+} from '../../../../../animation/DiffusiveText';
 
 import { useFormField } from '../../core/field.hook';
 
-import { getFieldDisplayValue, makeAttributes } from './shared';
+import {
+  getFieldDisplayValue,
+  makeAttributes,
+  toDiffusiveTemplate,
+} from './shared';
 import { useOneClickForm } from '../form.context';
 
 export function FieldLabelBase({
@@ -57,6 +68,38 @@ export function FieldLabel({
   return <FieldLabelBase label={label} sx={sx} />;
 }
 
+export function DiffusedValue({ value }: { value: string }) {
+  const { options, diffusionPlayed } = useOneClickForm();
+  const diffusion = options.features.diffusion;
+  const reduce = useReducedMotion();
+  const [initialValue] = useState(value);
+  const [diffuse, setDiffuse] = useState(
+    () => !!diffusion?.enabled && !diffusionPlayed.current,
+  );
+  const [held, setHeld] = useState(true);
+
+  // A value changed after mount (e.g. a variant pick) must not replay the effect.
+  if (diffuse && value !== initialValue) setDiffuse(false);
+
+  const delay = diffusion?.delay;
+  useEffect(() => {
+    if (!diffuse) return undefined;
+    const timer = setTimeout(() => setHeld(false), delay);
+    return () => clearTimeout(timer);
+  }, [diffuse, delay]);
+
+  if (!diffuse || value !== initialValue) return <>{value}</>;
+
+  return (
+    <DiffusiveText
+      template={toDiffusiveTemplate(value)}
+      value={held && !reduce ? undefined : value}
+      fontFamily={verifiedMorphFontFamily}
+      timing={diffusion?.timing}
+    />
+  );
+}
+
 export function FieldValue({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
   const { options } = useOneClickForm();
@@ -78,8 +121,11 @@ export function FieldValue({ fieldKey }: { fieldKey: string }) {
         } as any
       }
     >
-      {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
-      {displayValue || (!field?.isRequired ? '-' : null)}
+      {displayValue ? (
+        <DiffusedValue value={displayValue} />
+      ) : (
+        !field?.isRequired && '-'
+      )}
     </Typography>
   );
 }

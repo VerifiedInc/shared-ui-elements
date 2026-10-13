@@ -10,6 +10,8 @@ import {
 
 import { useFormField } from '../../../core/field.hook';
 import { useForm } from '../../../core/form.context';
+import { useOneClickForm } from '../../form.context';
+import { DiffusedValue } from '../style';
 import { SingleField } from './single.field';
 
 const styles = (): Record<string, SxProps> => ({
@@ -65,6 +67,7 @@ const styles = (): Record<string, SxProps> => ({
 export function MultiField({ fieldKey }: { fieldKey: string }) {
   const { field, fieldProps } = useFormField({ key: fieldKey });
   const { replaceFieldWithVariant } = useForm();
+  const { options } = useOneClickForm();
   const _styles = styles();
 
   const variants =
@@ -112,6 +115,17 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
         e.stopPropagation();
         e.preventDefault();
       },
+      ...(options.features.diffusion?.enabled && {
+        renderValue: (id: unknown) => {
+          const variant = variants.find((variant) => variant.id === id);
+
+          return variant?.displayValue ? (
+            <DiffusedValue value={variant.displayValue} />
+          ) : (
+            (variant?.displayValue ?? (variant?.isRequired ? '-' : null))
+          );
+        },
+      }),
       MenuProps: {
         'data-mask-me': true,
         slotProps: {

@@ -126,6 +126,13 @@ export const getFieldDisplayValue = (
   return displayValue;
 };
 
+/** `DiffusiveText`'s template in the value's shape: `#` a digit, `X`/`x` a letter of that case. */
+export const toDiffusiveTemplate = (value: string): string =>
+  value.replace(/\d|\p{Lu}|\p{Ll}/gu, (char) => {
+    if (/\d/.test(char)) return '#';
+    return /\p{Lu}/u.test(char) ? 'X' : 'x';
+  });
+
 export function RequiredLabel({
   children,
   required,
