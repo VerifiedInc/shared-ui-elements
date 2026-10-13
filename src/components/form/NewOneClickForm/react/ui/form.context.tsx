@@ -9,6 +9,8 @@ type OneClickOptionFeatures = {
   enableUserPrivacy?: boolean;
   editMode?: {
     hide?: boolean;
+    /** Edit button text. Defaults to "Edit". */
+    label?: string;
   };
   field?: {
     dob?: {
