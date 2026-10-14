@@ -1,17 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { flexRender, type ColumnDef } from '@tanstack/react-table';
 import {
   Box,
   Chip,
-  CircularProgress,
   IconButton,
-  Paper,
   Stack,
-  Table,
-  TableBody,
   TableCell,
-  TableContainer,
-  TableHead,
   TableRow,
   Tooltip,
   Typography,
@@ -27,7 +21,7 @@ import { formatLogTimestamp } from '../../../utils/date';
 import type { LogEntry, LogsResponse } from '../types';
 import { PRODUCT_LABELS } from '../constants';
 import { LogDetailPanel } from './LogDetailPanel';
-import { useBidirectionalScroll } from '../../../hooks/useBidirectionalScroll';
+import { DataTable } from '../../DataTable/DataTable';
 
 interface LogsTableProps {
   data?: LogsResponse;
@@ -78,7 +72,7 @@ function CopyButton({
 }: {
   value: string;
   label: string;
-  onCopy: (label: string, value: string) => void;
+  onCopy: (label: string, value: string) => Promise<void>;
 }) {
   return (
     <IconButton
@@ -86,7 +80,7 @@ function CopyButton({
       size='small'
       onClick={(e) => {
         e.stopPropagation();
-        onCopy(label, value);
+        void onCopy(label, value);
       }}
       sx={{ p: 0.25, ml: 0.5 }}
     >
@@ -172,7 +166,10 @@ function OverflowChip({
 
 const ROW_HEIGHT_ESTIMATE = 48;
 
-const MONO_SX = { fontFamily: 'monospace' } as const;
+const MONO_SX = { fontFamily: 'monospace', fontSize: '0.8em' } as const;
+
+const getRowId = (row: LogEntry, index: number): string =>
+  `${row.eventTimestamp}-${index}`;
 
 export function LogsTable({
   data,
@@ -188,404 +185,243 @@ export function LogsTable({
 }: LogsTableProps) {
   const theme = useTheme();
   const isLgAndBelow = useMediaQuery(theme.breakpoints.down('xl'));
-  const monoSx = { ...MONO_SX, fontSize: '0.8em' };
-
-  const columns = useMemo(
-    () => [
-      { label: 'Timestamp', width: 230 },
-      { label: 'Phone', width: 150 },
-      { label: '1-Click UUID', width: 130 },
-      { label: 'Source', width: 90 },
-      { label: 'Product', width: 140 },
-      { label: 'Event', width: isLgAndBelow ? 125 : 200 },
-      { label: 'HTTP', align: 'right' as const, width: 75 },
-      { label: 'Latency', align: 'right' as const, width: 100 },
-      { label: 'Error', width: 140 },
-    ],
-    [isLgAndBelow],
-  );
-
-  const [expandedRowKey, setExpandedRowKey] = useState<string | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const { copy } = useCopyToClipboard({ type: 'text/plain' });
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleCopy = async (label: string, value: string) => {
-    await copy(value);
-    enqueueSnackbar(`${label} copied to clipboard`, 'success');
-  };
-
   const rows = useMemo(() => data?.data ?? [], [data?.data]);
 
-  const virtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => scrollContainerRef.current,
-    estimateSize: () => ROW_HEIGHT_ESTIMATE,
-    overscan: 5,
-  });
+  const columns = useMemo<Array<ColumnDef<LogEntry, unknown>>>(() => {
+    const handleCopy = async (label: string, value: string) => {
+      await copy(value);
+      enqueueSnackbar(`${label} copied to clipboard`, 'success');
+    };
 
-  useBidirectionalScroll({
-    scrollContainerRef,
-    virtualizer,
-    rowCount: rows.length,
-    hasNewer,
-    hasOlder,
-    isLoadingNewer,
-    isLoadingOlder,
-    onLoadNewer,
-    onLoadOlder,
-    resetKey: filterKey,
-  });
-
-  const virtualItems = virtualizer.getVirtualItems();
-
-  const getRowKey = (row: LogEntry, index: number) => {
-    return `${row.eventTimestamp}-${index}`;
-  };
-
-  // If the expanded row is scrolled out of view, collapse it
-  useEffect(() => {
-    if (!expandedRowKey) {
-      return;
-    }
-
-    const isVisible = virtualItems.some((virtualItem) => {
-      const row = rows[virtualItem.index];
-      return getRowKey(row, virtualItem.index) === expandedRowKey;
-    });
-
-    if (!isVisible) {
-      setExpandedRowKey(null);
-    }
-  }, [virtualItems, expandedRowKey, rows]);
-
-  const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
-
-  const paddingBottom =
-    virtualItems.length > 0
-      ? virtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
-      : 0;
+    return [
+      {
+        id: 'status',
+        header: '',
+        meta: { width: 32 },
+        cell: ({ row }) => (
+          <Stack alignItems='center' justifyContent='center' height='100%'>
+            <StatusDot
+              statusCode={row.original.statusCode}
+              errorCode={row.original.errorCode}
+            />
+          </Stack>
+        ),
+      },
+      {
+        id: 'timestamp',
+        header: 'Timestamp',
+        meta: { width: 230 },
+        cell: ({ row }) => (
+          <Typography
+            variant='body2'
+            color='text.secondary'
+            sx={{ ...MONO_SX, whiteSpace: 'nowrap' }}
+          >
+            {formatLogTimestamp(row.original.eventTimestamp, timeZone)}
+          </Typography>
+        ),
+      },
+      {
+        id: 'phone',
+        header: 'Phone',
+        meta: { width: 150 },
+        cell: ({ row }) => (
+          <Stack direction='row' alignItems='center'>
+            <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
+              {row.original.phone ?? '—'}
+            </Typography>
+            {row.original.phone && (
+              <CopyButton
+                value={row.original.phone}
+                label='Phone'
+                onCopy={handleCopy}
+              />
+            )}
+          </Stack>
+        ),
+      },
+      {
+        id: 'uuid',
+        header: '1-Click UUID',
+        meta: { width: 130 },
+        cell: ({ row }) => (
+          <Stack direction='row' alignItems='center' overflow='hidden'>
+            <Typography
+              variant='body2'
+              color='text.secondary'
+              noWrap
+              sx={MONO_SX}
+            >
+              {truncateUuid(row.original.uuid)}
+            </Typography>
+            {row.original.uuid && (
+              <CopyButton
+                value={row.original.uuid}
+                label='1-Click UUID'
+                onCopy={handleCopy}
+              />
+            )}
+          </Stack>
+        ),
+      },
+      {
+        id: 'source',
+        header: 'Source',
+        meta: { width: 90 },
+        cell: ({ row }) => (
+          <Chip
+            label={row.original.source.toUpperCase()}
+            size='small'
+            variant='filled'
+            sx={{
+              fontWeight: 600,
+              fontSize: 12,
+              minWidth: 40,
+              bgcolor:
+                row.original.source === 'sdk' ? '#4FC3F7' : 'primary.main',
+              color: 'white',
+            }}
+          />
+        ),
+      },
+      {
+        id: 'product',
+        header: 'Product',
+        meta: { width: 140 },
+        cell: ({ row }) => (
+          <OverflowChip
+            label={PRODUCT_LABELS[row.original.product]}
+            variant='outlined'
+            sx={{ fontSize: 13, fontWeight: 600, minWidth: 110 }}
+          />
+        ),
+      },
+      {
+        id: 'event',
+        header: 'Event',
+        meta: { width: isLgAndBelow ? 125 : 200 },
+        cell: ({ row }) => <OverflowTooltip text={formatEvent(row.original)} />,
+      },
+      {
+        id: 'http',
+        header: 'HTTP',
+        meta: { width: 75, align: 'right' },
+        cell: ({ row }) => {
+          const { source, statusCode } = row.original;
+          let color = 'success.main';
+          if (source === 'sdk') color = 'text.secondary';
+          else if (statusCode >= 400) color = 'error.main';
+          return (
+            <Typography variant='body2' sx={{ ...MONO_SX, color }}>
+              {source === 'sdk' ? '—' : statusCode}
+            </Typography>
+          );
+        },
+      },
+      {
+        id: 'latency',
+        header: 'Latency',
+        meta: { width: 100, align: 'right' },
+        cell: ({ row }) => (
+          <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
+            {row.original.source === 'sdk' || !row.original.latencyMs
+              ? '—'
+              : `${row.original.latencyMs}ms`}
+          </Typography>
+        ),
+      },
+      {
+        id: 'error',
+        header: 'Error',
+        meta: { width: 140 },
+        cell: ({ row }) =>
+          row.original.errorCode ? (
+            <Typography
+              variant='body2'
+              sx={{ ...MONO_SX, color: 'error.main' }}
+            >
+              {row.original.errorCode}
+            </Typography>
+          ) : (
+            <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
+              —
+            </Typography>
+          ),
+      },
+    ];
+  }, [copy, enqueueSnackbar, isLgAndBelow, timeZone]);
 
   if (!isLoading && rows.length === 0) {
     return <EmptyChartSection />;
   }
 
   return (
-    <Stack sx={{ width: '100%', flex: 1, minHeight: 0 }}>
-      <TableContainer
-        component={Paper}
-        ref={scrollContainerRef}
-        sx={{
-          flex: 1,
-          scrollbarGutter: 'stable',
-          minHeight: 500,
+    <Stack sx={{ width: '100%', flex: 1, minHeight: 500 }}>
+      <DataTable<LogEntry>
+        data={rows}
+        columns={columns}
+        getRowId={getRowId}
+        // Rows already on screen stay while a filter refetches; the loading rows are only for the first load.
+        isLoading={isLoading && rows.length === 0}
+        disableSorting
+        disablePagination
+        pinFirstColumn={false}
+        tableLayout='fixed'
+        minWidth={1230}
+        maxHeight='100%'
+        estimateRowHeight={ROW_HEIGHT_ESTIMATE}
+        bidirectionalScroll={{
+          hasNewer,
+          hasOlder,
+          isLoadingNewer,
+          isLoadingOlder,
+          onLoadNewer,
+          onLoadOlder,
+          resetKey: filterKey,
+          loadingNewerLabel: 'Loading newer logs',
+          loadingOlderLabel: 'Loading older logs',
         }}
-      >
-        <Table
-          size='small'
-          stickyHeader
-          sx={{ minWidth: 1230, tableLayout: 'fixed' }}
-        >
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ width: 32, bgcolor: 'background.paper' }} />
-              {columns.map((col) => (
-                <TableCell
-                  key={col.label}
-                  sx={{ textAlign: col.align, width: col.width }}
-                >
-                  <Typography
-                    sx={{ textTransform: 'uppercase' }}
-                    variant='subtitle2'
-                  >
-                    {col.label}
-                  </Typography>
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {isLoading && rows.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={10} sx={{ textAlign: 'center', py: 2 }}>
-                  <Typography color='text.secondary'>Loading...</Typography>
-                </TableCell>
-              </TableRow>
-            )}
+        renderRow={({ row, rowProps, getCellProps }) => {
+          const isExpanded = expandedRowId === row.id;
+          const cells = row.getVisibleCells();
 
-            {isLoadingNewer && (
+          return (
+            <>
               <TableRow
+                {...rowProps}
+                hover
+                onClick={() => setExpandedRowId(isExpanded ? null : row.id)}
                 sx={{
-                  position: 'sticky',
-                  top: 37,
-                  zIndex: 1,
-                  pointerEvents: 'none',
+                  cursor: 'pointer',
+                  '& > td': { borderBottom: isExpanded ? 'none' : undefined },
+                  '& .copy-btn': { opacity: 0 },
+                  '& td:hover .copy-btn': { opacity: 1 },
                 }}
               >
-                <TableCell
-                  colSpan={10}
-                  sx={{
-                    textAlign: 'center',
-                    py: 0.75,
-                    bgcolor: 'grey.100',
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                  }}
-                >
-                  <Stack
-                    direction='row'
-                    alignItems='center'
-                    justifyContent='center'
-                    spacing={1}
-                  >
-                    <CircularProgress size={12} />
-                    <Typography variant='caption' color='text.secondary'>
-                      Loading newer logs
-                    </Typography>
-                  </Stack>
-                </TableCell>
+                {cells.map((cell) => (
+                  <TableCell key={cell.id} {...getCellProps(cell)}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
-
-            {paddingTop > 0 && (
-              <tr>
-                <td
-                  style={{ height: paddingTop, padding: 0, border: 'none' }}
-                />
-              </tr>
-            )}
-
-            {virtualItems.map((virtualRow) => {
-              const row = rows[virtualRow.index];
-              const rowKey = getRowKey(row, virtualRow.index);
-              const isExpanded = expandedRowKey === rowKey;
-
-              return (
-                <React.Fragment key={virtualRow.key}>
-                  <TableRow
-                    data-index={virtualRow.index}
-                    ref={virtualizer.measureElement}
-                    onClick={() =>
-                      setExpandedRowKey(isExpanded ? null : rowKey)
-                    }
-                    hover
-                    sx={{
-                      cursor: 'pointer',
-                      '& > td': {
-                        borderBottom: isExpanded ? 'none' : undefined,
-                      },
-                    }}
+              {isExpanded && (
+                <TableRow>
+                  <TableCell
+                    colSpan={cells.length}
+                    sx={{ py: 0, px: 1, borderTop: 'none', bgcolor: 'grey.50' }}
                   >
-                    <TableCell sx={{ width: 32, px: 1 }}>
-                      <Stack
-                        alignItems='center'
-                        justifyContent='center'
-                        height='100%'
-                      >
-                        <StatusDot
-                          statusCode={row.statusCode}
-                          errorCode={row.errorCode}
-                        />
-                      </Stack>
-                    </TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                      <Typography
-                        variant='body2'
-                        color='text.secondary'
-                        sx={monoSx}
-                      >
-                        {formatLogTimestamp(row.eventTimestamp, timeZone)}
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        '& .copy-btn': { opacity: 0 },
-                        '&:hover .copy-btn': { opacity: 1 },
-                      }}
-                    >
-                      <Stack direction='row' alignItems='center'>
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          sx={monoSx}
-                        >
-                          {row.phone ?? '—'}
-                        </Typography>
-                        {row.phone && (
-                          <CopyButton
-                            value={row.phone}
-                            label='Phone'
-                            onCopy={handleCopy}
-                          />
-                        )}
-                      </Stack>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        '& .copy-btn': { opacity: 0 },
-                        '&:hover .copy-btn': { opacity: 1 },
-                      }}
-                    >
-                      <Stack
-                        direction='row'
-                        alignItems='center'
-                        overflow='hidden'
-                      >
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          noWrap
-                          sx={monoSx}
-                        >
-                          {truncateUuid(row.uuid)}
-                        </Typography>
-                        {row.uuid && (
-                          <CopyButton
-                            value={row.uuid}
-                            label='1-Click UUID'
-                            onCopy={handleCopy}
-                          />
-                        )}
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={row.source.toUpperCase()}
-                        size='small'
-                        variant='filled'
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: 12,
-                          minWidth: 40,
-                          bgcolor:
-                            row.source === 'sdk' ? '#4FC3F7' : 'primary.main',
-                          color: 'white',
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <OverflowChip
-                        label={PRODUCT_LABELS[row.product]}
-                        variant='outlined'
-                        sx={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                          minWidth: 110,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <OverflowTooltip text={formatEvent(row)} />
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          ...monoSx,
-                          color:
-                            row.source === 'sdk'
-                              ? 'text.secondary'
-                              : row.statusCode >= 400
-                                ? 'error.main'
-                                : 'success.main',
-                        }}
-                      >
-                        {row.source === 'sdk' ? '—' : row.statusCode}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <Typography
-                        variant='body2'
-                        color='text.secondary'
-                        sx={monoSx}
-                      >
-                        {row.source === 'sdk' || !row.latencyMs
-                          ? '—'
-                          : `${row.latencyMs}ms`}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      {row.errorCode ? (
-                        <Typography
-                          variant='body2'
-                          sx={{ ...monoSx, color: 'error.main' }}
-                        >
-                          {row.errorCode}
-                        </Typography>
-                      ) : (
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          sx={monoSx}
-                        >
-                          —
-                        </Typography>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                  {isExpanded && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={10}
-                        sx={{
-                          py: 0,
-                          px: 1,
-                          borderTop: 'none',
-                          bgcolor: 'grey.50',
-                        }}
-                      >
-                        <LogDetailPanel log={row} />
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </React.Fragment>
-              );
-            })}
-
-            {paddingBottom > 0 && (
-              <tr>
-                <td
-                  style={{ height: paddingBottom, padding: 0, border: 'none' }}
-                />
-              </tr>
-            )}
-
-            {isLoadingOlder && (
-              <TableRow
-                sx={{
-                  position: 'sticky',
-                  bottom: 0,
-                  zIndex: 1,
-                  pointerEvents: 'none',
-                }}
-              >
-                <TableCell
-                  colSpan={10}
-                  sx={{
-                    textAlign: 'center',
-                    py: 0.75,
-                    bgcolor: 'grey.100',
-                    borderTop: '1px solid',
-                    borderColor: 'divider',
-                  }}
-                >
-                  <Stack
-                    direction='row'
-                    alignItems='center'
-                    justifyContent='center'
-                    spacing={1}
-                  >
-                    <CircularProgress size={12} />
-                    <Typography variant='caption' color='text.secondary'>
-                      Loading older logs
-                    </Typography>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    <LogDetailPanel log={row.original} />
+                  </TableCell>
+                </TableRow>
+              )}
+            </>
+          );
+        }}
+      />
     </Stack>
   );
 }
