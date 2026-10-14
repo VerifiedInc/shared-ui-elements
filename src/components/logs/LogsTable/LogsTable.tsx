@@ -171,6 +171,171 @@ const MONO_SX = { fontFamily: 'monospace', fontSize: '0.8em' } as const;
 const getRowId = (row: LogEntry, index: number): string =>
   `${row.eventTimestamp}-${index}`;
 
+interface ColumnOptions {
+  timeZone?: string;
+  eventWidth: number;
+  onCopy: (label: string, value: string) => Promise<void>;
+}
+
+function createColumns({
+  timeZone,
+  eventWidth,
+  onCopy,
+}: ColumnOptions): Array<ColumnDef<LogEntry, unknown>> {
+  return [
+    {
+      id: 'status',
+      header: '',
+      meta: { width: 32 },
+      cell: ({ row }) => (
+        <Stack alignItems='center' justifyContent='center' height='100%'>
+          <StatusDot
+            statusCode={row.original.statusCode}
+            errorCode={row.original.errorCode}
+          />
+        </Stack>
+      ),
+    },
+    {
+      id: 'timestamp',
+      header: 'Timestamp',
+      meta: { width: 230 },
+      cell: ({ row }) => (
+        <Typography
+          variant='body2'
+          color='text.secondary'
+          sx={{ ...MONO_SX, whiteSpace: 'nowrap' }}
+        >
+          {formatLogTimestamp(row.original.eventTimestamp, timeZone)}
+        </Typography>
+      ),
+    },
+    {
+      id: 'phone',
+      header: 'Phone',
+      meta: { width: 150 },
+      cell: ({ row }) => (
+        <Stack direction='row' alignItems='center'>
+          <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
+            {row.original.phone ?? '—'}
+          </Typography>
+          {row.original.phone && (
+            <CopyButton
+              value={row.original.phone}
+              label='Phone'
+              onCopy={onCopy}
+            />
+          )}
+        </Stack>
+      ),
+    },
+    {
+      id: 'uuid',
+      header: '1-Click UUID',
+      meta: { width: 130 },
+      cell: ({ row }) => (
+        <Stack direction='row' alignItems='center' overflow='hidden'>
+          <Typography
+            variant='body2'
+            color='text.secondary'
+            noWrap
+            sx={MONO_SX}
+          >
+            {truncateUuid(row.original.uuid)}
+          </Typography>
+          {row.original.uuid && (
+            <CopyButton
+              value={row.original.uuid}
+              label='1-Click UUID'
+              onCopy={onCopy}
+            />
+          )}
+        </Stack>
+      ),
+    },
+    {
+      id: 'source',
+      header: 'Source',
+      meta: { width: 90 },
+      cell: ({ row }) => (
+        <Chip
+          label={row.original.source.toUpperCase()}
+          size='small'
+          variant='filled'
+          sx={{
+            fontWeight: 600,
+            fontSize: 12,
+            minWidth: 40,
+            bgcolor: row.original.source === 'sdk' ? '#4FC3F7' : 'primary.main',
+            color: 'white',
+          }}
+        />
+      ),
+    },
+    {
+      id: 'product',
+      header: 'Product',
+      meta: { width: 140 },
+      cell: ({ row }) => (
+        <OverflowChip
+          label={PRODUCT_LABELS[row.original.product]}
+          variant='outlined'
+          sx={{ fontSize: 13, fontWeight: 600, minWidth: 110 }}
+        />
+      ),
+    },
+    {
+      id: 'event',
+      header: 'Event',
+      meta: { width: eventWidth },
+      cell: ({ row }) => <OverflowTooltip text={formatEvent(row.original)} />,
+    },
+    {
+      id: 'http',
+      header: 'HTTP',
+      meta: { width: 75, align: 'right' },
+      cell: ({ row }) => {
+        const { source, statusCode } = row.original;
+        let color = 'success.main';
+        if (source === 'sdk') color = 'text.secondary';
+        else if (statusCode >= 400) color = 'error.main';
+        return (
+          <Typography variant='body2' sx={{ ...MONO_SX, color }}>
+            {source === 'sdk' ? '—' : statusCode}
+          </Typography>
+        );
+      },
+    },
+    {
+      id: 'latency',
+      header: 'Latency',
+      meta: { width: 100, align: 'right' },
+      cell: ({ row }) => (
+        <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
+          {row.original.source === 'sdk' || !row.original.latencyMs
+            ? '—'
+            : `${row.original.latencyMs}ms`}
+        </Typography>
+      ),
+    },
+    {
+      id: 'error',
+      header: 'Error',
+      meta: { width: 140 },
+      cell: ({ row }) =>
+        row.original.errorCode ? (
+          <Typography variant='body2' sx={{ ...MONO_SX, color: 'error.main' }}>
+            {row.original.errorCode}
+          </Typography>
+        ) : (
+          <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
+            —
+          </Typography>
+        ),
+    },
+  ];
+}
+
 export function LogsTable({
   data,
   isLoading,
@@ -191,169 +356,18 @@ export function LogsTable({
 
   const rows = useMemo(() => data?.data ?? [], [data?.data]);
 
-  const columns = useMemo<Array<ColumnDef<LogEntry, unknown>>>(() => {
-    const handleCopy = async (label: string, value: string) => {
-      await copy(value);
-      enqueueSnackbar(`${label} copied to clipboard`, 'success');
-    };
-
-    return [
-      {
-        id: 'status',
-        header: '',
-        meta: { width: 32 },
-        cell: ({ row }) => (
-          <Stack alignItems='center' justifyContent='center' height='100%'>
-            <StatusDot
-              statusCode={row.original.statusCode}
-              errorCode={row.original.errorCode}
-            />
-          </Stack>
-        ),
-      },
-      {
-        id: 'timestamp',
-        header: 'Timestamp',
-        meta: { width: 230 },
-        cell: ({ row }) => (
-          <Typography
-            variant='body2'
-            color='text.secondary'
-            sx={{ ...MONO_SX, whiteSpace: 'nowrap' }}
-          >
-            {formatLogTimestamp(row.original.eventTimestamp, timeZone)}
-          </Typography>
-        ),
-      },
-      {
-        id: 'phone',
-        header: 'Phone',
-        meta: { width: 150 },
-        cell: ({ row }) => (
-          <Stack direction='row' alignItems='center'>
-            <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
-              {row.original.phone ?? '—'}
-            </Typography>
-            {row.original.phone && (
-              <CopyButton
-                value={row.original.phone}
-                label='Phone'
-                onCopy={handleCopy}
-              />
-            )}
-          </Stack>
-        ),
-      },
-      {
-        id: 'uuid',
-        header: '1-Click UUID',
-        meta: { width: 130 },
-        cell: ({ row }) => (
-          <Stack direction='row' alignItems='center' overflow='hidden'>
-            <Typography
-              variant='body2'
-              color='text.secondary'
-              noWrap
-              sx={MONO_SX}
-            >
-              {truncateUuid(row.original.uuid)}
-            </Typography>
-            {row.original.uuid && (
-              <CopyButton
-                value={row.original.uuid}
-                label='1-Click UUID'
-                onCopy={handleCopy}
-              />
-            )}
-          </Stack>
-        ),
-      },
-      {
-        id: 'source',
-        header: 'Source',
-        meta: { width: 90 },
-        cell: ({ row }) => (
-          <Chip
-            label={row.original.source.toUpperCase()}
-            size='small'
-            variant='filled'
-            sx={{
-              fontWeight: 600,
-              fontSize: 12,
-              minWidth: 40,
-              bgcolor:
-                row.original.source === 'sdk' ? '#4FC3F7' : 'primary.main',
-              color: 'white',
-            }}
-          />
-        ),
-      },
-      {
-        id: 'product',
-        header: 'Product',
-        meta: { width: 140 },
-        cell: ({ row }) => (
-          <OverflowChip
-            label={PRODUCT_LABELS[row.original.product]}
-            variant='outlined'
-            sx={{ fontSize: 13, fontWeight: 600, minWidth: 110 }}
-          />
-        ),
-      },
-      {
-        id: 'event',
-        header: 'Event',
-        meta: { width: isLgAndBelow ? 125 : 200 },
-        cell: ({ row }) => <OverflowTooltip text={formatEvent(row.original)} />,
-      },
-      {
-        id: 'http',
-        header: 'HTTP',
-        meta: { width: 75, align: 'right' },
-        cell: ({ row }) => {
-          const { source, statusCode } = row.original;
-          let color = 'success.main';
-          if (source === 'sdk') color = 'text.secondary';
-          else if (statusCode >= 400) color = 'error.main';
-          return (
-            <Typography variant='body2' sx={{ ...MONO_SX, color }}>
-              {source === 'sdk' ? '—' : statusCode}
-            </Typography>
-          );
+  const columns = useMemo(
+    () =>
+      createColumns({
+        timeZone,
+        eventWidth: isLgAndBelow ? 125 : 200,
+        onCopy: async (label, value) => {
+          await copy(value);
+          enqueueSnackbar(`${label} copied to clipboard`, 'success');
         },
-      },
-      {
-        id: 'latency',
-        header: 'Latency',
-        meta: { width: 100, align: 'right' },
-        cell: ({ row }) => (
-          <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
-            {row.original.source === 'sdk' || !row.original.latencyMs
-              ? '—'
-              : `${row.original.latencyMs}ms`}
-          </Typography>
-        ),
-      },
-      {
-        id: 'error',
-        header: 'Error',
-        meta: { width: 140 },
-        cell: ({ row }) =>
-          row.original.errorCode ? (
-            <Typography
-              variant='body2'
-              sx={{ ...MONO_SX, color: 'error.main' }}
-            >
-              {row.original.errorCode}
-            </Typography>
-          ) : (
-            <Typography variant='body2' color='text.secondary' sx={MONO_SX}>
-              —
-            </Typography>
-          ),
-      },
-    ];
-  }, [copy, enqueueSnackbar, isLgAndBelow, timeZone]);
+      }),
+    [copy, enqueueSnackbar, isLgAndBelow, timeZone],
+  );
 
   if (!isLoading && rows.length === 0) {
     return <EmptyChartSection />;
