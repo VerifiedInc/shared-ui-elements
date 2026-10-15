@@ -74,8 +74,12 @@ describe('useBidirectionalScroll()', () => {
 
   test('wheeling up away from the top does not load newer rows', () => {
     const container = createContainer();
-    container.scrollTop = 300;
     const { onLoadNewer } = renderScroll(container);
+    // Set after mount: the hook resets scrollTop to 0 when it attaches.
+    Object.defineProperty(container, 'scrollTop', {
+      value: 300,
+      writable: true,
+    });
 
     container.dispatchEvent(new WheelEvent('wheel', { deltaY: -40 }));
 
