@@ -43,7 +43,7 @@ interface UseBidirectionalScrollOptions {
 /**
  * Manages bidirectional infinite scroll for a virtualised, reverse-chronological list.
  *
- * - Triggers `onLoadNewer` when the user scrolls to the top.
+ * - Triggers `onLoadNewer` when the user scrolls to the top, or pulls past it while already there.
  * - Triggers `onLoadOlder` when the user scrolls to the bottom.
  * - Preserves the scroll position when newer rows are prepended so the
  *   viewport doesn't jump.
@@ -184,9 +184,47 @@ export function useBidirectionalScroll({
       }
     };
 
+    // A scroll event can't fire when the container is already at the top, so a pull past the
+    // top edge (wheel up, or a finger dragging down) has to be read from the input itself.
+    const canPullNewer = () =>
+      container.scrollTop <= 1 &&
+      hasNewerRef.current &&
+      !isLoadingNewerRef.current;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (event.deltaY < 0 && canPullNewer()) loadNewer();
+    };
+
+    let touchStartY: number | null = null;
+
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const touchY = event.touches[0]?.clientY;
+      if (
+        touchStartY !== null &&
+        touchY !== undefined &&
+        touchY > touchStartY &&
+        canPullNewer()
+      ) {
+        touchStartY = null;
+        loadNewer();
+      }
+    };
+
     container.addEventListener('scroll', handleScroll, { passive: true });
+    container.addEventListener('wheel', handleWheel, { passive: true });
+    container.addEventListener('touchstart', handleTouchStart, {
+      passive: true,
+    });
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
     return () => {
       container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener('wheel', handleWheel);
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
       loadNewer.cancel();
       loadOlder.cancel();
     };
