@@ -1,4 +1,4 @@
-export interface LogEntry {
+export type LogEntry = {
   brandUuid: string;
   phone: string | null;
   uuid: string | null;
@@ -16,7 +16,7 @@ export interface LogEntry {
     responseBody: any;
   } | null;
   eventTimestamp: string;
-}
+};
 
 export interface LogsResponse {
   data: LogEntry[];
