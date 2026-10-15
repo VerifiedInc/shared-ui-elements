@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Stack } from '@mui/material';
 
 import { credentialKeys, fieldInputTypes } from '../../../../core/fields';
@@ -110,6 +111,11 @@ function FieldContainer({ fieldKey }: { fieldKey: string }) {
 export function ReadonlyFields() {
   const context = useOneClickForm();
   const { fields } = context.formContext.state.form;
+
+  // Values read this on mount, so coming back from edit mode doesn't replay the effect.
+  useEffect(() => {
+    context.diffusionPlayed.current = true;
+  }, [context.diffusionPlayed]);
   const fieldKeys = getDisplayFieldKeys(fields, {
     showPhone: context.options.features.field?.phone?.show,
   });

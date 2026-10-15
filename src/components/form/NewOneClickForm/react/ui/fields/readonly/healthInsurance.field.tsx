@@ -6,6 +6,7 @@ import { HealthInsuranceValue } from '../../../../core/validations';
 import { useFormField } from '../../../core/field.hook';
 
 import {
+  DiffusedValue,
   FieldDescriptionBase,
   FieldLabelBase,
   FieldSectionContent,
@@ -55,7 +56,7 @@ function InsuranceRows({ item }: { item: HealthInsuranceValue }) {
                   textAlign: 'left',
                 }}
               >
-                {item.payer?.name}
+                {item.payer?.name && <DiffusedValue value={item.payer.name} />}
               </Typography>
             </Stack>
           </Stack>
@@ -74,7 +75,7 @@ function InsuranceRows({ item }: { item: HealthInsuranceValue }) {
                   textAlign: 'left',
                 }}
               >
-                {maskMemberId(item.memberId)}
+                <DiffusedValue value={maskMemberId(item.memberId)} />
               </Typography>
               <FieldDescriptionBase description='Hidden for privacy' />
             </Stack>

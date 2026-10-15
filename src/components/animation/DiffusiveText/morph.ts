@@ -45,9 +45,9 @@ type Phase = 'waiting' | 'arrived';
 
 // While waiting, a placeholder letter swaps with same-class letters within 6% of its Lato width (at
 // least three), so the line doesn't jitter. Once the value is here, a letter only swaps with ones
-// within 2% of the real letter's width (or shows the real letter when none is that close), so the
-// line is the value's width.
-const tolerances: Record<Phase, number> = { waiting: 0.06, arrived: 0.02 };
+// up to 4% narrower than the real letter, never wider (or shows the real letter when none is that
+// close), so a line is never wider than the value's and can't wrap onto an extra line.
+const tolerances: Record<Phase, number> = { waiting: 0.06, arrived: 0.04 };
 
 function pool(
   c: string,
@@ -68,8 +68,10 @@ function pool(
   const byDistance = [...sets[cls]].sort(
     (a, b) => Math.abs(width(a) - target) - Math.abs(width(b) - target),
   );
-  const close = byDistance.filter(
-    (g) => Math.abs(width(g) - target) <= target * tolerance,
+  const close = byDistance.filter((g) =>
+    phase === 'arrived'
+      ? width(g) <= target && width(g) >= target * (1 - tolerance)
+      : Math.abs(width(g) - target) <= target * tolerance,
   );
   let result = close;
   if (phase === 'waiting' && close.length < 3) result = byDistance.slice(0, 3);

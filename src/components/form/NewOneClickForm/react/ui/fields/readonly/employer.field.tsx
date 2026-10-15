@@ -10,6 +10,7 @@ import { useOneClickForm } from '../../form.context';
 import { toFieldValueAttribute } from '../shared';
 
 import {
+  DiffusedValue,
   FieldLabelBase,
   FieldSectionContent,
   FieldSectionTitle,
@@ -85,7 +86,7 @@ function EmployerRow({
           textAlign: 'left',
         }}
       >
-        {value}
+        <DiffusedValue value={value} />
       </Typography>
     </Stack>
   );
