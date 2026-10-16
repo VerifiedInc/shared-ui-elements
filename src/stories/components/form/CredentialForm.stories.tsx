@@ -274,7 +274,7 @@ const FormFooter = ({ form }: { form: FormContextValue }) => {
   );
 };
 
-const CredentialForm: React.FC = () => {
+const CredentialForm = ({ editLabel }: { editLabel?: string }) => {
   const [stickyTop, setStickyTop] = useState(0);
   const formRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -383,9 +383,9 @@ const CredentialForm: React.FC = () => {
           options={{
             features: {
               datePickerClickOutsideBoundaryElement: document.body,
-              // editMode: {
-              //   hide: true,
-              // },
+              editMode: {
+                label: editLabel,
+              },
               field: {
                 dob: {
                   redactYear: true,
@@ -822,5 +822,9 @@ const meta: Meta<typeof CredentialForm> = {
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const CustomEditLabel: Story = {
+  args: { editLabel: 'Edit Health Insurance' },
+};
 
 export default meta;
