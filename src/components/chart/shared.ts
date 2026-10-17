@@ -1,3 +1,5 @@
+import type { YAxisProps } from 'recharts';
+
 export const chartDefaultProps = {
   margin: {
     top: 5,
@@ -16,4 +18,4 @@ export const xAxisDefaultProps = {
 export const yAxisDefaultProps = {
   textAnchor: 'end',
   tickLine: false,
-};
+} satisfies Partial<YAxisProps>;
