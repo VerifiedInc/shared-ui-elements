@@ -13,4 +13,6 @@ jobs:
     with:
       mode: complete
       strip_v: true
-    secrets: inherit
+    secrets:
+      LINEAR_TAGGED_RELEASES_KEY: ${{ secrets.LINEAR_TAGGED_RELEASES_KEY }}
+      SLACK_WEBHOOK_URL_DEVELOPMENT: ${{ secrets.SLACK_WEBHOOK_URL_DEVELOPMENT }}
