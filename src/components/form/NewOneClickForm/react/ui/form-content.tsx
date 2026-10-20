@@ -43,7 +43,7 @@ function FormButtons() {
             context.setUserInitiatedEdit(true);
           }}
         >
-          Edit
+          {context.options.features.editMode?.label ?? 'Edit'}
         </Button>
       )}
       {context.editMode && context.userInitiatedEdit && (
