@@ -8,6 +8,10 @@
   ],
   "keywords": [],
   "author": "VerifiedInc",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VerifiedInc/shared-ui-elements.git"
+  },
   "engines": {
     "node": ">=26.7.0",
     "npm": ">=11.0.0"
