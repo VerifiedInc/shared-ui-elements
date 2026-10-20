@@ -150,6 +150,9 @@ jobs:
 
       - name: Publish to npm
         id: publish
+        # issue_comment runs would attest the default branch's HEAD, not the PR commit built here.
+        env:
+          NPM_CONFIG_PROVENANCE: 'false'
         uses: JS-DevTools/npm-publish@0fd2f4369c5d6bcfcde6091a7c527d810b9b5c3f # v4.1.5
         with:
           access: public
