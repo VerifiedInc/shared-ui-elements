@@ -153,6 +153,8 @@ jobs:
         # issue_comment runs would attest the default branch's HEAD, not the PR commit built here.
         env:
           NPM_CONFIG_PROVENANCE: 'false'
+          # Temporary: npm only logs why the OIDC token exchange failed at this level.
+          NPM_CONFIG_LOGLEVEL: silly
         uses: JS-DevTools/npm-publish@0fd2f4369c5d6bcfcde6091a7c527d810b9b5c3f # v4.1.5
         with:
           access: public
