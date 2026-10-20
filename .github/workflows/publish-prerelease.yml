@@ -8,14 +8,20 @@ name: publish-prerelease
 # write access to this repo are honoured, and only for open PRs from branches of this repo (never
 # forks), since the build can publish to npm.
 #
-# Two jobs on purpose. `request` has no environment: it filters every other PR comment out, checks
-# the commenter and the PR, and pins the head commit. Only then does `publish` start, and it is the
-# one bound to the `npm-prerelease` environment, so reviewers are asked to approve a specific
-# commit and never hear about unrelated comments. Like every issue_comment workflow, this runs the
-# file from the default branch.
+# Two runs on purpose. npm rejects trusted-publishing tokens from issue_comment runs, so the comment
+# run (`request`) never publishes: it filters every other PR comment out, checks the commenter and
+# the PR, pins the head commit, and dispatches this same workflow with those values. The dispatched
+# run (`publish`) re-checks them and is the one bound to the `npm-prerelease` environment, so
+# reviewers are asked to approve a specific commit and never hear about unrelated comments. Both
+# runs use the file from the default branch.
 #
-# User-controlled values (comment text, PR data, derived outputs) only reach shell steps through
-# environment variables, never by expression interpolation into `run` blocks.
+# User-controlled values (comment text, PR data, dispatch inputs, derived outputs) only reach shell
+# steps through environment variables, never by expression interpolation into `run` blocks.
+
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch'
+  && format('Publish {0} prerelease of PR #{1} at {2}', inputs.preid, inputs.pr, inputs.sha)
+  || github.event.issue.title }}
 
 permissions:
   contents: read
@@ -23,15 +29,31 @@ permissions:
 on:
   issue_comment:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+        type: string
+      sha:
+        description: Head commit of the pull request to publish
+        required: true
+        type: string
+      preid:
+        description: Prerelease dist-tag
+        required: true
+        type: choice
+        options: [beta, alpha, rc]
 
 concurrency:
-  group: publish-prerelease-${{ github.event.issue.number }}
+  group: publish-prerelease-${{ github.event_name }}-${{ github.event.issue.number || inputs.pr }}
 
 jobs:
   request:
     name: Validate request
     if: >-
-      github.event.issue.pull_request
+      github.event_name == 'issue_comment'
+      && github.event.issue.pull_request
       && startsWith(github.event.comment.body, '/prerelease')
       && contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-latest
@@ -40,9 +62,7 @@ jobs:
       # Reacting to a comment on a pull request needs write on pull requests, not only issues.
       pull-requests: write
       issues: write
-    outputs:
-      sha: ${{ steps.head.outputs.sha }}
-      preid: ${{ steps.request.outputs.preid }}
+      actions: write
     steps:
       - name: Validate the request
         id: request
@@ -78,32 +98,33 @@ jobs:
           echo "preid=$PREID" >> "$GITHUB_OUTPUT"
 
       # Pinned before the approval, so what the reviewer approves is exactly what gets built.
-      - name: Resolve the PR head commit
-        id: head
+      - name: Dispatch the publish run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.issue.number }}
           PREID: ${{ steps.request.outputs.preid }}
           COMMENT_ID: ${{ github.event.comment.id }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           SHA=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)
           if ! [[ "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::Could not resolve the head commit of PR #$PR."
             exit 1
           fi
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          gh workflow run publish-prerelease.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" \
+            -f pr="$PR" -f sha="$SHA" -f preid="$PREID"
           {
             echo "## Prerelease requested"
             echo
             echo "PR: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$PR · Commit: \`$SHA\` · dist-tag: \`$PREID\`"
             echo
-            echo "Approving the \`npm-prerelease\` deployment publishes this exact commit."
+            echo "Approve the \`npm-prerelease\` deployment on the dispatched \"Publish $PREID prerelease of PR #$PR\" run to publish this exact commit."
           } >> "$GITHUB_STEP_SUMMARY"
           gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" -f content=rocket --silent
 
   publish:
     name: Publish prerelease
-    needs: request
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: npm-prerelease
     permissions:
@@ -111,10 +132,37 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
+      # A dispatch can also be started by hand, so its inputs get the same checks as a comment.
+      - name: Validate the dispatch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ inputs.pr }}
+          SHA: ${{ inputs.sha }}
+          PREID: ${{ inputs.preid }}
+        run: |
+          if ! [[ "$PR" =~ ^[0-9]+$ && "$SHA" =~ ^[0-9a-f]{40}$ && "$PREID" =~ ^(beta|alpha|rc)$ ]]; then
+            echo "::error::Invalid inputs: pr must be a number, sha a full commit hash, preid beta, alpha or rc."
+            exit 1
+          fi
+
+          STATE=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json state,isCrossRepository,headRefOid)
+          if [ "$(echo "$STATE" | jq -r .state)" != "OPEN" ]; then
+            echo "::error::PR #$PR is not open."
+            exit 1
+          fi
+          if [ "$(echo "$STATE" | jq -r .isCrossRepository)" = "true" ]; then
+            echo "::error::PR #$PR comes from a fork; prereleases are only published from branches of this repo."
+            exit 1
+          fi
+          if [ "$(echo "$STATE" | jq -r .headRefOid)" != "$SHA" ]; then
+            echo "::error::PR #$PR has new commits since the request; comment /prerelease again."
+            exit 1
+          fi
+
       - name: Checkout the approved commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ needs.request.outputs.sha }}
+          ref: ${{ inputs.sha }}
           persist-credentials: false
 
       - name: Set up Node.js
@@ -125,7 +173,7 @@ jobs:
       - name: Resolve version
         id: version
         env:
-          PREID: ${{ needs.request.outputs.preid }}
+          PREID: ${{ inputs.preid }}
         run: |
           BASE=$(node -p "require('./package.json').version")
           if ! [[ "$BASE" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
@@ -150,15 +198,13 @@ jobs:
 
       - name: Publish to npm
         id: publish
-        # issue_comment runs would attest the default branch's HEAD, not the PR commit built here.
+        # This run is on the default branch but builds a PR commit, so provenance would attest the wrong commit.
         env:
           NPM_CONFIG_PROVENANCE: 'false'
-          # Temporary: npm only logs why the OIDC token exchange failed at this level.
-          NPM_CONFIG_LOGLEVEL: silly
         uses: JS-DevTools/npm-publish@0fd2f4369c5d6bcfcde6091a7c527d810b9b5c3f # v4.1.5
         with:
           access: public
-          tag: ${{ needs.request.outputs.preid }}
+          tag: ${{ inputs.preid }}
 
       - name: Fail if nothing was published
         if: steps.publish.outputs.type == ''
@@ -169,10 +215,10 @@ jobs:
       - name: Comment on the PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.issue.number }}
+          PR: ${{ inputs.pr }}
           VERSION: ${{ steps.version.outputs.version }}
-          PREID: ${{ needs.request.outputs.preid }}
-          SHA: ${{ needs.request.outputs.sha }}
+          PREID: ${{ inputs.preid }}
+          SHA: ${{ inputs.sha }}
         run: |
           BODY=$(cat <<NOTES
           Published \`@verifiedinc-public/shared-ui-elements@$VERSION\` from \`${SHA::7}\` with dist-tag \`$PREID\`.
@@ -195,7 +241,7 @@ jobs:
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.issue.number }}
+          PR: ${{ inputs.pr }}
         run: |
           gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
             --body "Prerelease publish failed: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
