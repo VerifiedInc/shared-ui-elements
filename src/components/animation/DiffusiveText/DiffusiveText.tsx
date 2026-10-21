@@ -135,27 +135,46 @@ export function DiffusiveText({
   }, [value, delay]);
 
   const showValue = settled || (reduce === true && value !== undefined);
-  return (
+  const typography = {
+    fontFamily,
+    fontVariantLigatures: 'none',
+    // Lookalikes are picked by single-glyph widths, so pair kerning would make a line wider than measured.
+    fontKerning: 'none',
+  } as const;
+  const text = (
     <Box
       component='span'
       ref={ref}
       aria-hidden={showValue ? undefined : true}
       sx={{
-        fontFamily,
+        ...typography,
         fontVariationSettings: '"MONO" var(--mono, 0)',
-        fontVariantLigatures: 'none',
-        // Lookalikes are picked by single-glyph widths, so pair kerning would make a line wider than measured.
-        fontKerning: 'none',
         // Aligned to the line's top, not the baseline: two fonts on one line would otherwise make the
         // line box taller than its line height, and it'd shrink back when the text settles.
         verticalAlign: 'top',
         // Monospace only serves the loading scramble; with reduced motion the still placeholder is Lato.
         '--mono': showValue || reduce === true || value !== undefined ? 0 : 1,
         opacity: !showValue && reduce ? 0.3 : undefined,
+        gridArea: delay && value !== undefined ? '1 / 1' : undefined,
       }}
     >
       {/* Before the first frame (and on the server) the template itself holds the shape. */}
       {showValue ? value : (value ?? template.replaceAll('#', '0'))}
+    </Box>
+  );
+  if (!delay || value === undefined) return text;
+  // The hidden value sizes the box, so a container that hugs its text doesn't follow the narrower
+  // lookalikes. It stays after the text settles, so nothing moves when it does.
+  return (
+    <Box component='span' sx={{ display: 'inline-grid', verticalAlign: 'top' }}>
+      <Box
+        component='span'
+        aria-hidden
+        sx={{ ...typography, gridArea: '1 / 1', visibility: 'hidden' }}
+      >
+        {value}
+      </Box>
+      {text}
     </Box>
   );
 }
