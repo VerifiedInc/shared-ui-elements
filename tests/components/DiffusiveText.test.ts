@@ -84,4 +84,35 @@ describe('morph', () => {
       expect(t - 1000).toBeLessThanOrEqual(timing.lockMs + 16);
     },
   );
+
+  it('never swaps in a letter wider than the real one once the value is here', () => {
+    // Widths spread across the alphabet, so some letters are only a bit narrower or wider.
+    const varied = (c: string) => 8 + (c.toLowerCase().charCodeAt(0) % 7) * 0.2;
+    const value = 'Mkiq Street New York';
+    const morph = createMorph(value, 0, timing, seeded(6));
+    morph.arrive(value, 1000);
+    for (let t = 0; t < 1000; t += 16) {
+      const { text } = morph.frame(t, varied);
+      [...text].forEach((c, i) =>
+        expect(varied(c)).toBeLessThanOrEqual(varied(value[i])),
+      );
+    }
+  });
+
+  it('scrambles a value known up front in its own shape until its lock-in starts', () => {
+    const value = 'Richard 08/01';
+    const morph = createMorph(value, 0, timing, seeded(5));
+    morph.arrive(value, 600);
+    for (let t = 0; t < 600; t += 16) {
+      const frame = morph.frame(t, width);
+      expect(frame.text).toMatch(/^[A-Z][a-z]{6} \d\d\/\d\d$/);
+      expect(frame.mono).toBe(0);
+      expect(frame.done).toBe(false);
+    }
+    let t = 600;
+    let frame = morph.frame(t, width);
+    while (!frame.done) frame = morph.frame((t += 16), width);
+    expect(frame.text).toBe(value);
+    expect(t - 600).toBeLessThanOrEqual(timing.lockMs + 16);
+  });
 });

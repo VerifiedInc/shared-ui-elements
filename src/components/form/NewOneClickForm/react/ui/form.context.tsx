@@ -1,5 +1,15 @@
-import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  MutableRefObject,
+  ReactNode,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import type { DiffusiveTextTiming } from '../../../../animation/DiffusiveText';
 
 import { FormContextValue, useForm } from '../core/form.context';
 
@@ -7,6 +17,12 @@ type OneClickOptionFeatures = {
   /** Element that the date picker should be detached from when clicking outside of it. */
   datePickerClickOutsideBoundaryElement?: HTMLElement | null;
   enableUserPrivacy?: boolean;
+  /** Read-only values scramble in `DiffusiveText`, in their own font, for `delay` milliseconds, then resolve, once per form. */
+  diffusion?: {
+    enabled: boolean;
+    delay: number;
+    timing?: Partial<DiffusiveTextTiming>;
+  };
   editMode?: {
     hide?: boolean;
   };
@@ -55,6 +71,7 @@ export type OneClickFormContext = {
   setEditMode: (editMode: boolean) => void;
   userInitiatedEdit: boolean;
   setUserInitiatedEdit: (value: boolean) => void;
+  diffusionPlayed: MutableRefObject<boolean>;
 };
 
 const Context = createContext<OneClickFormContext | null>(null);
@@ -71,6 +88,7 @@ export function OneClickFormProvider({
   const formContext = useForm();
   const [editMode, setEditMode] = useState(!formContext.state.form.isValid);
   const [userInitiatedEdit, setUserInitiatedEdit] = useState(false);
+  const diffusionPlayed = useRef(false);
 
   // Configure a React Query client to handle requests client side only,
   // it supports SSR as well but is not the focus.
@@ -98,6 +116,7 @@ export function OneClickFormProvider({
       setEditMode,
       userInitiatedEdit,
       setUserInitiatedEdit,
+      diffusionPlayed,
     }),
     [
       formContext,

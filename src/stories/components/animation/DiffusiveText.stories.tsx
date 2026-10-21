@@ -78,6 +78,57 @@ function Demo({
   );
 }
 
+const fonts = [
+  'Lato',
+  'Georgia, serif',
+  'system-ui, sans-serif',
+  '"Courier New", monospace',
+];
+
+// A known value with a `delay` and no `fontFamily`: each one scrambles in its own font, in its own lines.
+function AnyFontDemo({
+  value,
+  delay,
+  maxWidth,
+}: Readonly<{ value: string; delay: number; maxWidth: number }>) {
+  const [run, setRun] = useState(0);
+
+  return (
+    <Stack sx={{ gap: 2, alignItems: 'flex-start' }}>
+      {fonts.map((font) => (
+        <Stack key={font} sx={{ gap: 0.5 }}>
+          <Box component='span' sx={{ fontSize: 12, color: 'text.secondary' }}>
+            {font}
+          </Box>
+          <Typography
+            sx={{
+              fontFamily: font,
+              fontSize: 20,
+              maxWidth,
+              outline: '1px dashed',
+              outlineColor: 'divider',
+            }}
+          >
+            <DiffusiveText
+              key={run}
+              template={value}
+              value={value}
+              delay={delay}
+            />
+          </Typography>
+        </Stack>
+      ))}
+      <Button
+        variant='outlined'
+        size='small'
+        onClick={() => setRun((r) => r + 1)}
+      >
+        Replay
+      </Button>
+    </Stack>
+  );
+}
+
 const meta = {
   title: 'Components/Animation/DiffusiveText',
   component: Demo,
@@ -154,4 +205,15 @@ export const AlreadyLoaded: Story = {
     value: 'Richard Hendricks',
     loaded: true,
   },
+};
+
+export const AnyFont: Story = {
+  args: {
+    template: '',
+    value: '1234 Main Street, Apt 1A New York, NY, US 10001',
+    maxWidth: 280,
+  },
+  render: ({ value, maxWidth }) => (
+    <AnyFontDemo value={value} delay={600} maxWidth={maxWidth} />
+  ),
 };

@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { Stack, Typography, SxProps } from '@mui/material';
+
+import { DiffusiveText } from '../../../../../animation/DiffusiveText';
 
 import { useFormField } from '../../core/field.hook';
 
@@ -57,6 +60,30 @@ export function FieldLabel({
   return <FieldLabelBase label={label} sx={sx} />;
 }
 
+export function DiffusedValue({ value }: Readonly<{ value: string }>) {
+  const { options, diffusionPlayed } = useOneClickForm();
+  const diffusion = options.features.diffusion;
+  const [initialValue] = useState(value);
+  const [diffuse, setDiffuse] = useState(
+    () => !!diffusion?.enabled && !diffusionPlayed.current,
+  );
+
+  // A value changed after mount (e.g. a variant pick) must not replay the effect.
+  if (diffuse && value !== initialValue) setDiffuse(false);
+
+  if (!diffusion || !diffuse || value !== initialValue) return <>{value}</>;
+
+  // The value is known at mount, so the template (only shown while loading) never renders.
+  return (
+    <DiffusiveText
+      template={value}
+      value={value}
+      delay={diffusion.delay}
+      timing={diffusion.timing}
+    />
+  );
+}
+
 export function FieldValue({ fieldKey }: { fieldKey: string }) {
   const { field } = useFormField({ key: fieldKey });
   const { options } = useOneClickForm();
@@ -78,8 +105,11 @@ export function FieldValue({ fieldKey }: { fieldKey: string }) {
         } as any
       }
     >
-      {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
-      {displayValue || (!field?.isRequired ? '-' : null)}
+      {displayValue ? (
+        <DiffusedValue value={displayValue} />
+      ) : (
+        !field?.isRequired && '-'
+      )}
     </Typography>
   );
 }
