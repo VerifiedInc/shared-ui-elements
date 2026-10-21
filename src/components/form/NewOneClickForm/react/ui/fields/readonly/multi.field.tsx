@@ -119,11 +119,9 @@ export function MultiField({ fieldKey }: { fieldKey: string }) {
         renderValue: (id: unknown) => {
           const variant = variants.find((variant) => variant.id === id);
 
-          return variant?.displayValue ? (
-            <DiffusedValue value={variant.displayValue} />
-          ) : (
-            (variant?.displayValue ?? (variant?.isRequired ? '-' : null))
-          );
+          if (variant?.displayValue)
+            return <DiffusedValue value={variant.displayValue} />;
+          return variant?.displayValue ?? (variant?.isRequired ? '-' : null);
         },
       }),
       MenuProps: {

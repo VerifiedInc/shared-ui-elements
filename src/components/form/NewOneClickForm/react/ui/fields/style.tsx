@@ -60,7 +60,7 @@ export function FieldLabel({
   return <FieldLabelBase label={label} sx={sx} />;
 }
 
-export function DiffusedValue({ value }: { value: string }) {
+export function DiffusedValue({ value }: Readonly<{ value: string }>) {
   const { options, diffusionPlayed } = useOneClickForm();
   const diffusion = options.features.diffusion;
   const [initialValue] = useState(value);

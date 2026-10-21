@@ -278,7 +278,7 @@ const FormFooter = ({ form }: { form: FormContextValue }) => {
 };
 
 const CredentialForm: React.FC<{
-  diffusion?: OneClickFormOptions['features']['diffusion'];
+  diffusion?: NonNullable<OneClickFormOptions['features']['diffusion']>;
 }> = ({ diffusion }) => {
   const [stickyTop, setStickyTop] = useState(0);
   const formRef = useRef<HTMLDivElement>(null);
