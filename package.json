@@ -121,7 +121,7 @@
     "typescript": "^5.2.2",
     "typescript-eslint": "^8.71.2",
     "vite-plugin-dts": "^5.1.2",
-    "vitest": "^4.1.8"
+    "vitest": "^5.0.5"
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
