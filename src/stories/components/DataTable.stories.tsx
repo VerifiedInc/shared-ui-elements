@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { PaginationState, SortingState } from '@tanstack/react-table';
 import {
   Box,

@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import { BillableEventsProductTable } from '../../../components/chart/BillableEventsProductTable';
 import { BillableProduct } from '../../../components/chart/BillableEventsTable/BillableEventsTable.types';
 

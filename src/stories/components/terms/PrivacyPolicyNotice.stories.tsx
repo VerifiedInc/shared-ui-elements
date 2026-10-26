@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PrivacyPolicyNotice } from '../../../components/terms';
 
 const meta = {

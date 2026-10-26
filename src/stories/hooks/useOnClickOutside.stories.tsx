@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState } from 'react';
-import type { Meta } from '@storybook/react';
+import type { Meta } from '@storybook/react-vite';
 import { Box, Paper, Typography } from '@mui/material';
 import { useOnClickOutside } from '../../hooks/useOnClickOutside';
 

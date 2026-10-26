@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Meta, StoryFn } from '@storybook/react';
+import { Meta, StoryFn } from '@storybook/react-vite';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 
 export default {

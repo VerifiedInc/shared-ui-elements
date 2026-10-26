@@ -1,5 +1,5 @@
 // Story-only example data; the components know only the shapes in `types.ts`.
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 
 import {
   NETWORK_RULE_METADATA_PRESET_FIELDS,

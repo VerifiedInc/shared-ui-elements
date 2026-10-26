@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import type { Meta, StoryFn } from '@storybook/react';
+import type { Meta, StoryFn } from '@storybook/react-vite';
 import { motion } from 'framer-motion';
 
 import { useResizeObserver } from '../../hooks/useResizeObserver';

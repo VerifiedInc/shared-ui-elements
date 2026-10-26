@@ -1,5 +1,5 @@
 import { Button, Chip } from '@mui/material';
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react-vite';
 import {
   BillableEventsTable,
   BillableEventsTableRow,

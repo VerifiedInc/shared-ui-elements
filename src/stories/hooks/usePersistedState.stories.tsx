@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Meta, StoryFn } from '@storybook/react';
+import { Meta, StoryFn } from '@storybook/react-vite';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import {
   usePersistedState,

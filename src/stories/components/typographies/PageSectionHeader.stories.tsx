@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PageSectionHeader } from '../../../components/typographies/PageSectionHeader';
 import { Button } from '@mui/material';
 
