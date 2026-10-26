@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { LogsTable } from '../../../components/logs/LogsTable';
 import type { LogsResponse } from '../../../components/logs/types';
 

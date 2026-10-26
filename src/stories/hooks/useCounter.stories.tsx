@@ -1,5 +1,5 @@
 import React from 'react';
-import { Meta, StoryFn } from '@storybook/react';
+import { Meta, StoryFn } from '@storybook/react-vite';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { useCounter } from '../../hooks/useCounter';
 

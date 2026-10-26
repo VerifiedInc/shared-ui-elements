@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SectionHeader } from '../../../components/typographies/SectionHeader';
 
 const meta = {

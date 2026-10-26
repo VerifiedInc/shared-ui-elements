@@ -1,9 +1,6 @@
-import type { Preview } from '@storybook/react';
+import type { Preview } from '@storybook/react-vite';
 import { withThemeFromJSXProvider } from '@storybook/addon-themes';
-import {
-  INITIAL_VIEWPORTS,
-  MINIMAL_VIEWPORTS,
-} from '@storybook/addon-viewport';
+import { INITIAL_VIEWPORTS, MINIMAL_VIEWPORTS } from 'storybook/viewport';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import {
   CustomAlertComponent,
@@ -27,11 +24,17 @@ const preview: Preview = {
       },
     },
     viewport: {
-      viewports: {
+      options: {
         ...INITIAL_VIEWPORTS,
         ...MINIMAL_VIEWPORTS,
       },
-      defaultViewport: 'desktop',
+    },
+  },
+
+  initialGlobals: {
+    viewport: {
+      value: 'desktop',
+      isRotated: false,
     },
   },
 };

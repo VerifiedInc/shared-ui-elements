@@ -1,5 +1,5 @@
-import { Meta, StoryFn } from '@storybook/react';
-import { useArgs } from '@storybook/preview-api';
+import { Meta, StoryFn } from '@storybook/react-vite';
+import { useArgs } from 'storybook/preview-api';
 import { BrandFilterInput } from '../../../components/BrandFilterInput/index';
 import { Brands } from '../../../components/BrandFilterInput/types';
 import React from 'react';

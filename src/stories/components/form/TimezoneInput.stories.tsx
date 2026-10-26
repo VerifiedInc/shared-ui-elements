@@ -1,4 +1,4 @@
-import React, { type Meta, type StoryObj } from '@storybook/react';
+import React, { type Meta, type StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
 import { TimezoneInput } from '../../../components/form';

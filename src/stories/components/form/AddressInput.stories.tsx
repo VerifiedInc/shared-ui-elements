@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   Box,
   Stack,
@@ -11,7 +11,7 @@ import { Close } from '@mui/icons-material';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 
 import { AddressInput } from '../../../components/form/AddressInput';
 import {

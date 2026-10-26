@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box, Button, Portal, Stack } from '@mui/material';
 
 import { type CredentialRequest } from '../../../components/form/NewOneClickForm/types';

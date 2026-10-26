@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Meta, StoryFn } from '@storybook/react';
+import { Meta, StoryFn } from '@storybook/react-vite';
 import { Box, Button, Stack, TextField } from '@mui/material';
 import { useStyledQRCode } from '../../hooks/useStyledQRCode';
 
