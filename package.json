@@ -92,7 +92,7 @@
     "@storybook/addon-interactions": "^8.6.18",
     "@storybook/addon-links": "^8.6.18",
     "@storybook/addon-onboarding": "^8.6.18",
-    "@storybook/addon-themes": "^8.6.18",
+    "@storybook/addon-themes": "^10.6.3",
     "@storybook/addon-viewport": "^8.6.18",
     "@storybook/blocks": "^8.6.18",
     "@storybook/react": "^8.6.18",
