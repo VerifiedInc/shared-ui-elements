@@ -9,6 +9,16 @@ type QRCodeHookOptions = {
   fill?: string;
 };
 
+// `fill` is written into the SVG markup, which callers render as HTML.
+function escapeMarkup(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 export function useQRCode(hookOptions: QRCodeHookOptions) {
   const qrcode = useMemo(
     () => QRCode.create(hookOptions.data),
@@ -29,6 +39,8 @@ export function useQRCode(hookOptions: QRCodeHookOptions) {
     const imageSize = hookOptions.imageSize;
     const logoX = (hookOptions.size - imageSize) / 2;
     const logoY = (hookOptions.size - imageSize) / 2;
+
+    const fill = escapeMarkup(hookOptions.fill || '#000000');
 
     // Loop through the data array and draw rectangles based on the values
     for (let i = 0; i < dataArray.length; i++) {
@@ -52,7 +64,7 @@ export function useQRCode(hookOptions: QRCodeHookOptions) {
       if (!shouldPaint || isLogoArea) continue;
 
       // Create a rounded rectangle element and append to svg string
-      svg += `<rect x="${x}" y="${y}" width="${squareSize}" height="${squareSize}" rx="${radius}" ry="${radius}" fill='${hookOptions.fill || '#000000'}' />`;
+      svg += `<rect x="${x}" y="${y}" width="${squareSize}" height="${squareSize}" rx="${radius}" ry="${radius}" fill='${fill}' />`;
     }
 
     svg += '</svg>';
