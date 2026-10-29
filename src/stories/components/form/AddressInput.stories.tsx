@@ -92,12 +92,10 @@ const addressSchema = z.object({
   }),
 });
 
-type AddressFormValues = {
-  addressField: Address;
-};
+type AddressFormValues = z.output<typeof addressSchema>;
 
 const FormWrapper = ({ addressInputProps }: { addressInputProps: any }) => {
-  const methods = useForm<AddressFormValues>({
+  const methods = useForm({
     resolver: zodResolver(addressSchema),
     defaultValues: {
       addressField: addressInputProps.defaultValue || {
