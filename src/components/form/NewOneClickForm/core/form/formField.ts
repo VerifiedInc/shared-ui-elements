@@ -80,23 +80,21 @@ export class FormField<
             if (!child.isRequired) {
               // Make the field optional for non-mandatory children
               modifiedShape[key] = originalSchema.optional();
-            } else {
+            } else if (
+              originalSchema instanceof z.ZodString &&
+              !hasRefinement(originalSchema)
+            ) {
               // For mandatory fields, ensure string fields have minimum length
-              if (
-                originalSchema instanceof z.ZodString &&
-                !hasRefinement(originalSchema)
-              ) {
-                modifiedShape[key] = originalSchema.refine((value: any) => {
-                  // If field is not required, and it is empty, return true
-                  if (!child.isRequired && child.isEmpty) {
-                    return true;
-                  }
-                  // If field is required, check for non-empty value
-                  return value !== '' && value !== null && value !== undefined;
-                }, `${child.schema.characteristics.label} is required`);
-              } else {
-                modifiedShape[key] = originalSchema;
-              }
+              modifiedShape[key] = originalSchema.refine((value: any) => {
+                // If field is not required, and it is empty, return true
+                if (!child.isRequired && child.isEmpty) {
+                  return true;
+                }
+                // If field is required, check for non-empty value
+                return value !== '' && value !== null && value !== undefined;
+              }, `${child.schema.characteristics.label} is required`);
+            } else {
+              modifiedShape[key] = originalSchema;
             }
           }
         });

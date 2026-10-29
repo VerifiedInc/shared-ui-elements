@@ -130,38 +130,50 @@ const whole = (
   return { defaultValue, ...snapshot(field) };
 };
 
+const valid = { isValid: true, errorMessage: null, issues: [] };
+
+const invalid = (
+  errorMessage: string,
+  ...issues: Array<[PropertyKey[], string]>
+) => ({
+  isValid: false,
+  errorMessage,
+  issues: issues.map(([path, message]) => ({ path, message })),
+});
+
+const emptyCity = invalid(
+  'City is required',
+  [['city'], 'City is required'],
+  [['city'], 'City is required'],
+);
+const outsideTheUS = invalid(
+  'Country must be US',
+  [['country'], 'Country must be US'],
+  [['country'], 'Country must be US'],
+);
+const addressLeftEmpty = invalid(
+  'Line 1 is required',
+  [['line1'], 'Line 1 is required'],
+  [['city'], 'City is required'],
+  [['state'], 'Invalid state'],
+  [['country'], 'Country must be US'],
+  [['zipCode'], 'Invalid zip code'],
+);
+
 // What each field shows on zod 3, as the 1-Click form reads it: whether it is valid, the message it
 // displays (the first one), every issue in order and, for fields built without a credential, the
 // empty value the inputs bind to.
 const cases: Array<[string, () => unknown, unknown]> = [
-  [
-    'required address, complete',
-    () => addressField('yes', fullAddress),
-    { isValid: true, errorMessage: null, issues: [] },
-  ],
+  ['required address, complete', () => addressField('yes', fullAddress), valid],
   [
     'required address with an empty city',
     () => addressField('yes', { ...fullAddress, city: '' }),
-    {
-      isValid: false,
-      errorMessage: 'City is required',
-      issues: [
-        { path: ['city'], message: 'City is required' },
-        { path: ['city'], message: 'City is required' },
-      ],
-    },
+    emptyCity,
   ],
   [
     'required address outside the US',
     () => addressField('yes', { ...fullAddress, country: 'CA' }),
-    {
-      isValid: false,
-      errorMessage: 'Country must be US',
-      issues: [
-        { path: ['country'], message: 'Country must be US' },
-        { path: ['country'], message: 'Country must be US' },
-      ],
-    },
+    outsideTheUS,
   ],
   [
     'required address left empty',
@@ -174,41 +186,17 @@ const cases: Array<[string, () => unknown, unknown]> = [
         zipCode: '',
         country: '',
       }),
-    {
-      isValid: false,
-      errorMessage: 'Line 1 is required',
-      issues: [
-        { path: ['line1'], message: 'Line 1 is required' },
-        { path: ['city'], message: 'City is required' },
-        { path: ['state'], message: 'Invalid state' },
-        { path: ['country'], message: 'Country must be US' },
-        { path: ['zipCode'], message: 'Invalid zip code' },
-      ],
-    },
+    addressLeftEmpty,
   ],
   [
     'optional address with an empty city',
     () => addressField('no', { ...fullAddress, city: '' }),
-    {
-      isValid: false,
-      errorMessage: 'City is required',
-      issues: [
-        { path: ['city'], message: 'City is required' },
-        { path: ['city'], message: 'City is required' },
-      ],
-    },
+    emptyCity,
   ],
   [
     'optional address outside the US',
     () => addressField('no', { ...fullAddress, country: 'CA' }),
-    {
-      isValid: false,
-      errorMessage: 'Country must be US',
-      issues: [
-        { path: ['country'], message: 'Country must be US' },
-        { path: ['country'], message: 'Country must be US' },
-      ],
-    },
+    outsideTheUS,
   ],
   [
     'optional address left empty',
@@ -221,17 +209,7 @@ const cases: Array<[string, () => unknown, unknown]> = [
         zipCode: '',
         country: '',
       }),
-    {
-      isValid: false,
-      errorMessage: 'Line 1 is required',
-      issues: [
-        { path: ['line1'], message: 'Line 1 is required' },
-        { path: ['city'], message: 'City is required' },
-        { path: ['state'], message: 'Invalid state' },
-        { path: ['country'], message: 'Country must be US' },
-        { path: ['zipCode'], message: 'Invalid zip code' },
-      ],
-    },
+    addressLeftEmpty,
   ],
   [
     'optional address with only line 1',
@@ -244,114 +222,80 @@ const cases: Array<[string, () => unknown, unknown]> = [
         zipCode: '',
         country: '',
       }),
-    {
-      isValid: false,
-      errorMessage: 'City is required',
-      issues: [
-        { path: ['city'], message: 'City is required' },
-        { path: ['state'], message: 'Invalid state' },
-        { path: ['country'], message: 'Country must be US' },
-        { path: ['zipCode'], message: 'Invalid zip code' },
-      ],
-    },
+    invalid(
+      'City is required',
+      [['city'], 'City is required'],
+      [['state'], 'Invalid state'],
+      [['country'], 'Country must be US'],
+      [['zipCode'], 'Invalid zip code'],
+    ),
   ],
   [
     'required SSN that is too short',
     () => single('ssn', 'SsnCredential', 'yes', '123'),
-    {
-      isValid: false,
-      errorMessage: 'Invalid SSN',
-      issues: [{ path: [], message: 'Invalid SSN' }],
-    },
+    invalid('Invalid SSN', [[], 'Invalid SSN']),
   ],
   [
     'required SSN left empty',
     () => single('ssn', 'SsnCredential', 'yes', ''),
-    {
-      isValid: false,
-      errorMessage: 'Invalid SSN',
-      issues: [
-        { path: [], message: 'Invalid SSN' },
-        { path: [], message: 'SSN is required' },
-      ],
-    },
+    invalid('Invalid SSN', [[], 'Invalid SSN'], [[], 'SSN is required']),
   ],
   [
     'optional SSN left empty',
     () => single('ssn', 'SsnCredential', 'no', ''),
-    { isValid: true, errorMessage: null, issues: [] },
+    valid,
   ],
   [
     'required sex left empty',
     () => single('sex', 'SexCredential', 'yes', ''),
-    {
-      isValid: false,
-      errorMessage:
+    invalid(
+      "Invalid enum value. Expected 'Male' | 'Female' | 'Non-Binary', received ''",
+      [
+        [],
         "Invalid enum value. Expected 'Male' | 'Female' | 'Non-Binary', received ''",
-      issues: [
-        {
-          path: [],
-          message:
-            "Invalid enum value. Expected 'Male' | 'Female' | 'Non-Binary', received ''",
-        },
       ],
-    },
+    ),
   ],
   [
     'required sex outside the options',
     () => single('sex', 'SexCredential', 'yes', 'Other'),
-    {
-      isValid: false,
-      errorMessage:
+    invalid(
+      "Invalid enum value. Expected 'Male' | 'Female' | 'Non-Binary', received 'Other'",
+      [
+        [],
         "Invalid enum value. Expected 'Male' | 'Female' | 'Non-Binary', received 'Other'",
-      issues: [
-        {
-          path: [],
-          message:
-            "Invalid enum value. Expected 'Male' | 'Female' | 'Non-Binary', received 'Other'",
-        },
       ],
-    },
+    ),
   ],
   [
     'required sex, chosen',
     () => single('sex', 'SexCredential', 'yes', 'Male'),
-    { isValid: true, errorMessage: null, issues: [] },
+    valid,
   ],
   [
     'required phone left empty',
     () => single('phone', 'PhoneCredential', 'yes', ''),
-    {
-      isValid: false,
-      errorMessage: 'Phone is invalid',
-      issues: [
-        { path: [], message: 'Phone is invalid' },
-        { path: [], message: 'Phone is required' },
-      ],
-    },
+    invalid(
+      'Phone is invalid',
+      [[], 'Phone is invalid'],
+      [[], 'Phone is required'],
+    ),
   ],
   [
     'required phone without a country code',
     () => single('phone', 'PhoneCredential', 'yes', '2125551234'),
-    {
-      isValid: false,
-      errorMessage: 'Phone is invalid',
-      issues: [{ path: [], message: 'Phone is invalid' }],
-    },
+    invalid('Phone is invalid', [[], 'Phone is invalid']),
   ],
   [
     'required birth date left empty',
     () => single('birthDate', 'BirthDateCredential', 'yes', ''),
-    {
-      isValid: false,
-      errorMessage: '',
-      issues: [
-        { path: [], message: '' },
-        { path: [], message: '' },
-        { path: [], message: 'Must be 18 years or older' },
-        { path: [], message: 'Birthday is required' },
-      ],
-    },
+    invalid(
+      '',
+      [[], ''],
+      [[], ''],
+      [[], 'Must be 18 years or older'],
+      [[], 'Birthday is required'],
+    ),
   ],
   [
     'required birth date under 18',
@@ -362,11 +306,7 @@ const cases: Array<[string, () => unknown, unknown]> = [
         'yes',
         new Date().toISOString().slice(0, 10),
       ),
-    {
-      isValid: false,
-      errorMessage: 'Must be 18 years or older',
-      issues: [{ path: [], message: 'Must be 18 years or older' }],
-    },
+    invalid('Must be 18 years or older', [[], 'Must be 18 years or older']),
   ],
   [
     'required health insurance without a credential',
@@ -374,13 +314,12 @@ const cases: Array<[string, () => unknown, unknown]> = [
       whole('healthInsurance', 'HealthInsuranceCredential', 'yes', undefined),
     {
       defaultValue: { memberId: '', payer: { verifiedId: '', name: '' } },
-      isValid: false,
-      errorMessage: 'Member ID is required',
-      issues: [
-        { path: ['memberId'], message: 'Member ID is required' },
-        { path: ['payer', 'verifiedId'], message: 'Invalid' },
-        { path: ['payer', 'name'], message: 'Payer name is required' },
-      ],
+      ...invalid(
+        'Member ID is required',
+        [['memberId'], 'Member ID is required'],
+        [['payer', 'verifiedId'], 'Invalid'],
+        [['payer', 'name'], 'Payer name is required'],
+      ),
     },
   ],
   [
@@ -392,12 +331,11 @@ const cases: Array<[string, () => unknown, unknown]> = [
       }),
     {
       defaultValue: { memberId: '', payer: { verifiedId: '', name: '' } },
-      isValid: false,
-      errorMessage: 'Invalid',
-      issues: [
-        { path: ['payer', 'verifiedId'], message: 'Invalid' },
-        { path: ['payer', 'logoUrl'], message: 'Invalid url' },
-      ],
+      ...invalid(
+        'Invalid',
+        [['payer', 'verifiedId'], 'Invalid'],
+        [['payer', 'logoUrl'], 'Invalid url'],
+      ),
     },
   ],
   [
@@ -405,11 +343,10 @@ const cases: Array<[string, () => unknown, unknown]> = [
     () => whole('employer', 'EmployerCredential', 'yes', undefined),
     {
       defaultValue: { employer: { name: '' } },
-      isValid: false,
-      errorMessage: 'Employer name is required',
-      issues: [
-        { path: ['employer', 'name'], message: 'Employer name is required' },
-      ],
+      ...invalid('Employer name is required', [
+        ['employer', 'name'],
+        'Employer name is required',
+      ]),
     },
   ],
   [
@@ -420,57 +357,34 @@ const cases: Array<[string, () => unknown, unknown]> = [
       }),
     {
       defaultValue: { employer: { name: '' } },
-      isValid: false,
-      errorMessage: 'City is required',
-      issues: [
-        { path: ['employer', 'address', 'city'], message: 'City is required' },
-        { path: ['employer', 'address', 'state'], message: 'Invalid state' },
-        {
-          path: ['employer', 'address', 'zipCode'],
-          message: 'Invalid zip code',
-        },
-        {
-          path: ['employer', 'address', 'country'],
-          message: 'Country must be US',
-        },
-      ],
+      ...invalid(
+        'City is required',
+        [['employer', 'address', 'city'], 'City is required'],
+        [['employer', 'address', 'state'], 'Invalid state'],
+        [['employer', 'address', 'zipCode'], 'Invalid zip code'],
+        [['employer', 'address', 'country'], 'Country must be US'],
+      ),
     },
   ],
   [
     'optional employer without a credential',
     () => whole('employer', 'EmployerCredential', 'no', undefined),
-    {
-      defaultValue: { employer: { name: '' } },
-      isValid: true,
-      errorMessage: null,
-      issues: [],
-    },
+    { defaultValue: { employer: { name: '' } }, ...valid },
   ],
   [
     'required license with an empty document number',
     () => driversLicenseField({ ...license, documentNumber: '' }),
-    {
-      isValid: false,
-      errorMessage: 'Number is required',
-      issues: [{ path: ['documentNumber'], message: 'Number is required' }],
-    },
+    invalid('Number is required', [['documentNumber'], 'Number is required']),
   ],
   [
     'required license with an empty issuance date',
     () => driversLicenseField({ ...license, issuanceDate: '' }),
-    {
-      isValid: false,
-      errorMessage: '',
-      issues: [
-        { path: ['issuanceDate'], message: '' },
-        { path: ['issuanceDate'], message: '' },
-      ],
-    },
+    invalid('', [['issuanceDate'], ''], [['issuanceDate'], '']),
   ],
   [
     'required license with an optional expiration date left empty',
     () => driversLicenseField({ ...license, expirationDate: '' }),
-    { isValid: true, errorMessage: null, issues: [] },
+    valid,
   ],
 ];
 

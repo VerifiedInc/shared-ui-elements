@@ -1,5 +1,4 @@
-import { describe, it } from 'vitest';
-import type { ZodType } from 'zod';
+import { describe } from 'vitest';
 
 import {
   addressSchema,
@@ -21,8 +20,8 @@ import { employerNameSchema } from '../../../../../../src/components/form/NewOne
 import { legalNameSchema } from '../../../../../../src/components/form/NewOneClickForm/core/validations/employer/legalName.schema';
 
 import {
-  type Outcome,
-  expectOutcome,
+  type SchemaCase,
+  itGivesEachOutcome,
   invalid,
   valid,
   validAs,
@@ -38,7 +37,7 @@ const fullAddress = {
   country: 'US',
 };
 
-const cases: Array<[string, ZodType, unknown, Outcome]> = [
+const cases: SchemaCase[] = [
   ['line1Schema', line1Schema, '', invalid([[], 'Line 1 is required'])],
   ['citySchema', citySchema, '', invalid([[], 'City is required'])],
   ['countrySchema', countrySchema, 'US', valid],
@@ -261,12 +260,5 @@ const cases: Array<[string, ZodType, unknown, Outcome]> = [
 ];
 
 describe('1-Click field validations', () => {
-  it.each(
-    cases.map(
-      ([name, schema, input, expected]) =>
-        [name, input, schema, expected] as const,
-    ),
-  )('%s with %j', (_name, input, schema, expected) => {
-    expectOutcome(schema, input, expected);
-  });
+  itGivesEachOutcome(cases);
 });

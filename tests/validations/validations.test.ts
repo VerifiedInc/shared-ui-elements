@@ -1,5 +1,4 @@
-import { describe, it } from 'vitest';
-import type { ZodType } from 'zod';
+import { describe } from 'vitest';
 
 import {
   MaskedAndUnmaskedSSNSchema,
@@ -20,8 +19,8 @@ import {
 } from '../../src/validations';
 
 import {
-  type Outcome,
-  expectOutcome,
+  type SchemaCase,
+  itGivesEachOutcome,
   invalid,
   valid,
 } from '../utils/schemaOutcome';
@@ -30,7 +29,7 @@ import {
 const day = 24 * 60 * 60 * 1000;
 const isoToday = new Date().toISOString().slice(0, 10);
 
-const cases: Array<[string, ZodType, unknown, Outcome]> = [
+const cases: SchemaCase[] = [
   ['emailSchema', emailSchema, 'jane@acme.com', valid],
   ['emailSchema', emailSchema, 'nope', invalid([[], 'Invalid email'])],
   ['emailSchema', emailSchema, '', invalid([[], 'Invalid email'])],
@@ -183,12 +182,5 @@ const cases: Array<[string, ZodType, unknown, Outcome]> = [
 ];
 
 describe('validations', () => {
-  it.each(
-    cases.map(
-      ([name, schema, input, expected]) =>
-        [name, input, schema, expected] as const,
-    ),
-  )('%s with %j', (_name, input, schema, expected) => {
-    expectOutcome(schema, input, expected);
-  });
+  itGivesEachOutcome(cases);
 });

@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, it } from 'vitest';
 import type { ZodType } from 'zod';
 
 /**
@@ -25,7 +25,7 @@ export const invalid = (
   issues: issues.map(([path, message]) => ({ path, message })),
 });
 
-export const expectOutcome = (
+const expectOutcome = (
   schema: ZodType,
   input: unknown,
   expected: Outcome,
@@ -45,4 +45,19 @@ export const expectOutcome = (
       ? { success: true, data: input }
       : expected,
   );
+};
+
+/** A schema's name, the schema, an input and what the schema does with it. */
+export type SchemaCase = [string, ZodType, unknown, Outcome];
+
+/** One test per case, titled with the schema's name and the input. */
+export const itGivesEachOutcome = (cases: SchemaCase[]): void => {
+  it.each(
+    cases.map(
+      ([name, schema, input, expected]) =>
+        [name, input, schema, expected] as const,
+    ),
+  )('%s with %j', (_name, input, schema, expected) => {
+    expectOutcome(schema, input, expected);
+  });
 };
