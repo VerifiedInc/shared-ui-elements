@@ -7,9 +7,9 @@ export const healthInsuranceSchema = z.object({
   id: z.number().optional(),
   memberId: memberIdSchema,
   payer: z.object({
-    verifiedId: z.string().regex(/^V\d+$/),
+    verifiedId: z.string().regex(/^V\d+$/, 'Invalid'),
     name: payerNameSchema,
-    logoUrl: z.union([z.string().url(), z.literal('')]).nullish(), // CS may return literal empty string
+    logoUrl: z.union([z.url('Invalid url'), z.literal('')]).nullish(), // CS may return literal empty string
   }),
 });
 

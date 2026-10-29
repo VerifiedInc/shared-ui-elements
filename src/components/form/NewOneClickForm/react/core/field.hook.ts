@@ -103,7 +103,7 @@ export const useField = <
   }, [key, field, updateFieldValue, setFieldTouched]);
 
   // Get error message from FormField errors
-  const error = field?.errors?.error?.errors?.[0]?.message ?? null;
+  const error = field?.errors?.error?.issues?.[0]?.message ?? null;
   const isTouched = field?.touched ?? false;
 
   return {

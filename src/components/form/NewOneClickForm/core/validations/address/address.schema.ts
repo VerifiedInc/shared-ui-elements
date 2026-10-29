@@ -21,7 +21,7 @@ export const addressSchema = z
     const allFieldsAbsent = Object.values(data).every((value) => !value);
 
     if (allFieldsAbsent) {
-      return true; // Pass validation if all fields are absent
+      return; // Pass validation if all fields are absent
     }
 
     // If any field exists as a property (even if empty/undefined), validate required fields
@@ -42,7 +42,7 @@ export const addressSchema = z
         const line1Result = line1Schema.safeParse(data.line1);
         if (!line1Result.success) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['line1'],
             message: line1ValidationMessage,
           });
@@ -57,7 +57,7 @@ export const addressSchema = z
         const cityResult = citySchema.safeParse(data.city);
         if (!cityResult.success) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['city'],
             message: cityValidationMessage,
           });
@@ -69,7 +69,7 @@ export const addressSchema = z
         const stateResult = stateSchema.safeParse(data.state);
         if (!stateResult.success) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['state'],
             message: stateValidationMessage,
           });
@@ -81,7 +81,7 @@ export const addressSchema = z
         const countryResult = countrySchema.safeParse(data.country);
         if (!countryResult.success) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['country'],
             message: countryValidationMessage,
           });
@@ -93,7 +93,7 @@ export const addressSchema = z
         const zipCodeResult = zipCodeSchema.safeParse(data.zipCode);
         if (!zipCodeResult.success) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['zipCode'],
             message: zipCodeValidationMessage,
           });
@@ -114,7 +114,7 @@ export const requiredAddressSchema = addressSchema.superRefine(
   (address, ctx) => {
     requiredAddressParts.forEach(([part, message]) => {
       if (!address[part]) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [part], message });
+        ctx.addIssue({ code: 'custom', path: [part], message });
       }
     });
   },

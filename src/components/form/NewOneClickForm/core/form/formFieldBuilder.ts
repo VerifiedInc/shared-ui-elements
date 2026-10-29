@@ -43,12 +43,12 @@ function buildEmptyValueFromZodSchema(schema: z.ZodTypeAny): any {
     return undefined;
   }
 
-  if (schema instanceof z.ZodEffects) {
-    return buildEmptyValueFromZodSchema(schema.innerType());
+  if (schema instanceof z.ZodPipe) {
+    return buildEmptyValueFromZodSchema(schema.in as z.ZodTypeAny);
   }
 
   if (schema instanceof z.ZodDefault) {
-    return schema._def.defaultValue();
+    return schema.def.defaultValue;
   }
 
   if (schema instanceof z.ZodLiteral) {

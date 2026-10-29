@@ -164,6 +164,22 @@ describe('metadata rows', () => {
     ).toEqual(['metadata.0.type']);
   });
 
+  test('a type the catalog no longer offers says which ones it does', () => {
+    const stringsAndNumbers = createNetworkRuleFormSchema({
+      ...catalogMetadata,
+      types: ['string', 'number'],
+    });
+    const result = stringsAndNumbers.safeParse({
+      ...valid,
+      metadata: [row('b', 'boolean', 'true')],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual([
+      "Invalid enum value. Expected 'string' | 'number', received 'boolean'",
+    ]);
+  });
+
   test('a number must survive as a JSON number; a boolean is true or false', () => {
     expect(paths([row('n', 'number', '25')])).toEqual([]);
     expect(paths([row('n', 'number', 'abc')])).toEqual(['metadata.0.value']);

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { zod3EnumError } from '../../../../../../utils/zod';
+
 /**
  * Sex options for selection
  */
@@ -15,4 +17,5 @@ export const sexOptions = [
  */
 export const sexSchema = z.enum(
   sexOptions.map((option) => option.value) as [string, ...string[]],
+  { error: zod3EnumError },
 );
