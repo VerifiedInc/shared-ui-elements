@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { zod3EnumError } from '../../../utils/zod';
 import type {
   NetworkRuleCatalogMetadata,
   NetworkRuleMetadataType,
@@ -36,14 +37,14 @@ const metadataEntrySchema = ({
         .trim()
         .min(1, 'Key is required')
         .max(maxKeyLength, `Key must be at most ${maxKeyLength} characters`),
-      type: z.enum(offeredTypes(types)),
+      type: z.enum(offeredTypes(types), { error: zod3EnumError }),
       value: z.string(),
     })
     .superRefine((entry, ctx) => {
       const value = entry.value.trim();
       const fail = (message: string): void => {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['value'],
           message,
         });
@@ -111,7 +112,7 @@ export function createNetworkRuleFormSchema(
         if (!key) return;
         if (seen.has(key)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['metadata', index, 'key'],
             message: 'Key already used',
           });
@@ -127,7 +128,7 @@ export function createNetworkRuleFormSchema(
         values.endDate <= values.startDate
       ) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['endDate'],
           message: 'End must be after start',
         });

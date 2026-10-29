@@ -10,7 +10,7 @@ export const employerSchema = z.object({
     name: employerNameSchema,
     legalName: legalNameSchema.optional(),
     address: requiredAddressSchema.optional(),
-    logoUrl: z.union([z.string().url(), z.literal('')]).nullish(),
+    logoUrl: z.union([z.url('Invalid url'), z.literal('')]).nullish(),
   }),
 });
 

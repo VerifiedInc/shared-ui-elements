@@ -5,6 +5,11 @@ import isEqual from 'lodash/isEqual';
 import { type FieldValueDefinitions } from '../declarations';
 import { type BaseFieldDefinition } from '../fields';
 
+// zod 4 keeps .refine() and .superRefine() as custom checks on the schema itself, not as a wrapper.
+const hasRefinement = (schema: z.ZodType): boolean =>
+  schema.def.checks?.some((check) => check._zod.def.check === 'custom') ??
+  false;
+
 export interface FormFieldOptions<
   TFieldKey extends keyof FieldValueDefinitions = keyof FieldValueDefinitions,
 > {
@@ -51,12 +56,9 @@ export class FormField<
 
     // For composite fields, modify schema to make non-mandatory children optional
     if (schema.characteristics.inputType === 'composite' && options.children) {
-      // If the schema has custom .refine() logic (ZodEffects), don't modify it
+      // If the schema has custom .refine() logic, don't modify it
       // This preserves conditional validation logic like address validation
-      if (
-        '_def' in schema.zodSchema &&
-        schema.zodSchema._def.typeName === 'ZodEffects'
-      ) {
+      if (hasRefinement(schema.zodSchema)) {
         this.schema = schema; // Keep original schema with .refine() logic
       } else {
         // Handle direct ZodObject schemas
@@ -80,7 +82,10 @@ export class FormField<
               modifiedShape[key] = originalSchema.optional();
             } else {
               // For mandatory fields, ensure string fields have minimum length
-              if (originalSchema instanceof z.ZodString) {
+              if (
+                originalSchema instanceof z.ZodString &&
+                !hasRefinement(originalSchema)
+              ) {
                 modifiedShape[key] = originalSchema.refine((value: any) => {
                   // If field is not required, and it is empty, return true
                   if (!child.isRequired && child.isEmpty) {
