@@ -93,18 +93,23 @@ export function createNetworkRuleFormSchema(
       endDate: z.string().nullable(),
       // A catalog without metadata offers no section, so the only list that passes is an empty one.
       metadata: metadata
-        ? z
-            .array(metadataEntrySchema(metadata))
-            .max(
-              metadata.limits.maxEntries,
-              `A rule may have at most ${metadata.limits.maxEntries} metadata entries`,
-            )
+        ? z.array(metadataEntrySchema(metadata))
         : z.array(z.never()).max(0, 'Metadata is not available'),
       conditions: z
         .array(networkRuleConditionFormSchema)
         .min(1, 'Add at least one condition'),
     })
     .superRefine((values, ctx) => {
+      // Checked here, not with the array's `.max()`: on zod 4 a failed `.max()` skips this refinement,
+      // so a repeated key or a bad date range would stay hidden until rows were removed.
+      if (metadata && values.metadata.length > metadata.limits.maxEntries) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['metadata'],
+          message: `A rule may have at most ${metadata.limits.maxEntries} metadata entries`,
+        });
+      }
+
       // One value per key: the rule's metadata is an object, so a repeat would silently win.
       const seen = new Set<string>();
       values.metadata.forEach((entry, index) => {

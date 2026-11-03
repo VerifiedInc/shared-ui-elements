@@ -24,8 +24,11 @@ export const zod3TypeError = (
   return `Expected ${issue.expected}, received ${zod3TypeOf(issue.input)}`;
 };
 
+// zod 3 quoted string values only: `'red' | 'blue'`, but `0 | 1`.
 const zod3EnumValues = (values: readonly unknown[]): string =>
-  values.map((value) => `'${String(value)}'`).join(' | ');
+  values
+    .map((value) => (typeof value === 'string' ? `'${value}'` : String(value)))
+    .join(' | ');
 
 /** The message zod 3 gave for a value outside an enum (ENG-917). */
 export const zod3EnumError = (

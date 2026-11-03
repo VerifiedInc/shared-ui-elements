@@ -4,12 +4,18 @@ import { z } from 'zod';
 import { zod3EnumError, zod3NativeEnumError } from '../../src/utils/zod';
 import { invalid, itGivesEachOutcome, valid } from './schemaOutcome';
 
+enum Level {
+  Low,
+  High,
+}
+
 enum Color {
   Red = 'red',
   Blue = 'blue',
 }
 
 const nativeEnum = z.enum(Color, { error: zod3NativeEnumError });
+const numericEnum = z.enum(Level, { error: zod3NativeEnumError });
 const stringEnum = z.enum(['red', 'blue'], { error: zod3EnumError });
 const expected = "'red' | 'blue'";
 
@@ -71,6 +77,26 @@ describe('zod 3 enum messages', () => {
         [],
         `Invalid enum value. Expected ${expected}, received 'green'`,
       ]),
+    ],
+    // zod 3 quoted string values only.
+    ['numeric nativeEnum', numericEnum, 1, valid],
+    [
+      'numeric nativeEnum',
+      numericEnum,
+      2,
+      invalid([[], "Invalid enum value. Expected 0 | 1, received '2'"]),
+    ],
+    [
+      'numeric nativeEnum',
+      numericEnum,
+      'Low',
+      invalid([[], "Invalid enum value. Expected 0 | 1, received 'Low'"]),
+    ],
+    [
+      'numeric nativeEnum',
+      numericEnum,
+      true,
+      invalid([[], 'Expected 0 | 1, received boolean']),
     ],
   ]);
 });
