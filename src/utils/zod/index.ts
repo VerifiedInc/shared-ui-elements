@@ -24,18 +24,36 @@ export const zod3TypeError = (
   return `Expected ${issue.expected}, received ${zod3TypeOf(issue.input)}`;
 };
 
+const zod3EnumValues = (values: readonly unknown[]): string =>
+  values.map((value) => `'${String(value)}'`).join(' | ');
+
 /** The message zod 3 gave for a value outside an enum (ENG-917). */
 export const zod3EnumError = (
   issue: z.core.$ZodRawIssue,
 ): string | undefined => {
   if (issue.code !== 'invalid_value') return undefined;
-  const expected = issue.values
-    .map((value) => `'${String(value)}'`)
-    .join(' | ');
   if (issue.input === undefined) return 'Required';
+  const expected = zod3EnumValues(issue.values);
   return typeof issue.input === 'string'
     ? `Invalid enum value. Expected ${expected}, received '${issue.input}'`
     : `Expected ${expected}, received ${zod3TypeOf(issue.input)}`;
+};
+
+/**
+ * The message zod 3's `nativeEnum` gave for a value outside a TypeScript enum. Unlike `enum`, it
+ * took a number as a candidate value, so a number gets the "Invalid enum value" message too.
+ */
+export const zod3NativeEnumError = (
+  issue: z.core.$ZodRawIssue,
+): string | undefined => {
+  if (
+    issue.code === 'invalid_value' &&
+    typeof issue.input === 'number' &&
+    !Number.isNaN(issue.input)
+  ) {
+    return `Invalid enum value. Expected ${zod3EnumValues(issue.values)}, received '${issue.input}'`;
+  }
+  return zod3EnumError(issue);
 };
 
 /** A string schema with zod 3's missing and wrong-type messages. */
