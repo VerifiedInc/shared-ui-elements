@@ -1,5 +1,6 @@
-import * as zod from 'zod';
+import { zod3String } from '../utils/zod';
 
-export const descriptionSchema = zod
-  .string()
-  .min(3, 'Must have enough description');
+export const descriptionSchema = zod3String().min(
+  3,
+  'Must have enough description',
+);

@@ -1,5 +1,6 @@
-import { z as zod } from 'zod';
+import { zod3String } from '../utils/zod';
 
-export const npiSchema = zod
-  .string()
-  .refine((npi) => /^[0-9]{10}$/.test(npi), 'Invalid NPI');
+export const npiSchema = zod3String().refine(
+  (npi) => /^[0-9]{10}$/.test(npi),
+  'Invalid NPI',
+);

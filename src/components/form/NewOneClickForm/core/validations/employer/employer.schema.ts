@@ -4,13 +4,14 @@ import { requiredAddressSchema } from '../address';
 
 import { employerNameSchema } from './employerName.schema';
 import { legalNameSchema } from './legalName.schema';
+import { zod3Object, zod3Url } from '../../../../../../utils/zod';
 
-export const employerSchema = z.object({
-  employer: z.object({
+export const employerSchema = zod3Object({
+  employer: zod3Object({
     name: employerNameSchema,
     legalName: legalNameSchema.optional(),
     address: requiredAddressSchema.optional(),
-    logoUrl: z.union([z.url('Invalid url'), z.literal('')]).nullish(),
+    logoUrl: z.union([zod3Url('Invalid url'), z.literal('')]).nullish(),
   }),
 });
 

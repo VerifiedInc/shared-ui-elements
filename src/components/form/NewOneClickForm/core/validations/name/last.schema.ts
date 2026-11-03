@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { zod3String } from '../../../../../../utils/zod';
 
 /**
  * Validation schema for last name
  * Basic string validation for last name
  */
-export const lastSchema = z.string();
+export const lastSchema = zod3String();
