@@ -1,5 +1,5 @@
-import * as zod from 'zod';
 import parsePhoneNumber, { isValidPhoneNumber } from 'libphonenumber-js';
+import { zod3String } from '../utils/zod';
 
 /**
  * Validate phone when it is valid and contains a country.
@@ -18,6 +18,7 @@ const validatePhone = (internationalPhone: string) => {
   return isValidPhoneNumber(internationalPhone) && isNorthAmerica;
 };
 
-export const phoneSchema = zod
-  .string()
-  .refine((value) => validatePhone(value), 'Phone is invalid');
+export const phoneSchema = zod3String().refine(
+  (value) => validatePhone(value),
+  'Phone is invalid',
+);

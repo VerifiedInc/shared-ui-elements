@@ -1,6 +1,7 @@
 import * as zod from 'zod';
+import { zod3String, zod3TypeError } from '../utils/zod';
 
-export const USDateSchema = zod.string().refine((value: string) => {
+export const USDateSchema = zod3String().refine((value: string) => {
   const regex = /^\d{2}\/\d{2}\/\d{4}$/;
   if (regex.test(value)) {
     const date = Date.parse(String(new Date(value)));
@@ -11,10 +12,12 @@ export const USDateSchema = zod.string().refine((value: string) => {
 
 export const getDateSchemaWithPastValidation = (
   message: string,
-): zod.ZodEffects<zod.ZodDate, Date, Date> => {
-  return zod.date().refine((date) => date.getTime() < Date.now(), {
-    message,
-  });
+): zod.ZodDate => {
+  return zod
+    .date({ error: zod3TypeError })
+    .refine((date) => date.getTime() < Date.now(), {
+      message,
+    });
 };
 
 export const validateTimestamp = (timestampString: string): boolean => {
@@ -138,23 +141,22 @@ const isValidIsoAge18Plus = (value: string): boolean => {
   return birthDate <= eighteenYearsAgo;
 };
 
-export const dateSchema = zod
-  .string()
+// An empty message keeps the field silent; zod 4 only keeps it when given as `{ error: '' }`.
+export const dateSchema = zod3String()
   .refine(
     (v) => isServerMaskedDate(v) || isValidIsoDate(v) || refineTimestamp(v),
-    '',
+    { error: '' },
   )
   .refine(
     (v) =>
       isServerMaskedDate(v) || isValidIsoDate(v) || refineMinimumDate1900(v),
-    '',
+    { error: '' },
   );
 
-export const birthDateSchema = zod
-  .string()
+export const birthDateSchema = zod3String()
   .refine(
     (v) => isServerMaskedDate(v) || isValidIsoDate(v) || refineTimestamp(v),
-    '',
+    { error: '' },
   )
   .refine(
     (v) =>
@@ -162,7 +164,7 @@ export const birthDateSchema = zod
       (isValidIsoDate(v)
         ? Number(v.slice(0, 4)) >= 1900
         : refineMinimumDate1900(v)),
-    '',
+    { error: '' },
   )
   .refine((v) => {
     if (isServerMaskedDate(v)) return true;

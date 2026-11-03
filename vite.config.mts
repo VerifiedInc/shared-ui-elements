@@ -54,6 +54,7 @@ export default defineConfig({
         'utils/logo': resolvePath('src/utils/logo/index.ts'),
         'utils/wrapPromise': resolvePath('src/utils/wrapPromise/index.ts'),
         'utils/number': resolvePath('src/utils/number/index.ts'),
+        'utils/zod': resolvePath('src/utils/zod/index.ts'),
       },
       formats: ['es'],
     },

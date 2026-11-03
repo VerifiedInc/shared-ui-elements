@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { zod3EnumError } from '../../../utils/zod';
 import type {
   NetworkRuleCatalogMetadata,
   NetworkRuleMetadataType,
@@ -36,14 +37,14 @@ const metadataEntrySchema = ({
         .trim()
         .min(1, 'Key is required')
         .max(maxKeyLength, `Key must be at most ${maxKeyLength} characters`),
-      type: z.enum(offeredTypes(types)),
+      type: z.enum(offeredTypes(types), { error: zod3EnumError }),
       value: z.string(),
     })
     .superRefine((entry, ctx) => {
       const value = entry.value.trim();
       const fail = (message: string): void => {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['value'],
           message,
         });
@@ -92,18 +93,23 @@ export function createNetworkRuleFormSchema(
       endDate: z.string().nullable(),
       // A catalog without metadata offers no section, so the only list that passes is an empty one.
       metadata: metadata
-        ? z
-            .array(metadataEntrySchema(metadata))
-            .max(
-              metadata.limits.maxEntries,
-              `A rule may have at most ${metadata.limits.maxEntries} metadata entries`,
-            )
+        ? z.array(metadataEntrySchema(metadata))
         : z.array(z.never()).max(0, 'Metadata is not available'),
       conditions: z
         .array(networkRuleConditionFormSchema)
         .min(1, 'Add at least one condition'),
     })
     .superRefine((values, ctx) => {
+      // Checked here, not with the array's `.max()`: on zod 4 a failed `.max()` skips this refinement,
+      // so a repeated key or a bad date range would stay hidden until rows were removed.
+      if (metadata && values.metadata.length > metadata.limits.maxEntries) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['metadata'],
+          message: `A rule may have at most ${metadata.limits.maxEntries} metadata entries`,
+        });
+      }
+
       // One value per key: the rule's metadata is an object, so a repeat would silently win.
       const seen = new Set<string>();
       values.metadata.forEach((entry, index) => {
@@ -111,7 +117,7 @@ export function createNetworkRuleFormSchema(
         if (!key) return;
         if (seen.has(key)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['metadata', index, 'key'],
             message: 'Key already used',
           });
@@ -127,7 +133,7 @@ export function createNetworkRuleFormSchema(
         values.endDate <= values.startDate
       ) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['endDate'],
           message: 'End must be after start',
         });

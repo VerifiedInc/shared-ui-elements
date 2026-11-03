@@ -1,7 +1,7 @@
-import { z as zod } from 'zod';
+import { zod3String } from '../utils/zod';
 
 export const getUnixSchema = (message = 'Invalid Unix string timestamp') => {
-  return zod.string().refine((value: string) => {
+  return zod3String().refine((value: string) => {
     const regex = /^\d+$/; // Checks if the string contains only digits
     const isValidRegex = regex.test(value) && !isNaN(Number(value));
 

@@ -139,6 +139,31 @@ describe('metadata rows', () => {
     ).toContain('metadata');
   });
 
+  // zod 3 reported every one of these together; a failed array `.max()` must not hide the rest.
+  test('past the entry limit, still reports repeated keys and a bad date range', () => {
+    const result = withMetadata.safeParse({
+      ...valid,
+      startDate: '2026-11-01',
+      endDate: '2026-10-01',
+      metadata: [
+        row('a', 'string', 'v'),
+        row('b', 'string', 'v'),
+        row('a', 'string', 'v'),
+      ],
+    });
+
+    expect(
+      result.error?.issues.map(({ path, message }) => [
+        path.join('.'),
+        message,
+      ]),
+    ).toEqual([
+      ['metadata', 'A rule may have at most 2 metadata entries'],
+      ['metadata.2.key', 'Key already used'],
+      ['endDate', 'End must be after start'],
+    ]);
+  });
+
   test('rejects a repeated key on the repeat, ignoring case and spacing', () => {
     expect(paths([row('k', 'string', 'v'), row(' K ', 'string', 'v')])).toEqual(
       ['metadata.1.key'],
@@ -162,6 +187,22 @@ describe('metadata rows', () => {
         metadata: [row('s', 'string', 'v')],
       }),
     ).toEqual(['metadata.0.type']);
+  });
+
+  test('a type the catalog no longer offers says which ones it does', () => {
+    const stringsAndNumbers = createNetworkRuleFormSchema({
+      ...catalogMetadata,
+      types: ['string', 'number'],
+    });
+    const result = stringsAndNumbers.safeParse({
+      ...valid,
+      metadata: [row('b', 'boolean', 'true')],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual([
+      "Invalid enum value. Expected 'string' | 'number', received 'boolean'",
+    ]);
   });
 
   test('a number must survive as a JSON number; a boolean is true or false', () => {

@@ -1,3 +1,6 @@
-import { z } from 'zod';
+import { zod3String } from '../utils/zod';
 
-export const fieldSchema = z.string().min(1);
+export const fieldSchema = zod3String().min(
+  1,
+  'String must contain at least 1 character(s)',
+);
