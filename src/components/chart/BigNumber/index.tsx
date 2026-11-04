@@ -26,10 +26,17 @@ export function BigNumber(props: BigNumberProps): ReactElement {
   return (
     <Paper sx={{ p: 3, flex: 1, ...props.sx }}>
       <Stack spacing={1} alignItems='center'>
-        <Typography ref={counterRef} variant='h4' fontWeight='bold'>
+        <Typography
+          ref={counterRef}
+          variant='h4'
+          fontWeight='bold'
+          align='center'
+        >
           {props.initialValue}
         </Typography>
-        <Typography color='text.secondary'>{props.label}</Typography>
+        <Typography color='text.secondary' align='center'>
+          {props.label}
+        </Typography>
       </Stack>
     </Paper>
   );
