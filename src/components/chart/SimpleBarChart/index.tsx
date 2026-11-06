@@ -35,8 +35,9 @@ interface ReferenceLayer {
   isFront?: boolean;
 }
 
+// A front reference also stays above a hovered `bar.activeBar`, which Recharts 3 lifts above the bars.
 const referenceZIndex = (isFront?: boolean): number =>
-  isFront ? DefaultZIndexes.line : DefaultZIndexes.area;
+  isFront ? DefaultZIndexes.activeBar + 1 : DefaultZIndexes.area;
 
 interface SimpleBarChartProps {
   data: Array<Record<string, number | string>>;

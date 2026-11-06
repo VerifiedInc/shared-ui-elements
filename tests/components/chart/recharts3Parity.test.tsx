@@ -1,11 +1,20 @@
 import { afterEach, beforeAll, describe, expect, test } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import type { ReactElement } from 'react';
+
+import { DefaultZIndexes } from 'recharts';
 
 import { AreaChart } from '../../../src/components/chart/AreaChart';
 import { FunnelChart } from '../../../src/components/chart/FunnelChart';
 import { PieChart } from '../../../src/components/chart/PieChart';
+import { SimpleBarChart } from '../../../src/components/chart/SimpleBarChart';
 
 // Behaviors that Recharts 3 changed and the charts keep as they were on Recharts 2 (ENG-1025).
 
@@ -189,6 +198,45 @@ describe('FunnelChart', () => {
       x: 45,
       y: 10,
       width: WIDTH - 2 * (10 + 40) - 50,
+    });
+  });
+});
+
+describe('SimpleBarChart', () => {
+  // The layer each reference area was drawn into, from its `recharts-zIndex-layer_<n>` ancestor.
+  const layerOf = (container: HTMLElement, fill: string): number => {
+    const area = container.querySelector(
+      `.recharts-reference-area [fill="${fill}"]`,
+    );
+    const layer =
+      area
+        ?.closest('[class*="recharts-zIndex-layer_"]')
+        ?.getAttribute('class') ?? '';
+    return Number(/recharts-zIndex-layer_(-?\d+)/.exec(layer)?.[1]);
+  };
+
+  test('draws references behind the bars unless they set isFront, above even an active bar', async () => {
+    const { container } = renderInTheme(
+      <SimpleBarChart
+        data={[
+          { key: 'a', value: 10 },
+          { key: 'b', value: 20 },
+        ]}
+        series={[{ key: 'Value', dataKey: 'value', color: '#123456' }]}
+        xAxis={{ dataKey: 'key' }}
+        referenceAreas={[
+          { x1: 'a', x2: 'b', fill: '#aaaaaa' },
+          { x1: 'a', x2: 'b', fill: '#bbbbbb', isFront: true },
+        ]}
+        sx={{ width: WIDTH, height: HEIGHT }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(layerOf(container, '#aaaaaa')).toBeLessThan(DefaultZIndexes.bar);
+      expect(layerOf(container, '#bbbbbb')).toBeGreaterThan(
+        DefaultZIndexes.activeBar,
+      );
     });
   });
 });
