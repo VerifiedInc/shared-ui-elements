@@ -1,7 +1,7 @@
 import { type ReactElement, useCallback, useMemo } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import { type LegendProps } from 'recharts';
+import { type LegendPayload, type LegendProps } from 'recharts';
 import { Decimal } from 'decimal.js';
 import { AnimatePresence } from 'framer-motion';
 
@@ -134,6 +134,8 @@ function EntryBlock({
 
 interface SeriesChartLegendProps extends LegendProps {
   showUuid?: boolean;
+  /** Passed in by Recharts when this is a `Legend`'s content. */
+  payload?: readonly LegendPayload[];
 }
 
 export function SeriesChartLegend(props: SeriesChartLegendProps): ReactElement {

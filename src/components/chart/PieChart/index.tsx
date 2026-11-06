@@ -5,8 +5,12 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  DefaultZIndexes,
   Legend,
+  Sector,
+  ZIndexLayer,
   type PieProps,
+  type PieSectorShapeProps,
 } from 'recharts';
 
 import { chartDefaultProps } from '../shared';
@@ -77,7 +81,11 @@ interface PieChartProps {
   /**
    * Optional props object for the Pie component
    */
-  pie?: Partial<PieProps>;
+  pie?: Partial<Omit<PieProps, 'innerRadius' | 'outerRadius'>> & {
+    // The needle is placed from these, so they stay plain values (Recharts 3 also accepts functions).
+    innerRadius?: number | string;
+    outerRadius?: number | string;
+  };
   /**
    * Optional flag to show all shapes as active
    * @default false
@@ -174,6 +182,9 @@ export function PieChart({
     value: hiddenItems.has(item.name) ? 0 : item.value,
   }));
 
+  const isActive = (index: number): boolean =>
+    allActive ? filteredData[index]?.value > 0 : index === activeIndex;
+
   useEffect(() => {
     const box = boxRef.current;
     if (!box) return;
@@ -256,21 +267,20 @@ export function PieChart({
             dataKey='value'
             innerRadius={innerRadius}
             outerRadius={outerRadius}
-            activeIndex={
-              allActive
-                ? filteredData
-                    .filter((item) => item.value > 0)
-                    .map((item) => item.index)
-                : activeIndex
-            }
-            activeShape={(props: any) =>
-              renderActiveShape({
-                ...props,
-                valueText,
-                valuePercentage,
-                needleVisible,
-                allActive,
-              })
+            // Recharts 3 dropped `activeIndex` and ties its own active sector to the tooltip, which can't
+            // mark several sectors at once (`allActive`), so the active ones are drawn here.
+            shape={(props: PieSectorShapeProps, index: number) =>
+              isActive(index) ? (
+                renderActiveShape({
+                  ...props,
+                  valueText,
+                  valuePercentage,
+                  needleVisible,
+                  allActive,
+                })
+              ) : (
+                <Sector {...props} />
+              )
             }
             paddingAngle={0}
             onMouseEnter={onPieEnter}
@@ -287,6 +297,8 @@ export function PieChart({
             ))}
           </Pie>
           <Legend
+            // Recharts 3 sorts legend items by name by default; keep them in data order.
+            itemSorter={null}
             content={
               <SimpleLegend
                 legendLabel={legendLabel}
@@ -298,17 +310,21 @@ export function PieChart({
           {needleVisible &&
             needleValue !== undefined &&
             boxDimensions &&
-            legendDimensions &&
-            renderNeedle({
-              data: filteredData,
-              value: needleValue,
-              color: needleColor,
-              innerRadius,
-              outerRadius,
-              boxDimensions,
-              legendDimensions,
-              valueText,
-            })}
+            legendDimensions && (
+              // Recharts 3 layers the pie above custom elements; keep the needle on top of it.
+              <ZIndexLayer zIndex={DefaultZIndexes.area + 1}>
+                {renderNeedle({
+                  data: filteredData,
+                  value: needleValue,
+                  color: needleColor,
+                  innerRadius,
+                  outerRadius,
+                  boxDimensions,
+                  legendDimensions,
+                  valueText,
+                })}
+              </ZIndexLayer>
+            )}
         </RechartsPieChart>
       </ResponsiveContainer>
     </Box>

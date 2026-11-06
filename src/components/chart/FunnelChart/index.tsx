@@ -35,6 +35,30 @@ interface FunnelChartProps {
   isAnimationActive?: boolean;
 }
 
+interface Margin {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+/**
+ * Recharts 2 sized a funnel from its chart margin with a bug: it applied the margins twice, swapped top and
+ * left, and took 50px more off the width. Recharts 3 fills the margin box instead. This gives the Recharts 3
+ * margin that draws the funnel where Recharts 2 drew it for `margin`, so charts keep their size (ENG-1025).
+ */
+const toRecharts2FunnelMargin = ({
+  top,
+  right,
+  bottom,
+  left,
+}: Margin): Margin => ({
+  top: left,
+  right: 2 * left + 2 * right + 25 - top,
+  bottom: 2 * top + 2 * bottom - left,
+  left: top + 25,
+});
+
 export function FunnelChart({
   data,
   color,
@@ -59,7 +83,14 @@ export function FunnelChart({
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
         <RechartsFunnelChart
-          margin={{ top: 10, right: 90, left: 0, bottom: 10, ...margin }}
+          margin={toRecharts2FunnelMargin({
+            top: 10,
+            right: 90,
+            left: 0,
+            bottom: 10,
+            ...margin,
+          })}
+          accessibilityLayer={false}
         >
           <Funnel
             dataKey={dataKey}
