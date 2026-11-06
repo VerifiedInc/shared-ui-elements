@@ -6,6 +6,7 @@ import {
   ToggleButtonGroup,
   type SxProps,
 } from '@mui/material';
+import type { TooltipValueType } from 'recharts';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -336,12 +337,11 @@ export function ConversionOverTimeChart({
 
   const tooltipFormatter =
     mode === 'absolute'
-      ? (value: number | string | Array<number | string>) =>
-          Number(value).toLocaleString()
+      ? (value: TooltipValueType | undefined) => Number(value).toLocaleString()
       : stackMode === 'stack'
         ? (
-            value: number | string | Array<number | string>,
-            _name: string | number,
+            value: TooltipValueType | undefined,
+            _name: string | number | undefined,
             entry: any,
           ) => {
             const total = resolved.series.reduce(
@@ -352,7 +352,7 @@ export function ConversionOverTimeChart({
               ? '0.0%'
               : `${((Number(value) / total) * 100).toFixed(1)}%`;
           }
-        : (value: number | string | Array<number | string>) =>
+        : (value: TooltipValueType | undefined) =>
             `${(Number(value) * 100).toFixed(1)}%`;
 
   // Recharts orders tooltip rows by series declaration order. When requested,
@@ -511,8 +511,8 @@ export function ConversionOverTimeChart({
             tooltip={{
               formatter: tooltipFormatter,
               itemSorter: tooltipItemSorter,
-              labelFormatter: (value: number) =>
-                formatExtendedDate(value, {
+              labelFormatter: (value) =>
+                formatExtendedDate(Number(value), {
                   timeZone: timezone,
                   hour12: false,
                 }),

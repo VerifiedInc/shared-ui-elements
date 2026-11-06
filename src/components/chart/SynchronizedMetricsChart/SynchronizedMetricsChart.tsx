@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ChartCursor } from '../ChartCursor';
 import { formatDateMMYY } from '../../../utils/date';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
 import { EmptyChartSection } from '../EmptyChartSection';
@@ -171,7 +172,7 @@ function SubChart({
         <RechartsLineChart
           data={chartData}
           syncId={syncId}
-          margin={chartDefaultProps.margin}
+          {...chartDefaultProps}
         >
           <CartesianGrid vertical={false} />
           <XAxis
@@ -195,7 +196,7 @@ function SubChart({
             {...yAxisDefaultProps}
           />
           <Tooltip
-            cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
+            cursor={<ChartCursor color={theme.palette.neutral.main} />}
             // Lifts the box above sibling sections, which otherwise paint over
             // it - `.recharts-tooltip-wrapper` carries no stacking order.
             wrapperStyle={{ zIndex: theme.zIndex.tooltip }}

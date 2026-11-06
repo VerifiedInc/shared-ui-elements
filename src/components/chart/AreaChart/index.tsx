@@ -13,8 +13,10 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ChartCursor } from '../ChartCursor';
 import {
   chartDefaultProps,
+  keepDeclaredOrder,
   xAxisDefaultProps,
   yAxisDefaultProps,
 } from '../shared';
@@ -123,8 +125,9 @@ export function AreaChart({
           <XAxis {...xAxisDefaultProps} {...xAxis} />
           <YAxis {...yAxisDefaultProps} {...yAxis} />
           <Tooltip
-            cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
+            cursor={<ChartCursor color={theme.palette.neutral.main} />}
             {...tooltip}
+            itemSorter={tooltip?.itemSorter ?? keepDeclaredOrder}
           />
           {referenceLines?.map((line, index) => (
             <ReferenceLine key={line.label ?? index} {...(line as any)} />

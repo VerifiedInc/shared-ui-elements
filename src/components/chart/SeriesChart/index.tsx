@@ -2,6 +2,8 @@ import { type ReactElement } from 'react';
 import { Box, useTheme, type SxProps } from '@mui/material';
 import {
   CartesianGrid,
+  DefaultTooltipContent,
+  Dot,
   Label,
   Legend,
   LineChart,
@@ -10,8 +12,11 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  useActiveTooltipLabel,
+  type DotProps,
 } from 'recharts';
 
+import { ChartCursor } from '../ChartCursor';
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 
 import { SeriesChartLegend } from '../SeriesChartLegend';
@@ -30,6 +35,17 @@ export interface SeriesChartData {
   chartData: ChartDataPoint[];
   brandUuid?: string;
   brandName?: string;
+}
+
+/**
+ * The hover dot, only on a series that has a point at the hovered date. Recharts 3 otherwise marks
+ * each series' point at the same index, which can be another date (see the tooltip below).
+ */
+function ActiveDotAtHoveredDate(
+  props: DotProps & { payload?: ChartDataPoint },
+): ReactElement | null {
+  const hoveredDate = useActiveTooltipLabel();
+  return props.payload?.date === hoveredDate ? <Dot {...props} /> : null;
 }
 
 interface SeriesChartProps {
@@ -53,6 +69,7 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
         <LineChart
           width={500}
           height={300}
+          accessibilityLayer={false}
           margin={{
             top: 5,
             right: 60,
@@ -96,18 +113,31 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
             )}
           </YAxis>
           <Tooltip
-            cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
+            cursor={<ChartCursor color={theme.palette.neutral.main} />}
             formatter={(value) => Number(value).toLocaleString()}
             labelFormatter={(value) =>
-              formatExtendedDate(value, {
+              formatExtendedDate(Number(value), {
                 timeZone: timezone,
                 hour12: false,
               })
             }
             itemSorter={(item) => -Number(item?.value ?? 0)}
+            // Each series carries its own data. When a series has no point at the hovered date, Recharts 3
+            // falls back to its point at the same index (another date); list only the series that have one.
+            content={(tooltipProps) => (
+              <DefaultTooltipContent
+                {...tooltipProps}
+                payload={tooltipProps.payload?.filter(
+                  (entry) => entry.payload?.date === tooltipProps.label,
+                )}
+              />
+            )}
           />
           {props.showLegend !== false && (
-            <Legend content={<SeriesChartLegend showUuid={props.showUuid} />} />
+            <Legend
+              itemSorter={null}
+              content={<SeriesChartLegend showUuid={props.showUuid} />}
+            />
           )}
           {props.data.map((value) => {
             return (
@@ -124,6 +154,7 @@ export function SeriesChart(props: SeriesChartProps): ReactElement {
                 type='monotone'
                 stroke={value.color}
                 strokeWidth={2}
+                activeDot={<ActiveDotAtHoveredDate />}
                 isAnimationActive={false}
               />
             );
