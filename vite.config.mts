@@ -4,20 +4,14 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { configDefaults } from 'vitest/config';
 
-import pkg from './package.json';
+import pkg from './package.json' with { type: 'json' };
 
-const resolvePath = (path: string) => resolve(__dirname, path);
+const resolvePath = (path: string) => resolve(import.meta.dirname, path);
 
 export default defineConfig({
   plugins: [
     react({
       jsxRuntime: 'automatic',
-      babel: {
-        plugins: [
-          // This helps with fragments and key requirements
-          ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }],
-        ],
-      },
     }),
     dts({ include: ['src'] }),
   ],
@@ -81,6 +75,12 @@ export default defineConfig({
         },
       },
     },
+  },
+  resolve: {
+    // Vite 8 ranks `browser` / the `module` export condition above the
+    // granular ESM entries Vite 6 picked, which pulls in prebuilt,
+    // pre-minified dependency bundles. Keep the tree-shakeable entries.
+    mainFields: ['module', 'jsnext:main', 'jsnext'],
   },
   publicDir: false,
   esbuild: {
