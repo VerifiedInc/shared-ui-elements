@@ -79,8 +79,11 @@ export default defineConfig({
   resolve: {
     // Vite 8 ranks `browser` / the `module` export condition above the
     // granular ESM entries Vite 6 picked, which pulls in prebuilt,
-    // pre-minified dependency bundles. Keep the tree-shakeable entries.
-    mainFields: ['module', 'jsnext:main', 'jsnext'],
+    // pre-minified dependency bundles. Rank `module` first to keep the
+    // tree-shakeable entries, but keep `browser` last so packages with no
+    // `module` field (e.g. qrcode) still get their browser build instead
+    // of the Node one.
+    mainFields: ['module', 'jsnext:main', 'jsnext', 'browser'],
   },
   publicDir: false,
   esbuild: {
