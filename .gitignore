@@ -14,6 +14,7 @@ dist
 .history
 
 # tests
+.vitest/
 /test-results/
 /playwright-report/
 /playwright/.cache/
@@ -32,6 +33,7 @@ dist
 .sentryclirc
 
 *storybook.log
+storybook-static
 
 tsconfig.tsbuildinfo
 
