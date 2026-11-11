@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ChartCursor } from '../ChartCursor';
 import { formatDateMMYY, formatExtendedDate } from '../../../utils/date';
 import { SeriesPercentageChartLegend } from '../SeriesPercentageChartLegend';
 import { DEFAULT_TIMEZONE } from '../../form/TimezoneInput/timezones';
@@ -130,6 +131,7 @@ export function SeriesPercentageChart(
           data={formattedData}
           width={500}
           height={300}
+          accessibilityLayer={false}
           margin={{
             top: 5,
             right: 60,
@@ -160,9 +162,9 @@ export function SeriesPercentageChart(
             tickFormatter={(value) => `${value.toFixed(0)}%`}
           />
           <Tooltip
-            cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
+            cursor={<ChartCursor color={theme.palette.neutral.main} />}
             labelFormatter={(value) =>
-              formatExtendedDate(value, {
+              formatExtendedDate(Number(value), {
                 timeZone: timezone,
                 hour12: false,
               })
@@ -175,8 +177,8 @@ export function SeriesPercentageChart(
             }}
           />
           <Legend
+            itemSorter={null}
             content={(legendProps) => {
-              const { height, width, ...otherProps } = legendProps;
               const latestData = formattedData[formattedData.length - 1];
               const numericData: Record<string, number> = {};
 
@@ -198,10 +200,9 @@ export function SeriesPercentageChart(
 
               return (
                 <SeriesPercentageChartLegend
-                  {...otherProps}
                   payload={legendProps.payload?.map((entry) => ({
                     uuid: dataKeyToUuid.get(entry.dataKey as string) ?? '',
-                    value: entry.value,
+                    value: entry.value ?? '',
                     color: entry.color ?? theme.palette.primary.main,
                     dataKey: entry.dataKey as string,
                   }))}

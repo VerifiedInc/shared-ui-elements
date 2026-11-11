@@ -1,5 +1,6 @@
 import React from 'react';
 import type { SxProps } from '@mui/material';
+import type { TooltipValueType } from 'recharts';
 
 import { EmptyChartSection } from '../EmptyChartSection';
 import { LoadingChartSection } from '../LoadingChartSection';
@@ -80,10 +81,10 @@ export function OneClickVerificationEventsOverTimeChart({
           : undefined,
       }}
       tooltip={{
-        formatter: (value: number | string | Array<number | string>) =>
+        formatter: (value: TooltipValueType | undefined) =>
           Number(value).toLocaleString(),
-        labelFormatter: (value: number) =>
-          formatExtendedDate(value, {
+        labelFormatter: (value) =>
+          formatExtendedDate(Number(value), {
             timeZone: timezone,
             hour12: false,
           }),

@@ -4,6 +4,7 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
+  DefaultZIndexes,
   ReferenceArea,
   ReferenceLine,
   ResponsiveContainer,
@@ -12,8 +13,10 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ChartCursor } from '../ChartCursor';
 import {
   chartDefaultProps,
+  keepDeclaredOrder,
   xAxisDefaultProps,
   yAxisDefaultProps,
 } from '../shared';
@@ -24,6 +27,18 @@ interface Series {
   color?: string;
 }
 
+/**
+ * Recharts 2 stacked chart elements in render order; Recharts 3 stacks them by z-index. This keeps the
+ * old contract: a reference is drawn behind the bars unless it sets `isFront`.
+ */
+interface ReferenceLayer {
+  isFront?: boolean;
+}
+
+// A front reference also stays above a hovered `bar.activeBar`, which Recharts 3 lifts above the bars.
+const referenceZIndex = (isFront?: boolean): number =>
+  isFront ? DefaultZIndexes.activeBar + 1 : DefaultZIndexes.area;
+
 interface SimpleBarChartProps {
   data: Array<Record<string, number | string>>;
   series: Series[];
@@ -31,8 +46,8 @@ interface SimpleBarChartProps {
   yAxis?: ComponentProps<typeof YAxis>;
   tooltip?: ComponentProps<typeof Tooltip>;
   bar?: ComponentProps<typeof Bar>;
-  referenceLines?: Array<ComponentProps<typeof ReferenceLine>>;
-  referenceAreas?: Array<ComponentProps<typeof ReferenceArea>>;
+  referenceLines?: Array<ComponentProps<typeof ReferenceLine> & ReferenceLayer>;
+  referenceAreas?: Array<ComponentProps<typeof ReferenceArea> & ReferenceLayer>;
   sx?: SxProps;
 }
 
@@ -49,9 +64,6 @@ export function SimpleBarChart({
 }: SimpleBarChartProps): ReactElement {
   const theme = useTheme();
 
-  const filterOnlyBack = (reference: any): boolean => !reference.isFront;
-  const filterOnlyFront = (reference: any): boolean => !!reference.isFront;
-
   return (
     <Box sx={{ width: '100%', height: '100%', ...sx }}>
       <ResponsiveContainer>
@@ -60,14 +72,23 @@ export function SimpleBarChart({
           <XAxis {...xAxisDefaultProps} {...xAxis} />
           <YAxis {...yAxisDefaultProps} {...yAxis} />
           <Tooltip
-            cursor={{ stroke: theme.palette.neutral.main, strokeWidth: 1 }}
+            cursor={<ChartCursor color={theme.palette.neutral.main} />}
             {...tooltip}
+            itemSorter={tooltip?.itemSorter ?? keepDeclaredOrder}
           />
-          {referenceLines?.filter(filterOnlyBack).map((line, index) => (
-            <ReferenceLine key={line.label ?? index} {...(line as any)} />
+          {referenceLines?.map(({ isFront, ...line }, index) => (
+            <ReferenceLine
+              key={line.label ?? index}
+              zIndex={referenceZIndex(isFront)}
+              {...(line as any)}
+            />
           ))}
-          {referenceAreas?.filter(filterOnlyBack).map((area, index) => (
-            <ReferenceArea key={area.label ?? index} {...(area as any)} />
+          {referenceAreas?.map(({ isFront, ...area }, index) => (
+            <ReferenceArea
+              key={area.label ?? index}
+              zIndex={referenceZIndex(isFront)}
+              {...(area as any)}
+            />
           ))}
           {series.map((serie) => (
             <Bar
@@ -79,12 +100,6 @@ export function SimpleBarChart({
               isAnimationActive={false}
               {...(bar as any)}
             />
-          ))}
-          {referenceLines?.filter(filterOnlyFront).map((line, index) => (
-            <ReferenceLine key={line.label ?? index} {...(line as any)} />
-          ))}
-          {referenceAreas?.filter(filterOnlyFront).map((area, index) => (
-            <ReferenceArea key={area.label ?? index} {...(area as any)} />
           ))}
         </ComposedChart>
       </ResponsiveContainer>

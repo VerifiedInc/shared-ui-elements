@@ -110,8 +110,9 @@ export function ErrorCodesChart({
         domain: [0, `dataMax + ${threshold > 0 ? threshold + 5 : 0}`],
       }}
       tooltip={{
+        // The label is the bar's error code.
         labelFormatter: (value) =>
-          `${ERROR_CODES_MESSAGES[value] ? `${ERROR_CODES_MESSAGES[value]}` : ''}`,
+          typeof value === 'string' ? (ERROR_CODES_MESSAGES[value] ?? '') : '',
       }}
     />
   );
