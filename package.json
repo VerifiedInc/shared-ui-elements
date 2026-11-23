@@ -154,7 +154,7 @@
     "zod": "^4.6.6"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.68.2"
+    "@rollup/rollup-linux-x64-gnu": "4.68.7"
   },
   "overrides": {
     "minimatch": "^9.0.7",
